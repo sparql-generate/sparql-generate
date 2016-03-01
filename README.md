@@ -1,26 +1,26 @@
-# SPARGL-Jena
+# SPARQL-Generate-Jena
 
-SPARGL implementation over Apache Jena.
+SPARQL-Generate implementation over Apache Jena.
 
 # Get Started
 
-To use SPARGL-Jena in your project, the most simple is to add the following maven dependency in your Java maven project file ( `*.pom` file):
+To use SPARQL-Generate-Jena in your project, the most simple is to add the following maven dependency in your Java maven project file ( `*.pom` file):
  
 ```xml
 <dependency>
-    <groupId>org.w3id.spargl</groupId>
-    <artifactId>spargl-jena</artifactId>
+    <groupId>org.w3id.sparql.template</groupId>
+    <artifactId>sparql-generate-jena</artifactId>
     <version>{latest version}</version>
 </dependency>
 ```
 
-Then a little call to `SPARGL.init()`, and you can go:
+Then a little call to `SPARQL-Generate.init()`, and you can go:
  
 ```java
-SPARGL.init();
+SPARQL-Generate.init();
 
-// this line tells the engine that this SPARGL files at this URL may be found locally in the resource folder.
-SPARGL.MAP_LOCAL.put("http://example.org/query", "/query.spargl"); 
+// this line tells the engine that this SPARQL-Generate files at this URL may be found locally in the resource folder.
+SPARQL-Generate.MAP_LOCAL.put("http://example.org/query", "/query.rqg"); 
 
 String jsonDatatypeIri = "urn:iana:mime:application:json";
 String json = "{ 
@@ -28,7 +28,9 @@ String json = "{
  values: [1 2 3]
 }";
 
-String spargl = "PREFIX dc: <http://purl.org/dc/terms/> \n" +
+String request = "PREFIX dc: <http://purl.org/dc/terms/> \n" +
+"PREFIX rqg-sel: <http://w3id.org/sparql-generate/sel/> \n" +
+"PREFIX rqg-fn: <http://w3id.org/sparql-generate/fn/> \n" +
 "PREFIX base <http://example.org/> \n" +
 "GENERATE { \n" +
 " <> dc:title ?name ; \n" +
@@ -36,12 +38,12 @@ String spargl = "PREFIX dc: <http://purl.org/dc/terms/> \n" +
 " } \n" +
 "}" +
 "WHERE { \n" +
-" BIND( STRLANG( spargl-fn:JSONPath_jayway_string( ?json, '$.name' ) , 'en' ) AS ?name ) \n" +
-" BIND( xsd:decimal( spargl-fn:JSONPath_jayway_string( ?value, '$' ) ) AS ?decvalue ) \n" +
+" BIND( STRLANG( rqg-fn:JSONPath_jayway_string( ?json, '$.name' ) , 'en' ) AS ?name ) \n" +
+" BIND( xsd:decimal( rqg-fn:JSONPath_jayway_string( ?value, '$' ) ) AS ?decvalue ) \n" +
 "} \n" +
-"SELECTOR spargl-sel:JSONPath_jayway( ?json, '$.values[*]' ) AS ?value";
+"SELECTOR rqg-sel:JSONPath_jayway( ?json, '$.values[*]' ) AS ?value";
 
-SPARGLQuery q = SPARGLQueryFactory.create(spargl);
+SPARQL-GenerateQuery q = SPARQL-GenerateQueryFactory.create(request);
 q.serialize(System.out);
 
 GenerationPlan plan = GenerationPlanFactory.create(q);
@@ -59,13 +61,23 @@ This code generates a Jena model that contains the RDF graph:
 <> dc:title "simple doc"@en ;
    <values> ( 1.0 2.0 3.0 ) .
 ```
+## Available in version 0.1:
 
-# What is SPARGL ?
+Don't try the example above in preliminary version 0.1.
 
-SPARGL stands for SPARGL Protocol and RDF Generation Language. The aim of SPARGL `GENERATE` queries is to offer a simple template-based option to interpret any document as proper RDF, with a well defined semantics grounded on the SPARQL 1.1. 
+Preliminary version 0.1 implements:
+- keywords `GENERATE` and `SELECTOR`.
+- there may be only one `SELECTOR` clause, used as follows: `SELECTOR <selector>(args)` (there is no `AS`).
+- selector for JSON: <http://w3id.org/sparql-generate/sel/JSONPath_jayway>
+- SPARQL function for JSON: <http://w3id.org/sparql-generate/sel/JSONPath_jayway_string>
 
-SPARGL is already in use for the following use cases:
-- Give ways to interpret JSON or even CBOR documents as RDF (ongoing work in the ITEA 2 SEAS project: serve the consumption data of the GECAD microgrid as CBOR, and point to the SPARGL `GENERATE` query that enables to interpret it as RDF. More generally, any kind of document, XML, JSON, CBOR, can be interpreted as RDF using the proper SPARGL `GENERATE` query with proper *selectors*)
+
+# What is SPARQL-Generate ?
+
+SPARQL-Generate stands for SPARQL-Generate Protocol and RDF Generation Language. The aim of SPARQL-Generate `GENERATE` queries is to offer a simple template-based option to interpret any document as proper RDF, with a well defined semantics grounded on the SPARQL 1.1. 
+
+SPARQL-Generate is already in use for the following use cases:
+- Give ways to interpret JSON or even CBOR documents as RDF (ongoing work in the ITEA 2 SEAS project: serve the consumption data of the GECAD microgrid as CBOR, and point to the SPARQL-Generate `GENERATE` query that enables to interpret it as RDF. More generally, any kind of document, XML, JSON, CBOR, can be interpreted as RDF using the proper SPARQL-Generate `GENERATE` query with proper *selectors*)
 
 - Generate a whole part of a vocabulary from a configuration file, and ensure that specific naming conventions are respected for resource URIs, labels and comments (ongoing work in the ITEA 2 SEAS project: the ontology of Faceted Spaces, that is used to describe multi-dimensional quantities, is parametrized and generated from a JSON configuration file);
 - generate RDF from several open data sources (ongoing work in the OpenSensingCity French ANR project)
@@ -73,27 +85,27 @@ SPARGL is already in use for the following use cases:
 
 ## A RDF Generation Language
 
-The RDF Generation Language part of SPARGL extends the SPARQL 1.1 Query language, and offers a simple template-based RDF Graph generation from RDF literals. 
+The RDF Generation Language part of SPARQL-Generate extends the SPARQL 1.1 Query language, and offers a simple template-based RDF Graph generation from RDF literals. 
 
-Other languages enable to describe mapping from documents to RDF. By design, SPARGL extends SPARQL and hence offers an alternative that presents the following advantages:
-- anyone familiar with SPARQL can easily learn SPARGL;
+Other languages enable to describe mapping from documents to RDF. By design, SPARQL-Generate extends SPARQL and hence offers an alternative that presents the following advantages:
+- anyone familiar with SPARQL can easily learn SPARQL-Generate;
 - naive implementation over existing SPARQL engines is simple;
-- SPARGL leverages the expressivity of SPARQL 1.1: Aggregates, Solution Sequences and Modifiers, SPARQL functions and their extension mechanism.
+- SPARQL-Generate leverages the expressivity of SPARQL 1.1: Aggregates, Solution Sequences and Modifiers, SPARQL functions and their extension mechanism.
 
 ## A Protocol
 
-The protocol part of SPARGL enables a web client or a web server to point to the URL of a SPARGL document that may be used to interpret the request (or the response) payload as RDF.
+The protocol part of SPARQL-Generate enables a web client or a web server to point to the URL of a SPARQL-Generate document that may be used to interpret the request (or the response) payload as RDF.
 
-For HTTP requests, SPARGL defines Header Field `X-SPARGL-Companion`, that is an URL where one should be able to retrieve a SPARGL document
+For HTTP requests, SPARQL-Generate defines Header Field `X-SPARQL-Generate-Companion`, that is an URL where one should be able to retrieve a SPARQL-Generate document
 
-For HTTP responses, the server may use the web-link relation type defined by SPARGL, [http://w3id.org/spargl/companion](http://w3id.org/spargl/companion), with the document as anchor, and the URL where one should be able to retrieve a SPARGL document as source.
+For HTTP responses, the server may use the web-link relation type defined by SPARQL-Generate, [http://w3id.org/sparql-generate/companion](http://w3id.org/sparql-generate/companion), with the document as anchor, and the URL where one should be able to retrieve a SPARQL-Generate document as source.
 
-The Internet Media type of a SPARGL query is `application/spargl`, with file extension `*.spargl`.
+The Internet Media type of a SPARQL-Generate query is `application/sparql-generate`, with file extension `*.rqg`.
 
 
-## Description of the SPARGL Language
+## Description of the SPARQL-Generate Language
 
-SPARGL `GENERATE` extends the SPARQL 1.1 recommendation with the following capabilities:
+SPARQL-Generate `GENERATE` extends the SPARQL 1.1 recommendation with the following capabilities:
 - `SELECTOR` and `SOURCE` clauses, at the end of the query just before SPARQL 1.1 `VALUES` clause;
 - use `GENERATE` template in place of `CONSTRUCT` template in a triple pattern. The `GENERATE` template adds new capabilities to the `CONSTRUCT` template:
     - `LIST( ?x )` is used in place of a RDF Term or variable. It generates a blank node common to all solutions of the query, and that blank node is also a RDF list that contains the RDF Terms bound to variable `?x` accross all of the solutions.
@@ -108,7 +120,7 @@ SPARGL `GENERATE` extends the SPARQL 1.1 recommendation with the following capab
 
 The `SELECTOR` clause is used as follows: `SELECTOR <selector>(args) AS ?var`. 
 
-`<selector>` is the IRI of a SPARGL *Selector*. A SPARGL *Selector* is similar to a SPARQL 1.1 Function, except it *returns a list of RDF Terms*.
+`<selector>` is the IRI of a SPARQL-Generate *Selector*. A SPARQL-Generate *Selector* is similar to a SPARQL 1.1 Function, except it *returns a list of RDF Terms*.
 
 Then for every RDF Term in the list, the rest of the query is executed with `?var` bound to the RDF Term ;
 
@@ -141,7 +153,7 @@ It has the same syntax as a GENERATE query, except it MUST end with character `.
 
 ##### URI instead of the Generate pattern.
 
-Instead of `GENERATE {...}`, one may use `GENERATE <iri>`. In such cases, the engine must operate a GET at the given IRI, (only http scheme is considered for now) with Accept Header Field set to "application/spargl". If it retrieves a SPARGL query, then this query is executed with the current binding solution.
+Instead of `GENERATE {...}`, one may use `GENERATE <iri>`. In such cases, the engine must operate a GET at the given IRI, (only http scheme is considered for now) with Accept Header Field set to "application/sparql-generate". If it retrieves a SPARQL-Generate query, then this query is executed with the current binding solution.
 
 ##### `USE BINDINGS` clause
 

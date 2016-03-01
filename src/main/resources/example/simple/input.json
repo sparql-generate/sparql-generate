@@ -1,0 +1,11 @@
+[
+	{ "firstname" : "Maxime" ,
+	  "lastname" : "Lefrancois" ,
+	  "birthday" : "04-26" ,
+	  "interests" : [ "RDF" ,"SPARQL" , "Climbing" ] 
+	},
+	{ "firstname" : "Antoine" ,
+	  "lastname" : "Zimmermann" ,
+	  "interests" : [ "W3C" , "RDF" , "April Fools Day" ] 
+	}
+]

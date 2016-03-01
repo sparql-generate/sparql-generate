@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.w3id.spargl</groupId>
-    <artifactId>spargl-jena</artifactId>
+    <groupId>org.w3id.sparql.generate</groupId>
+    <artifactId>sparql-generate-jena</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
     
-    <name>SPARGL over Apache Jena</name>
-    <description>An implementation of SPARGL over Apache Jena</description>
-    <url>http://w3id.org/spargl/spargl-jena/</url>
+    <name>SPARQL Generate over Apache Jena</name>
+    <description>An implementation of SPARQL-Generate over Apache Jena</description>
+    <url>http://w3id.org/sparql-generate/jena/</url>
     <inceptionYear>2016</inceptionYear>
 
     <developers>
@@ -22,7 +22,7 @@
     </developers>
 
     <organization>
-        <name>ITEA 14002 SEAS Project</name>
+        <name>ITEA 12004 SEAS Project</name>
         <url>https://itea3.org/project/seas.html</url>
     </organization>
 
@@ -36,8 +36,8 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jdk.version>1.7</jdk.version>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.source>1.7</maven.compiler.source>
+        <maven.compiler.target>1.7</maven.compiler.target>
         <maven.build.timestamp.format>yyyy-MM-dd'T'HH:mm:ssZ</maven.build.timestamp.format>
     </properties>
     
@@ -69,6 +69,17 @@
             <artifactId>jena-arq</artifactId>
             <version>3.0.1</version>
         </dependency>
+        <dependency>
+            <groupId>com.jayway.jsonpath</groupId>
+            <artifactId>json-path</artifactId>
+            <version>2.1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.2.2</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -94,7 +105,7 @@
                         <doctitle>${project.name} ${project.version}</doctitle>
                         <bottom>Licensed under the Apache License, Version 2.0</bottom>
                         <links>
-                            <link>http://w3id.org/spargl/spargl-jena/javadoc/</link>
+                            <link>http://w3id.org/sparql-generate/jena/javadoc/</link>
                         </links>
                     </configuration>
                 </plugin>
@@ -124,6 +135,10 @@
                         into generated documentation anyway so no need to put license statements in these
                         files
                         -->
+                        <exclude>**/*.xml</exclude>
+                        <exclude>**/src/main/resources/**/*.json</exclude>
+                        <exclude>**/src/main/resources/**/*.ttl</exclude>
+                        <exclude>**/src/main/resources/**/*.rqg</exclude>
                         <exclude>**/src/main/**/*.html</exclude>
                         <exclude>**/src/**/package-info.java</exclude>
                         <!--
@@ -145,6 +160,25 @@
                     </excludes>
                 </configuration>
             </plugin>
+      <plugin>
+        <groupId>com.helger.maven</groupId>
+        <artifactId>ph-javacc-maven-plugin</artifactId>
+        <version>2.8.0</version>
+        <executions>
+          <execution>
+            <id>javacc</id>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>javacc</goal>
+            </goals>
+            <configuration>
+              <jdkVersion>1.7</jdkVersion>
+              <javadocFriendlyComments>true</javadocFriendlyComments>
+              <packageName>org.w3id.sparql.generate.lang</packageName>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
         </plugins>
 
     </build>

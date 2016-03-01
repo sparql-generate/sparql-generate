@@ -1,0 +1,7 @@
+@prefix lm: <http://jena.hpl.hp.com/2004/08/location-mapping#> .
+
+[] lm:mapping
+   [ lm:name "file:query.rqg" ;     lm:altName "http://example.org/query" ] ,
+   [ lm:name "file:expected_output.ttl" ; lm:altName "http://example.org/expected_output" ]
+   .
+
