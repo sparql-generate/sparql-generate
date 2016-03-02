@@ -11,6 +11,24 @@
     <url>http://w3id.org/sparql-generate/jena/</url>
     <inceptionYear>2016</inceptionYear>
 
+    <issueManagement>
+        <url>https://github.com/thesmartenergy/sparql-generate-jena/issues</url>
+        <system>GitHub Issues</system>
+    </issueManagement>
+        
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+
+    <scm>
+        <url>https://github.com/thesmartenergy/sparql-generate-jena</url>
+        <connection>scm:git:git://github.com/thesmartenergy/sparql-generate-jena.git</connection>
+        <developerConnection>scm:git:git@github.com:thesmartenergy/sparql-generate-jena.git</developerConnection>
+    </scm>
+    
     <developers>
         <developer>
             <name>Maxime Lefrançois</name>
@@ -25,13 +43,6 @@
         <name>ITEA 12004 SEAS Project</name>
         <url>https://itea3.org/project/seas.html</url>
     </organization>
-
-    <licenses>
-        <license>
-            <name>The Apache Software License, Version 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-        </license>
-    </licenses>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -172,25 +183,31 @@
                     </excludes>
                 </configuration>
             </plugin>
-      <plugin>
-        <groupId>com.helger.maven</groupId>
-        <artifactId>ph-javacc-maven-plugin</artifactId>
-        <version>2.8.0</version>
-        <executions>
-          <execution>
-            <id>javacc</id>
-            <phase>generate-sources</phase>
-            <goals>
-              <goal>javacc</goal>
-            </goals>
-            <configuration>
-              <jdkVersion>1.7</jdkVersion>
-              <javadocFriendlyComments>true</javadocFriendlyComments>
-              <packageName>org.w3id.sparql.generate.lang</packageName>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
+            <plugin>
+                <groupId>com.helger.maven</groupId>
+                <artifactId>ph-javacc-maven-plugin</artifactId>
+                <version>2.8.0</version>
+                <executions>
+                    <execution>
+                        <id>javacc</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>javacc</goal>
+                        </goals>
+                        <configuration>
+                            <jdkVersion>1.7</jdkVersion>
+                            <javadocFriendlyComments>true</javadocFriendlyComments>
+                            <packageName>org.w3id.sparql.generate.lang</packageName>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>2.5.3</version>
+            </plugin>
+            
         </plugins>
 
     </build>
