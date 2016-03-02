@@ -21,4 +21,11 @@
                 <goal>release:prepare</goal>
             </goals>
         </action>
+        <action>
+            <actionName>CUSTOM-release:clean</actionName>
+            <displayName>release:clean</displayName>
+            <goals>
+                <goal>release:clean</goal>
+            </goals>
+        </action>
     </actions>
