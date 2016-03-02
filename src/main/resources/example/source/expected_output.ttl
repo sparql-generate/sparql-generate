@@ -1,4 +1,6 @@
-[
+@base <http://examlple.org/> .
+
+[] <source> """[
 	{ "firstname" : "Maxime" ,
 	  "lastname" : "Lefrancois" ,
 	  "birthday" : "04-26" ,
@@ -10,4 +12,4 @@
           "country" : "GB" ,
 	  "interests" : [ "W3C" , "RDF" , "April Fools Day" ] 
 	}
-]
+]"""^^<urn:iana:mime:application/json> .

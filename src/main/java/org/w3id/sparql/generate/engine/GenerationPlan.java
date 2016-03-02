@@ -15,18 +15,29 @@
  */
 package org.w3id.sparql.generate.engine;
 
-import org.apache.jena.query.QuerySolution;
+import org.apache.jena.query.Dataset;
 import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.RDFNode;
 
 /**
  *
  * @author maxime.lefrancois
  */
 public interface GenerationPlan {
-    public Model exec(String message, String messageDatatypeIRI);
-    public Model exec(RDFNode message);
-    public void exec(Model model, String message, String messageDatatypeIRI);
-    public void exec(Model model, RDFNode message);
-    public void exec(Model model, QuerySolution binding);
+
+    public Model exec();
+
+    public Model exec(Model inputModel);
+
+    public Model exec(Dataset inputDataset);
+
+    public void exec(GenerationQuerySolution initialBindings, Model initialModel);
+
+    public void exec(Model inputModel, Model initialModel);
+
+    public void exec(Model inputModel, GenerationQuerySolution initialBindings, Model initialModel);
+
+    public void exec(Dataset inputDataset, Model initialModel);
+
+    public void exec(Dataset inputDataset, GenerationQuerySolution initialBindings, Model initialModel);
+
 }

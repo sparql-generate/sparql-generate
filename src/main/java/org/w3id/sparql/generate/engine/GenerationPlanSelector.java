@@ -17,13 +17,16 @@ package org.w3id.sparql.generate.engine;
 
 
 import java.util.List;
+import org.apache.jena.query.Dataset;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.rdf.model.Model;
+import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.engine.binding.Binding;
 import org.apache.jena.sparql.engine.binding.BindingUtils;
 import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.ExprList;
 import org.apache.jena.sparql.expr.NodeValue;
+import org.apache.log4j.Logger;
 import org.w3id.sparql.generate.selector.Selector;
 
 /**
@@ -34,28 +37,30 @@ public class GenerationPlanSelector extends GenerationPlanBase {
     
     private final Selector selector;
     private final ExprList exprList;
+    private final Var var;
     
-    GenerationPlanSelector(Selector selector, ExprList exprList) {
+    GenerationPlanSelector(Selector selector, ExprList exprList, Var var) {
         this.selector = selector;
         this.exprList = exprList;
+        this.var = var;
     }
     
     @Override
-    public void exec(Model model, QuerySolution binding) {
-        System.out.println("Selector - " + binding);
-        Binding b = BindingUtils.asBinding(binding);
+    public void $exec(Dataset inputDataset, GenerationQuerySolution initialBindings, Model initialModel) {
+        Logger.getLogger(GenerationPlanSelector.class.getName()).info("Generation Selector " + selector.toString());
+        Binding b = BindingUtils.asBinding(initialBindings);
         try{
             List<NodeValue> messages = selector.exec(b, exprList, null);
             for(NodeValue message : messages) {
-                GenerationQuerySolution subBinding = new GenerationQuerySolution(binding);
-                subBinding.put("msg", model.asRDFNode(message.asNode()));
+                GenerationQuerySolution subBinding = new GenerationQuerySolution(initialBindings);
+                subBinding.put(var.getVarName(), initialModel.asRDFNode(message.asNode()));
                 for(GenerationPlan plan : subPlans) {
-                    plan.exec(model, subBinding);
+                    plan.exec(inputDataset, subBinding, initialModel);
                 }
             }
         } catch (ExprEvalException e) {
             for(GenerationPlan plan : subPlans) {
-                plan.exec(model, binding);
+                plan.exec(inputDataset, initialBindings, initialModel);
             }
         }
     }

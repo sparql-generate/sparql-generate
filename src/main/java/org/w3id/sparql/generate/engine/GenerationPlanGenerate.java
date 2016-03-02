@@ -18,8 +18,9 @@ package org.w3id.sparql.generate.engine;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.jena.graph.Node;
-import org.apache.jena.query.QuerySolution;
+import org.apache.jena.query.Dataset;
 import org.apache.jena.rdf.model.Model;
+import org.apache.log4j.Logger;
 
 /**
  *
@@ -28,18 +29,17 @@ import org.apache.jena.rdf.model.Model;
 public class GenerationPlanGenerate extends GenerationPlanBase {
 
     @Override
-    public void exec(Model model, QuerySolution initialBinding) {
-        System.out.println("Generate - " + initialBinding);
+    public void $exec(Dataset inputDataset, GenerationQuerySolution initialBindings, Model initialModel) {
+        Logger.getLogger(GenerationPlanGenerate.class.getName()).info("Start Generate");
         Map<Node, Node> bNodeMap = new HashMap<>();
-        for(GenerationPlan subPlan : subPlans) {
-            if(subPlan instanceof GenerationPlanTriples) {
+        for (GenerationPlan subPlan : subPlans) {
+            if (subPlan instanceof GenerationPlanTriples) {
                 GenerationPlanTriples subPlanTriples = (GenerationPlanTriples) subPlan;
-                subPlanTriples.exec(model, initialBinding, bNodeMap);
+                subPlanTriples.exec(inputDataset, initialBindings, initialModel, bNodeMap);
             } else {
-                subPlan.exec(model, initialBinding);
+                subPlan.exec(inputDataset, initialBindings, initialModel);
             }
         }
     }
 
-    
 }

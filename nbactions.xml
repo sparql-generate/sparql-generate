@@ -7,4 +7,11 @@
                 <goal>javacc:javacc</goal>
             </goals>
         </action>
+        <action>
+            <actionName>CUSTOM-compile</actionName>
+            <displayName>compile</displayName>
+            <goals>
+                <goal>compile</goal>
+            </goals>
+        </action>
     </actions>

@@ -15,12 +15,15 @@
  */
 package org.w3id.sparql.generate.engine;
 
+import static org.apache.jena.enhanced.BuiltinPersonalities.model;
+import org.apache.jena.query.Dataset;
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.QueryExecutionFactory;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.ResultSet;
 import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.shared.PrefixMapping;
+import org.apache.log4j.Logger;
 import org.w3id.sparql.generate.query.SPARQLGenerateQuery;
 
 
@@ -41,15 +44,22 @@ public class GenerationPlanSelect extends GenerationPlanBase {
     }
 
     @Override
-    public void exec(Model model, QuerySolution binding) {
-//        System.out.println("Select - " + binding);
-        model.setNsPrefixes(select.getPrologue().getPrefixMapping());
-        QueryExecution exec = QueryExecutionFactory.create(select, ModelFactory.createDefaultModel(), binding);
+    public void $exec(Dataset inputDataset, GenerationQuerySolution initialBindings, Model initialModel) {
+        Logger.getLogger(GenerationPlanSelect.class.getName()).info("Generation Select");
+        
+        PrefixMapping pm = select.getPrologue().getPrefixMapping();
+        
+        for(String prefix : pm.getNsPrefixMap().keySet()) {
+            initialModel.setNsPrefix(prefix, pm.getNsPrefixURI(prefix));            
+        }
+        
+        QueryExecution exec = QueryExecutionFactory.create(select, inputDataset, initialBindings);
         ResultSet results = exec.execSelect();
         while(results.hasNext()) {
-            QuerySolution b = results.next();
+            // should one instantiate a new Generation QuerySolution here, or in the sub-loop ?
+            GenerationQuerySolution b = new GenerationQuerySolution(results.next());
             for(GenerationPlan plan : subPlans) {
-                plan.exec(model, b);
+                plan.exec(inputDataset, b, initialModel);
             }
         }
     }

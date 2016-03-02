@@ -15,12 +15,14 @@
  */
 package org.w3id.sparql.generate.query;
 
+import java.util.Deque;
+import java.util.List;
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryVisitor;
 import org.apache.jena.sparql.core.Prologue;
-import org.apache.jena.sparql.expr.Expr;
 import org.apache.jena.sparql.syntax.ElementGroup;
 import org.w3id.sparql.generate.SPARQLGenerate;
+import org.w3id.sparql.generate.syntax.ElementSelectorOrSource;
 
 /**
  *
@@ -36,7 +38,7 @@ public class SPARQLGenerateQuery extends Query {
      * Creates a new empty query
      */
     public SPARQLGenerateQuery() {
-        setSyntax(SPARQLGenerateSyntax.syntaxSPARQLGenerate);
+        setSyntax(SPARQLGenerate.syntaxSPARQLGenerate);
     }
 
     /**
@@ -62,7 +64,7 @@ public class SPARQLGenerateQuery extends Query {
     // ---- GENERATE
     private String source = null;
     private ElementGroup generateTemplate = null;
-    private Expr selector = null;
+    private Deque<ElementSelectorOrSource> selectorsAndSources = null;
 
     public boolean hasSource() {
         return source != null;
@@ -94,16 +96,16 @@ public class SPARQLGenerateQuery extends Query {
         return generateTemplate;
     }
 
-    public boolean hasSelector() {
-        return selector != null;
+    public boolean hasSelectorsAndSources() {
+        return selectorsAndSources != null && !selectorsAndSources.isEmpty();
     }
 
-    public Expr getSelector() {
-        return selector;
+    public void setSelectorsAndSources(Deque<ElementSelectorOrSource> deque) {
+        this.selectorsAndSources = deque;
     }
-
-    public void setSelector(Expr selector) {
-        this.selector = selector;
+    
+    public Deque<ElementSelectorOrSource> getSelectorsAndSources() {
+        return this.selectorsAndSources;
     }
     
     public void visit(QueryVisitor visitor) {
@@ -138,8 +140,9 @@ public class SPARQLGenerateQuery extends Query {
         visitor.visitOffset(this) ;
         visitor.visitLimit(this) ;
         visitor.visitValues(this) ;
-        visitor.visitSelector(this) ;
+        visitor.visitSelectorsAndSources(this);
         visitor.finishVisit(this) ;
     }
+
     
 }

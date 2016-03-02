@@ -22,7 +22,7 @@ package org.w3id.sparql.generate.query;
 public interface SPARQLGenerateQueryVisitor extends org.apache.jena.query.QueryVisitor {
 
     public void visitGenerateResultForm(SPARQLGenerateQuery query) ;
-    
-    public void visitSelector(SPARQLGenerateQuery query) ;
+
+    public void visitSelectorsAndSources(SPARQLGenerateQuery aThis);
     
 }

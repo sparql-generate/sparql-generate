@@ -16,14 +16,19 @@
 package org.w3id.sparql.generate.serializer;
 
 import org.apache.jena.atlas.io.IndentedWriter;
+import org.apache.jena.sparql.serializer.FmtExprSPARQL;
 import org.apache.jena.sparql.serializer.FormatterElement;
 import org.apache.jena.sparql.serializer.QuerySerializerFactory;
 import org.apache.jena.sparql.serializer.SerializationContext;
 import org.apache.jena.sparql.serializer.SerializerRegistry;
+import org.apache.jena.sparql.util.FmtUtils;
+import static org.apache.jena.vocabulary.RDF.value;
+import org.w3id.sparql.generate.SPARQLGenerate;
 import org.w3id.sparql.generate.query.SPARQLGenerateQuery;
 import org.w3id.sparql.generate.query.SPARQLGenerateQueryVisitor;
-import org.w3id.sparql.generate.query.SPARQLGenerateSyntax;
 import org.w3id.sparql.generate.syntax.ElementGenerateTriplesBlock;
+import org.w3id.sparql.generate.syntax.ElementSelector;
+import org.w3id.sparql.generate.syntax.ElementSource;
 import org.w3id.sparql.generate.syntax.ElementSubGenerate;
 import org.w3id.sparql.generate.syntax.SPARQLGenerateElementVisitor;
 
@@ -32,12 +37,11 @@ import org.w3id.sparql.generate.syntax.SPARQLGenerateElementVisitor;
  * @author maxime.lefrancois
  */
 public class SPARQLGenerateFormatterElement extends FormatterElement implements SPARQLGenerateElementVisitor {
-
-
-    public SPARQLGenerateFormatterElement(IndentedWriter out, SerializationContext context) {
-        super(out, context) ;
-    }
     
+    public SPARQLGenerateFormatterElement(IndentedWriter out, SerializationContext context) {
+        super(out, context);
+    }
+
     @Override
     public void visit(ElementGenerateTriplesBlock el) {
         if (el.isEmpty()) {
@@ -51,28 +55,46 @@ public class SPARQLGenerateFormatterElement extends FormatterElement implements 
     public void visit(ElementSubGenerate el) {
         out.incIndent(INDENT);
         SPARQLGenerateQuery q = el.getQuery();
-        
-        if(!q.isGenerateType()) {
+
+        if (!q.isGenerateType()) {
             throw new IllegalArgumentException("SubGenerate Query must be a generate query");
         }
-        
-        QuerySerializerFactory factory = SerializerRegistry.get().getQuerySerializerFactory(SPARQLGenerateSyntax.syntaxSPARQLGenerate);
-        SPARQLGenerateQueryVisitor visitor = (SPARQLGenerateQueryVisitor) factory.create(SPARQLGenerateSyntax.syntaxSPARQLGenerate, q.getPrologue(), out);
-        
-        visitor.startVisit(q) ;
-        visitor.visitGenerateResultForm(q) ;
-        visitor.visitQueryPattern(q) ;
-        visitor.visitGroupBy(q) ;
-        visitor.visitHaving(q) ;
-        visitor.visitOrderBy(q) ;
-        visitor.visitOffset(q) ;
-        visitor.visitLimit(q) ;
-        visitor.visitValues(q) ;
-        visitor.visitSelector(q) ;
-        visitor.finishVisit(q) ;
-        
+
+        QuerySerializerFactory factory = SerializerRegistry.get().getQuerySerializerFactory(SPARQLGenerate.syntaxSPARQLGenerate);
+        SPARQLGenerateQueryVisitor visitor = (SPARQLGenerateQueryVisitor) factory.create(SPARQLGenerate.syntaxSPARQLGenerate, q.getPrologue(), out);
+
+        visitor.startVisit(q);
+        visitor.visitGenerateResultForm(q);
+        visitor.visitQueryPattern(q);
+        visitor.visitGroupBy(q);
+        visitor.visitHaving(q);
+        visitor.visitOrderBy(q);
+        visitor.visitOffset(q);
+        visitor.visitLimit(q);
+        visitor.visitValues(q);
+        visitor.visitSelectorsAndSources(q);
+        visitor.finishVisit(q);
+
         out.print(" .");
         out.decIndent(INDENT);
+    }
+
+    @Override
+    public void visit(ElementSelector el) {
+        FmtExprSPARQL v = new FmtExprSPARQL(out, context) ;
+        out.print("SELECTOR ");
+        v.format(el.getExpr()) ;        
+        out.print(" AS " + el.getVar());
+    }
+
+    @Override
+    public void visit(ElementSource el) {
+        out.print("SOURCE ");
+        out.print(FmtUtils.stringForNode(el.getSource(), context.getPrologue()));
+        if(el.getAccept()!=null) {
+            out.print(" ACCEPT \"" + el.getAccept() + "\"");
+        }
+        out.print(" AS " + el.getVar());
     }
 
 }

@@ -22,11 +22,13 @@ import org.apache.jena.sparql.function.FunctionRegistry;
 import org.apache.jena.sparql.lang.SPARQLParser;
 import org.apache.jena.sparql.lang.SPARQLParserFactory;
 import org.apache.jena.sparql.lang.SPARQLParserRegistry;
+import org.apache.jena.sparql.util.Symbol;
+import org.apache.jena.sparql.util.TranslationTable;
 import org.w3id.sparql.generate.function.library.FN_JSONPath;
 import org.w3id.sparql.generate.function.library.FN_XPath;
 import org.w3id.sparql.generate.lang.ParserSPARQLGenerate;
-import org.w3id.sparql.generate.query.SPARQLGenerateSyntax;
 import org.w3id.sparql.generate.selector.SelectorRegistry;
+import org.w3id.sparql.generate.selector.library.SEL_JSONListKeys;
 import org.w3id.sparql.generate.selector.library.SEL_JSONPath;
 import org.w3id.sparql.generate.selector.library.SEL_XPath;
 import org.w3id.sparql.generate.serializer.SPARQLGenerateQuerySerializer;
@@ -38,30 +40,34 @@ import org.w3id.sparql.generate.serializer.SPARQLGenerateQuerySerializer;
 public class SPARQLGenerate {
 
     public static final String NS = "http://w3id.org/sparql-generate/";
-    
+
     public static final String FN = NS + "fn/";
     public static final String SEL = NS + "sel/";
     public static final String SYNTAX = NS + "syntax";
-    
-    public static final Map<String, String> MAP_LOCAL = new HashMap<>();
-    
+
+    /**
+     * The syntax for SPARQL-Generate
+     */
+    public static final Syntax syntaxSPARQLGenerate = new SPARQLGenerateSyntax(SYNTAX);
+
     private static boolean init = false;
 
     public static void init() {
-        if(init) {
-           return; 
+        if (init) {
+            return;
         }
-        
+
         FunctionRegistry.get().put(FN + "JSONPath_jayway_string", FN_JSONPath.class);
         FunctionRegistry.get().put(FN + "XPath_string", FN_XPath.class);
-        
+
         SelectorRegistry.get().put(SEL + "JSONPath_jayway", SEL_JSONPath.class);
+        SelectorRegistry.get().put(SEL + "JSONListKeys", SEL_JSONListKeys.class);
         SelectorRegistry.get().put(SEL + "XPath", SEL_XPath.class);
 
-        SPARQLParserRegistry.get().add(SPARQLGenerateSyntax.syntaxSPARQLGenerate, new SPARQLParserFactory() {
+        SPARQLParserRegistry.get().add(syntaxSPARQLGenerate, new SPARQLParserFactory() {
             @Override
             public boolean accept(Syntax syntax) {
-                return SPARQLGenerateSyntax.syntaxSPARQLGenerate.equals(syntax);
+                return syntaxSPARQLGenerate.equals(syntax);
             }
 
             @Override
@@ -72,8 +78,42 @@ public class SPARQLGenerate {
 
         // Register standard serializers
         SPARQLGenerateQuerySerializer.init();
-        
-        init = true;    
+
+        init = true;
     }
 
+    public static class SPARQLGenerateSyntax extends Syntax {
+
+        public SPARQLGenerateSyntax(String syntax) {
+            super(syntax);
+        }
+
+        public static TranslationTable<Syntax> generateSyntaxNames = new TranslationTable<>(true);
+
+        static {
+            generateSyntaxNames.put("sparqlGenerate", syntaxSPARQLGenerate);
+        }
+
+        public static Syntax make(String uri) {
+            if (uri == null) {
+                return null;
+            }
+            Symbol sym = Symbol.create(uri);
+            if (sym.equals(syntaxSPARQLGenerate)) {
+                return syntaxSPARQLGenerate;
+            }
+            return Syntax.make(uri);
+        }
+
+        /**
+         * Gues the synatx (query and update) based on filename
+         */
+        public static Syntax guessFileSyntax(String url, Syntax defaultSyntax) {
+            if (url.endsWith(".rqg")) {
+                return syntaxSPARQLGenerate;
+            }
+            return Syntax.guessFileSyntax(url, defaultSyntax);
+        }
+
+    }
 }

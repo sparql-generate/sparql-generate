@@ -21,6 +21,8 @@ options
 }
 PARSER_BEGIN(SPARQLGenerateParser)
 package org.w3id.sparql.generate.lang ;
+import java.util.Deque;
+import java.util.LinkedList;
 import org.apache.jena.graph.* ;
 import org.apache.jena.query.* ;
 import org.apache.jena.sparql.core.Var ;
@@ -30,7 +32,11 @@ import org.apache.jena.sparql.path.* ;
 import org.apache.jena.sparql.expr.aggregate.* ;
 import org.apache.jena.update.* ;
 import org.apache.jena.sparql.modify.request.* ;
+import org.w3id.sparql.generate.query.SPARQLGenerateQuery;
 import org.w3id.sparql.generate.syntax.ElementGenerateTriplesBlock;
+import org.w3id.sparql.generate.syntax.ElementSelector;
+import org.w3id.sparql.generate.syntax.ElementSelectorOrSource;
+import org.w3id.sparql.generate.syntax.ElementSource;
 import org.w3id.sparql.generate.syntax.ElementSubGenerate;
 public class SPARQLGenerateParser extends SPARQLGenerateParserBase
 { boolean allowAggregatesInExpressions = false ;  }
@@ -52,9 +58,12 @@ void GenerateQuery() : { }
   <GENERATE>
     { getSPARQLGenerateQuery().setQueryGenerateType() ; }
   GenerateTemplate()
-  ( GenerateWhereClause() )?
+  ( DatasetClause() )*
+  ( WhereClause() )?
   SolutionModifier()
-  SelectorClause()
+  {  Deque<ElementSelectorOrSource> deque = new LinkedList<ElementSelectorOrSource> ();}
+  ( SelectorOrSourceClause(deque) )*
+  {  getSPARQLGenerateQuery().setSelectorsAndSources(deque);}
 }
 void GenerateTemplate() : { }
 {
@@ -73,7 +82,7 @@ ElementGroup GenerateTemplateSub() : {  ElementGroup elg = new ElementGroup();}
     { startSubGenerate() ; Token t = null;}
     t = SubGenerateQuery()
       { int beginLine = t.beginLine; int beginColumn = t.beginColumn; t = null; }
-      { org.w3id.sparql.generate.query.Query q = endSubGenerate(beginLine, beginColumn) ; } 
+      { SPARQLGenerateQuery q = endSubGenerate(beginLine, beginColumn) ; } 
       { elg.addElement( new ElementSubGenerate(q) ) ; }
     ( 
       { TripleCollectorBGP acc = new TripleCollectorBGP(); }
@@ -83,88 +92,34 @@ ElementGroup GenerateTemplateSub() : {  ElementGroup elg = new ElementGroup();}
   )*
   { return elg ; }
 }
-void GenerateWhereClause() : { Element el ; }
+void SelectorOrSourceClause(Deque<ElementSelectorOrSource> deque) : {}
 {
-   (<WHERE>)?
-   { startWherePattern() ; }
-   el = GenerateGroupPattern() { getQuery().setQueryPattern(el) ; }
-   { finishWherePattern() ; }
+    {ElementSelectorOrSource elem = null;}
+  ( elem = SelectorClause()
+  | elem = SourceClause() )
+    { deque.addFirst(elem); }
 }
-void SelectorClause() : {}
+ElementSelector SelectorClause() : {}
 {
-  ( <SELECTOR> 
-    { Expr expr = null; }
+  { Expr expr ; Var var;}
+  <SELECTOR> 
     expr = FunctionCall() 
-    { getSPARQLGenerateQuery().setSelector(expr); } 
-  )?
+  <AS> 
+    var = Var() 
+    { return new ElementSelector(expr, var);} 
 }
-Element GenerateGroupPattern() : { ElementGroup elg = new ElementGroup(); Token t ; }
+ElementSource SourceClause() : {}
 {
-  t = <LBRACE>
-  { int beginLine = t.beginLine; int beginColumn = t.beginColumn; t = null; }
-  (
-    { startSubSelect(beginLine, beginColumn) ; }
-    GenerateSubSelect()
-    {
-      Query q = endSubSelect(beginLine, beginColumn) ;
-      elg.addElement( new ElementSubQuery(q) ) ;
-    }
-  | {Element el = null;} el = GeneratePattern() { elg.addElement(el); }
-  )*
-  <RBRACE>
-    { return elg ; }
-}
-Element GeneratePattern() : { Element el = null ; }
-{
- (
-   el = GenerateGroupOrUnionPattern()
- |
-   el = GenerateOptionalPattern()
- |
-   el = GenerateMinusPattern()
- |
-   el = ServiceGraphPattern()
- |
-   el = Filter()
- |
-   el = Bind()
- |
-   el = InlineData()
- )
- { return el ; }
-}
-Element GenerateGroupOrUnionPattern() :
-    { Element el = null ; ElementUnion el2 = null ; }
-{
-  el = GenerateGroupPattern()
-  ( <UNION>
-    { if ( el2 == null )
-      {
-        el2 = new ElementUnion() ;
-        el2.addElement(el) ;
-      }
-    }
-  el = GenerateGroupPattern()
-    { el2.addElement(el) ; }
-  )*
-    { return (el2==null)? el : el2 ; }
-}
-Element GenerateOptionalPattern() : { Element el ; }
-{ <OPTIONAL> el = GenerateGroupPattern()
-    { return new ElementOptional(el) ; }
-}
-Element GenerateMinusPattern() : { Element el ; }
-{
-    <MINUS_P>
-    el = GenerateGroupPattern()
-    { return new ElementMinus(el) ; }
-}
-void GenerateSubSelect() :{ }
-{
-  SelectClause()
-  GenerateWhereClause()
-  SolutionModifier()
-  SelectorClause()
+  { Node source = null; String accept = null; Var var = null ; }
+  <SOURCE> 
+    source = VarOrIri() 
+    ( 
+      <ACCEPT> 
+      accept = String() 
+    )?
+    <AS>
+    var = Var()
+    { return new ElementSource(source, accept, var);} 
 }
 Token SubGenerateQuery( ) : { Token t;}
 {
@@ -176,9 +131,11 @@ Token SubGenerateQuery( ) : { Token t;}
     GenerateTemplate() 
   )
   ( 
-    ( GenerateWhereClause() )?
+    ( WhereClause() )?
     SolutionModifier()
-    SelectorClause() 
+    {  Deque<ElementSelectorOrSource> deque = new LinkedList<ElementSelectorOrSource> ();}
+    ( SelectorOrSourceClause(deque) )*
+    {  getSPARQLGenerateQuery().setSelectorsAndSources(deque);}
     <DOT>
   )?
   { return t; }
@@ -1613,6 +1570,8 @@ TOKEN [IGNORE_CASE] :
 {
    < GENERATE: "generate" >
 |  < SELECTOR: "selector" >
+|  < SOURCE: "source" >
+|  < ACCEPT: "accept" >
 }
 TOKEN [IGNORE_CASE] :
 {

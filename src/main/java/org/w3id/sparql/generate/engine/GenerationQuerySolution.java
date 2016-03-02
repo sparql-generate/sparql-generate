@@ -24,6 +24,7 @@ import java.util.Set;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.sparql.core.QuerySolutionBase;
+import org.apache.jena.sparql.core.Var;
 
 /**
  *
@@ -45,8 +46,8 @@ public class GenerationQuerySolution extends QuerySolutionBase {
         map.put(varName, node);
     }
 
-    public GenerationQuerySolution(RDFNode message) {
-        put("msg", message);
+    public GenerationQuerySolution(Var var, RDFNode message) {
+        put(var.getName(), message);
     }
 
     @Override

@@ -17,14 +17,18 @@ package org.w3id.sparql.generate.engine;
 
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.commons.io.IOUtils;
+import org.apache.jena.graph.Node;
 import org.apache.jena.query.QueryFactory;
 import org.apache.jena.query.SortCondition;
 import org.apache.jena.sparql.core.Var;
@@ -33,13 +37,16 @@ import org.apache.jena.sparql.expr.Expr;
 import org.apache.jena.sparql.expr.ExprFunction;
 import org.apache.jena.sparql.expr.ExprList;
 import org.apache.jena.sparql.syntax.Element;
+import org.apache.jena.util.FileManager;
 import org.w3id.sparql.generate.SPARQLGenerate;
 import org.w3id.sparql.generate.query.SPARQLGenerateQuery;
-import org.w3id.sparql.generate.query.SPARQLGenerateSyntax;
 import org.w3id.sparql.generate.selector.Selector;
 import org.w3id.sparql.generate.selector.SelectorFactory;
 import org.w3id.sparql.generate.selector.SelectorRegistry;
 import org.w3id.sparql.generate.syntax.ElementGenerateTriplesBlock;
+import org.w3id.sparql.generate.syntax.ElementSelector;
+import org.w3id.sparql.generate.syntax.ElementSelectorOrSource;
+import org.w3id.sparql.generate.syntax.ElementSource;
 import org.w3id.sparql.generate.syntax.ElementSubGenerate;
 
 /**
@@ -75,7 +82,7 @@ public class GenerationPlanFactory {
     
     static private GenerationPlanBase make(SPARQLGenerateQuery query) {
         GenerationPlanBase plan = new GenerationPlanRoot();
-        planSelector(plan, query);
+        planSelectorsAndSources(plan, query);
         return plan;
     }
     
@@ -83,32 +90,62 @@ public class GenerationPlanFactory {
     static Map<String, SelectorFactory> selectorFactories = new HashMap<>();
     
 
-    static private void planSelector(GenerationPlanBase plan, SPARQLGenerateQuery query) {
-        if(query.hasSelector()) {
-            Expr expr = query.getSelector();
-            if(!expr.isFunction()) {
-                throw new IllegalArgumentException("Selector should be a function <iri>(...)");
-            }
-            ExprFunction function = expr.getFunction();
-            String iri = function.getFunctionIRI();
-            SelectorFactory factory;
-            System.out.println(iri);
-            if( !selectorFactories.containsKey(iri) ) {
-                SelectorRegistry sr = SelectorRegistry.get();
-                factory = sr.get(iri);
-                selectorFactories.put(iri, factory);
-            } else {
-                factory = selectorFactories.get(iri);
-            }
-            Selector selector = factory.create(iri);
-            ExprList exprList = new ExprList(function.getArgs());
-            selector.build(exprList);
-            GenerationPlanBase subPlan = new GenerationPlanSelector(selector, exprList);
-            plan.addSubPlan(subPlan);
-            planSelect(subPlan, query);
+    static private void planSelectorsAndSources(GenerationPlanBase plan, SPARQLGenerateQuery query) {
+        if(query.hasSelectorsAndSources()) {
+            Iterator<ElementSelectorOrSource> iterator = query.getSelectorsAndSources().iterator();
+            planSelectorOrSource(plan, query, iterator);
         } else {
-            planSelect(plan, query);
+           planSelect(plan, query);
         }
+    }
+    
+    static private void planSelectorOrSource(GenerationPlanBase plan, SPARQLGenerateQuery query, Iterator<ElementSelectorOrSource> iterator) {
+        if(iterator.hasNext()) {
+            ElementSelectorOrSource selectorOrSource = iterator.next();
+            if(selectorOrSource instanceof ElementSelector) {
+                ElementSelector selector = (ElementSelector) selectorOrSource;
+                planSelector(plan, selector, iterator, query);
+            } else if(selectorOrSource instanceof ElementSource) {
+                ElementSource source = (ElementSource) selectorOrSource;
+                planSource(plan, source, iterator, query);
+            }
+        } else {
+           planSelect(plan, query);
+        }
+
+    } 
+    
+    static private void planSelector(GenerationPlanBase plan, ElementSelector elementSelector, Iterator<ElementSelectorOrSource> iterator, SPARQLGenerateQuery query) {
+        Expr expr = elementSelector.getExpr();
+        Var var = elementSelector.getVar();
+        if(!expr.isFunction()) {
+            throw new IllegalArgumentException("Selector should be a function <iri>(...)");
+        }
+        ExprFunction function = expr.getFunction();
+        String iri = function.getFunctionIRI();
+        SelectorFactory factory;
+        if( !selectorFactories.containsKey(iri) ) {
+            SelectorRegistry sr = SelectorRegistry.get();
+            factory = sr.get(iri);
+            selectorFactories.put(iri, factory);
+        } else {
+            factory = selectorFactories.get(iri);
+        }
+        Selector selector = factory.create(iri);
+        ExprList exprList = new ExprList(function.getArgs());
+        selector.build(exprList); 
+        GenerationPlanBase subPlan = new GenerationPlanSelector(selector, exprList, var);
+        plan.addSubPlan(subPlan);
+        planSelectorOrSource(subPlan, query, iterator);
+    }
+     
+    static private void planSource(GenerationPlanBase plan, ElementSource elementSource, Iterator<ElementSelectorOrSource> iterator, SPARQLGenerateQuery query) {
+        Node node = elementSource.getSource();
+        String accept = elementSource.getAccept();
+        Var var = elementSource.getVar();
+        GenerationPlanBase subPlan = new GenerationPlanSource(node, accept, var);
+        plan.addSubPlan(subPlan);
+        planSelectorOrSource(plan, query, iterator);
     }
         
     static private void planSelect(GenerationPlanBase plan, SPARQLGenerateQuery query) {
@@ -138,20 +175,14 @@ public class GenerationPlanFactory {
         if(!query.hasSource()) {
             throw new UnsupportedOperationException("Nothing to do");
         }
-        if(SPARQLGenerate.MAP_LOCAL.containsKey(query.getSource())) {
-            try {
-                URL path = GenerationPlanFactory.class.getResource(SPARQLGenerate.MAP_LOCAL.get(query.getSource()));
-                System.out.println("read "+path.toString());
-                String spargl = new String(Files.readAllBytes(Paths.get(path.toURI())));
-                SPARQLGenerateQuery q = (SPARQLGenerateQuery) QueryFactory.create(spargl, SPARQLGenerateSyntax.syntaxSPARQLGenerate);
-                GenerationPlanRoot subPlan = new GenerationPlanRoot();
-                plan.addSubPlan(subPlan);
-                planSelector(subPlan, q);
-            } catch (IOException | URISyntaxException ex) {
-                Logger.getLogger(GenerationPlanFactory.class.getName()).log(Level.SEVERE, "Error loading local SPARGL query at path "+query.getSource(), ex);
-            }
-        } else {
-            throw new UnsupportedOperationException("not implemented yet: "+ query.getSource());
+        try{ 
+            String qString = IOUtils.toString(FileManager.get().open(query.getSource()));
+            SPARQLGenerateQuery q = (SPARQLGenerateQuery) QueryFactory.create(qString, SPARQLGenerate.syntaxSPARQLGenerate);
+            GenerationPlanRoot subPlan = new GenerationPlanRoot();
+            plan.addSubPlan(subPlan);
+            planSelectorsAndSources(subPlan,  q);
+        } catch (IOException ex) {
+            Logger.getLogger(GenerationPlanFactory.class.getName()).log(Level.SEVERE, "Error loading local SPARGL query at path "+query.getSource(), ex);
         }
     }
     
@@ -166,7 +197,7 @@ public class GenerationPlanFactory {
                 plan.addSubPlan(subPlan);
             } else if(elem instanceof ElementSubGenerate) {
                 ElementSubGenerate sub = (ElementSubGenerate) elem;
-                planSelector(plan, sub.getQuery());
+                planSelectorsAndSources(plan, sub.getQuery());
             } else {
                 throw new UnsupportedOperationException("should not reach this point");
             }
@@ -178,7 +209,7 @@ public class GenerationPlanFactory {
 
     // Make query
     static private SPARQLGenerateQuery makeQuery(String queryStr) {
-        return (SPARQLGenerateQuery) QueryFactory.create(queryStr, SPARQLGenerateSyntax.syntaxSPARQLGenerate);
+        return (SPARQLGenerateQuery) QueryFactory.create(queryStr, SPARQLGenerate.syntaxSPARQLGenerate);
     }
 
     

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 The Apache Software Foundation.
+ * Copyright 2016 ITEA 12004 SEAS Project.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,24 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.w3id.sparql.generate.engine;
+package org.w3id.sparql.generate.syntax;
 
-import org.apache.jena.query.Dataset;
-import org.apache.jena.rdf.model.Model;
-import org.apache.log4j.Logger;
+import org.apache.jena.sparql.core.Var;
+import org.apache.jena.sparql.syntax.Element;
 
 /**
  *
  * @author maxime.lefrancois
  */
-public class GenerationPlanRoot extends GenerationPlanBase {
+public abstract class ElementSelectorOrSource extends Element {
+    
+    private Var var;
 
-    @Override
-    public void $exec(Dataset inputDataset, GenerationQuerySolution initialBindings, Model initialModel) {
-        Logger.getLogger(GenerationPlanRoot.class.getName()).info("Generation Root");
-        for(GenerationPlan subPlan : subPlans) {
-            subPlan.exec(inputDataset, initialBindings, initialModel);
-        }
+    public ElementSelectorOrSource(Var var) {
+        this.var = var;
+    }
+
+    public Var getVar() {
+        return var;
     }
     
 }

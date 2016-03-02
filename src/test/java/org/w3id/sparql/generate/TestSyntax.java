@@ -13,22 +13,43 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.w3id.sparql.generate.syntax;
+package org.w3id.sparql.generate;
 
-import org.apache.jena.sparql.syntax.ElementVisitor;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 /**
  *
  * @author maxime.lefrancois
  */
-public interface SPARQLGenerateElementVisitor extends ElementVisitor {
+public class TestSyntax {
     
-    public void visit(ElementGenerateTriplesBlock el) ;
+    public TestSyntax() {
+    }
     
-    public void visit(ElementSubGenerate el) ;
+    @BeforeClass
+    public static void setUpClass() {
+    }
     
-    public void visit(ElementSelector el) ;
+    @AfterClass
+    public static void tearDownClass() {
+    }
     
-    public void visit(ElementSource el) ;
+    @Before
+    public void setUp() {
+    }
     
+    @After
+    public void tearDown() {
+    }
+
+    // TODO add test methods here.
+    // The methods must be annotated with annotation @Test. For example:
+    //
+    // @Test
+    // public void hello() {}
 }

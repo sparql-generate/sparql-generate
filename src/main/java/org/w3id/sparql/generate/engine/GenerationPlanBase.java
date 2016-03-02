@@ -15,57 +15,113 @@
  */
 package org.w3id.sparql.generate.engine;
 
-
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.jena.query.QuerySolution;
+import org.apache.jena.query.Dataset;
+import org.apache.jena.query.DatasetFactory;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
-import org.apache.jena.rdf.model.RDFNode;
 
 /**
- * One execution 
+ * One execution
+ *
  * @author maxime.lefrancois
  */
 abstract class GenerationPlanBase implements GenerationPlan {
 
     protected List<GenerationPlan> subPlans = new ArrayList<>();
-    
-    static private RDFNode makeMessage(Model model, String message, String messageDatatypeIRI) {
-        if(messageDatatypeIRI==null) {
-            return model.createLiteral(message);
+
+    @Override
+    public final Model exec() {
+        Model initialModel = ModelFactory.createDefaultModel();
+        exec((Dataset) null, null, initialModel);
+        return initialModel;
+    }
+
+    @Override
+    public Model exec(Model inputModel) {
+        if (inputModel == null) {
+            inputModel = ModelFactory.createDefaultModel();
         }
-        return model.createTypedLiteral(message, messageDatatypeIRI);
+        Model initialModel = ModelFactory.createDefaultModel();
+        exec(inputModel, null, initialModel);
+        return initialModel;
     }
 
     @Override
-    public final Model exec(String message, String messageDatatypeIRI) {
-        Model model = ModelFactory.createDefaultModel();
-        exec(model, message, messageDatatypeIRI);
-        return model;
+    public Model exec(Dataset inputDataset) {
+        if (inputDataset == null) {
+            inputDataset = DatasetFactory.create();
+        }
+        Model initialModel = ModelFactory.createDefaultModel();
+        exec(inputDataset, null, initialModel);
+        return initialModel;
     }
 
     @Override
-    public final Model exec(RDFNode message) {
-        Model model = ModelFactory.createDefaultModel();
-        exec(model, message);
-        return model;
+    public void exec(GenerationQuerySolution initialBindings, Model initialModel) {
+        if (initialBindings == null) {
+            initialBindings = new GenerationQuerySolution();
+        }
+        if (initialModel == null) {
+            initialModel = ModelFactory.createDefaultModel();
+        }
+        exec((Dataset) null, initialBindings, initialModel);
     }
 
     @Override
-    public final void exec(Model model, String message, String messageDatatypeIRI) {
-        exec(model, makeMessage(model, message, messageDatatypeIRI));
+    public void exec(Model inputModel, Model initialModel) {
+        if (inputModel == null) {
+            inputModel = ModelFactory.createDefaultModel();
+        }
+        if (initialModel == null) {
+            initialModel = ModelFactory.createDefaultModel();
+        }
+        exec(inputModel, null, initialModel);
     }
 
     @Override
-    public final void exec(Model model, RDFNode message) {
-        QuerySolution binding = new GenerationQuerySolution(message);
-        exec(model, binding);
+    public void exec(Dataset inputDataset, Model initialModel) {
+        if (inputDataset == null) {
+            inputDataset = DatasetFactory.create();
+        }
+        if (initialModel == null) {
+            initialModel = ModelFactory.createDefaultModel();
+        }
+        GenerationQuerySolution initialBindings = new GenerationQuerySolution();
+        exec(inputDataset, initialBindings, initialModel);
     }
 
     @Override
-    public abstract void exec(Model model, QuerySolution binding);
-    
+    public void exec(Model inputModel, GenerationQuerySolution initialBindings, Model initialModel) {
+        if (inputModel == null) {
+            inputModel = ModelFactory.createDefaultModel();
+        }
+        if (initialBindings == null) {
+            initialBindings = new GenerationQuerySolution();
+        }
+        if (initialModel == null) {
+            initialModel = ModelFactory.createDefaultModel();
+        }
+        exec(DatasetFactory.create(inputModel), initialBindings, initialModel);
+    }
+
+    @Override
+    public final void exec(Dataset inputDataset, GenerationQuerySolution initialBindings, Model initialModel) {
+        if (inputDataset == null) {
+            inputDataset = DatasetFactory.create(ModelFactory.createDefaultModel());
+        }
+        if (initialBindings == null) {
+            initialBindings = new GenerationQuerySolution();
+        }
+        if (initialModel == null) {
+            initialModel = ModelFactory.createDefaultModel();
+        }
+        $exec(inputDataset, initialBindings, initialModel);
+    }
+
+    protected abstract void $exec(Dataset inputDataset, GenerationQuerySolution initialBindings, Model initialModel);
+
     void addSubPlan(GenerationPlan plan) {
         subPlans.add(plan);
     }

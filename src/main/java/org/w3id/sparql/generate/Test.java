@@ -19,58 +19,106 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import org.apache.commons.io.IOUtils;
 import org.apache.jena.query.QueryFactory;
+import org.apache.jena.rdf.model.Literal;
 import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.rdf.model.NodeIterator;
+import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.riot.RDFDataMgr;
+import org.apache.jena.sparql.core.Var;
+import org.apache.jena.util.FileManager;
+import org.apache.jena.util.LocationMapper;
+import org.apache.jena.util.Locator;
+import org.apache.jena.util.LocatorFile;
+import org.apache.log4j.Logger;
 import org.w3id.sparql.generate.engine.GenerationPlan;
 import org.w3id.sparql.generate.engine.GenerationPlanFactory;
+import org.w3id.sparql.generate.engine.GenerationQuerySolution;
 import org.w3id.sparql.generate.query.SPARQLGenerateQuery;
-import org.w3id.sparql.generate.query.SPARQLGenerateSyntax;
 
 /**
  *
  * @author maxime.lefrancois
  */
 public class Test {
-    
 
     public static void main(String[] args) throws URISyntaxException, IOException {
         SPARQLGenerate.init();
-        
-        String dir = "example/simple/";
 
-        URL queryPath = Test.class.getResource("/"+dir+"query.rqg");
-        String query = new String(Files.readAllBytes(Paths.get(queryPath.toURI())));
-        SPARQLGenerateQuery q = (SPARQLGenerateQuery) QueryFactory.create(query, SPARQLGenerateSyntax.syntaxSPARQLGenerate);
-        System.out.println(q);
+        URL examplesPath = Test.class.getResource("/example");
+        File file = new File(examplesPath.toURI());
 
-        GenerationPlan plan = GenerationPlanFactory.create(q);
+        for (File exampleDir : file.listFiles()) {
+            System.out.println(exampleDir.toURI());
 
-        URL inputPath = Test.class.getResource("/"+dir+"input.json");
-        String input = new String(Files.readAllBytes(Paths.get(inputPath.toURI())));
-        String iri = "urn:iana:mime:application/json";
-        System.out.println(input);
+            // read location-mapping
+            URI confUri = exampleDir.toURI().resolve("configuration.ttl");
+            Model conf = RDFDataMgr.loadModel(confUri.toString());
 
-        Model m = plan.exec(input, iri);
+            // initialize file manager
+            FileManager fileManager = FileManager.makeGlobal();
+            Locator loc = new LocatorFile(exampleDir.toURI().getPath());
+            LocationMapper mapper = new LocationMapper(conf);
+            fileManager.addLocator(loc);
+            fileManager.setLocationMapper(mapper);
 
-        URL outPath = Test.class.getResource("/");
-        File f = new File(outPath.toURI().resolve(dir+"output.ttl"));
-        f.createNewFile();
-        OutputStream out = new FileOutputStream(f);
-        m.write(out, "TTL");
-        out.close();
+            // parse query 
+            System.out.println("Processing example \"" + exampleDir.getName() + "\"");
+            String query = IOUtils.toString(fileManager.open("query.rqg"), "UTF-8");
+            SPARQLGenerateQuery q = (SPARQLGenerateQuery) QueryFactory.create(query, SPARQLGenerate.syntaxSPARQLGenerate);
 
-        m.write(System.out, "TTL");
-        String uri = outPath.toURI().resolve(dir+"expected_output.ttl").toString();
-        System.out.println(uri);
-        Model m2 = RDFDataMgr.loadModel(uri);
-        m2.write(System.out, "TTL");
+            // serialize query 
+            URI queryOutputUri = exampleDir.toURI().resolve("query_serialized.rqg");
+            File queryOutputFile = new File(queryOutputUri);
+            OutputStream queryOutputStream = new FileOutputStream(queryOutputFile);
+            queryOutputStream.write(q.toString().getBytes());
+            queryOutputStream.close();
 
-        System.out.println(m.containsAll(m2) && m2.containsAll(m));
+            // create generation plan
+            GenerationPlan plan = GenerationPlanFactory.create(q);
+            Model output = ModelFactory.createDefaultModel();
+                    GenerationQuerySolution initialBinding = new GenerationQuerySolution();
 
+            // read inputs
+            NodeIterator nodes = conf.listObjectsOfProperty(conf.getProperty("http://w3id.org/sparql-generate/example#input"));
+            while (nodes.hasNext()) {
+                Resource r = nodes.next().asResource();
+                try {
+                    String varName = conf.listObjectsOfProperty(r, conf.getProperty("http://w3id.org/sparql-generate/example#var")).next().asLiteral().getLexicalForm();
+                    Var var = Var.alloc(varName);
+                    Resource contentType = conf.listObjectsOfProperty(r, conf.getProperty("http://w3id.org/sparql-generate/example#contentType")).next().asResource();
+                    String encoding = conf.listObjectsOfProperty(r, conf.getProperty("http://w3id.org/sparql-generate/example#encoding")).next().asLiteral().getLexicalForm();
+                    Resource location = conf.listObjectsOfProperty(r, conf.getProperty("http://w3id.org/sparql-generate/example#location")).next().asResource();
+
+                    String inputString = IOUtils.toString(fileManager.open(location.getURI()), encoding);
+
+                    Literal input = output.createTypedLiteral(inputString, contentType.getURI());
+                    initialBinding.put(varName, input);
+
+                } catch (Exception e) {
+                    Logger.getLogger(Test.class).info("unable to execute plan for input " + r);
+                }
+            }
+
+            // execute plan
+            plan.exec(initialBinding, output);
+
+            // write output
+            URI outputUri = exampleDir.toURI().resolve("output.ttl");
+            File outputFile = new File(outputUri);
+            OutputStream outputStream = new FileOutputStream(outputFile);
+            output.write(outputStream, "TTL");
+            outputStream.close( );
+
+            URI expectedOutputUri = exampleDir.toURI().resolve("expected_output.ttl");
+            Model expectedOutput = RDFDataMgr.loadModel(expectedOutputUri.toString());
+            expectedOutput.write(System.out, "TTL");
+            System.out.println("is equal: " + (output.containsAll(expectedOutput) && expectedOutput.containsAll(output)));
+        }
     }
 }

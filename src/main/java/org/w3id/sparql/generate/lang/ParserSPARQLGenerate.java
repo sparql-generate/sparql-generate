@@ -25,7 +25,6 @@ import org.apache.jena.query.QueryParseException;
 import org.apache.jena.shared.JenaException;
 import org.apache.jena.sparql.lang.SPARQLParser;
 import org.w3id.sparql.generate.query.SPARQLGenerateQuery;
-import org.w3id.sparql.generate.query.SPARQLGenerateSyntax;
 
 /**
  *

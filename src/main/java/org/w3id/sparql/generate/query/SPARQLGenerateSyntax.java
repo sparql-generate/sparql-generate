@@ -24,41 +24,4 @@ import org.w3id.sparql.generate.SPARQLGenerate;
  *
  * @author maxime.lefrancois
  */
-public class SPARQLGenerateSyntax extends Syntax {
 
-    public SPARQLGenerateSyntax(String syntax) {
-        super(syntax);
-    }
-    /**
-     * The syntax for SPARQL-Generate
-     */
-    public static final Syntax syntaxSPARQLGenerate = new SPARQLGenerateSyntax(SPARQLGenerate.SYNTAX);
-
-    public static TranslationTable<Syntax> generateSyntaxNames = new TranslationTable<>(true);
-
-    static {
-        generateSyntaxNames.put("sparqlGenerate", syntaxSPARQLGenerate);
-    }
-
-    public static Syntax make(String uri) {
-        if (uri == null) {
-            return null;
-        }
-        Symbol sym = Symbol.create(uri);
-        if (sym.equals(syntaxSPARQLGenerate)) {
-            return syntaxSPARQLGenerate;
-        }
-        return Syntax.make(uri);
-    }
-
-    /**
-     * Gues the synatx (query and update) based on filename
-     */
-    public static Syntax guessFileSyntax(String url, Syntax defaultSyntax) {
-        if (url.endsWith(".rqg")) {
-            return syntaxSPARQLGenerate;
-        }
-        return Syntax.guessFileSyntax(url, defaultSyntax);
-    }
-
-}

@@ -15,12 +15,11 @@
  */
 package org.w3id.sparql.generate.engine;
 
-
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.Triple;
-import org.apache.jena.query.QuerySolution;
+import org.apache.jena.query.Dataset;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.sparql.core.BasicPattern;
@@ -35,25 +34,25 @@ import org.apache.jena.sparql.modify.TemplateLib;
  */
 public class GenerationPlanTriples extends GenerationPlanBase {
 
-    private BasicPattern bgp;
+    private final BasicPattern bgp;
 
     GenerationPlanTriples(BasicPattern bgp) {
         this.bgp = bgp;
     }
 
     @Override
-    public void exec(Model model, QuerySolution binding) {
-        exec(model, binding, new HashMap<Node, Node>());
+    public void $exec(Dataset inputDataset, GenerationQuerySolution initialBindings, Model initialModel) {
+        exec(inputDataset, initialBindings, initialModel, new HashMap<Node, Node>());
     }
 
-    public void exec(Model model, QuerySolution binding, Map<Node, Node> bNodeMap) {
-        System.out.println("Triples - " + binding);
+    public void exec(Dataset inputDataset, GenerationQuerySolution initialBindings, Model initialModel, Map<Node, Node> bNodeMap) {
+        org.apache.log4j.Logger.getLogger(GenerationPlanSource.class.getName()).info("Generation Triples");
         for (Triple t : bgp.getList()) {
-            Binding b = BindingUtils.asBinding(binding);
+            Binding b = BindingUtils.asBinding(initialBindings);
             Triple t2 = TemplateLib.subst(t, b, bNodeMap);
-            if( t2.isConcrete()) {
-                Statement s = model.asStatement(t2);            
-                model.add(s);
+            if (t2.isConcrete()) {
+                Statement s = initialModel.asStatement(t2);
+                initialModel.add(s);
             }
         }
     }

@@ -29,7 +29,11 @@ import org.apache.jena.sparql.serializer.QuerySerializerFactory;
 import org.apache.jena.sparql.serializer.SerializationContext;
 import org.apache.jena.sparql.serializer.SerializerRegistry;
 import org.apache.jena.sparql.util.NodeToLabelMapBNode;
-import org.w3id.sparql.generate.query.SPARQLGenerateSyntax;
+import org.w3id.sparql.generate.SPARQLGenerate;
+import org.w3id.sparql.generate.query.SPARQLGenerateQuery;
+import org.w3id.sparql.generate.syntax.ElementSelector;
+import org.w3id.sparql.generate.syntax.ElementSelectorOrSource;
+import org.w3id.sparql.generate.syntax.ElementSource;
 
 /**
  *
@@ -44,7 +48,7 @@ public class SPARQLGenerateQuerySerializer implements org.w3id.sparql.generate.q
                 // Since ARQ syntax is a super set of SPARQL 1.1 both SPARQL 1.0
                 // and SPARQL 1.1 can be serialized by the same serializer
                 return Syntax.syntaxARQ.equals(syntax) || Syntax.syntaxSPARQL_10.equals(syntax)
-                        || Syntax.syntaxSPARQL_11.equals(syntax) || SPARQLGenerateSyntax.syntaxSPARQLGenerate.equals(syntax);
+                        || Syntax.syntaxSPARQL_11.equals(syntax) || SPARQLGenerate.syntaxSPARQLGenerate.equals(syntax);
             }
 
             @Override
@@ -65,21 +69,21 @@ public class SPARQLGenerateQuerySerializer implements org.w3id.sparql.generate.q
         };
 
         SerializerRegistry registry = SerializerRegistry.get();
-        registry.addQuerySerializer(SPARQLGenerateSyntax.syntaxSPARQLGenerate, factory);
+        registry.addQuerySerializer(SPARQLGenerate.syntaxSPARQLGenerate, factory);
     }
 
     public final int BLOCK_INDENT = 2;
     private final QueryVisitor decorated;
     private final IndentedWriter out;
-    private final FormatterElement fmtElement;
+    private final SPARQLGenerateFormatterElement fmtElement;
     private final FmtExprSPARQL fmtExpr;
     private final FormatterTemplate fmtTemplate;
 
-    public SPARQLGenerateQuerySerializer(QueryVisitor serializer, OutputStream _out, FormatterElement formatterElement, FmtExprSPARQL formatterExpr, FormatterTemplate formatterTemplate) {
+    public SPARQLGenerateQuerySerializer(QueryVisitor serializer, OutputStream _out, SPARQLGenerateFormatterElement formatterElement, FmtExprSPARQL formatterExpr, FormatterTemplate formatterTemplate) {
         this(serializer, new IndentedWriter(_out), formatterElement, formatterExpr, formatterTemplate);
     }
 
-    SPARQLGenerateQuerySerializer(QueryVisitor serializer, IndentedWriter iwriter, FormatterElement formatterElement, FmtExprSPARQL formatterExpr, FormatterTemplate formatterTemplate) {
+    SPARQLGenerateQuerySerializer(QueryVisitor serializer, IndentedWriter iwriter, SPARQLGenerateFormatterElement formatterElement, FmtExprSPARQL formatterExpr, FormatterTemplate formatterTemplate) {
         decorated = serializer;
         out = iwriter;
         fmtTemplate = formatterTemplate;
@@ -102,11 +106,18 @@ public class SPARQLGenerateQuerySerializer implements org.w3id.sparql.generate.q
             out.newline();
         }
     }
-
+    
     @Override
-    public void visitSelector(org.w3id.sparql.generate.query.SPARQLGenerateQuery query) {
-        if (query.hasSelector()) {
-            out.print("SELECTOR " + query.getSelector());
+    public void visitSelectorsAndSources(SPARQLGenerateQuery query) {
+        if(query.getSelectorsAndSources() == null) {
+            return;
+        }
+        for (ElementSelectorOrSource selectorOrSource : query.getSelectorsAndSources()) {
+            if(selectorOrSource instanceof ElementSelector) {
+                fmtElement.visit((ElementSelector) selectorOrSource);
+            } else if(selectorOrSource instanceof ElementSource) {
+                fmtElement.visit((ElementSource) selectorOrSource);
+            }
             out.newline();
         }
     }
