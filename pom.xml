@@ -46,6 +46,7 @@
     </organization>
 
     <properties>
+        <project.scm.id>git</project.scm.id>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jdk.version>1.7</jdk.version>
         <maven.compiler.source>1.7</maven.compiler.source>
