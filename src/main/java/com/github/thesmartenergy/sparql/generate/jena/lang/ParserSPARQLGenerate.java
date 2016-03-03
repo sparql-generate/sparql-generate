@@ -24,7 +24,6 @@ import org.apache.jena.query.QueryException;
 import org.apache.jena.query.QueryParseException;
 import org.apache.jena.shared.JenaException;
 import org.apache.jena.sparql.lang.SPARQLParser;
-import org.w3id.sparql.generate.lang.SPARQLGenerateParser;
 import com.github.thesmartenergy.sparql.generate.jena.query.SPARQLGenerateQuery;
 
 /**
@@ -67,13 +66,13 @@ public class ParserSPARQLGenerate extends SPARQLParser
             parser.setQuery(query) ;
             action.exec(parser) ;
         }
-        catch (org.w3id.sparql.generate.lang.ParseException ex)
+        catch (ParseException ex)
         { 
             throw new QueryParseException(ex.getMessage(),
                                           ex.currentToken.beginLine,
                                           ex.currentToken.beginColumn
                                           ) ; }
-        catch (org.w3id.sparql.generate.lang.TokenMgrError tErr)
+        catch (TokenMgrError tErr)
         {
             // Last valid token : not the same as token error message - but this should not happen
             int col = parser.token.endColumn ;
