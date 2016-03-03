@@ -20,7 +20,7 @@ options
   STATIC = false ;
 }
 PARSER_BEGIN(SPARQLGenerateParser)
-package org.w3id.sparql.generate.lang ;
+package com.github.thesmartenergy.sparql.generate.jena.lang ;
 import java.util.Deque;
 import java.util.LinkedList;
 import org.apache.jena.graph.* ;
@@ -32,12 +32,12 @@ import org.apache.jena.sparql.path.* ;
 import org.apache.jena.sparql.expr.aggregate.* ;
 import org.apache.jena.update.* ;
 import org.apache.jena.sparql.modify.request.* ;
-import org.w3id.sparql.generate.query.SPARQLGenerateQuery;
-import org.w3id.sparql.generate.syntax.ElementGenerateTriplesBlock;
-import org.w3id.sparql.generate.syntax.ElementSelector;
-import org.w3id.sparql.generate.syntax.ElementSelectorOrSource;
-import org.w3id.sparql.generate.syntax.ElementSource;
-import org.w3id.sparql.generate.syntax.ElementSubGenerate;
+import com.github.thesmartenergy.sparql.generate.jena.query.SPARQLGenerateQuery;
+import com.github.thesmartenergy.sparql.generate.jena.syntax.ElementGenerateTriplesBlock;
+import com.github.thesmartenergy.sparql.generate.jena.syntax.ElementSelector;
+import com.github.thesmartenergy.sparql.generate.jena.syntax.ElementSelectorOrSource;
+import com.github.thesmartenergy.sparql.generate.jena.syntax.ElementSource;
+import com.github.thesmartenergy.sparql.generate.jena.syntax.ElementSubGenerate;
 public class SPARQLGenerateParser extends SPARQLGenerateParserBase
 { boolean allowAggregatesInExpressions = false ;  }
 PARSER_END(SPARQLGenerateParser)
