@@ -26,7 +26,6 @@
     <scm>
         <url>https://github.com/thesmartenergy/sparql-generate-jena</url>
         <connection>scm:git:https://github.com/thesmartenergy/sparql-generate-jena.git</connection>
-    <tag>sparql-generate-jena-1.0</tag>
   </scm>
     
     <developers>
