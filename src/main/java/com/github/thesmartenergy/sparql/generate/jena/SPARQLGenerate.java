@@ -15,8 +15,6 @@
  */
 package com.github.thesmartenergy.sparql.generate.jena;
 
-import java.util.HashMap;
-import java.util.Map;
 import org.apache.jena.query.Syntax;
 import org.apache.jena.sparql.function.FunctionRegistry;
 import org.apache.jena.sparql.lang.SPARQLParser;
@@ -27,90 +25,180 @@ import org.apache.jena.sparql.util.TranslationTable;
 import com.github.thesmartenergy.sparql.generate.jena.function.library.FN_JSONPath;
 import com.github.thesmartenergy.sparql.generate.jena.function.library.FN_XPath;
 import com.github.thesmartenergy.sparql.generate.jena.lang.ParserSPARQLGenerate;
-import com.github.thesmartenergy.sparql.generate.jena.selector.SelectorRegistry;
-import com.github.thesmartenergy.sparql.generate.jena.selector.library.SEL_JSONListKeys;
-import com.github.thesmartenergy.sparql.generate.jena.selector.library.SEL_JSONPath;
-import com.github.thesmartenergy.sparql.generate.jena.selector.library.SEL_XPath;
+import com.github.thesmartenergy.sparql.generate.jena.iterator.IteratorFunctionRegistry;
+import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITE_JSONListKeys;
+import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITE_JSONPath;
+import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITE_XPath;
+import com.github.thesmartenergy.sparql.generate.jena.serializer.SPARQLGenerateFormatterElement;
 import com.github.thesmartenergy.sparql.generate.jena.serializer.SPARQLGenerateQuerySerializer;
+import org.apache.jena.atlas.io.IndentedWriter;
+import org.apache.jena.query.QueryVisitor;
+import org.apache.jena.sparql.core.Prologue;
+import org.apache.jena.sparql.serializer.FmtExprSPARQL;
+import org.apache.jena.sparql.serializer.FmtTemplate;
+import org.apache.jena.sparql.serializer.QuerySerializerFactory;
+import org.apache.jena.sparql.serializer.SerializationContext;
+import org.apache.jena.sparql.serializer.SerializerRegistry;
+import org.apache.jena.sparql.util.NodeToLabelMapBNode;
+import org.apache.jena.util.FileManager;
 
 /**
+ * The configuration entry point of SPARQL-Generate. Method {@link #init()} must
+ * be called operated prior any further operation.
  *
  * @author maxime.lefrancois
  */
-public class SPARQLGenerate {
-
-    public static final String NS = "http://w3id.org/sparql-generate/";
-
-    public static final String FN = NS + "fn/";
-    public static final String SEL = NS + "sel/";
-    public static final String SYNTAX = NS + "syntax";
+public final class SPARQLGenerate {
 
     /**
-     * The syntax for SPARQL-Generate
+     * Private constructor. No instance should be created.
      */
-    public static final Syntax syntaxSPARQLGenerate = new SPARQLGenerateSyntax(SYNTAX);
-
-    private static boolean init = false;
-
-    public static void init() {
-        if (init) {
-            return;
-        }
-
-        FunctionRegistry.get().put(FN + "JSONPath_jayway_string", FN_JSONPath.class);
-        FunctionRegistry.get().put(FN + "XPath_string", FN_XPath.class);
-
-        SelectorRegistry.get().put(SEL + "JSONPath_jayway", SEL_JSONPath.class);
-        SelectorRegistry.get().put(SEL + "JSONListKeys", SEL_JSONListKeys.class);
-        SelectorRegistry.get().put(SEL + "XPath", SEL_XPath.class);
-
-        SPARQLParserRegistry.get().add(syntaxSPARQLGenerate, new SPARQLParserFactory() {
-            @Override
-            public boolean accept(Syntax syntax) {
-                return syntaxSPARQLGenerate.equals(syntax);
-            }
-
-            @Override
-            public SPARQLParser create(Syntax syntax) {
-                return new ParserSPARQLGenerate();
-            }
-        });
-
-        // Register standard serializers
-        SPARQLGenerateQuerySerializer.init();
-
-        init = true;
+    private SPARQLGenerate() {
     }
 
+    /**
+     * The namespace of SPARQL Generate.
+     */
+    public static final String NS = "http://w3id.org/sparql-generate/";
+
+    /**
+     * The namespace of SPARQL Generate functions.
+     */
+    public static final String FN = NS + "fn/";
+
+    /**
+     * The namespace of SPARQL Generate iterator functions.
+     */
+    public static final String ITE = NS + "ite/";
+
+    /**
+     * The URI of the SPARQL Generate syntax.
+     */
+    public static final String SYNTAX_URI = NS + "syntax";
+
+    /**
+     * The SPARQL-Generate syntax.
+     */
+    public static final Syntax SYNTAX;
+
+    /**
+     * Force the initialization of SPARQL-Generate.
+     */
+    public static void init() {
+    }
+
+
+    static {
+        SYNTAX = new SPARQLGenerateSyntax(SYNTAX_URI);
+
+        FunctionRegistry fnreg = FunctionRegistry.get();
+        fnreg.put(FN_JSONPath.URI, FN_JSONPath.class);
+        fnreg.put(FN_XPath.URI, FN_XPath.class);
+
+        IteratorFunctionRegistry itereg = IteratorFunctionRegistry.get();
+        itereg.put(ITE_JSONPath.URI, ITE_JSONPath.class);
+        itereg.put(ITE_JSONListKeys.URI, ITE_JSONListKeys.class);
+        itereg.put(ITE_XPath.URI, ITE_XPath.class);
+
+        SPARQLParserRegistry.get()
+                .add(SYNTAX, new SPARQLParserFactory() {
+                    @Override
+                    public boolean accept(final Syntax syntax) {
+                        return SYNTAX.equals(syntax);
+                    }
+
+                    @Override
+                    public SPARQLParser create(final Syntax syntax) {
+                        return new ParserSPARQLGenerate();
+                    }
+                });
+
+        QuerySerializerFactory factory = new QuerySerializerFactory() {
+            @Override
+            public boolean accept(Syntax syntax) {
+                // Since ARQ syntax is a super set of SPARQL 1.1 both SPARQL 1.0
+                // and SPARQL 1.1 can be serialized by the same serializer
+                return Syntax.syntaxARQ.equals(syntax) || Syntax.syntaxSPARQL_10.equals(syntax)
+                        || Syntax.syntaxSPARQL_11.equals(syntax) || SPARQLGenerate.SYNTAX.equals(syntax);
+            }
+
+            @Override
+            public QueryVisitor create(Syntax syntax, Prologue prologue, IndentedWriter writer) {
+                QueryVisitor serializer = SerializerRegistry.get().getQuerySerializerFactory(Syntax.syntaxSPARQL_11).create(syntax, prologue, writer);
+                // For the generate pattern
+                SerializationContext cxt = new SerializationContext(prologue, new NodeToLabelMapBNode("g", false));
+                return new SPARQLGenerateQuerySerializer(serializer, writer, new SPARQLGenerateFormatterElement(writer, cxt), new FmtExprSPARQL(writer, cxt),
+                        new FmtTemplate(writer, cxt));
+            }
+
+            @Override
+            public QueryVisitor create(Syntax syntax, SerializationContext context, IndentedWriter writer) {
+                QueryVisitor serializer = SerializerRegistry.get().getQuerySerializerFactory(Syntax.syntaxSPARQL_11).create(syntax, context, writer);
+                return new SPARQLGenerateQuerySerializer(serializer, writer, new SPARQLGenerateFormatterElement(writer, context), new FmtExprSPARQL(writer,
+                        context), new FmtTemplate(writer, context));
+            }
+        };
+
+        SerializerRegistry registry = SerializerRegistry.get();
+        registry.addQuerySerializer(SPARQLGenerate.SYNTAX, factory);
+        
+        FileManager.setGlobalFileManager(new FileManager());
+    }
+
+    /**
+     * This class must be used instead of class <code>Syntax</code>.
+     *
+     * @author maxime.lefrancois
+     */
     public static class SPARQLGenerateSyntax extends Syntax {
 
-        public SPARQLGenerateSyntax(String syntax) {
+        /**
+         *
+         * @param syntax the name of the syntax
+         */
+        public SPARQLGenerateSyntax(final String syntax) {
             super(syntax);
         }
 
-        public static TranslationTable<Syntax> generateSyntaxNames = new TranslationTable<>(true);
+        /**
+         *
+         */
+        private final static TranslationTable<Syntax> generateSyntaxNames
+                = new TranslationTable<>(true);
 
         static {
-            generateSyntaxNames.put("sparqlGenerate", syntaxSPARQLGenerate);
+            generateSyntaxNames.put("sparqlGenerate", SYNTAX);
         }
 
-        public static Syntax make(String uri) {
+        /**
+         * Creates and registers a new syntax with this symbol.
+         *
+         * @param uri the name of the syntax
+         * @return the syntax
+         */
+        public static Syntax make(final String uri) {
             if (uri == null) {
                 return null;
             }
             Symbol sym = Symbol.create(uri);
-            if (sym.equals(syntaxSPARQLGenerate)) {
-                return syntaxSPARQLGenerate;
+            if (sym.equals(SYNTAX)) {
+                return SYNTAX;
             }
             return Syntax.make(uri);
         }
 
         /**
-         * Gues the synatx (query and update) based on filename
+         * Guess the syntax (query and update) based on filename.
+         *
+         * @param url the url of the syntax
+         * @param defaultSyntax a default syntax
+         * @return an available syntax for the filename
          */
-        public static Syntax guessFileSyntax(String url, Syntax defaultSyntax) {
+        public static Syntax guessFileSyntax(
+                final String url,
+                final Syntax defaultSyntax) {
             if (url.endsWith(".rqg")) {
-                return syntaxSPARQLGenerate;
+                return SYNTAX;
             }
             return Syntax.guessFileSyntax(url, defaultSyntax);
         }

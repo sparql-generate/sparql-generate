@@ -1,0 +1,18 @@
+<http://www.ex.com/author/AnastasiaDimou> a <http://www.example.com/Author> ;
+    <http://www.example.com/name> "Anastasia Dimou".
+<http://www.ex.com/author/MielVanderSande> a <http://www.example.com/Author> ;
+    <http://www.example.com/name> "Miel Vander Sande".
+<http://www.ex.com/author/PieterColpaert> a <http://www.example.com/Author> ;
+    <http://www.example.com/name> "Pieter Colpaert".
+<http://www.ex.com/author/RubenVerborgh> a <http://www.example.com/Author> ;
+    <http://www.example.com/name> "Ruben Verborgh".
+<http://www.ex.com/author/ErikMannens> a <http://www.example.com/Author> ;
+    <http://www.example.com/name> "Erik Mannens".
+<http://www.ex.com/author/RikVandeWalle> a <http://www.example.com/Author> ;
+    <http://www.example.com/name> "Rik Van de Walle".
+<http://www.ex.com/author/MielVanderSande> a <http://www.example.com/Author> ;
+    <http://www.example.com/name> "Miel Vander Sande".
+<http://www.ex.com/author/LaurensDeVocht> a <http://www.example.com/Author> ;
+    <http://www.example.com/name> "Laurens De Vocht".
+<http://www.ex.com/author/RikVandeWalle> a <http://www.example.com/Author> ;
+    <http://www.example.com/name> "Rik Van de Walle" .

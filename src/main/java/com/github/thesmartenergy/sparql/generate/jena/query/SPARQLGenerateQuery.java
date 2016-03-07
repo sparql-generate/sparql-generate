@@ -15,14 +15,14 @@
  */
 package com.github.thesmartenergy.sparql.generate.jena.query;
 
-import java.util.Deque;
-import java.util.List;
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryVisitor;
 import org.apache.jena.sparql.core.Prologue;
 import org.apache.jena.sparql.syntax.ElementGroup;
 import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
-import com.github.thesmartenergy.sparql.generate.jena.syntax.ElementSelectorOrSource;
+import com.github.thesmartenergy.sparql.generate.jena.syntax.ElementIteratorOrSource;
+import java.util.List;
+import org.apache.jena.sparql.core.QueryCompare;
 
 /**
  *
@@ -35,114 +35,186 @@ public class SPARQLGenerateQuery extends Query {
         /* Ensure everything has started properly */ }
 
     /**
-     * Creates a new empty query
+     * Creates a new empty query.
      */
     public SPARQLGenerateQuery() {
-        setSyntax(SPARQLGenerate.syntaxSPARQLGenerate);
+        setSyntax(SPARQLGenerate.SYNTAX);
     }
 
     /**
-     * Creates a new empty query with the given prologue
+     * Creates a new empty query with the given prologue.
      */
     public SPARQLGenerateQuery(Prologue prologue) {
         this();
         usePrologueFrom(prologue);
     }
 
+    /**
+     * The query type of SPARQL Generate queries.
+     */
     public static final int QueryTypeGenerate = 555;
 
+    /**
+     * The query type of the query.
+     */
     int queryType = QueryTypeUnknown;
 
+    /**
+     * Specifies that the Query is a SPARQL Generate query.
+     */
     public void setQueryGenerateType() {
         queryType = QueryTypeGenerate;
     }
 
+    /**
+     * Gets if the Query is a SPARQL Generate query.
+     */
     public boolean isGenerateType() {
         return queryType == QueryTypeGenerate;
     }
 
-    // ---- GENERATE
-    private String source = null;
+    /** the {@code GENERATE} clause URI. */
+    private String generateURI = null;
+
+    /** the {@code GENERATE} template. */
     private ElementGroup generateTemplate = null;
-    private Deque<ElementSelectorOrSource> selectorsAndSources = null;
 
-    public boolean hasSource() {
-        return source != null;
+    /** the deque of {@code SOURCE} and {@code ITERATOR} clauses. */
+    private List<ElementIteratorOrSource> iteratorsAndSources = null;
+
+    /**
+     * Gets if the {@code GENERATE} clause is a URI.
+     * @return -
+     */
+    public final boolean hasGenerateURI() {
+        return generateURI != null;
     }
 
-    public String getSource() {
-        return source;
+    /**
+     * Gets the {@code GENERATE} URI of the query, or null.
+     * @return the URI string.
+     */
+    public final String getGenerateURI() {
+        return generateURI;
     }
 
-    public void setSource(String source) {
-        this.source = source;
+    /**
+     * Sets the {@code GENERATE} URI of the query.
+     * @param generateURI the URI
+     */
+    public final void setGenerateURI(final String generateURI) {
+        this.generateURI = generateURI;
     }
 
-    public boolean hasGenerateTemplate() {
+    /**
+     * Gets if the query has a {@code GENERATE} template.
+     * @return -
+     */
+    public final boolean hasGenerateTemplate() {
         return generateTemplate != null && !generateTemplate.isEmpty();
     }
 
     /**
-     * Set the element in the GENERATION clause of a SPARGL GENERATE query
+     * Set the element in the {@code GENERATE} clause.
+     * @param generateTemplate the template.
      */
-    public void setGenerateTemplate(ElementGroup generateTemplate) {
+    public final void setGenerateTemplate(final ElementGroup generateTemplate) {
         this.generateTemplate = generateTemplate;
     }
 
     /**
-     * Get the element in the GENERATION clause of a SPARGL GENERATE query
+     * Gets the {@code GENERATE} template, or null if is is a URI.
+     * @return -
      */
-    public ElementGroup getGenerateTemplate() {
+    public final ElementGroup getGenerateTemplate() {
         return generateTemplate;
     }
 
-    public boolean hasSelectorsAndSources() {
-        return selectorsAndSources != null && !selectorsAndSources.isEmpty();
+    /**
+     * Gets if the query has at least one {@code SOURCE} or {@code ITERATOR}
+     * clause.
+     * @return -
+     */
+    public final boolean hasIteratorsAndSources() {
+        return iteratorsAndSources != null && !iteratorsAndSources.isEmpty();
     }
 
-    public void setSelectorsAndSources(Deque<ElementSelectorOrSource> deque) {
-        this.selectorsAndSources = deque;
+    /**
+     * Sets the list of {@code SOURCE} and {@code ITERATOR}
+     * clauses.
+     * @param list -
+     */
+    public final void setIteratorsAndSources(
+            final List<ElementIteratorOrSource> list) {
+        this.iteratorsAndSources = list;
     }
-    
-    public Deque<ElementSelectorOrSource> getSelectorsAndSources() {
-        return this.selectorsAndSources;
+
+    /**
+     * Gets the list of {@code SOURCE} and {@code ITERATOR}
+     * clauses.
+     * @return -
+     */
+    public final List<ElementIteratorOrSource> getIteratorsAndSources() {
+        return this.iteratorsAndSources;
     }
-    
-    public void visit(QueryVisitor visitor) {
-        if(visitor instanceof SPARQLGenerateQueryVisitor) {
+
+    /**
+     * Visits the query by a SPARQL Generate Query visitor, or throw an
+     * exception.
+     * @param visitor must be a SPARQL Generate Query visitor.
+     * @throws IllegalArgumentException if the query is not a SPARQL Generate
+     * Query.
+     */
+    @Override
+    public void visit(final QueryVisitor visitor) {
+        if (visitor instanceof SPARQLGenerateQueryVisitor) {
             visit((SPARQLGenerateQueryVisitor) visitor);
         } else {
-            throw new IllegalArgumentException("A SPARQLGenerateQueryVisitor is needed to visit a SPARQL Generate Query.");
+            throw new IllegalArgumentException(
+                    "Only instances of SPARQLGenerateQueryVisitor can visit"
+                            + " SPARQL Generate Queries.");
         }
     }
 
-                
-    public void visit(SPARQLGenerateQueryVisitor visitor)
+    /**
+     * Visits the query by a SPARQL Generate Query visitor.
+     * @param visitor the SPARQL Generate Query visitor.
+     */
+    public void visit(final SPARQLGenerateQueryVisitor visitor)
     {
-        visitor.startVisit(this) ;
-        visitor.visitResultForm(this) ;
-        visitor.visitPrologue(this) ;
+        visitor.startVisit(this);
+        visitor.visitResultForm(this);
+        visitor.visitPrologue(this);
         if ( this.isSelectType() )
-            visitor.visitSelectResultForm(this) ;
+            visitor.visitSelectResultForm(this);
         if ( this.isConstructType() )
-            visitor.visitConstructResultForm(this) ;
+            visitor.visitConstructResultForm(this);
         if ( this.isDescribeType() )
-            visitor.visitDescribeResultForm(this) ;
+            visitor.visitDescribeResultForm(this);
         if ( this.isAskType() )
-            visitor.visitAskResultForm(this) ;
+            visitor.visitAskResultForm(this);
         if ( this.isGenerateType() ) 
-            visitor.visitGenerateResultForm(this) ;
-        visitor.visitDatasetDecl(this) ;
-        visitor.visitQueryPattern(this) ;
-        visitor.visitGroupBy(this) ;
-        visitor.visitHaving(this) ;
-        visitor.visitOrderBy(this) ;
-        visitor.visitOffset(this) ;
-        visitor.visitLimit(this) ;
-        visitor.visitValues(this) ;
-        visitor.visitSelectorsAndSources(this);
-        visitor.finishVisit(this) ;
+            visitor.visitGenerateResultForm(this);
+        visitor.visitDatasetDecl(this);
+        visitor.visitIteratorsAndSources(this);
+        visitor.visitQueryPattern(this);
+        visitor.visitGroupBy(this);
+        visitor.visitHaving(this);
+        visitor.visitOrderBy(this);
+        visitor.visitLimit(this);
+        visitor.visitOffset(this);
+        visitor.visitValues(this);
+        visitor.finishVisit(this);
     }
 
+    @Override
+    public boolean equals(Object other) {
+        if ( ! ( other instanceof Query ) )
+            return false ;
+        if ( this == other ) return true ;
+        return QueryCompare.equals(this, (Query)other) ;
+    }
     
+    
+
 }

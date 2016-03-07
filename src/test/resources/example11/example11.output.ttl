@@ -1,0 +1,17 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix mail: <http://example.com/mail#>.
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
+@prefix note: <http://www.example.com/note/> .
+@prefix dt: <http://www.example.com/DateTime/> .
+@prefix ex: <http://www.example.com/> .
+@base <http://example.com/base> .
+
+dt:20080122 a ex:DateTime;
+	ex:day "---22"^^xsd:gDay;
+	ex:month "--01"^^xsd:gMonth;
+	ex:year "2008"^^xsd:gYear .
+
+dt:20080220 a ex:DateTime;
+	ex:day "---20"^^xsd:gDay;
+	ex:month "--02"^^xsd:gMonth;
+	ex:year "2008"^^xsd:gYear .

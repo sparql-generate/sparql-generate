@@ -22,15 +22,15 @@ import org.apache.jena.sparql.syntax.ElementVisitor;
 import org.apache.jena.sparql.util.NodeIsomorphismMap;
 
 /**
- *
+ * The {@code SOURCE} clause.
+ * 
  * @author maxime.lefrancois
  */
-public class ElementSource extends ElementSelectorOrSource {
+public class ElementSource extends ElementIteratorOrSource {
 
-    private Node source;
-    private String accept;
+    private final Node source, accept;
 
-    public ElementSource(Node source, String accept, Var var) {
+    public ElementSource(Node source, Node accept, Var var) {
         super(var);
         this.source = source;
         this.accept = accept;
@@ -40,7 +40,7 @@ public class ElementSource extends ElementSelectorOrSource {
         return source;
     }
     
-    public String getAccept() {
+    public Node getAccept() {
         return accept;
     }    
     

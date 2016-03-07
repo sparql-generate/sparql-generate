@@ -22,6 +22,11 @@ import org.apache.jena.sparql.syntax.Element;
 import org.apache.jena.sparql.util.NodeIsomorphismMap;
 import com.github.thesmartenergy.sparql.generate.jena.query.SPARQLGenerateQuery;
 
+/**
+ * A SPARQL Generate sub-query.
+ *
+ * @author maxime.lefrancois
+ */
 public class ElementSubGenerate extends Element {
 
     SPARQLGenerateQuery query;

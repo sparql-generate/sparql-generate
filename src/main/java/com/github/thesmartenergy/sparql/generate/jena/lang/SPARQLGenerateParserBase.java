@@ -16,23 +16,41 @@
 package com.github.thesmartenergy.sparql.generate.jena.lang;
 
 import org.apache.jena.sparql.lang.SPARQLParserBase;
-import com.github.thesmartenergy.sparql.generate.jena.query.SPARQLGenerateQuery; 
+import com.github.thesmartenergy.sparql.generate.jena.query.SPARQLGenerateQuery;
+import org.apache.jena.shared.PrefixMapping;
 
 /**
- * Class that has all the parse event operations and other query/update specific
- * things
+ * Class that extends the ARQ SPARQL Parser class with the operations for SPARQL
+ * Generate.
+ *
  */
 public class SPARQLGenerateParserBase extends SPARQLParserBase {
 
+    /**
+     * Constructor.
+     */
     @Override
-    protected void startQuery() { }
-        
-    protected void startSubGenerate() {
+    protected final void startQuery() { }
+
+    /**
+     * Starts parsing a sub GENERATE query.
+     */
+    protected final void startSubGenerate() {
+        PrefixMapping pm = getQuery().getPrefixMapping();
         pushQuery();
-        query = new SPARQLGenerateQuery(getPrologue());
+        query = new SPARQLGenerateQuery();
+        query.setPrefixMapping(pm);
     }
 
-    protected SPARQLGenerateQuery endSubGenerate(int line, int column) {
+    /**
+     * Finishes the parsing of a sub GENERATE query.
+     * @param line -
+     * @param column -
+     * @return the sub-generate query.
+     */
+    protected final SPARQLGenerateQuery endSubGenerate(
+            final int line,
+            final int column) {
         SPARQLGenerateQuery subQuery = (SPARQLGenerateQuery) query;
         if (!subQuery.isGenerateType()) {
             throwParseException("Subquery not a GENERATE query", line, column);
@@ -40,12 +58,17 @@ public class SPARQLGenerateParserBase extends SPARQLParserBase {
         popQuery();
         return subQuery;
     }
-    
-    public SPARQLGenerateQuery getSPARQLGenerateQuery() {
-        if(query instanceof SPARQLGenerateQuery) {
+
+    /**
+     * If possible, cast the query to a SPARQL Generate Query. Else, returns
+     * null.
+     * @return -
+     */
+    public final SPARQLGenerateQuery asSPARQLGenerateQuery() {
+        if (query instanceof SPARQLGenerateQuery) {
             return (SPARQLGenerateQuery) query;
         }
         return null;
     }
-    
+
 }

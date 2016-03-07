@@ -1,0 +1,78 @@
+@prefix rr: <http://www.w3.org/ns/r2rml#>.
+@prefix rml: <http://semweb.mmlab.be/ns/rml#>.
+@prefix ex: <http://example.com/ns#>.
+@prefix ql: <http://semweb.mmlab.be/ns/ql#>.
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+@prefix dcterms: <http://purl.org/dc/terms/>.
+@prefix tio:     <http://purl.org/tio/ns#>.
+@prefix bibo:    <http://purl.org/ontology/bibo/>.
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#>.
+@prefix opus:    <http://lsdis.cs.uga.edu/projects/semdis/opus#>.
+@prefix foaf:    <http://xmlns.com/foaf/>.
+@prefix swc:     <http://data.semanticweb.org/ns/swc/ontology#>.
+
+<#Results1Mapping>
+  rml:logicalSource 
+  [
+    rml:sourceName "src/test/resources/example10/amazon.html" ;
+    rml:iterator "div.fstRowGrid.prod.celwidget";
+    rml:queryLanguage ql:CSS3 ;
+  ];
+
+  rr:subjectMap 
+  [ 
+    rr:template "http://example.com/html/result/{span.lrg.bold}";
+    #wrong class
+    rr:class ex:Result
+  ];
+
+  rr:predicateObjectMap 
+  [
+    rr:predicate rdfs:label;
+    rr:objectMap [
+      rml:reference "span.lrg.bold"; 
+    ]
+  ];
+
+  rr:predicateObjectMap 
+  [
+    rr:predicate ex:costs;
+    rr:objectMap [
+        rml:reference ".bld.lrg.red"
+      ] 
+  ].
+
+
+<#Results2Mapping>
+  rml:logicalSource 
+  [
+    rml:sourceName "src/test/resources/example10/amazon.html" ;
+    rml:iterator "div.rsltGrid.prod.celwidget";
+    rml:queryLanguage ql:CSS3 ;
+  ];
+
+  rr:subjectMap 
+  [ 
+    rr:template "http://example.com/html/result/{span.lrg.bold}";
+    #wrong class
+    rr:class ex:Result
+  ];
+
+  rr:predicateObjectMap 
+  [
+    rr:predicate rdfs:label;
+    rr:objectMap [
+      rml:reference "span.lrg.bold"; 
+    ]
+  ];
+
+  rr:predicateObjectMap 
+  [
+    rr:predicate ex:costs;
+    rr:objectMap [
+        rml:reference ".bld.lrg.red"
+      ] 
+  ].
+        
+

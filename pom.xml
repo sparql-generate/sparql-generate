@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.github.thesmartenergy</groupId>
     <artifactId>sparql-generate-jena</artifactId>
-    <version>1.0</version>
+    <version>0.9-SNAPSHOT</version>
     <packaging>jar</packaging>
        
     <name>SPARQL Generate over Apache Jena</name>
@@ -23,6 +23,10 @@
             <url>http://maxime-lefrancois.info/</url>
             <organization>Ecole des mines de Saint-Etienne</organization>
             <organizationUrl>http://www.mines-stetienne.fr/</organizationUrl>
+            <timezone>UTC+01:00</timezone>
+            <properties>
+                <picUrl>http://0.gravatar.com/userimage/102097381/dac8aeb15edac9a93e09a7974743957f</picUrl>
+            </properties>        
         </developer>
     </developers>
 
@@ -36,7 +40,6 @@
         <url>https://${repository.domain}/${repository.user}/${repository.name}</url>
         <developerConnection>scm:git:ssh://${repository.domain}/${repository.user}/${repository.name}.git
         </developerConnection>
-        <tag>sparql-generate-jena-1.0</tag>
     </scm>
     
     <issueManagement>
@@ -85,13 +88,6 @@
         <repository.domain>github.com</repository.domain>
         <repository.user>thesmartenergy</repository.user>
         <repository.name>sparql-generate-jena</repository.name>
-
-        <!-- <scmPublish.checkoutDirectory>${project.build.directory}/scmpublish</scmPublish.checkoutDirectory> -->
-        <!-- <scm-publish.scmBranch>gh-pages</scm-publish.scmBranch> -->
-        <!-- @OVERRIDE [SCM location for documentation repository]  -->
-        <!-- <scm-publish.pubScmUrl>scm:git:git@github.com:${repository.user}/${repository.name}.git</scm-publish.pubScmUrl> -->
-        <!-- <scm-publish.siteDocOuputDirectory>${project.reporting.outputDirectory}</scm-publish.siteDocOuputDirectory> -->
-
 
         <!-- ========================  -->
         <!--    PROJECT PROPERTIES     -->
@@ -186,6 +182,7 @@
                             <exclude>**/src/main/resources/**/*.ttl</exclude>
                             <exclude>**/src/main/resources/**/*.rqg</exclude>
                             <exclude>**/src/main/**/*.html</exclude>
+                            <exclude>**/src/test/**/*.*</exclude>
                             <exclude>**/src/**/package-info.java</exclude>
                             <exclude>**/*.txt</exclude>
                             <exclude>**/*.md</exclude>
@@ -214,7 +211,7 @@
                             <configuration>
                                 <jdkVersion>1.7</jdkVersion>
                                 <javadocFriendlyComments>true</javadocFriendlyComments>
-                                <packageName>org.w3id.sparql.generate.lang</packageName>
+                                <packageName>com.github.thesmartenergy.sparql.generate.jena.lang</packageName>
                             </configuration>
                         </execution>
                     </executions>

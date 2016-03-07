@@ -22,22 +22,27 @@ import org.apache.jena.sparql.serializer.QuerySerializerFactory;
 import org.apache.jena.sparql.serializer.SerializationContext;
 import org.apache.jena.sparql.serializer.SerializerRegistry;
 import org.apache.jena.sparql.util.FmtUtils;
-import static org.apache.jena.vocabulary.RDF.value;
 import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
 import com.github.thesmartenergy.sparql.generate.jena.query.SPARQLGenerateQuery;
 import com.github.thesmartenergy.sparql.generate.jena.query.SPARQLGenerateQueryVisitor;
 import com.github.thesmartenergy.sparql.generate.jena.syntax.ElementGenerateTriplesBlock;
-import com.github.thesmartenergy.sparql.generate.jena.syntax.ElementSelector;
+import com.github.thesmartenergy.sparql.generate.jena.syntax.ElementIterator;
 import com.github.thesmartenergy.sparql.generate.jena.syntax.ElementSource;
 import com.github.thesmartenergy.sparql.generate.jena.syntax.ElementSubGenerate;
 import com.github.thesmartenergy.sparql.generate.jena.syntax.SPARQLGenerateElementVisitor;
 
 /**
- *
+ * Extends the ARQ Element Formatter with SPARQL Generate elements.
+ * 
  * @author maxime.lefrancois
  */
 public class SPARQLGenerateFormatterElement extends FormatterElement implements SPARQLGenerateElementVisitor {
     
+    /**
+     * 
+     * @param out
+     * @param context 
+     */
     public SPARQLGenerateFormatterElement(IndentedWriter out, SerializationContext context) {
         super(out, context);
     }
@@ -60,11 +65,12 @@ public class SPARQLGenerateFormatterElement extends FormatterElement implements 
             throw new IllegalArgumentException("SubGenerate Query must be a generate query");
         }
 
-        QuerySerializerFactory factory = SerializerRegistry.get().getQuerySerializerFactory(SPARQLGenerate.syntaxSPARQLGenerate);
-        SPARQLGenerateQueryVisitor visitor = (SPARQLGenerateQueryVisitor) factory.create(SPARQLGenerate.syntaxSPARQLGenerate, q.getPrologue(), out);
+        QuerySerializerFactory factory = SerializerRegistry.get().getQuerySerializerFactory(SPARQLGenerate.SYNTAX);
+        SPARQLGenerateQueryVisitor visitor = (SPARQLGenerateQueryVisitor) factory.create(SPARQLGenerate.SYNTAX, q.getPrologue(), out);
 
         visitor.startVisit(q);
         visitor.visitGenerateResultForm(q);
+        visitor.visitIteratorsAndSources(q);
         visitor.visitQueryPattern(q);
         visitor.visitGroupBy(q);
         visitor.visitHaving(q);
@@ -72,7 +78,6 @@ public class SPARQLGenerateFormatterElement extends FormatterElement implements 
         visitor.visitOffset(q);
         visitor.visitLimit(q);
         visitor.visitValues(q);
-        visitor.visitSelectorsAndSources(q);
         visitor.finishVisit(q);
 
         out.print(" .");
@@ -80,9 +85,9 @@ public class SPARQLGenerateFormatterElement extends FormatterElement implements 
     }
 
     @Override
-    public void visit(ElementSelector el) {
+    public void visit(ElementIterator el) {
         FmtExprSPARQL v = new FmtExprSPARQL(out, context) ;
-        out.print("SELECTOR ");
+        out.print("ITERATOR ");
         v.format(el.getExpr()) ;        
         out.print(" AS " + el.getVar());
     }

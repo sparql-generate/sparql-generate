@@ -19,58 +19,20 @@ import java.io.OutputStream;
 import org.apache.jena.atlas.io.IndentedWriter;
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryVisitor;
-import org.apache.jena.query.Syntax;
 import org.apache.jena.sparql.core.Prologue;
 import org.apache.jena.sparql.serializer.FmtExprSPARQL;
-import org.apache.jena.sparql.serializer.FmtTemplate;
-import org.apache.jena.sparql.serializer.FormatterElement;
 import org.apache.jena.sparql.serializer.FormatterTemplate;
-import org.apache.jena.sparql.serializer.QuerySerializerFactory;
-import org.apache.jena.sparql.serializer.SerializationContext;
-import org.apache.jena.sparql.serializer.SerializerRegistry;
-import org.apache.jena.sparql.util.NodeToLabelMapBNode;
-import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
 import com.github.thesmartenergy.sparql.generate.jena.query.SPARQLGenerateQuery;
-import com.github.thesmartenergy.sparql.generate.jena.syntax.ElementSelector;
-import com.github.thesmartenergy.sparql.generate.jena.syntax.ElementSelectorOrSource;
+import com.github.thesmartenergy.sparql.generate.jena.syntax.ElementIterator;
+import com.github.thesmartenergy.sparql.generate.jena.syntax.ElementIteratorOrSource;
 import com.github.thesmartenergy.sparql.generate.jena.syntax.ElementSource;
 
 /**
- *
+ * Extends the ARQ Query Serializer with SPARQL Generate specificities.
+ * 
  * @author maxime.lefrancois
  */
 public class SPARQLGenerateQuerySerializer implements com.github.thesmartenergy.sparql.generate.jena.query.SPARQLGenerateQueryVisitor {
-
-    public static void init() {
-        QuerySerializerFactory factory = new QuerySerializerFactory() {
-            @Override
-            public boolean accept(Syntax syntax) {
-                // Since ARQ syntax is a super set of SPARQL 1.1 both SPARQL 1.0
-                // and SPARQL 1.1 can be serialized by the same serializer
-                return Syntax.syntaxARQ.equals(syntax) || Syntax.syntaxSPARQL_10.equals(syntax)
-                        || Syntax.syntaxSPARQL_11.equals(syntax) || SPARQLGenerate.syntaxSPARQLGenerate.equals(syntax);
-            }
-
-            @Override
-            public QueryVisitor create(Syntax syntax, Prologue prologue, IndentedWriter writer) {
-                QueryVisitor serializer = SerializerRegistry.get().getQuerySerializerFactory(Syntax.syntaxSPARQL_11).create(syntax, prologue, writer);
-                // For the generate pattern
-                SerializationContext cxt = new SerializationContext(prologue, new NodeToLabelMapBNode("g", false));
-                return new SPARQLGenerateQuerySerializer(serializer, writer, new SPARQLGenerateFormatterElement(writer, cxt), new FmtExprSPARQL(writer, cxt),
-                        new FmtTemplate(writer, cxt));
-            }
-
-            @Override
-            public QueryVisitor create(Syntax syntax, SerializationContext context, IndentedWriter writer) {
-                QueryVisitor serializer = SerializerRegistry.get().getQuerySerializerFactory(Syntax.syntaxSPARQL_11).create(syntax, context, writer);
-                return new SPARQLGenerateQuerySerializer(serializer, writer, new SPARQLGenerateFormatterElement(writer, context), new FmtExprSPARQL(writer,
-                        context), new FmtTemplate(writer, context));
-            }
-        };
-
-        SerializerRegistry registry = SerializerRegistry.get();
-        registry.addQuerySerializer(SPARQLGenerate.syntaxSPARQLGenerate, factory);
-    }
 
     public final int BLOCK_INDENT = 2;
     private final QueryVisitor decorated;
@@ -83,7 +45,7 @@ public class SPARQLGenerateQuerySerializer implements com.github.thesmartenergy.
         this(serializer, new IndentedWriter(_out), formatterElement, formatterExpr, formatterTemplate);
     }
 
-    SPARQLGenerateQuerySerializer(QueryVisitor serializer, IndentedWriter iwriter, SPARQLGenerateFormatterElement formatterElement, FmtExprSPARQL formatterExpr, FormatterTemplate formatterTemplate) {
+    public SPARQLGenerateQuerySerializer(QueryVisitor serializer, IndentedWriter iwriter, SPARQLGenerateFormatterElement formatterElement, FmtExprSPARQL formatterExpr, FormatterTemplate formatterTemplate) {
         decorated = serializer;
         out = iwriter;
         fmtTemplate = formatterTemplate;
@@ -94,9 +56,9 @@ public class SPARQLGenerateQuerySerializer implements com.github.thesmartenergy.
     @Override
     public void visitGenerateResultForm(com.github.thesmartenergy.sparql.generate.jena.query.SPARQLGenerateQuery query) {
         out.print("GENERATE ");
-        if (query.hasSource()) {
+        if (query.hasGenerateURI()) {
             out.print(" ");
-            out.print("<" + query.getSource() + ">");
+            out.print("<" + query.getGenerateURI() + ">");
             out.newline();
         } else if (query.hasGenerateTemplate()) {
             out.newline();
@@ -108,15 +70,15 @@ public class SPARQLGenerateQuerySerializer implements com.github.thesmartenergy.
     }
     
     @Override
-    public void visitSelectorsAndSources(SPARQLGenerateQuery query) {
-        if(query.getSelectorsAndSources() == null) {
+    public void visitIteratorsAndSources(SPARQLGenerateQuery query) {
+        if(query.getIteratorsAndSources() == null) {
             return;
         }
-        for (ElementSelectorOrSource selectorOrSource : query.getSelectorsAndSources()) {
-            if(selectorOrSource instanceof ElementSelector) {
-                fmtElement.visit((ElementSelector) selectorOrSource);
-            } else if(selectorOrSource instanceof ElementSource) {
-                fmtElement.visit((ElementSource) selectorOrSource);
+        for (ElementIteratorOrSource iteratorOrSource : query.getIteratorsAndSources()) {
+            if(iteratorOrSource instanceof ElementIterator) {
+                fmtElement.visit((ElementIterator) iteratorOrSource);
+            } else if(iteratorOrSource instanceof ElementSource) {
+                fmtElement.visit((ElementSource) iteratorOrSource);
             }
             out.newline();
         }
@@ -189,7 +151,8 @@ public class SPARQLGenerateQuerySerializer implements com.github.thesmartenergy.
 
     @Override
     public void visitOffset(Query query) {
-        decorated.visitOffset(query);
+        //FIXME appeared in double
+//        decorated.visitOffset(query);
     }
 
     @Override

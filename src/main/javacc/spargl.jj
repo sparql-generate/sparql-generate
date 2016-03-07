@@ -20,24 +20,25 @@ options
   STATIC = false ;
 }
 PARSER_BEGIN(SPARQLGenerateParser)
-package com.github.thesmartenergy.sparql.generate.jena.lang ;
-import java.util.Deque;
+package com.github.thesmartenergy.sparql.generate.jena.lang;
 import java.util.LinkedList;
-import org.apache.jena.graph.* ;
-import org.apache.jena.query.* ;
-import org.apache.jena.sparql.core.Var ;
-import org.apache.jena.sparql.syntax.* ;
-import org.apache.jena.sparql.expr.* ;
-import org.apache.jena.sparql.path.* ;
-import org.apache.jena.sparql.expr.aggregate.* ;
-import org.apache.jena.update.* ;
-import org.apache.jena.sparql.modify.request.* ;
+import org.apache.jena.graph.*;
+import org.apache.jena.query.*;
+import org.apache.jena.sparql.core.Var;
+import org.apache.jena.sparql.syntax.*;
+import org.apache.jena.sparql.expr.*;
+import org.apache.jena.sparql.path.*;
+import org.apache.jena.sparql.expr.aggregate.*;
+import org.apache.jena.update.*;
+import org.apache.jena.sparql.modify.request.*;
 import com.github.thesmartenergy.sparql.generate.jena.query.SPARQLGenerateQuery;
 import com.github.thesmartenergy.sparql.generate.jena.syntax.ElementGenerateTriplesBlock;
-import com.github.thesmartenergy.sparql.generate.jena.syntax.ElementSelector;
-import com.github.thesmartenergy.sparql.generate.jena.syntax.ElementSelectorOrSource;
+import com.github.thesmartenergy.sparql.generate.jena.syntax.ElementIterator;
+import com.github.thesmartenergy.sparql.generate.jena.syntax.ElementIteratorOrSource;
 import com.github.thesmartenergy.sparql.generate.jena.syntax.ElementSource;
 import com.github.thesmartenergy.sparql.generate.jena.syntax.ElementSubGenerate;
+import java.util.ArrayList;
+import java.util.List;
 public class SPARQLGenerateParser extends SPARQLGenerateParserBase
 { boolean allowAggregatesInExpressions = false ;  }
 PARSER_END(SPARQLGenerateParser)
@@ -56,19 +57,19 @@ void Generate() : { }
 void GenerateQuery() : { }
 {
   <GENERATE>
-    { getSPARQLGenerateQuery().setQueryGenerateType() ; }
+    { asSPARQLGenerateQuery().setQueryGenerateType() ; }
   GenerateTemplate()
   ( DatasetClause() )*
+  {  List<ElementIteratorOrSource> list = new ArrayList<ElementIteratorOrSource> ();}
+  ( IteratorOrSourceClause(list) )*
+  {  asSPARQLGenerateQuery().setIteratorsAndSources(list);}
   ( WhereClause() )?
   SolutionModifier()
-  {  Deque<ElementSelectorOrSource> deque = new LinkedList<ElementSelectorOrSource> ();}
-  ( SelectorOrSourceClause(deque) )*
-  {  getSPARQLGenerateQuery().setSelectorsAndSources(deque);}
 }
 void GenerateTemplate() : { }
 {
   <LBRACE>
-  { ElementGroup elem = null; } elem = GenerateTemplateSub() { getSPARQLGenerateQuery().setGenerateTemplate(elem); }
+  { ElementGroup elem = null; } elem = GenerateTemplateSub() { asSPARQLGenerateQuery().setGenerateTemplate(elem); }
   <RBRACE>
 }
 ElementGroup GenerateTemplateSub() : {  ElementGroup elg = new ElementGroup();}
@@ -92,30 +93,30 @@ ElementGroup GenerateTemplateSub() : {  ElementGroup elg = new ElementGroup();}
   )*
   { return elg ; }
 }
-void SelectorOrSourceClause(Deque<ElementSelectorOrSource> deque) : {}
+void IteratorOrSourceClause(List<ElementIteratorOrSource> list) : {}
 {
-    {ElementSelectorOrSource elem = null;}
-  ( elem = SelectorClause()
+    {ElementIteratorOrSource elem = null;}
+  ( elem = IteratorClause()
   | elem = SourceClause() )
-    { deque.addFirst(elem); }
+    { list.add(elem); }
 }
-ElementSelector SelectorClause() : {}
+ElementIterator IteratorClause() : {}
 {
   { Expr expr ; Var var;}
-  <SELECTOR> 
+  <ITERATOR> 
     expr = FunctionCall() 
   <AS> 
     var = Var() 
-    { return new ElementSelector(expr, var);} 
+    { return new ElementIterator(expr, var);} 
 }
 ElementSource SourceClause() : {}
 {
-  { Node source = null; String accept = null; Var var = null ; }
+  { Node source = null; Node accept = null; Var var = null ; }
   <SOURCE> 
     source = VarOrIri() 
     ( 
       <ACCEPT> 
-      accept = String() 
+      accept = VarOrIri() 
     )?
     <AS>
     var = Var()
@@ -124,18 +125,18 @@ ElementSource SourceClause() : {}
 Token SubGenerateQuery( ) : { Token t;}
 {
   t = <GENERATE>
-    { getSPARQLGenerateQuery().setQueryGenerateType() ; }
+    { asSPARQLGenerateQuery().setQueryGenerateType() ; }
   ( 
-    { String source; } source = SourceSelector() { getSPARQLGenerateQuery().setSource(source); }
+    { String generateUri; } generateUri = SourceSelector() { asSPARQLGenerateQuery().setGenerateURI(generateUri); }
   | 
     GenerateTemplate() 
   )
   ( 
+    {  List<ElementIteratorOrSource> list = new LinkedList<ElementIteratorOrSource> ();}
+    ( IteratorOrSourceClause(list) )*
+    {  asSPARQLGenerateQuery().setIteratorsAndSources(list);}
     ( WhereClause() )?
     SolutionModifier()
-    {  Deque<ElementSelectorOrSource> deque = new LinkedList<ElementSelectorOrSource> ();}
-    ( SelectorOrSourceClause(deque) )*
-    {  getSPARQLGenerateQuery().setSelectorsAndSources(deque);}
     <DOT>
   )?
   { return t; }
@@ -1569,9 +1570,9 @@ TOKEN : { <KW_A: "a" > }
 TOKEN [IGNORE_CASE] :
 {
    < GENERATE: "generate" >
-|  < SELECTOR: "selector" >
 |  < SOURCE: "source" >
 |  < ACCEPT: "accept" >
+|  < ITERATOR: "iterator" >
 }
 TOKEN [IGNORE_CASE] :
 {

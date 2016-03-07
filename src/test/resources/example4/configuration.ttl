@@ -1,0 +1,8 @@
+@prefix lm: <http://jena.hpl.hp.com/2004/08/location-mapping#> .
+
+[] lm:mapping
+   [ lm:name "http://example.org/example4/Venue4.json" ; lm:altName "Venue4.json" ] .
+
+
+
+

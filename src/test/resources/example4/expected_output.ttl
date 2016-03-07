@@ -1,0 +1,25 @@
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
+@prefix ex: <http://www.example.com/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix transit: <http://vocab.org/transit/terms/> .
+@prefix wgs84_pos: <http://www.w3.org/2003/01/geo/wgs84_pos#>.
+@prefix schema: <http://schema.org/>.
+@prefix gn: <http://www.geonames.org/ontology#>.
+@prefix geosp: <http://www.telegraphis.net/ontology/geography/geography#> .
+
+#Venue.json output
+#<http://loc.example.com/city/Brussels> wgs84_pos:location <http://loc.example.com/latlong/51.0000000,3.7166700>.
+<http://loc.example.com/city/Brussels> a <http://schema.org/City> .
+<http://loc.example.com/city/Brussels> gn:countryCode "BE".
+<http://loc.example.com/city/Brussels> geosp:onContinent "EU".
+#<http://loc.example.com/latlong/51.0500000,3.7166700> wgs84_pos:lat "51.0000000".
+#<http://loc.example.com/latlong/51.0500000,3.7166700> wgs84_pos:long "3.7166700".
+<http://loc.example.com/city/Brussels> wgs84_pos:lat "51.0000000".
+<http://loc.example.com/city/Brussels> wgs84_pos:long "3.7166700".
+
+<http://loc.example.com/city/Gent> a <http://schema.org/City>.
+#<http://loc.example.com/city/Gent> wgs84_pos:location <http://loc.example.com/latlong/51.4657890,3.7166700>.
+<http://loc.example.com/city/Gent> gn:countryCode "BE".
+<http://loc.example.com/city/Gent> geosp:onContinent "EU".
+<http://loc.example.com/city/Gent> wgs84_pos:lat "51.4657890".
+<http://loc.example.com/city/Gent> wgs84_pos:long "3.7166700".

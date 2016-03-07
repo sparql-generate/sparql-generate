@@ -1,0 +1,59 @@
+@prefix rr: <http://www.w3.org/ns/r2rml#>.
+@prefix rml: <http://semweb.mmlab.be/ns/rml#> .
+@prefix crml: <http://semweb.mmlab.be/ns/rml/condition#> .
+@prefix ql: <http://semweb.mmlab.be/ns/ql#> .
+@prefix mail: <http://example.com/mail#>.
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
+@prefix ex: <http://www.example.com/> .
+@base <http://example.com/base> .
+
+<#PaperAuthor>
+    rml:logicalSource [ 
+	rml:source "src/test/resources/example16/example16.xml";
+        rml:referenceFormulation ql:XPath;
+	rml:iterator "/papers/paper";
+    ];
+
+    rr:subjectMap [
+        rr:template "http://www.ex.com/paper/{@id}"; 
+        crml:processCondition [ 
+            crml:condition " ", "\\n", "-", "\\." ;
+            crml:value "" 
+        ] ;
+
+    ];
+
+    rr:predicateObjectMap [
+        rr:predicate ex:author;
+
+        rr:objectMap [ 
+            rml:reference "authors" ;
+            crml:splitCondition [ 
+                crml:condition "," ] ;
+            ]
+    ];
+
+    rr:predicateObjectMap [
+        rr:predicate ex:conference;
+
+        rr:objectMap [ 
+            rml:reference "conference" ;
+
+            crml:booleanCondition [ 
+                crml:condition "ESWC14" ;
+                crml:value "Extended Semantic Web Conference 2014" ;
+                crml:processCondition [ 
+                    crml:condition "([\\w\\s]*)(\\d{4})";
+                    crml:value "$1" 
+                ];
+            ],
+            [ 
+                crml:condition "WWW14" ;
+                crml:value "World Wide Web Conference 2014" ;
+                crml:processCondition [ 
+                    crml:condition "([\\w\\s]*)(\\d{4})";
+                    crml:value "$1" 
+                ];
+            ] ;
+        ] 
+    ];.

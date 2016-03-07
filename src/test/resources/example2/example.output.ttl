@@ -1,0 +1,31 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix mail: <http://example.com/mail#>.
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
+@prefix note: <http://www.example.com/note/> .
+@prefix dt: <http://www.example.com/DateTime/> .
+@prefix ex: <http://www.example.com/> .
+@base <http://example.com/base> .
+
+note:M17 a mail:note;
+	mail:when dt:20080110;
+        mail:from "Jani";
+        mail:to "Tove";
+        mail:heading "Reminder";
+        mail:body "Don't forget me this weekend!".
+
+note:M18 a mail:note;
+	mail:when dt:20080210;
+        mail:from "Rick";
+        mail:to "Chris";
+        mail:heading "Update";
+        mail:body "We now leave at six".
+
+dt:20080110 a ex:DateTime;
+	ex:day "---10"^^xsd:gDay;
+	ex:month "--01"^^xsd:gMonth;
+	ex:year "2008"^^xsd:gYear .
+
+dt:20080210 a ex:DateTime;
+	ex:day "---10"^^xsd:gDay;
+	ex:month "--02"^^xsd:gMonth;
+	ex:year "2008"^^xsd:gYear .

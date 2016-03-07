@@ -20,12 +20,16 @@ import org.apache.jena.sparql.SystemARQ;
 import org.apache.jena.sparql.util.Symbol;
 
 /**
- *
+ * Adds a symbol for {@link registrySelectors#registryIterators} 
+ * to {@link ARQConstants}.
+ * 
  * @author maxime.lefrancois
  */
 public class SPARQLGenerateConstants extends ARQConstants {
-    
-    /** The selectors library registry key */
-    public static final Symbol registrySelectors =
-        SystemARQ.allocSymbol("registrySelectors") ;
+
+    /**
+     * The selectors library registry key.
+     */
+    public static final Symbol registryIterators =
+        SystemARQ.allocSymbol("registryIterators");
 }

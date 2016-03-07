@@ -1,0 +1,12 @@
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
+@prefix ex: <http://www.example.com/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix schema: <http://schema.org/>.
+
+<http://loc.example.com/city/Thessaloniki> a <http://schema.org/City> .
+<http://loc.example.com/city/Thessaloniki> ex:country "Greece".
+<http://loc.example.com/city/Thessaloniki> ex:continent "Europe".
+
+<http://loc.example.com/city/Ghent> a <http://schema.org/City>.
+<http://loc.example.com/city/Ghent> ex:country "Belgium".
+<http://loc.example.com/city/Ghent> ex:continent "Europe".

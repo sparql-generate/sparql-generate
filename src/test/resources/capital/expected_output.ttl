@@ -1,0 +1,27 @@
+@prefix rqg-fn: <http://w3id.org/sparql-generate/fn/> .
+@prefix rqg-ite: <http://w3id.org/sparql-generate/ite/> .
+
+_:a1 a                             <http://example.org/Country> ;
+  <http://example.org/capital>  "Paris" ;
+  <http://example.org/key>      "FR" ;
+  <http://example.org/query>    "$.FR" .
+
+_:a2 a                             <http://example.org/Country> ;
+  <http://example.org/capital>  "Stanley" ;
+  <http://example.org/key>      "FK" ;
+  <http://example.org/query>    "$.FK" .
+
+_:a3 a                             <http://example.org/Country> ;
+  <http://example.org/capital>  "Torshavn" ;
+  <http://example.org/key>      "FO" ;
+  <http://example.org/query>    "$.FO" .
+
+_:a4 a                             <http://example.org/Country> ;
+  <http://example.org/capital>  "Suva" ;
+  <http://example.org/key>      "FJ" ;
+  <http://example.org/query>    "$.FJ" .
+
+_:a5 a                             <http://example.org/Country> ;
+  <http://example.org/capital>  "Palikir" ;
+  <http://example.org/key>      "FM" ;
+  <http://example.org/query>    "$.FM" .

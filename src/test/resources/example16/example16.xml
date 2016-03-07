@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<papers>
+    <paper id="id-1">
+        <title>RML: A Generic Language for Integrated RDF Mappings of Heterogeneous Data</title>
+        <authors>Anastasia Dimou,Miel-Vander-Sande,Pieter Colpaert,Ruben Verborgh,Erik Mannens,Rik-Van-de-Walle</authors>
+        <proceedings>Proceedings of the 7th Workshop on Linked Data on the Web</proceedings>
+        <conference>WWW14</conference>
+    </paper>
+    <paper id="id 2">
+        <title>Extraction and Semantic Annotation of Workshop Proceedings in HTML using RML</title>
+        <authors>Anastasia Dimou,Miel Vander Sande,Pieter Colpaert,Ruben Verborgh,Laurens De Vocht,Erik Mannens,Rik Van de Walle</authors>
+        <proceedings>Semantic Web Evaluation Challenges 2014</proceedings>
+        <conference>ESWC14</conference>
+    </paper>
+</papers>

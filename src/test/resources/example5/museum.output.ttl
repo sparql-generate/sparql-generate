@@ -1,0 +1,114 @@
+<http://ex.com/NPG_70_36> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.cidoc-crm.org/cidoc-crm/E22_Man-Made_Object> .
+<http://ex.com/NPG_70_36> <http://www.cidoc-crm.org/cidoc-crm/P102_has_title> "Apollo 11 Crew" .
+<http://ex.com/NPG_70_36> <http://www.cidoc-crm.org/cidoc-crm/P48_has_preferred_identifier> "NPG_70_36" .
+<http://ex.com/NPG_70_36> <http://www.cidoc-crm.org/cidoc-crm/P62_depicts> <http://ex.com/Neil%20Armstrong> .
+<http://ex.com/NPG_70_36> <http://www.cidoc-crm.org/cidoc-crm/P62_depicts> <http://ex.com/Buzz%20Aldrin> .
+<http://ex.com/NPG_70_36> <http://www.cidoc-crm.org/cidoc-crm/P62_depicts> <http://ex.com/Michael%20Collins> .
+
+<http://ex.com/Ronald%20Anderson> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.cidoc-crm.org/cidoc-crm/E21_Person> .
+<http://ex.com/Ronald%20Anderson> <http://www.w3.org/2000/01/rdf-schema#label> "Ronald Anderson" .
+
+<http://ex.com/S_NPG_2010_51> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.cidoc-crm.org/cidoc-crm/E22_Man-Made_Object> .
+<http://ex.com/S_NPG_2010_51> <http://www.cidoc-crm.org/cidoc-crm/P102_has_title> "Neil Armstrong" .
+<http://ex.com/S_NPG_2010_51> <http://www.cidoc-crm.org/cidoc-crm/P48_has_preferred_identifier> "S_NPG_2010_51" .
+<http://ex.com/S_NPG_2010_51> <http://www.cidoc-crm.org/cidoc-crm/P62_depicts> <http://ex.com/Neil%20Armstrong> .
+
+<http://ex.com/Robert%20Theodore%20McCall> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.cidoc-crm.org/cidoc-crm/E21_Person> .
+<http://ex.com/Robert%20Theodore%20McCall> <http://www.w3.org/2000/01/rdf-schema#label> "Robert Theodore McCall" .
+
+<http://ex.com/NPG_92_127> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.cidoc-crm.org/cidoc-crm/E22_Man-Made_Object> .
+<http://ex.com/NPG_92_127> <http://www.cidoc-crm.org/cidoc-crm/P102_has_title> "Henry Larcom Abbot" .
+<http://ex.com/NPG_92_127> <http://www.cidoc-crm.org/cidoc-crm/P48_has_preferred_identifier> "NPG_92_127" .
+<http://ex.com/NPG_92_127> <http://www.cidoc-crm.org/cidoc-crm/P62_depicts> <http://ex.com/Henry%20Larcom%20Abbot> .
+
+<http://ex.com/Nahum%20Ball%20Onthank> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.cidoc-crm.org/cidoc-crm/E21_Person> .
+<http://ex.com/Nahum%20Ball%20Onthank> <http://www.w3.org/2000/01/rdf-schema#label> "Nahum Ball Onthank" .
+
+<http://ex.com/Michael%20Collins> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.cidoc-crm.org/cidoc-crm/E21_Person> .
+<http://ex.com/Michael%20Collins> <http://www.w3.org/2000/01/rdf-schema#label> "Michael Collins" .
+
+<http://ex.com/Henry%20Larcom%20Abbot> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.cidoc-crm.org/cidoc-crm/E21_Person> .
+<http://ex.com/Henry%20Larcom%20Abbot> <http://www.w3.org/2000/01/rdf-schema#label> "Henry Larcom Abbot" .
+<http://ex.com/Henry%20Larcom%20Abbot> <http://example.com/deathday> "1927-10-01"^^<http://www.w3.org/2001/XMLSchema#date> .
+<http://ex.com/Henry%20Larcom%20Abbot> <http://example.com/birthday> "1831-08-13"^^<http://www.w3.org/2001/XMLSchema#date> .
+
+<http://ex.com/Production/NPG_70_36> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.cidoc-crm.org/cidoc-crm/E12_Production> .
+<http://ex.com/Production/NPG_70_36> <http://www.cidoc-crm.org/cidoc-crm/P82_at_some_time_within> "1969" .
+<http://ex.com/Production/NPG_70_36> <http://www.cidoc-crm.org/cidoc-crm/P108_has_produced> <http://ex.com/NPG_70_36> .
+<http://ex.com/Production/NPG_70_36> <http://www.cidoc-crm.org/cidoc-crm/P14_carried_out_by> <http://ex.com/Ronald%20Anderson> .
+
+<http://ex.com/Production/S_NPG_2010_51> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.cidoc-crm.org/cidoc-crm/E12_Production> .
+<http://ex.com/Production/S_NPG_2010_51> <http://www.cidoc-crm.org/cidoc-crm/P82_at_some_time_within> "2009" .
+<http://ex.com/Production/S_NPG_2010_51> <http://www.cidoc-crm.org/cidoc-crm/P108_has_produced> <http://ex.com/S_NPG_2010_51> .
+<http://ex.com/Production/S_NPG_2010_51> <http://www.cidoc-crm.org/cidoc-crm/P14_carried_out_by> <http://ex.com/Robert%20Theodore%20McCall> .
+
+<http://ex.com/Production/NPG_92_127> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.cidoc-crm.org/cidoc-crm/E12_Production> .
+<http://ex.com/Production/NPG_92_127> <http://www.cidoc-crm.org/cidoc-crm/P82_at_some_time_within> "1857" .
+<http://ex.com/Production/NPG_92_127> <http://www.cidoc-crm.org/cidoc-crm/P108_has_produced> <http://ex.com/NPG_92_127> .
+<http://ex.com/Production/NPG_92_127> <http://www.cidoc-crm.org/cidoc-crm/P14_carried_out_by> <http://ex.com/Nahum%20Ball%20Onthank> .
+
+<http://ex.com/Neil%20Armstrong> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.cidoc-crm.org/cidoc-crm/E21_Person> ;
+        <http://www.w3.org/2000/01/rdf-schema#label> "Neil Armstrong" ;
+        <http://example.com/service> "NASA" ;
+	<http://example.com/deathday> "2012-08-25"^^<http://www.w3.org/2001/XMLSchema#date> ;
+	<http://example.com/birthday> "1930-08-05"^^<http://www.w3.org/2001/XMLSchema#date> ;
+	<http://example.com/evaday> "1969-07-21"^^<http://www.w3.org/2001/XMLSchema#date> .
+
+<http://ex.com/Buzz%20Aldrin> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.cidoc-crm.org/cidoc-crm/E21_Person> ;
+        <http://www.w3.org/2000/01/rdf-schema#label> "Buzz Aldrin" ;
+	<http://example.com/service> "Air Force" ;
+	<http://example.com/birthday> "1930-01-20"^^<http://www.w3.org/2001/XMLSchema#date> ;
+	<http://example.com/evaday> "1969-07-21"^^<http://www.w3.org/2001/XMLSchema#date> .
+
+<http://ex.com/Pete%20Conrad> a <http://www.cidoc-crm.org/cidoc-crm/E21_Person> ;
+	<http://example.com/service> "Navy" ;
+	<http://example.com/deathday> "1999-07-08"^^<http://www.w3.org/2001/XMLSchema#date> ;
+	<http://example.com/birthday> "1930-06-02"^^<http://www.w3.org/2001/XMLSchema#date> ;
+	<http://example.com/evaday> "1969-11-19"^^<http://www.w3.org/2001/XMLSchema#date> .
+
+<http://ex.com/Alan%20Bean> a <http://www.cidoc-crm.org/cidoc-crm/E21_Person> ;
+	<http://example.com/service> "Navy" ;
+	<http://example.com/birthday> "1932-03-15"^^<http://www.w3.org/2001/XMLSchema#date> ;
+	<http://example.com/evaday> "1969-11-19"^^<http://www.w3.org/2001/XMLSchema#date> .
+
+<http://ex.com/Alan%20Shepard> a <http://www.cidoc-crm.org/cidoc-crm/E21_Person> ;
+	<http://example.com/service> "Navy" ;
+	<http://example.com/deathday> "1998-07-21"^^<http://www.w3.org/2001/XMLSchema#date> ;
+	<http://example.com/birthday> "1923-11-18"^^<http://www.w3.org/2001/XMLSchema#date> ;
+	<http://example.com/evaday> "1971-02-05"^^<http://www.w3.org/2001/XMLSchema#date> .
+
+<http://ex.com/Edgar%20Mitchell> a <http://www.cidoc-crm.org/cidoc-crm/E21_Person> ;
+	<http://example.com/service> "Navy" ;
+	<http://example.com/birthday> "1930-09-17"^^<http://www.w3.org/2001/XMLSchema#date> ;
+	<http://example.com/evaday> "1971-02-05"^^<http://www.w3.org/2001/XMLSchema#date> .
+
+<http://ex.com/David%20Scott> a <http://www.cidoc-crm.org/cidoc-crm/E21_Person> ;
+	<http://example.com/service> "Air Force" ;
+	<http://example.com/birthday> "1932-06-06"^^<http://www.w3.org/2001/XMLSchema#date> ;
+	<http://example.com/evaday> "1971-07-31"^^<http://www.w3.org/2001/XMLSchema#date> .
+
+<http://ex.com/James%20Irwin> a <http://www.cidoc-crm.org/cidoc-crm/E21_Person> ;
+	<http://example.com/service> "Air Force" ;
+	<http://example.com/deathday> "1991-08-08"^^<http://www.w3.org/2001/XMLSchema#date> ;
+	<http://example.com/birthday> "1930-03-17"^^<http://www.w3.org/2001/XMLSchema#date> ;
+	<http://example.com/evaday> "1971-07-31"^^<http://www.w3.org/2001/XMLSchema#date> .
+
+<http://ex.com/John%20Young> a <http://www.cidoc-crm.org/cidoc-crm/E21_Person> ;
+	<http://example.com/service> "Navy" ;
+	<http://example.com/birthday> "1930-09-24"^^<http://www.w3.org/2001/XMLSchema#date> ;
+	<http://example.com/evaday> "1972-04-21"^^<http://www.w3.org/2001/XMLSchema#date> .
+
+<http://ex.com/Charles%20Duke> a <http://www.cidoc-crm.org/cidoc-crm/E21_Person> ;
+	<http://example.com/service> "Air Force" ;
+	<http://example.com/birthday> "1935-10-03"^^<http://www.w3.org/2001/XMLSchema#date> ;
+	<http://example.com/evaday> "1972-04-21"^^<http://www.w3.org/2001/XMLSchema#date> .
+
+<http://ex.com/Eugene%20Cernan> a <http://www.cidoc-crm.org/cidoc-crm/E21_Person> ;
+	<http://example.com/service> "Navy" ;
+	<http://example.com/birthday> "1934-03-14"^^<http://www.w3.org/2001/XMLSchema#date> ;
+	<http://example.com/evaday> "1972-12-11"^^<http://www.w3.org/2001/XMLSchema#date> .
+
+<http://ex.com/Harrison%20Schmitt> a <http://www.cidoc-crm.org/cidoc-crm/E21_Person> ;
+	<http://example.com/service> "NASA" ;
+	<http://example.com/birthday> "1935-07-03"^^<http://www.w3.org/2001/XMLSchema#date> ;
+	<http://example.com/evaday> "1972-12-11"^^<http://www.w3.org/2001/XMLSchema#date> .

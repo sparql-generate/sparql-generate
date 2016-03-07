@@ -1,129 +1,174 @@
-# SPARQL-Generate-Jena
-
-SPARQL-Generate implementation over Apache Jena.
-
-
-## Available in version 0.1:
-
-Don't try the example above in preliminary version 0.1.
-
-Preliminary version 0.1 implements:
-- keywords `GENERATE` and `SELECTOR`.
-- there may be only one `SELECTOR` clause, used as follows: `SELECTOR <selector>(args)` (there is no `AS`).
-- selector for JSON: <http://w3id.org/sparql-generate/sel/JSONPath_jayway>
-- SPARQL function for JSON: <http://w3id.org/sparql-generate/sel/JSONPath_jayway_string>
-
-
 # What is SPARQL-Generate ?
 
 SPARQL-Generate stands for SPARQL-Generate Protocol and RDF Generation Language. The aim of SPARQL-Generate `GENERATE` queries is to offer a simple template-based option to interpret any document as proper RDF, with a well defined semantics grounded on the SPARQL 1.1. 
 
-SPARQL-Generate is already in use for the following use cases:
-- Give ways to interpret JSON or even CBOR documents as RDF (ongoing work in the ITEA 2 SEAS project: serve the consumption data of the GECAD microgrid as CBOR, and point to the SPARQL-Generate `GENERATE` query that enables to interpret it as RDF. More generally, any kind of document, XML, JSON, CBOR, can be interpreted as RDF using the proper SPARQL-Generate `GENERATE` query with proper *selectors*)
+## Specification
 
-- Generate a whole part of a vocabulary from a configuration file, and ensure that specific naming conventions are respected for resource URIs, labels and comments (ongoing work in the ITEA 2 SEAS project: the ontology of Faceted Spaces, that is used to describe multi-dimensional quantities, is parametrized and generated from a JSON configuration file);
+The complete specification (will be) available here: http://w3id.org/sparql-generate.
+
+In the meantime, you can subscribe to the mailing list: https://groups.google.com/forum/#!forum/sparql-generate-jena.
+
+## What use cases for SPARQL-Generate ?
+
+SPARQL-Generate is already in use for the following use cases:
+
+- Give ways to interpret JSON or even CBOR documents as RDF (ongoing work in the ITEA 2 SEAS project: serve the consumption data of the GECAD microgrid as CBOR, and point to the SPARQL-Generate `GENERATE` query that enables to interpret it as RDF. More generally, any kind of document, XML, JSON, CBOR, can be interpreted as RDF using the proper SPARQL-Generate `GENERATE` query with proper *iterator functions*)
+- Generate a whole part of a vocabulary from a configuration file, and ensure that specific naming conventions are respected for resource URIs, labels and comments (ongoing work in the ITEA 2 SEAS project: the ontology of Multi-Dimensional Quantities, is parametrized and generated from JSON configuration files);
 - generate RDF from several open data sources (ongoing work in the OpenSensingCity French ANR project)
 
-
-## A RDF Generation Language
+# The RDF Generation Language
 
 The RDF Generation Language part of SPARQL-Generate extends the SPARQL 1.1 Query language, and offers a simple template-based RDF Graph generation from RDF literals. 
 
 Other languages enable to describe mapping from documents to RDF. By design, SPARQL-Generate extends SPARQL and hence offers an alternative that presents the following advantages:
+
 - anyone familiar with SPARQL can easily learn SPARQL-Generate;
-- naive implementation over existing SPARQL engines is simple;
+- implementing over existing SPARQL engines is simple;
 - SPARQL-Generate leverages the expressivity of SPARQL 1.1: Aggregates, Solution Sequences and Modifiers, SPARQL functions and their extension mechanism.
 
-## A Protocol
+SPARQL-Generate `GENERATE` extends the SPARQL 1.1 recommendation with the following keywords:
+
+## General form of a SPARQL Generate Query
+
+The general structure of a SPARQL-Generate query is as follows:
+
+```
+PREFIX declarations            -- same as SPARQL 1.1
+GENERATE template              -- replaces and extends SPARQL 1.1 CONSTRUCT
+FROM and FROM NAMED clauses    -- same as SPARQL 1.1
+ITERATOR and SOURCE clauses    -- see below
+WHERE clause                   -- same as SPARQL 1.1
+Solution modifiers              -- group by, order by, limit, offset,... same as SPARQL 1.1
+```
+
+## `ITERATOR` clause
+
+The `ITERATOR` clause uses the concept of SPARQL-Generate *iterator function*. A SPARQL-Generate *iterator* is similar to a SPARQL 1.1 Function, except it *returns a list of RDF Terms* instead of just one. The syntax of the `ITERATOR`clause is the following:
+
+```ITERATOR <iterator>(args) AS ?var```
+
+where `<iterator>` is the IRI of the SPARQL-Generate *iterator function*. As the name `ITERATOR` suggests, `?var`will be bound to every RDF Term in the list returned by the evaluation of the iterator function over the arguments `args`.
+
+As a simple example, consider the JSON message:
+
+```
+{ "firstname" : "Maxime" ,
+  "lastname" : "Lefrancois" ,
+  "birthday" : "04-26" ,
+  "country" : "FR" ,
+}
+```
+If this message is bound to variable `?doc`, then the following SPARQL-Generate query:
+
+```
+BASE <http://example.org/>
+GENERATE 
+  { <> ?p ?o . }
+ITERATOR <http://w3id.org/sparql-generate/ite/JSONListKeys>(?doc) AS ?key
+WHERE
+  { 
+    BIND( uri( ?key ) AS ?p )
+    BIND( <http://w3id.org/sparql-generate/fn/JSONPath> ( ?doc, CONCAT( "$." , ?key ) ) AS ?o )
+  }
+```
+Then one retrieve the following RDF Graph (serialized here in Turtle):
+
+```
+@base <http://example.org/> .
+<>      <firstname> "Maxime" ;
+        <lastname>  "Lefrancois" ;
+        <birthday>  "04/26" ;
+        <country>   "FR" .
+```
+
+
+## `SOURCE` clause
+
+The `SOURCE` clause enables to fetch a web document, and to bind it as a RDF Literal to a variable. Its syntax is as follows:
+
+```
+SOURCE <source> ACCEPT <iana urn> AS ?var
+``` 
+
+If `<source>` is a HTTP IRI, then the engine will operate a HTTP GET to that IRI (or use a local cache), then bind variable `?var` to the RDF Literal representation of the retrieved document. 
+
+`ACCEPT <iana urn>` is optional. If set, it must be a IANA MIME URN. For instance: `<urn:iana:mime:application/json>`. It tells the engine which Accept Header field to use when operating the GET.
+
+The RDF Literal representation of the retrieved document is as follows:
+
+- its lexical form is a Unicode representation of the payload. 
+- its datatype IRI is a IANA MIME URN, based on the internet media type of the retrieved document, or `xsd:string` if the Content-Type is not defined in the response. For instance, if the mime type is "application/vcard+json". Then the datatype IRI will be `<urn:iana:mime:application:vcard+json>`.
+
+For example, the following SPARQL-Generate query retrieves the document at URL `<http://country.io/capital.json>`, then generates a little RDF description of the country code and the capital name of the two first countries whose code starts with an 'F'.
+
+```
+BASE <http://example.org/> 
+GENERATE { 
+  [] a <Country> ;
+    <key> ?key ;
+    <capital> ?capital.
+}
+SOURCE <http://country.io/capital.json> AS ?source
+ITERATOR <http://w3id.org/sparql-generate/ite/JSONListKeys>(?source) AS ?key
+WHERE {
+   FILTER( STRSTARTS(?key,"F") )
+   BIND( CONCAT('$.', ?key) AS ?query )
+   BIND( <http://w3id.org/sparql-generate/fn/JSONPath>(?source, ?query ) AS ?capital )
+}
+ORDER BY ?key
+LIMIT 2
+```
+
+It generates the following RDF Graph:
+
+``` 
+@base <http://example.org/> .
+[] a          <Country> ;
+   <capital>  "Suva" ;
+   <code>     "FJ" .
+[] a  <Country> ;
+   <capital>  "Stanley" ;
+   <code>     "FK" .
+[] a          <Country> ;
+   <capital>  "Helsinki" ;
+   <code>     "FI" .
+```
+
+## sub-`GENERATE` queries
+
+One may embed other GENERATE queries in the `GENERATE` template. The `GENERATE` part of the embedded query may be a template as above, or just a URI that indicates the engine that it must fetch and execute an existing query on the web, with the current binding solutions. For instance, the following example   
+
+## How it works
+
+The execution of a SPARQL Generate is roughly defined as follows:
+
+1. clauses `ITERATOR` and `SOURCE` are processed in order, and one constructs a [https://www.w3.org/TR/sparql11-query/#inline-data](SPARQL 1.1 VALUES) data block.
+1. one constructs a SPARQL 1.1 `SELECT *` query from the SPARQL Generate query, and add the data block at the beginning of the WHERE clause.
+1. this SPARQL 1.1 SELECT query is evaluated on the SPARQL dataset, and produces a set of solution bindings.
+1. for each of these solution bindings, and for each element in the GENERATE template, one either produce triples, or execute the embedded query.  
+
+
+# The Protocol
 
 The protocol part of SPARQL-Generate enables a web client or a web server to point to the URL of a SPARQL-Generate document that may be used to interpret the request (or the response) payload as RDF.
 
-For HTTP requests, SPARQL-Generate defines Header Field `X-SPARQL-Generate-Companion`, that is an URL where one should be able to retrieve a SPARQL-Generate document
+## "How you, server, should interpret my lightweight HTTP request payload as RDF"
 
-For HTTP responses, the server may use the web-link relation type defined by SPARQL-Generate, [http://w3id.org/sparql-generate/companion](http://w3id.org/sparql-generate/companion), with the document as anchor, and the URL where one should be able to retrieve a SPARQL-Generate document as source.
+For HTTP requests, SPARQL-Generate defines Header Field X-SPARQL-Generate-Companion, If the server is RDF-enabled, it can use the value of this header field (a URL), to retrieve a SPARQL-Generate document, and interpret the input as RDF. An example of such a HTTP Request Header field:
+
+```
+SPARQL-Generate-Companion: <http://manufacturer.com/deviceX/sparql-gen>
+```
+
+## "How you, client, should interpret my lightweight HTTP resonse payload as RDF"
+
+For HTTP responses, the server may use the web-link relation type defined by SPARQL-Generate, [http://w3id.org/sparql-generate/companion](http://w3id.org/sparql-generate/companion), with the document as anchor, and the URL where one should be able to retrieve a SPARQL-Generate document as source. If the client is RDF-enabled, it can use this SPARQL Generate query to interpret the output as RDF. An example of such a web-link in a HTTP Response Header field:
+
+```
+Link: <http://manufacturer.com/deviceX/sparql-gen>; rel="http://w3id.org/sparql-generate/companion"
+```
+
+## IANA considerations.
 
 The Internet Media type of a SPARQL-Generate query is `application/sparql-generate`, with file extension `*.rqg`.
-
-
-## Description of the SPARQL-Generate Language
-
-SPARQL-Generate `GENERATE` extends the SPARQL 1.1 recommendation with the following capabilities:
-- `SELECTOR` and `SOURCE` clauses, at the end of the query just before SPARQL 1.1 `VALUES` clause;
-- use `GENERATE` template in place of `CONSTRUCT` template in a triple pattern. The `GENERATE` template adds new capabilities to the `CONSTRUCT` template:
-    - `LIST( ?x )` is used in place of a RDF Term or variable. It generates a blank node common to all solutions of the query, and that blank node is also a RDF list that contains the RDF Terms bound to variable `?x` accross all of the solutions.
-    - sub-`GENERATE` use the current binding to execute a new `GENERATE` query.
-    - `EXPR( expr )` is used in place of a RDF Term or variable in a triple pattern. It is equivalent to a unused variable `?x`, that would be bound by a `BIND` clause at the end of the `WHERE` template.
-
-### `SELECTOR` and `SOURCE`
-
-`SELECTOR` or `SOURCE` clauses can be used in any order and any number just before the SPARQL 1.1 `VALUES` clause. At execution time, they are resolved just after the `VALUES` clause, in reverse order:
-
-#### `SELECTOR` 
-
-The `SELECTOR` clause is used as follows: `SELECTOR <selector>(args) AS ?var`. 
-
-`<selector>` is the IRI of a SPARQL-Generate *Selector*. A SPARQL-Generate *Selector* is similar to a SPARQL 1.1 Function, except it *returns a list of RDF Terms*.
-
-Then for every RDF Term in the list, the rest of the query is executed with `?var` bound to the RDF Term ;
-
-`?var` may have already been bound. In such cases, the binding is *overriden*.
-
-#### `SOURCE`
-
-The `SOURCE` clause is used as follows: `SOURCE <source> ACCEPT "mime" AS ?var`. 
-
-If `<source>` is bound to a IRI at that time, then the engine must operate a GET to that IRI, bound variable `?var` to the RDF Literal representation of the retrieved document in the `?var`, and continue the execution of the query. 
-
-The variable `?var` must not have been bound before. For now, only source IRIs with `http` scheme are considered. In the future, `https`, `coap`, and `coaps` schemes may be considered.
-
-`ACCEPT "mime"` is optional, and tells the engine which HTTP Accept Header Field it should use. mime MUST be a string literal, or IANA schemed URN (yet to be defined by IETF in a RFC), such that "application/vcard+json".
-
-The lexical form of the RDF Literal representation of the retrieved document is a Unicode representation of the payload.
-If this payload is encoded as text, then the lexical form is the Unicode representation of that text. Else, if the payload is encoded in a binary format, then the lexical form is the base64 representation of that binary document.
-
-The datatype IRI of the RDF Literal representation of the retrieved document is a IANA schemed URN (yet to be defined by IETF in a RFC), defined based on the internet media type  of the retrieved document. For instance, if the mime type is "application/vcard+json". Then the datatype IRI will be `<urn:iana:mime:application:vcard+json>`
-
-### `GENERATE`
-
-The `GENERATE` clause replaces the `CONSTRUCT` clause, and augments it with sub-`GENERATE` queries, and `LIST` and `EXPR` constructors.
-
-#### sub-`GENERATE`
-
-A sub-`GENERATE` query generates more RDF based on the current binding solution.
-
-It has the same syntax as a GENERATE query, except it MUST end with character `.`, and:
-
-##### URI instead of the Generate pattern.
-
-Instead of `GENERATE {...}`, one may use `GENERATE <iri>`. In such cases, the engine must operate a GET at the given IRI, (only http scheme is considered for now) with Accept Header Field set to "application/sparql-generate". If it retrieves a SPARQL-Generate query, then this query is executed with the current binding solution.
-
-##### `USE BINDINGS` clause
-
-By default, the sub-`GENERATE` query is evaluated with the current binding solution as initial binding. In most use cases, it is sufficient to pass only part of the binding solution, and it is also necessary to rename the variables. For this purpose, the sub-`GENERATE` query may end with a `WITH BINDINGS` clause. 
-
-This clause is used as follows `WITH BINDINGS ( ?currentvar1 AS ?newvar1 ) ... ( ?currentvarn AS ?newvarn )`. 
-
-only variables `?newvari` are passed to the sub-`GENERATE` query, and they are bound to what variables `?currentvari` is bound. 
-
-
-### Grammar
-
-The EBNF extends the [SPARQL 1.1 Grammar](https://www.w3.org/TR/sparql11-query/#sparqlGrammar).
-
-```
-[174]	GenerateUnit	::=	Generate
-[175]   Generate        ::= SPARQL 1.1 Prologue GenerateQuery
-[175]	GenerateQuery   ::=	'GENERATE' GenerateTemplate GenerateWhereClause SPARQL 1.1 SolutionModifier SelectorClause
-[177]	GenerateTemplate	::=	'{' SPARQL 1.1 ConstructTriples? ( SubGenerateQuery SPARQL 1.1 ConstructTriples? )* '}'
-[178]	GenerateWhereClause	::=	'WHERE'? '{' GenerateGroupPattern '}'
-[178]	SelectorClause	::=	( 'SELECTOR' SPARQL 1.1 FunctionCall )?
-[179]   GenerateGroupPattern ::= '{' ( GenerateSubSelect | GeneratePattern ) '}'
-[179]   GeneratePattern ::= GenerateGroupOrUnionPattern | GenerateOptionalPattern | GenerateMinusPattern | SPARQL 1.1 ServiceGraphPattern | SPARQL 1.1 Filter | SPARQL 1.1 Bind | SPARQL 1.1 InlineData
-[ ]     GenerateGroupOrUnionPattern ::= GenerateGroupPattern ( 'UNION' GenerateGroupPattern )*
-[ ]     GenerateOptionalPattern ::= 'OPTIONAL' GenerateGroupPattern
-[ ]     GenerateMinusPattern ::= 'MINUS' GenerateGroupPattern
-[181]	GenerateSubSelect	::=	SelectClause GenerateWhereClause SPARQL 1.1 SolutionModifier SelectorClause
-[181]	SubGenerateQuery	::=	'GENERATE' ( SPARQL 1.1 SourceSelector | GenerateTemplate GenerateWhereClause ) SPARQL 1.1 SolutionModifier SelectorClause 
-qsdfqsdf
-```
 

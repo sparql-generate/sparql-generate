@@ -28,7 +28,7 @@ import org.apache.jena.sparql.syntax.TripleCollectorMark;
 import org.apache.jena.sparql.util.NodeIsomorphismMap;
 
 /**
- * The syntax eleemnt for a SPARGL BasicGenerationGraphPattern
+ * The syntax element for a SPARGL BasicGenerationGraphPattern
  */
 public class ElementGenerateTriplesBlock extends Element implements TripleCollectorMark {
 

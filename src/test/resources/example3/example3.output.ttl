@@ -1,0 +1,37 @@
+@prefix rr: <http://www.w3.org/ns/r2rml#>.
+@prefix rml: <http://semweb.mmlab.be/ns/rml#> .
+@prefix ql: <http://semweb.mmlab.be/ns/ql#> .
+@prefix mail: <http://example.com/mail#>.
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
+@prefix ex: <http://www.example.com/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix transit: <http://vocab.org/transit/terms/> .
+@prefix wgs84_pos: <http://www.w3.org/2003/01/geo/wgs84_pos#>.
+@prefix schema: <http://schema.org/>.
+@prefix gn: <http://www.geonames.org/ontology#>.
+@prefix geosp: <http://www.telegraphis.net/ontology/geography/geography#> .
+
+#Airport.csv output
+<http://airport.example.com/6523> a transit:Stop.
+<http://airport.example.com/6523> transit:service <http://trans.example.com/busses/25>.
+<http://airport.example.com/6523> wgs84_pos:location <http://loc.example.com/city/Brussels> .
+
+
+#Transport.xml output
+<http://trans.example.com/busses/25> a transit:Service.
+<http://trans.example.com/busses/25> transit:stop <http://trans.example.com/stops/645>.
+<http://trans.example.com/busses/25> transit:stop <http://trans.example.com/stops/651>.
+
+<http://trans.example.com/stops/645> a transit:Stop.
+<http://trans.example.com/stops/645> rdfs:label "Int. Airport".
+<http://trans.example.com/stops/651> a transit:Stop.
+<http://trans.example.com/stops/651> rdfs:label "Conference center".
+
+#Venue.json output
+<http://loc.example.com/city/Brussels> a schema:City.
+<http://loc.example.com/city/Brussels> wgs84_pos:location <http://loc.example.com/latlong/51.0500000,3.7166700>.
+<http://loc.example.com/city/Brussels> gn:countryCode "BE".
+<http://loc.example.com/city/Brussels> geosp:onContinent "Europe".
+
+<http://loc.example.com/latlong/51.0500000,3.7166700> wgs84_pos:lat "51.0500000".
+<http://loc.example.com/latlong/51.0500000,3.7166700> wgs84_pos:long "3.7166700".

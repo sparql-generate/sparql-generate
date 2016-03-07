@@ -1,0 +1,42 @@
+@PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> 
+@PREFIX mail: <http://example.com/mail#>
+@PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+@PREFIX note: <http://www.example.com/note/> 
+@PREFIX dt: <http://www.example.com/DateTime/> 
+@PREFIX ex: <http://www.example.com/> 
+@BASE <http://example.com/base> 
+
+GENERATE {
+
+  ?note a mail:note ;
+    mail:when ?when ;
+    mail:from ?from ;
+    mail:to ?to ;
+    mail:heading ?heading ;
+    mail:body ?body .
+
+  ?datetime a ex:DateTime ;
+    ex:day ?gday ;
+    ex:month ?gmonth ;
+    ex:year ?gYear .
+
+} WHERE {
+  BIND( rqg-fn:XPath( ?notexml , "/note/@id" ) AS ?id ) 
+  BIND( rqg-fn:XPath( ?notexml , "/note/@day" ) AS ?day ) 
+  BIND( rqg-fn:XPath( ?notexml , "/note/@month" ) AS ?month ) 
+  BIND( rqg-fn:XPath( ?notexml , "/note/@year" ) AS ?year ) 
+
+  BIND( IRI( CONCAT("http://www.example.com/note/", ?id ) ) AS ?note ) 
+  BIND( STRDT( CONCAT(?year, "-", ?month, "-", ?day ), xsd:date ) AS ?when ) 
+  BIND( rqg-fn:XPath( ?notexml , "/note/from/text()" ) AS ?from ) 
+  BIND( rqg-fn:XPath( ?notexml , "/note/to/text()" ) AS ?to ) 
+  BIND( rqg-fn:XPath( ?notexml , "/note/heading/text()" ) AS ?heading ) 
+  BIND( rqg-fn:XPath( ?notexml , "/note/body/text()" ) AS ?body ) 
+
+  BIND( IRI( CONCAT("http://www.example.com/DateTime/", ?year, ?month, ?day ) ) AS ?datetime ) 
+  BIND( STRDT( CONCAT("---", ?day ), xsd:gDay ) AS ?gday ) 
+  BIND( STRDT( CONCAT("--", ?month ), xsd:gMonth ) AS ?gmonth ) 
+  BIND( STRDT( ?year, xsd:gMonth ) AS ?gYear ) 
+
+} SELECTOR rqg-sel:XPath( ?notes , "/notes/note" ) AS ?notexml
+SOURCE <http://example.org/example1.xml> as ?notesxml

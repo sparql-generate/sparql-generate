@@ -1,0 +1,5 @@
+<http://www.ex.com/paper/780271> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.example.com/Paper> .
+<http://www.ex.com/paper/780271> <http://www.example.com/country> <http://dbpedia.org/resource/Belgium> .
+<http://dbpedia.org/resource/Belgium> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.example.com/Country> . 
+<http://dbpedia.org/resource/Belgium> <http://www.example.com/name> "Belgique" . 
+

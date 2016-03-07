@@ -1,0 +1,11 @@
+<http://www.ex.com/paper/1B2AC726-F0EE-11E1-A9DE-61C894A0A6B4> 
+    <http://www.example.com/author>  "Youri Maryn" .
+
+<http://www.ex.com/paper/F5A2F41A-F0ED-11E1-A9DE-61C894A0A6B4> 
+    <http://www.example.com/author> "Paul Corthals" .
+
+<http://www.ex.com/paper/F9436D48-F0ED-11E1-A9DE-61C894A0A6B4> 
+    <http://www.example.com/author> "Paul Van Cauwenberge" .
+
+<http://www.ex.com/paper/F53F45D2-F0ED-11E1-A9DE-61C894A0A6B4> 
+    <http://www.example.com/author> "Marc De Bodt" .

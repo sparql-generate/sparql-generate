@@ -1,0 +1,85 @@
+
+<http://ex.com/Neil+Armstrong> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.cidoc-crm.org/cidoc-crm/E21_Person> .
+#<http://ex.com/Neil+Armstrong> <http://www.w3.org/2000/01/rdf-schema#label> "Neil Armstrong" .
+<http://ex.com/Buzz+Aldrin> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.cidoc-crm.org/cidoc-crm/E21_Person> .
+#<http://ex.com/Buzz+Aldrin> <http://www.w3.org/2000/01/rdf-schema#label> "Buzz Aldrin" .
+<http://ex.com/Henry+Larcom+Abbot> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.cidoc-crm.org/cidoc-crm/E21_Person> .
+#<http://ex.com/Henry+Larcom+Abbot> <http://www.w3.org/2000/01/rdf-schema#label> "Henry Larcom Abbot" .
+
+
+<http://ex.com/Neil+Armstrong> <http://example.com/service> "NASA" ;
+	<http://example.com/deathday> "2012-08-25"^^<http://www.w3.org/2001/XMLSchema#date> ;
+	<http://example.com/birthday> "1930-08-05"^^<http://www.w3.org/2001/XMLSchema#date> ;
+	<http://example.com/evaday> "1969-07-21"^^<http://www.w3.org/2001/XMLSchema#date> .
+
+<http://ex.com/Buzz+Aldrin> a <http://www.cidoc-crm.org/cidoc-crm/E21_Person> ;
+	<http://example.com/service> "Air Force" ;
+	#<http://example.com/deathday> ""^^<http://www.w3.org/2001/XMLSchema#date> ;
+	<http://example.com/birthday> "1930-01-20"^^<http://www.w3.org/2001/XMLSchema#date> ;
+	<http://example.com/evaday> "1969-07-21"^^<http://www.w3.org/2001/XMLSchema#date> .
+
+<http://ex.com/Pete+Conrad> a <http://www.cidoc-crm.org/cidoc-crm/E21_Person> ;
+	<http://example.com/service> "Navy" ;
+	<http://example.com/deathday> "1999-07-08"^^<http://www.w3.org/2001/XMLSchema#date> ;
+	<http://example.com/birthday> "1930-06-02"^^<http://www.w3.org/2001/XMLSchema#date> ;
+	<http://example.com/evaday> "1969-11-19"^^<http://www.w3.org/2001/XMLSchema#date> .
+
+<http://ex.com/Alan+Bean> a <http://www.cidoc-crm.org/cidoc-crm/E21_Person> ;
+	<http://example.com/service> "Navy" ;
+	#<http://example.com/deathday> ""^^<http://www.w3.org/2001/XMLSchema#date> ;
+	<http://example.com/birthday> "1932-03-15"^^<http://www.w3.org/2001/XMLSchema#date> ;
+	<http://example.com/evaday> "1969-11-19"^^<http://www.w3.org/2001/XMLSchema#date> .
+
+<http://ex.com/Alan+Shepard> a <http://www.cidoc-crm.org/cidoc-crm/E21_Person> ;
+	<http://example.com/service> "Navy" ;
+	<http://example.com/deathday> "1998-07-21"^^<http://www.w3.org/2001/XMLSchema#date> ;
+	<http://example.com/birthday> "1923-11-18"^^<http://www.w3.org/2001/XMLSchema#date> ;
+	<http://example.com/evaday> "1971-02-05"^^<http://www.w3.org/2001/XMLSchema#date> .
+
+<http://ex.com/Edgar+Mitchell> a <http://www.cidoc-crm.org/cidoc-crm/E21_Person> ;
+	<http://example.com/service> "Navy" ;
+	#<http://example.com/deathday> ""^^<http://www.w3.org/2001/XMLSchema#date> ;
+	<http://example.com/birthday> "1930-09-17"^^<http://www.w3.org/2001/XMLSchema#date> ;
+	<http://example.com/evaday> "1971-02-05"^^<http://www.w3.org/2001/XMLSchema#date> .
+
+<http://ex.com/David+Scott> a <http://www.cidoc-crm.org/cidoc-crm/E21_Person> ;
+	<http://example.com/service> "Air Force" ;
+	#<http://example.com/deathday> ""^^<http://www.w3.org/2001/XMLSchema#date> ;
+	<http://example.com/birthday> "1932-06-06"^^<http://www.w3.org/2001/XMLSchema#date> ;
+	<http://example.com/evaday> "1971-07-31"^^<http://www.w3.org/2001/XMLSchema#date> .
+
+<http://ex.com/James+Irwin> a <http://www.cidoc-crm.org/cidoc-crm/E21_Person> ;
+	<http://example.com/service> "Air Force" ;
+	<http://example.com/deathday> "1991-08-08"^^<http://www.w3.org/2001/XMLSchema#date> ;
+	<http://example.com/birthday> "1930-03-17"^^<http://www.w3.org/2001/XMLSchema#date> ;
+	<http://example.com/evaday> "1971-07-31"^^<http://www.w3.org/2001/XMLSchema#date> .
+
+<http://ex.com/John+Young> a <http://www.cidoc-crm.org/cidoc-crm/E21_Person> ;
+	<http://example.com/service> "Navy" ;
+	#<http://example.com/deathday> ""^^<http://www.w3.org/2001/XMLSchema#date> ;
+	<http://example.com/birthday> "1930-09-24"^^<http://www.w3.org/2001/XMLSchema#date> ;
+	<http://example.com/evaday> "1972-04-21"^^<http://www.w3.org/2001/XMLSchema#date> .
+
+<http://ex.com/Charles+Duke> a <http://www.cidoc-crm.org/cidoc-crm/E21_Person> ;
+	<http://example.com/service> "Air Force" ;
+	#<http://example.com/deathday> ""^^<http://www.w3.org/2001/XMLSchema#date> ;
+	<http://example.com/birthday> "1935-10-03"^^<http://www.w3.org/2001/XMLSchema#date> ;
+	<http://example.com/evaday> "1972-04-21"^^<http://www.w3.org/2001/XMLSchema#date> .
+
+<http://ex.com/Eugene+Cernan> a <http://www.cidoc-crm.org/cidoc-crm/E21_Person> ;
+	<http://example.com/service> "Navy" ;
+	#<http://example.com/deathday> ""^^<http://www.w3.org/2001/XMLSchema#date> ;
+	<http://example.com/birthday> "1934-03-14"^^<http://www.w3.org/2001/XMLSchema#date> ;
+	<http://example.com/evaday> "1972-12-11"^^<http://www.w3.org/2001/XMLSchema#date> .
+
+<http://ex.com/Harrison+Schmitt> a <http://www.cidoc-crm.org/cidoc-crm/E21_Person> ;
+	<http://example.com/service> "NASA" ;
+	#<http://example.com/deathday> ""^^<http://www.w3.org/2001/XMLSchema#date> ;
+	<http://example.com/birthday> "1935-07-03"^^<http://www.w3.org/2001/XMLSchema#date> ;
+	<http://example.com/evaday> "1972-12-11"^^<http://www.w3.org/2001/XMLSchema#date> .
+
+<http://ex.com/Henry+Larcom+Abbot> a <http://www.cidoc-crm.org/cidoc-crm/E21_Person> ;
+	#<http://example.com/service> "" ;
+	<http://example.com/deathday> "1927-10-01"^^<http://www.w3.org/2001/XMLSchema#date> ;
+	<http://example.com/birthday> "1831-08-13"^^<http://www.w3.org/2001/XMLSchema#date> ;
+	#<http://example.com/evaday> ""^^<http://www.w3.org/2001/XMLSchema#date> .

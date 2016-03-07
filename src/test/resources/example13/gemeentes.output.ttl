@@ -1,0 +1,128 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix mail: <http://example.com/mail#>.
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
+@prefix note: <http://www.example.com/note/> .
+@prefix dt: <http://www.example.com/DateTime/> .
+@prefix ex: <http://www.example.com/> .
+@base <http://example.com/base> .
+
+<http://ewi.mmlab.be/datajournalism/gemeentes/11001/demography/2012> <http://ewi.mmlab.be/ns#cultural-events> <http://ewi.mmlab.be/datajournalism/gemeentes/11001/cultural-events/2011> .
+
+<http://ewi.mmlab.be/datajournalism/gemeentes/11002/demography/2012> <http://ewi.mmlab.be/ns#cultural-events> <http://ewi.mmlab.be/datajournalism/gemeentes/11002/cultural-events/2011> .
+
+<http://ewi.mmlab.be/datajournalism/gemeentes/11004/demography/2012> <http://ewi.mmlab.be/ns#cultural-events> <http://ewi.mmlab.be/datajournalism/gemeentes/11004/cultural-events/2011> .
+
+<http://ewi.mmlab.be/datajournalism/gemeentes/11005/demography/2012> <http://ewi.mmlab.be/ns#cultural-events> <http://ewi.mmlab.be/datajournalism/gemeentes/11005/cultural-events/2011> .
+
+<http://ewi.mmlab.be/datajournalism/gemeentes/11007/demography/2012> <http://ewi.mmlab.be/ns#cultural-events> <http://ewi.mmlab.be/datajournalism/gemeentes/11007/cultural-events/2011> .
+
+<http://ewi.mmlab.be/datajournalism/gemeentes/11008/demography/2012> <http://ewi.mmlab.be/ns#cultural-events> <http://ewi.mmlab.be/datajournalism/gemeentes/11008/cultural-events/2011> .
+
+<http://ewi.mmlab.be/datajournalism/gemeentes/11009/demography/2012> <http://ewi.mmlab.be/ns#cultural-events> <http://ewi.mmlab.be/datajournalism/gemeentes/11009/cultural-events/2011> .
+
+<http://ewi.mmlab.be/datajournalism/gemeentes/11013/demography/2012> <http://ewi.mmlab.be/ns#cultural-events> <http://ewi.mmlab.be/datajournalism/gemeentes/11013/cultural-events/2011> .
+
+<http://ewi.mmlab.be/datajournalism/gemeentes/11016/demography/2012> <http://ewi.mmlab.be/ns#cultural-events> <http://ewi.mmlab.be/datajournalism/gemeentes/11016/cultural-events/2011> .
+
+<http://ewi.mmlab.be/datajournalism/gemeentes/11018/demography/2012> <http://ewi.mmlab.be/ns#cultural-events> <http://ewi.mmlab.be/datajournalism/gemeentes/11018/cultural-events/2011> .
+
+<http://ewi.mmlab.be/datajournalism/gemeentes/11021/demography/2012> <http://ewi.mmlab.be/ns#cultural-events> <http://ewi.mmlab.be/datajournalism/gemeentes/11021/cultural-events/2011> .
+
+<http://ewi.mmlab.be/datajournalism/gemeentes/11022/demography/2012> <http://ewi.mmlab.be/ns#cultural-events> <http://ewi.mmlab.be/datajournalism/gemeentes/11022/cultural-events/2011> .
+
+<http://ewi.mmlab.be/datajournalism/gemeentes/11023/demography/2012> <http://ewi.mmlab.be/ns#cultural-events> <http://ewi.mmlab.be/datajournalism/gemeentes/11023/cultural-events/2011> .
+
+<http://ewi.mmlab.be/datajournalism/gemeentes/11024/demography/2012> <http://ewi.mmlab.be/ns#cultural-events> <http://ewi.mmlab.be/datajournalism/gemeentes/11024/cultural-events/2011> .
+
+<http://ewi.mmlab.be/datajournalism/gemeentes/11025/demography/2012> <http://ewi.mmlab.be/ns#cultural-events> <http://ewi.mmlab.be/datajournalism/gemeentes/11025/cultural-events/2011> .
+
+<http://ewi.mmlab.be/datajournalism/gemeentes/11029/demography/2012> <http://ewi.mmlab.be/ns#cultural-events> <http://ewi.mmlab.be/datajournalism/gemeentes/11029/cultural-events/2011> .
+
+<http://ewi.mmlab.be/datajournalism/gemeentes/11030/demography/2012> <http://ewi.mmlab.be/ns#cultural-events> <http://ewi.mmlab.be/datajournalism/gemeentes/11030/cultural-events/2011> .
+
+<http://ewi.mmlab.be/datajournalism/gemeentes/11035/demography/2012> <http://ewi.mmlab.be/ns#cultural-events> <http://ewi.mmlab.be/datajournalism/gemeentes/11035/cultural-events/2011> .
+
+<http://ewi.mmlab.be/datajournalism/gemeentes/11037/demography/2012> <http://ewi.mmlab.be/ns#cultural-events> <http://ewi.mmlab.be/datajournalism/gemeentes/11037/cultural-events/2011> .
+
+<http://ewi.mmlab.be/datajournalism/gemeentes/11038/demography/2012> <http://ewi.mmlab.be/ns#cultural-events> <http://ewi.mmlab.be/datajournalism/gemeentes/11038/cultural-events/2011> .
+
+<http://ewi.mmlab.be/datajournalism/gemeentes/11039/demography/2012> <http://ewi.mmlab.be/ns#cultural-events> <http://ewi.mmlab.be/datajournalism/gemeentes/11039/cultural-events/2011> .
+
+<http://ewi.mmlab.be/datajournalism/gemeentes/11040/demography/2012> <http://ewi.mmlab.be/ns#cultural-events> <http://ewi.mmlab.be/datajournalism/gemeentes/11040/cultural-events/2011> .
+
+<http://ewi.mmlab.be/datajournalism/gemeentes/11044/demography/2012> <http://ewi.mmlab.be/ns#cultural-events> <http://ewi.mmlab.be/datajournalism/gemeentes/11044/cultural-events/2011> .
+
+<http://ewi.mmlab.be/datajournalism/gemeentes/11050/demography/2012> <http://ewi.mmlab.be/ns#cultural-events> <http://ewi.mmlab.be/datajournalism/gemeentes/11050/cultural-events/2011> .
+
+<http://ewi.mmlab.be/datajournalism/gemeentes/11052/demography/2012> <http://ewi.mmlab.be/ns#cultural-events> <http://ewi.mmlab.be/datajournalism/gemeentes/11052/cultural-events/2011> .
+
+<http://ewi.mmlab.be/datajournalism/gemeentes/11053/demography/2012> <http://ewi.mmlab.be/ns#cultural-events> <http://ewi.mmlab.be/datajournalism/gemeentes/11053/cultural-events/2011> .
+
+<http://ewi.mmlab.be/datajournalism/gemeentes/11054/demography/2012> <http://ewi.mmlab.be/ns#cultural-events> <http://ewi.mmlab.be/datajournalism/gemeentes/11054/cultural-events/2011> .
+
+<http://ewi.mmlab.be/datajournalism/gemeentes/11055/demography/2012> <http://ewi.mmlab.be/ns#cultural-events> <http://ewi.mmlab.be/datajournalism/gemeentes/11055/cultural-events/2011> .
+
+<http://ewi.mmlab.be/datajournalism/gemeentes/11056/demography/2012> <http://ewi.mmlab.be/ns#cultural-events> <http://ewi.mmlab.be/datajournalism/gemeentes/11056/cultural-events/2011> .
+
+<http://ewi.mmlab.be/datajournalism/gemeentes/11057/demography/2012> <http://ewi.mmlab.be/ns#cultural-events> <http://ewi.mmlab.be/datajournalism/gemeentes/11057/cultural-events/2011> .
+
+
+<http://ewi.mmlab.be/datajournalism/gemeentes/11001/demography/2012> <http://ewi.mmlab.be/ns#population-births> <http://ewi.mmlab.be/datajournalism/gemeentes/11001/births/2012> .
+
+<http://ewi.mmlab.be/datajournalism/gemeentes/11002/demography/2012> <http://ewi.mmlab.be/ns#population-births> <http://ewi.mmlab.be/datajournalism/gemeentes/11002/births/2012> .
+
+<http://ewi.mmlab.be/datajournalism/gemeentes/11004/demography/2012> <http://ewi.mmlab.be/ns#population-births> <http://ewi.mmlab.be/datajournalism/gemeentes/11004/births/2012> .
+
+<http://ewi.mmlab.be/datajournalism/gemeentes/11005/demography/2012> <http://ewi.mmlab.be/ns#population-births> <http://ewi.mmlab.be/datajournalism/gemeentes/11005/births/2012> .
+
+<http://ewi.mmlab.be/datajournalism/gemeentes/11007/demography/2012> <http://ewi.mmlab.be/ns#population-births> <http://ewi.mmlab.be/datajournalism/gemeentes/11007/births/2012> .
+
+<http://ewi.mmlab.be/datajournalism/gemeentes/11008/demography/2012> <http://ewi.mmlab.be/ns#population-births> <http://ewi.mmlab.be/datajournalism/gemeentes/11008/births/2012> .
+
+<http://ewi.mmlab.be/datajournalism/gemeentes/11009/demography/2012> <http://ewi.mmlab.be/ns#population-births> <http://ewi.mmlab.be/datajournalism/gemeentes/11009/births/2012> .
+
+<http://ewi.mmlab.be/datajournalism/gemeentes/11013/demography/2012> <http://ewi.mmlab.be/ns#population-births> <http://ewi.mmlab.be/datajournalism/gemeentes/11013/births/2012> .
+
+<http://ewi.mmlab.be/datajournalism/gemeentes/11016/demography/2012> <http://ewi.mmlab.be/ns#population-births> <http://ewi.mmlab.be/datajournalism/gemeentes/11016/births/2012> .
+
+<http://ewi.mmlab.be/datajournalism/gemeentes/11018/demography/2012> <http://ewi.mmlab.be/ns#population-births> <http://ewi.mmlab.be/datajournalism/gemeentes/11018/births/2012> .
+
+<http://ewi.mmlab.be/datajournalism/gemeentes/11021/demography/2012> <http://ewi.mmlab.be/ns#population-births> <http://ewi.mmlab.be/datajournalism/gemeentes/11021/births/2012> .
+
+<http://ewi.mmlab.be/datajournalism/gemeentes/11022/demography/2012> <http://ewi.mmlab.be/ns#population-births> <http://ewi.mmlab.be/datajournalism/gemeentes/11022/births/2012> .
+
+<http://ewi.mmlab.be/datajournalism/gemeentes/11023/demography/2012> <http://ewi.mmlab.be/ns#population-births> <http://ewi.mmlab.be/datajournalism/gemeentes/11023/births/2012> .
+
+<http://ewi.mmlab.be/datajournalism/gemeentes/11024/demography/2012> <http://ewi.mmlab.be/ns#population-births> <http://ewi.mmlab.be/datajournalism/gemeentes/11024/births/2012> .
+
+<http://ewi.mmlab.be/datajournalism/gemeentes/11025/demography/2012> <http://ewi.mmlab.be/ns#population-births> <http://ewi.mmlab.be/datajournalism/gemeentes/11025/births/2012> .
+
+<http://ewi.mmlab.be/datajournalism/gemeentes/11029/demography/2012> <http://ewi.mmlab.be/ns#population-births> <http://ewi.mmlab.be/datajournalism/gemeentes/11029/births/2012> .
+
+<http://ewi.mmlab.be/datajournalism/gemeentes/11030/demography/2012> <http://ewi.mmlab.be/ns#population-births> <http://ewi.mmlab.be/datajournalism/gemeentes/11030/births/2012> .
+
+<http://ewi.mmlab.be/datajournalism/gemeentes/11035/demography/2012> <http://ewi.mmlab.be/ns#population-births> <http://ewi.mmlab.be/datajournalism/gemeentes/11035/births/2012> .
+
+<http://ewi.mmlab.be/datajournalism/gemeentes/11037/demography/2012> <http://ewi.mmlab.be/ns#population-births> <http://ewi.mmlab.be/datajournalism/gemeentes/11037/births/2012> .
+
+<http://ewi.mmlab.be/datajournalism/gemeentes/11038/demography/2012> <http://ewi.mmlab.be/ns#population-births> <http://ewi.mmlab.be/datajournalism/gemeentes/11038/births/2012> .
+
+<http://ewi.mmlab.be/datajournalism/gemeentes/11039/demography/2012> <http://ewi.mmlab.be/ns#population-births> <http://ewi.mmlab.be/datajournalism/gemeentes/11039/births/2012> .
+
+<http://ewi.mmlab.be/datajournalism/gemeentes/11040/demography/2012> <http://ewi.mmlab.be/ns#population-births> <http://ewi.mmlab.be/datajournalism/gemeentes/11040/births/2012> .
+
+<http://ewi.mmlab.be/datajournalism/gemeentes/11044/demography/2012> <http://ewi.mmlab.be/ns#population-births> <http://ewi.mmlab.be/datajournalism/gemeentes/11044/births/2012> .
+
+<http://ewi.mmlab.be/datajournalism/gemeentes/11050/demography/2012> <http://ewi.mmlab.be/ns#population-births> <http://ewi.mmlab.be/datajournalism/gemeentes/11050/births/2012> .
+
+<http://ewi.mmlab.be/datajournalism/gemeentes/11052/demography/2012> <http://ewi.mmlab.be/ns#population-births> <http://ewi.mmlab.be/datajournalism/gemeentes/11052/births/2012> .
+
+<http://ewi.mmlab.be/datajournalism/gemeentes/11053/demography/2012> <http://ewi.mmlab.be/ns#population-births> <http://ewi.mmlab.be/datajournalism/gemeentes/11053/births/2012> .
+
+<http://ewi.mmlab.be/datajournalism/gemeentes/11054/demography/2012> <http://ewi.mmlab.be/ns#population-births> <http://ewi.mmlab.be/datajournalism/gemeentes/11054/births/2012> .
+
+<http://ewi.mmlab.be/datajournalism/gemeentes/11055/demography/2012> <http://ewi.mmlab.be/ns#population-births> <http://ewi.mmlab.be/datajournalism/gemeentes/11055/births/2012> .
+
+<http://ewi.mmlab.be/datajournalism/gemeentes/11056/demography/2012> <http://ewi.mmlab.be/ns#population-births> <http://ewi.mmlab.be/datajournalism/gemeentes/11056/births/2012> .
+
+<http://ewi.mmlab.be/datajournalism/gemeentes/11057/demography/2012> <http://ewi.mmlab.be/ns#population-births> <http://ewi.mmlab.be/datajournalism/gemeentes/11057/births/2012> .

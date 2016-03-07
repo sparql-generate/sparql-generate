@@ -15,8 +15,8 @@
  */
 package com.github.thesmartenergy.sparql.generate.jena.function.library;
 
+import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
 import com.jayway.jsonpath.JsonPath;
-import com.github.thesmartenergy.sparql.generate.jena.selector.library.SEL_JSONPath;
 import java.math.BigDecimal;
 import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.NodeValue;
@@ -30,22 +30,60 @@ import org.apache.jena.sparql.function.FunctionBase2;
 import org.apache.log4j.Logger;
 
 /**
+ * A SPARQL Function that extracts a string from a JSON document, according to a
+ * JSONPath expression. The Function URI is
+ * {@code <http://w3id.org/sparql-generate/fn/JSON_Path_jayway>}.
+ * It takes two parameters as input:
+ * <ul>
+ * <li>a RDF Literal with datatype URI
+ * {@code <urn:iana:mime:application/json>}</li>
+ * <li>a RDF Literal with datatype {@code xsd:string}</li>
+ * </ul>
+ * and returns a RDF Literal with datatype URI
+ * {@code <urn:iana:mime:application/json>}.
  *
  * @author maxime.lefrancois
  */
-public class FN_JSONPath extends FunctionBase2 {
+public final class FN_JSONPath extends FunctionBase2 {
+    //TODO write multiple unit tests for this class.
 
-    private static final String uri = "urn:iana:mime:application/json";
+    /**
+     * The logger.
+     */
+    private static final Logger LOG = Logger.getLogger(FN_JSONPath.class);
 
+    /**
+     * The SPARQL function URI.
+     */
+    public static final String URI = SPARQLGenerate.FN + "JSONPath";
+
+    /**
+     * The datatype URI of the first parameter and the return literals.
+     */
+    private static final String datatypeUri = "urn:iana:mime:application/json";
+
+    /**
+     * Returns the evaluation of JSONPath {@code jsonpath} over the JSON
+     * document {@code json}.
+     * @param json the RDF Literal that represents a JSON document
+     * @param jsonpath the xsd:string that represents the JSONPath
+     * @return
+     */
     @Override
-    public NodeValue exec(NodeValue v1, NodeValue v2) {
-        if (v1.getDatatypeURI() == null ? uri != null : !v1.getDatatypeURI().equals(uri)) {
-            Logger.getLogger(SEL_JSONPath.class).warn("The URI of NodeValue1 MUST be <" + uri + ">. Returning null.");
+    public NodeValue exec(NodeValue json, NodeValue jsonpath) {
+        if (json.getDatatypeURI() == null
+                && datatypeUri == null
+                || json.getDatatypeURI() != null
+                && !json.getDatatypeURI().equals(datatypeUri)
+                && !json.getDatatypeURI().equals("http://www.w3.org/2001/XMLSchema#string")) {
+            LOG.warn("The URI of NodeValue1 MUST be <" + datatypeUri + ">"
+                    + "or <http://www.w3.org/2001/XMLSchema#string>."
+                    + " Returning null.");
         }
 
         try {
-            Object value = JsonPath.parse(v1.asNode().getLiteralLexicalForm()).limit(1).read(v2.getString());
-//            System.out.println("FN --> "+value);
+            Object value = JsonPath.parse(json.asNode().getLiteralLexicalForm())
+                    .limit(1).read(jsonpath.getString());
             if (value instanceof String) {
                 return new NodeValueString((String) value);
             } else if (value instanceof Float) {
@@ -59,7 +97,8 @@ public class FN_JSONPath extends FunctionBase2 {
             } else if (value instanceof BigDecimal) {
                 return new NodeValueDecimal((BigDecimal) value);
             }
-            throw new ExprEvalException("FunctionBase: not a primitive type . Got" + value.getClass());
+            throw new ExprEvalException("FunctionBase: not a primitive type."
+                    + " Got" + value.getClass());
         } catch (Exception e) {
             throw new ExprEvalException("FunctionBase: no evaluation", e);
         }
