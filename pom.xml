@@ -29,6 +29,9 @@
             </properties>        
         </developer>
     </developers>
+    
+    <!-- command to deploy to maven: mvn clean deploy -DperformRelease=true-->
+    <!-- command to deploy to ossrh: mvn site mvn clean site -->
 
     <organization>
         <name>ITEA 12004 SEAS Project</name>
@@ -40,8 +43,8 @@
         <url>https://${repository.domain}/${repository.user}/${repository.name}</url>
         <developerConnection>scm:git:ssh://${repository.domain}/${repository.user}/${repository.name}.git
         </developerConnection>
-    <tag>sparql-generate-jena-0.9</tag>
-  </scm>
+        <tag>sparql-generate-jena-0.9</tag>
+    </scm>
     
     <issueManagement>
         <url>http://${repository.domain}/${repository.user}/${repository.name}/issues</url>
@@ -508,10 +511,10 @@
                 <artifactId>maven-checkstyle-plugin</artifactId>
             </plugin>
 
-            <plugin>
+<!--            <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>findbugs-maven-plugin</artifactId>
-            </plugin>
+            </plugin>-->
 
             <!-- ========================  -->
             <!--    PACKAGE LIFECYCLE      -->
@@ -582,6 +585,9 @@
                                 <goals>
                                     <goal>sign</goal>
                                 </goals>
+                                <configuration>
+                                    <keyname>maxime.lefrancois.86@gmail.com</keyname>
+                                </configuration>
                             </execution>
                         </executions>
                     </plugin>
