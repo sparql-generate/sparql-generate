@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.github.thesmartenergy</groupId>
     <artifactId>sparql-generate-jena</artifactId>
-    <version>0.9-SNAPSHOT</version>
+    <version>0.9</version>
     <packaging>jar</packaging>
        
     <name>SPARQL Generate over Apache Jena</name>
@@ -40,7 +40,8 @@
         <url>https://${repository.domain}/${repository.user}/${repository.name}</url>
         <developerConnection>scm:git:ssh://${repository.domain}/${repository.user}/${repository.name}.git
         </developerConnection>
-    </scm>
+      <tag>sparql-generate-jena-0.9</tag>
+  </scm>
     
     <issueManagement>
         <url>http://${repository.domain}/${repository.user}/${repository.name}/issues</url>
