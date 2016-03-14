@@ -24,13 +24,20 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 import org.apache.jena.graph.Node;
+import java.math.BigDecimal;
+import static org.apache.jena.query.ResultSetFactory.result;
 import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.NodeValue;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueString;
 import org.apache.jena.sparql.function.FunctionBase2;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
-
+import org.apache.jena.sparql.expr.nodevalue.NodeValueBoolean;
+import org.apache.jena.sparql.expr.nodevalue.NodeValueDecimal;
+import org.apache.jena.sparql.expr.nodevalue.NodeValueDouble;
+import org.apache.jena.sparql.expr.nodevalue.NodeValueFloat;
+import org.apache.jena.sparql.expr.nodevalue.NodeValueInteger;
+import org.apache.jena.sparql.expr.nodevalue.NodeValueString;
 /**
  * A SPARQL Function that extracts a string from a XML document, according to a
  * XPath expression. The Function URI is
@@ -93,11 +100,24 @@ public class FN_XPath extends FunctionBase2 {
             Document document = builder.parse(in);
 
             XPath xPath =  XPathFactory.newInstance().newXPath();
-            Node node = (Node) xPath.compile(xpath.getString())
-                    .evaluate(document, XPathConstants.NODE);
-
-            return new NodeValueString((String) node.toString());
+            //Node node = (Node) xPath.compile(xpath.getString()).evaluate(document, XPathConstants.NODE);
+           Object value =  xPath.compile(xpath.getString()).evaluate(document);
+            if (value instanceof String) {
+                   return new NodeValueString((String) value);
+               } else if (value instanceof Float) {
+                   return new NodeValueFloat((Float) value);
+               } else if (value instanceof Boolean) {
+                   return new NodeValueBoolean((Boolean) value);
+               } else if (value instanceof Integer) {
+                   return new NodeValueInteger((Integer) value);
+               } else if (value instanceof Double) {
+                   return new NodeValueDouble((Double) value);
+               } else if (value instanceof BigDecimal) {
+                   return new NodeValueDecimal((BigDecimal) value);
+               }
+            return new NodeValueString("1");
         } catch (Exception e) {
+            LOG.debug("Error:XPATJ "+e.getMessage());
             throw new ExprEvalException("FunctionBase: no evaluation", e);
         }
     }
