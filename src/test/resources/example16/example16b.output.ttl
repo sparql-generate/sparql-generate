@@ -1,8 +1,0 @@
-<http://www.ex.com/paper/id1> 
-    <http://www.example.com/alternativeAuthor>  
-        "anastasiadimou","mielvandersande","pietercolpaert","rubenverborgh","erikmannens", "rikvandewalle" .
-
-<http://www.ex.com/paper/id2> 
-    <http://www.example.com/alternativeAuthor> 
-        "anastasiadimou","mielvandersande","pietercolpaert",
-        "laurensdevocht", "rubenverborgh","erikmannens", "rikvandewalle" . 

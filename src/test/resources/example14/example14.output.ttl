@@ -1,8 +1,0 @@
-<http://www.ex.com/paper/1> 
-    <http://www.example.com/author>  
-        "Anastasia Dimou","Miel Vander Sande","Pieter Colpaert","Ruben Verborgh","Erik Mannens", "Rik Van de Walle" .
-
-<http://www.ex.com/paper/2> 
-    <http://www.example.com/author> 
-        "Anastasia Dimou","Miel Vander Sande","Pieter Colpaert",
-        "Laurens De Vocht", "Ruben Verborgh","Erik Mannens", "Rik Van de Walle" . 

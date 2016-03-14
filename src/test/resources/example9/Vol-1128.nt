@@ -1,6 +1,0 @@
-<http://ceur-ws.org/Vol-1128/> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://purl.org/ontology/bibo/Volume>.
-<http://ceur-ws.org/Vol-1128/> <http://purl.org/ontology/bibo/volume> "Vol-1128" .
-<http://ceur-ws.org/Vol-1128/> <http://purl.org/ontology/bibo/shortTitle> "ConfWS-2013" .
-<http://ceur-ws.org/Vol-1128/> <http://purl.org/dc/terms/identifier> "urn:nbn:de:0074-1128-8" .
-<http://ceur-ws.org/Vol-1128/> <http://semweb.mmlab.be/ns/spc/fullTitle> "Proceedings of the 15th International Configuration Workshop" .
-<http://ceur-ws.org/Vol-1128/> <http://www.w3.org/2000/01/rdf-schema#label> "Proceedings of the 15th International Configuration Workshop" .

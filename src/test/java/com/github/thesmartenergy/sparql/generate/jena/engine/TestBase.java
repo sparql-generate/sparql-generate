@@ -20,6 +20,7 @@ import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerateException;
 import com.github.thesmartenergy.sparql.generate.jena.query.SPARQLGenerateQuery;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.StringWriter;
@@ -56,6 +57,7 @@ public class TestBase {
         dir = Character.toLowerCase(dir.charAt(0))
                 + (dir.length() > 1 ? dir.substring(1) : "");
         examplePath = clazz.getResource("/" + dir);
+       
         exampleDir = new File(examplePath.toURI());
 
         // read location-mapping
@@ -101,12 +103,20 @@ public class TestBase {
         plan.exec(initialBinding, output);
 
         // write output
-        URI outputUri = exampleDir.toURI().resolve("output.ttl");
-        File outputFile = new File(outputUri);
-        try (OutputStream outputStream = new FileOutputStream(outputFile)) {
-            output.write(outputStream, "TTL");
-            StringWriter sw = new StringWriter();
-            LOG.debug(output.write(sw, "TTL"));
+       
+        String fileName = exampleDir.toString()+"/output.ttl";
+        LOG.debug("Name:"+fileName);
+        FileWriter out = new FileWriter( fileName );
+        try {
+            output.write( out, "TTL" );
+        }
+        finally {
+           try {
+               out.close();
+           }
+           catch (IOException closeException) {
+              LOG.debug("Error while writing to file");
+           }
         }
 
         URI expectedOutputUri = exampleDir.toURI().resolve("expected_output.ttl");
@@ -114,6 +124,7 @@ public class TestBase {
         StringWriter sw = new StringWriter();
         LOG.debug(expectedOutput.write(sw, "TTL"));
 
-//        assertTrue(output.isIsomorphicWith(expectedOutput));
+        assertTrue(output.isIsomorphicWith(expectedOutput));
+       
     }
 }

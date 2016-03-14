@@ -1,0 +1,22 @@
+BASE <http://example.org/> 
+PREFIX rqg-ite: <http://w3id.org/sparql-generate/ite/>
+PREFIX rqg-fn: <http://w3id.org/sparql-generate/fn/>
+PREFIX country:<http://loc.example.com/city/>
+PREFIX schema: <http://schema.org/>
+PREFIX wgs84_pos: <http://www.w3.org/2003/01/geo/wgs84_pos#>
+PREFIX gn: <http://www.geonames.org/ontology#>
+
+GENERATE { 
+  ?s a schema:City .
+  ?s wgs84_pos:lat ?latitude .
+  ?s wgs84_pos:long ?longitude .
+  ?s gn:countryCode ?countryCode .
+}
+SOURCE <https://raw.githubusercontent.com/mmlab/RMLProcessor/master/src/test/resources/example3/Venue.json> AS ?source
+WHERE {
+   BIND(rqg-fn:JSONPath(?source, "$.location.city" ) AS ?city)
+   BIND(rqg-fn:JSONPath(?source, "$.venue.latitude" ) AS ?latitude)
+   BIND(rqg-fn:JSONPath(?source, "$.venue.longitude" ) AS ?longitude)
+   BIND(rqg-fn:JSONPath(?source, "$.location.country" ) AS ?countryCode)
+   BIND (URI(CONCAT("http://loc.example.com/city/",?city)) AS ?s)
+}
