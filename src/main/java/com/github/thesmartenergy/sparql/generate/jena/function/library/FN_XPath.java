@@ -89,7 +89,7 @@ public class FN_XPath extends FunctionBase2 {
                     + "or <http://www.w3.org/2001/XMLSchema#string>."
                     + " Returning null.");
         }
-
+        LOG.debug("===========> "+xpath);
         DocumentBuilderFactory builderFactory
                 = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = null;

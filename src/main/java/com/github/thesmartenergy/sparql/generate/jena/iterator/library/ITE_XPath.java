@@ -19,7 +19,6 @@ import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.IteratorFunctionBase2;
-import java.math.BigDecimal;
 import java.util.List;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -32,6 +31,10 @@ import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.NodeValue;
+import org.apache.jena.sparql.expr.nodevalue.NodeValueNode;
+import org.apache.log4j.Logger;
+import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueBoolean;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueDecimal;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueDouble;
@@ -39,9 +42,7 @@ import org.apache.jena.sparql.expr.nodevalue.NodeValueFloat;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueInteger;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueNode;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueString;
-import org.apache.log4j.Logger;
-import org.w3c.dom.Document;
-import org.w3c.dom.NodeList;
+import java.math.BigDecimal;
 
 /**
  * A SPARQL Iterator function that extracts a list of sub-XML elements of a
@@ -77,7 +78,6 @@ public class ITE_XPath extends IteratorFunctionBase2 {
 
     @Override
     public List<NodeValue> exec(NodeValue xml, NodeValue v2) {
-        LOG.debug("Testing..");
         if (xml.getDatatypeURI() == null
                 && datatypeUri == null
                 || xml.getDatatypeURI() != null
@@ -91,7 +91,6 @@ public class ITE_XPath extends IteratorFunctionBase2 {
         DocumentBuilderFactory builderFactory
                 = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = null;
-        
         try {
             builder = builderFactory.newDocumentBuilder();
             Document document = builder
@@ -103,20 +102,26 @@ public class ITE_XPath extends IteratorFunctionBase2 {
             NodeList nodeList = (NodeList) xPath
                     .compile(v2.getString())
                     .evaluate(document, XPathConstants.NODESET);
+            
+            
+            //will contain the final results
             List<NodeValue> nodeValues = new ArrayList<>(nodeList.getLength());
-
+               
             for (int i=0;i<nodeList.getLength();i++) {
                 org.w3c.dom.Node xmlNode = nodeList.item(i);
-                System.out.println("SEL --> "+xmlNode);
-                RDFDatatype dt = TypeMapper.getInstance().getSafeTypeByName(datatypeUri);
-                LOG.debug("Result:"+xmlNode.getNodeValue());
-                //Node node = NodeFactory.createLiteral(xmlNode.getNodeValue(), dt);
-                NodeValue nodeValue = null;
                 
+                System.out.println("SEL --> "+xmlNode.getNodeValue());
+                RDFDatatype dt = TypeMapper.getInstance()
+                        .getSafeTypeByName(datatypeUri);
+                /*
+                Node node = NodeFactory.createLiteral(xmlNode.getNodeValue(), dt);
+                NodeValue nodeValue = new NodeValueNode(node);
+                nodeValues.add(nodeValue);
+                */
+            
+                NodeValue nodeValue = null;
                 Object value   = xmlNode.getNodeValue();
-                if (value instanceof String) {
-                   nodeValue = new  NodeValueString((String) value);
-               } else if (value instanceof Float) {
+               if (value instanceof Float) {
                    nodeValue = new NodeValueFloat((Float) value);
                } else if (value instanceof Boolean) {
                    nodeValue = new NodeValueBoolean((Boolean) value);
@@ -126,10 +131,11 @@ public class ITE_XPath extends IteratorFunctionBase2 {
                    nodeValue = new NodeValueDouble((Double) value);
                } else if (value instanceof BigDecimal) {
                    nodeValue = new NodeValueDecimal((BigDecimal) value);
-               }
-                
-
-                nodeValues.add(nodeValue);
+               } else {
+                   nodeValue = new  NodeValueString((String) value);
+               } 
+               nodeValues.add(nodeValue);
+            
             }
             return nodeValues;
         } catch (Exception e) {
