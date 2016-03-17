@@ -19,6 +19,7 @@ import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.IteratorFunctionBase2;
+import java.io.StringWriter;
 import java.util.List;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -43,6 +44,12 @@ import org.apache.jena.sparql.expr.nodevalue.NodeValueInteger;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueNode;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueString;
 import java.math.BigDecimal;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.dom.DOMSource; 
+import javax.xml.transform.stream.StreamResult;
 
 /**
  * A SPARQL Iterator function that extracts a list of sub-XML elements of a
@@ -106,11 +113,12 @@ public class ITE_XPath extends IteratorFunctionBase2 {
             
             //will contain the final results
             List<NodeValue> nodeValues = new ArrayList<>(nodeList.getLength());
-               
+            LOG.debug("===> Number of iterations for "+v2+" "+nodeList.getLength());
+            
             for (int i=0;i<nodeList.getLength();i++) {
-                org.w3c.dom.Node xmlNode = nodeList.item(i);
                 
-                System.out.println("SEL --> "+xmlNode.getNodeValue());
+                org.w3c.dom.Node xmlNode = nodeList.item(i);
+             
                 RDFDatatype dt = TypeMapper.getInstance()
                         .getSafeTypeByName(datatypeUri);
                 /*
@@ -118,7 +126,6 @@ public class ITE_XPath extends IteratorFunctionBase2 {
                 NodeValue nodeValue = new NodeValueNode(node);
                 nodeValues.add(nodeValue);
                 */
-            
                 NodeValue nodeValue = null;
                 Object value   = xmlNode.getNodeValue();
                if (value instanceof Float) {
@@ -131,11 +138,20 @@ public class ITE_XPath extends IteratorFunctionBase2 {
                    nodeValue = new NodeValueDouble((Double) value);
                } else if (value instanceof BigDecimal) {
                    nodeValue = new NodeValueDecimal((BigDecimal) value);
-               } else {
-                   nodeValue = new  NodeValueString((String) value);
+               } else if (value instanceof String) {
+                   nodeValue = new NodeValueString((String) value);
+               } 
+               else {
+                   
+                    TransformerFactory tFactory = TransformerFactory.newInstance();
+                    Transformer transformer = tFactory.newTransformer();
+                    DOMSource source = new DOMSource(xmlNode);
+                    StringWriter writer = new StringWriter();
+                    transformer.transform(source, new StreamResult(writer));
+                    Node node = NodeFactory.createLiteral(writer.getBuffer().toString(), dt);
+                    nodeValue = new NodeValueNode(node);
                } 
                nodeValues.add(nodeValue);
-            
             }
             return nodeValues;
         } catch (Exception e) {

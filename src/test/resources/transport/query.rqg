@@ -8,10 +8,16 @@ PREFIX gn: <http://www.geonames.org/ontology#>
 PREFIX transit: <http://vocab.org/transit/terms/>
 
 GENERATE { 
-  ?s a transit:Stop .
+  ?busURI a transit:Stop .
+  
+  GENERATE {
+    ?busURI transit:stop ?stopId .
+  }
+  ITERATOR rqg-ite:XPath(?bus, "//stop/@id" ) AS ?stopId
 }
 SOURCE <http://example.com/transport.xml> AS ?source
-ITERATOR rqg-ite:XPath(?source, "//bus/@id" ) AS ?id
+ITERATOR rqg-ite:XPath(?source, "//bus" ) AS ?bus
 WHERE {
-   BIND (URI(CONCAT("http://trans.example.com/",?id)) AS ?s)
-}
+   BIND(rqg-fn:XPath( ?bus, "/bus/@id") AS ?id )
+   BIND (URI(CONCAT("http://trans.example.com/",?id)) AS ?busURI)
+} 
