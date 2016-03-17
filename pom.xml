@@ -18,7 +18,7 @@
     <developers>
         <developer>
             <name>Maxime Lefrançois</name>            
-            <email>maxime.lefrancois.86@gmail.com</email>
+            <email>maxime.lefrancois@emse.fr</email>
             <url>http://maxime-lefrancois.info/</url>
             <organization>Ecole des mines de Saint-Etienne</organization>
             <organizationUrl>http://www.mines-stetienne.fr/</organizationUrl>
@@ -29,8 +29,27 @@
         </developer>
     </developers>
     
+    <contributors>
+        <contributor>
+            <name>Antoine Zimmermann</name>            
+            <email>antoine.zimmermann@emse.fr</email>
+            <url>http://www.emse.fr/~zimmermann/</url>
+            <organization>Ecole des mines de Saint-Etienne</organization>
+            <organizationUrl>http://www.mines-stetienne.fr/</organizationUrl>
+            <timezone>UTC+01:00</timezone>
+        </contributor>
+        <contributor>
+            <name>Mohammad-Noorani Bakerally</name>            
+            <email>noorani.bakerally@emse.fr</email>
+            <url>https://mu.linkedin.com/in/bakerally-noorani-mohammad-95085146/fr</url>
+            <organization>Ecole des mines de Saint-Etienne</organization>
+            <organizationUrl>http://www.mines-stetienne.fr/</organizationUrl>
+            <timezone>UTC+01:00</timezone>
+        </contributor>
+    </contributors>
+    
     <!-- command to deploy to maven: mvn clean deploy -DperformRelease=true-->
-    <!-- command to deploy to ossrh: mvn site mvn clean site -->
+    <!-- command to deploy to ossrh: mvn clean site -->
 
     <organization>
         <name>ITEA 12004 SEAS Project</name>

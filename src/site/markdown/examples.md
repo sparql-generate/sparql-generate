@@ -104,14 +104,14 @@ String variable = "msg";
 String message = "mymessage";
 String uri = "urn:iana:mime:application/json";
 
-QuerySolution initialBinding = new QuerySolutionMap();
+QuerySolutionMap initialBinding = new QuerySolutionMap();
 Model initialModel = ModelFactory.createDefaultModel();
 
 TypeMapper typeMapper = TypeMapper.getInstance();
 RDFDatatype dt = typeMapper.getSafeTypeByName(uri);
 Node arqLiteral = NodeFactory.createLiteral(message, dt);
 RDFNode jenaLiteral = initialModel.asRDFNode(arqLiteral);
-initialBindings.put(variable, jenaLiteral);
+initialBinding.add(variable, jenaLiteral);
 
 plan.exec(initialBinding, initialModel);
 ```
