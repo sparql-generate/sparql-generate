@@ -16,8 +16,11 @@
 package com.github.thesmartenergy.sparql.generate.jena.function.library;
 
 import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.FileReader;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPath;
@@ -25,6 +28,7 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 import org.apache.jena.graph.Node;
 import java.math.BigDecimal;
+import java.util.Map;
 import static org.apache.jena.query.ResultSetFactory.result;
 import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.NodeValue;
@@ -38,6 +42,11 @@ import org.apache.jena.sparql.expr.nodevalue.NodeValueDouble;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueFloat;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueInteger;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueString;
+import org.supercsv.cellprocessor.ift.CellProcessor;
+import org.supercsv.io.CsvListReader;
+import org.supercsv.io.CsvMapReader;
+import org.supercsv.io.ICsvListReader;
+import org.supercsv.prefs.CsvPreference;
 /**
  * A SPARQL Function that extracts a string from a XML document, according to a
  * XPath expression. The Function URI is
@@ -53,18 +62,18 @@ import org.apache.jena.sparql.expr.nodevalue.NodeValueString;
  *
  * @author maxime.lefrancois
  */
-public class FN_XPath extends FunctionBase2 {
+public class FN_CSV extends FunctionBase2 {
     //TODO write multiple unit tests for this class.
 
     /**
      * The logger.
      */
-    private static final Logger LOG = Logger.getLogger(FN_XPath.class);
+    private static final Logger LOG = Logger.getLogger(FN_CSV.class);
 
     /**
      * The SPARQL function URI.
      */
-    public static final String URI = SPARQLGenerate.FN + "XPath";
+    public static final String URI = SPARQLGenerate.FN + "CSV";
 
     /**
      * The datatype URI of the first parameter and the return literals.
@@ -74,12 +83,14 @@ public class FN_XPath extends FunctionBase2 {
     /**
      * Returns the evaluation of XPath {@code xpath} over the XML
      * document {@code xml}.
-     * @param xml the RDF Literal that represents a XML document
-     * @param xpath the xsd:string that represents the XPath
+     * @param csv the RDF Literal that represents a csv document
+     * @param path the xsd:string that represents the csv column
      * @return -
      */
     @Override
-    public NodeValue exec(NodeValue xml, NodeValue xpath) {
+    public NodeValue exec(NodeValue csv, NodeValue path) {
+        
+        /*
         if (xml.getDatatypeURI() == null
                 && datatypeUri == null
                 || xml.getDatatypeURI() != null
@@ -89,33 +100,34 @@ public class FN_XPath extends FunctionBase2 {
                     + "or <http://www.w3.org/2001/XMLSchema#string>."
                     + " Returning null.");
         }
-        LOG.debug("===========> "+xpath);
+        */
+        
+        LOG.debug("===========> "+path);
         DocumentBuilderFactory builderFactory
                 = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = null;
         try {
-            builder = builderFactory.newDocumentBuilder();
-            InputStream in = new ByteArrayInputStream(
-                    xml.asNode().getLiteralLexicalForm().getBytes());
-            Document document = builder.parse(in);
-
-            XPath xPath =  XPathFactory.newInstance().newXPath();
-            //Node node = (Node) xPath.compile(xpath.getString()).evaluate(document, XPathConstants.NODE);
-           Object value =  xPath.compile(xpath.getString()).evaluate(document);
-            if (value instanceof String) {
-                   return new NodeValueString((String) value);
-               } else if (value instanceof Float) {
-                   return new NodeValueFloat((Float) value);
-               } else if (value instanceof Boolean) {
-                   return new NodeValueBoolean((Boolean) value);
-               } else if (value instanceof Integer) {
-                   return new NodeValueInteger((Integer) value);
-               } else if (value instanceof Double) {
-                   return new NodeValueDouble((Double) value);
-               } else if (value instanceof BigDecimal) {
-                   return new NodeValueDecimal((BigDecimal) value);
-               }
-            return new NodeValueString("1");
+            
+            String sourceCSV = String.valueOf(csv.asNode().getLiteralValue());
+            
+            InputStream is = new ByteArrayInputStream(sourceCSV.getBytes());
+            BufferedReader br = new BufferedReader(new InputStreamReader(is));
+            
+            
+            //ICsvListReader listReader = null;
+            //listReader = new CsvListReader(br, CsvPreference.STANDARD_PREFERENCE);
+            //listReader.getHeader(true);
+            CsvMapReader mapReader = new CsvMapReader(br, CsvPreference.STANDARD_PREFERENCE);
+            String headers_str [] = mapReader.getHeader(true);
+            Map  <String,String> headers= mapReader.read(headers_str);
+           
+            //return new NodeValueString(headers.get(path.asNode().getLiteralValue()));
+            
+            String columnName = (String) path.asNode().getLiteralValue();
+            
+            return new NodeValueString(headers.get(columnName));
+            
+            
         } catch (Exception e) {
             LOG.debug("Error:XPATJ "+e.getMessage());
             throw new ExprEvalException("FunctionBase: no evaluation", e);

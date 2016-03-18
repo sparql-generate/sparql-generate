@@ -16,9 +16,12 @@
 package com.github.thesmartenergy.sparql.generate.jena.iterator.library;
 
 import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
+import com.github.thesmartenergy.sparql.generate.jena.iterator.IteratorFunctionBase1;
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.IteratorFunctionBase2;
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.StringWriter;
 import java.util.List;
 import javax.xml.parsers.DocumentBuilder;
@@ -50,6 +53,12 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.dom.DOMSource; 
 import javax.xml.transform.stream.StreamResult;
+import org.supercsv.io.ICsvListReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import org.supercsv.io.CsvListReader;
+import org.supercsv.io.CsvListWriter;
+import org.supercsv.prefs.CsvPreference;
 
 /**
  * A SPARQL Iterator function that extracts a list of sub-XML elements of a
@@ -66,17 +75,17 @@ import javax.xml.transform.stream.StreamResult;
  *
  * @author maxime.lefrancois
  */
-public class ITE_XPath extends IteratorFunctionBase2 {
+public class ITE_CSV extends IteratorFunctionBase1 {
 
     /**
      * The logger.
      */
-    private static final Logger LOG = Logger.getLogger(ITE_XPath.class);
+    private static final Logger LOG = Logger.getLogger(ITE_CSV.class);
 
     /**
      * The SPARQL function URI.
      */
-    public static final String URI = SPARQLGenerate.ITE + "XPath";
+    public static final String URI = SPARQLGenerate.ITE + "CSV";
 
     /**
      * The datatype URI of the first parameter and the return literals.
@@ -84,7 +93,8 @@ public class ITE_XPath extends IteratorFunctionBase2 {
     private static final String datatypeUri = "urn:iana:mime:application/xml";
 
     @Override
-    public List<NodeValue> exec(NodeValue xml, NodeValue v2) {
+    public List<NodeValue> exec(NodeValue v) {
+         /*
         if (xml.getDatatypeURI() == null
                 && datatypeUri == null
                 || xml.getDatatypeURI() != null
@@ -95,67 +105,39 @@ public class ITE_XPath extends IteratorFunctionBase2 {
                     + " <http://www.w3.org/2001/XMLSchema#string>. Got <"
                     + xml.getDatatypeURI() + ">. Returning null.");
         }
-        DocumentBuilderFactory builderFactory
-                = DocumentBuilderFactory.newInstance();
-        DocumentBuilder builder = null;
+        */
         try {
-            builder = builderFactory.newDocumentBuilder();
-            Document document = builder
-                    .parse(new ByteArrayInputStream(
-                            xml.asNode().getLiteralLexicalForm().getBytes()));
+           
+            String sourceCSV = String.valueOf(v.asNode().getLiteralValue());
+           
+            ICsvListReader listReader = null;
+            InputStream is = new ByteArrayInputStream(sourceCSV.getBytes());
+            BufferedReader br = new BufferedReader(new InputStreamReader(is));
             
-            XPath xPath =  XPathFactory.newInstance().newXPath();
+            String header = br.readLine();
             
-            NodeList nodeList = (NodeList) xPath
-                    .compile(v2.getString())
-                    .evaluate(document, XPathConstants.NODESET);
-            
-            
-            //will contain the final results
-            List<NodeValue> nodeValues = new ArrayList<>(nodeList.getLength());
-            LOG.debug("===> Number of iterations for "+v2+" "+nodeList.getLength());
-            
-            for (int i=0;i<nodeList.getLength();i++) {
+            listReader = new CsvListReader(br, CsvPreference.STANDARD_PREFERENCE);
+           
+            List<NodeValue> nodeValues = new ArrayList<>(listReader.length());
+          
+           
+            while (listReader.read() != null){
+                StringWriter sw = new StringWriter();
                 
-                org.w3c.dom.Node xmlNode = nodeList.item(i);
-             
-                RDFDatatype dt = TypeMapper.getInstance()
-                        .getSafeTypeByName(datatypeUri);
-                /*
-                Node node = NodeFactory.createLiteral(xmlNode.getNodeValue(), dt);
-                NodeValue nodeValue = new NodeValueNode(node);
+                CsvListWriter listWriter = new CsvListWriter(sw, CsvPreference.TAB_PREFERENCE);
+                listWriter.writeHeader(header);
+                listWriter.write(listReader.getUntokenizedRow());
+                listWriter.close();
+                
+                NodeValue nodeValue = new NodeValueString(sw.toString());
                 nodeValues.add(nodeValue);
-                */
-                NodeValue nodeValue = null;
-                Object value   = xmlNode.getNodeValue();
-               if (value instanceof Float) {
-                   nodeValue = new NodeValueFloat((Float) value);
-               } else if (value instanceof Boolean) {
-                   nodeValue = new NodeValueBoolean((Boolean) value);
-               } else if (value instanceof Integer) {
-                   nodeValue = new NodeValueInteger((Integer) value);
-               } else if (value instanceof Double) {
-                   nodeValue = new NodeValueDouble((Double) value);
-               } else if (value instanceof BigDecimal) {
-                   nodeValue = new NodeValueDecimal((BigDecimal) value);
-               } else if (value instanceof String) {
-                   nodeValue = new NodeValueString((String) value);
-               } 
-               else {
-                   
-                    TransformerFactory tFactory = TransformerFactory.newInstance();
-                    Transformer transformer = tFactory.newTransformer();
-                    DOMSource source = new DOMSource(xmlNode);
-                    StringWriter writer = new StringWriter();
-                    transformer.transform(source, new StreamResult(writer));
-                    Node node = NodeFactory.createLiteral(writer.getBuffer().toString(), dt);
-                    nodeValue = new NodeValueNode(node);
-               } 
-               nodeValues.add(nodeValue);
             }
-            return nodeValues;
+      
+            return nodeValues;  
         } catch (Exception e) {
             throw new ExprEvalException("FunctionBase: no evaluation", e);
         }
     }
+
+    
 }
