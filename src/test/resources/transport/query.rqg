@@ -9,11 +9,10 @@ PREFIX transit: <http://vocab.org/transit/terms/>
 
 GENERATE { 
   ?busURI a transit:Stop .
-  
   GENERATE {
     ?busURI transit:stop ?stopId .
   }
-  ITERATOR rqg-ite:XPath(?bus, "//stop/@id" ) AS ?stopId
+  ITERATOR rqg-ite:XPath(?bus, "//stop/@id" ) AS ?stopId .
 }
 SOURCE <http://example.com/transport.xml> AS ?source
 ITERATOR rqg-ite:XPath(?source, "//bus" ) AS ?bus
