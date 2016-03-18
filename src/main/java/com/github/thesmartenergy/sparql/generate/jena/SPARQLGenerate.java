@@ -27,6 +27,7 @@ import com.github.thesmartenergy.sparql.generate.jena.function.library.FN_JSONPa
 import com.github.thesmartenergy.sparql.generate.jena.function.library.FN_XPath;
 import com.github.thesmartenergy.sparql.generate.jena.lang.ParserSPARQLGenerate;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.IteratorFunctionRegistry;
+import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITE_CSSPath;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITE_CSV;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITE_JSONListKeys;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITE_JSONPath;
@@ -103,6 +104,7 @@ public final class SPARQLGenerate {
         itereg.put(ITE_JSONListKeys.URI, ITE_JSONListKeys.class);
         itereg.put(ITE_XPath.URI, ITE_XPath.class);
         itereg.put(ITE_CSV.URI, ITE_CSV.class);
+        itereg.put(ITE_CSSPath.URI, ITE_CSSPath.class);
 
         SPARQLParserRegistry.get()
                 .add(SYNTAX, new SPARQLParserFactory() {
