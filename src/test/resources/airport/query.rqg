@@ -10,5 +10,5 @@ PREFIX transit: <http://vocab.org/transit/terms/>
 GENERATE { 
   ?bus a transit:Stop .
 }
-SOURCE <http://example.com/transport.xml> AS ?source
-ITERATOR rqg-ite:DSV(?source, "//bus/@id" ) AS ?bus
+SOURCE <http://example.com/airport.csv> AS ?source
+ITERATOR rqg-ite:CSV(?source) AS ?bus

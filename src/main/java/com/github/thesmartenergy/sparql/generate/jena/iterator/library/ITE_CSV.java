@@ -16,6 +16,7 @@
 package com.github.thesmartenergy.sparql.generate.jena.iterator.library;
 
 import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
+import com.github.thesmartenergy.sparql.generate.jena.iterator.IteratorFunctionBase1;
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.IteratorFunctionBase2;
@@ -66,17 +67,17 @@ import javax.xml.transform.stream.StreamResult;
  *
  * @author maxime.lefrancois
  */
-public class ITE_DSV extends IteratorFunctionBase2 {
+public class ITE_CSV extends IteratorFunctionBase1 {
 
     /**
      * The logger.
      */
-    private static final Logger LOG = Logger.getLogger(ITE_DSV.class);
+    private static final Logger LOG = Logger.getLogger(ITE_CSV.class);
 
     /**
      * The SPARQL function URI.
      */
-    public static final String URI = SPARQLGenerate.ITE + "DSV";
+    public static final String URI = SPARQLGenerate.ITE + "CSV";
 
     /**
      * The datatype URI of the first parameter and the return literals.
@@ -84,9 +85,8 @@ public class ITE_DSV extends IteratorFunctionBase2 {
     private static final String datatypeUri = "urn:iana:mime:application/xml";
 
     @Override
-    public List<NodeValue> exec(NodeValue xml, NodeValue v2) {
-        
-        /*
+    public List<NodeValue> exec(NodeValue v) {
+         /*
         if (xml.getDatatypeURI() == null
                 && datatypeUri == null
                 || xml.getDatatypeURI() != null
@@ -109,4 +109,6 @@ public class ITE_DSV extends IteratorFunctionBase2 {
             throw new ExprEvalException("FunctionBase: no evaluation", e);
         }
     }
+
+    
 }
