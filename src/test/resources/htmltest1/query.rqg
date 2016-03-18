@@ -15,5 +15,5 @@ GENERATE {
 SOURCE <http://example.com/index.html> AS ?source
 ITERATOR rqg-ite:CSSPath(?source, "p[id=4]" ) AS ?bus 
 WHERE {
-    BIND(rqg-fn:HTMLAttribute(?bus, "p") AS ?test )
+    BIND(rqg-fn:HTMLAttribute(?bus, "id") AS ?test )
 }
