@@ -5,6 +5,14 @@
     <artifactId>sparql-generate-jena</artifactId>
     <version>0.10-SNAPSHOT</version>
     <packaging>jar</packaging>
+    
+    
+    
+    
+    
+    
+    
+    
        
     <name>SPARQL Generate over Apache Jena</name>
     <description>An implementation of SPARQL-Generate over Apache Jena</description>
@@ -156,6 +164,8 @@
     </dependencies>
 
     <build>
+        
+        
         <extensions>
             <extension>
                 <!-- add support for ssh/scp -->
@@ -167,10 +177,12 @@
 
         <pluginManagement>
             <plugins>
-
                 <!-- ========================  -->
                 <!--    DEFAULT LIFECYCLE      -->
                 <!-- ========================  -->
+
+
+
 
                 <!-- configure validate -->
                 <plugin>
@@ -489,6 +501,24 @@
             <!-- ========================  -->
             <!--    DEFAULT LIFECYCLE      -->
             <!-- ========================  -->
+           
+                    
+                  
+                  
+            <plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<configuration>
+					<archive>
+						<manifest>
+							<mainClass>com.github.thesmartenergy.sparql.generate.generator.CMDGenerator</mainClass>
+						</manifest>
+					</archive>
+				</configuration>
+			</plugin>
+           
+                  
+
 
             <!-- validate -->
             <plugin>
