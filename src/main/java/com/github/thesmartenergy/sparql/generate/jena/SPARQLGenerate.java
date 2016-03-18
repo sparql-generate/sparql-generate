@@ -15,6 +15,7 @@
  */
 package com.github.thesmartenergy.sparql.generate.jena;
 
+import com.github.thesmartenergy.sparql.generate.jena.function.library.FN_CSV;
 import org.apache.jena.query.Syntax;
 import org.apache.jena.sparql.function.FunctionRegistry;
 import org.apache.jena.sparql.lang.SPARQLParser;
@@ -95,6 +96,7 @@ public final class SPARQLGenerate {
         FunctionRegistry fnreg = FunctionRegistry.get();
         fnreg.put(FN_JSONPath.URI, FN_JSONPath.class);
         fnreg.put(FN_XPath.URI, FN_XPath.class);
+        fnreg.put(FN_CSV.URI, FN_CSV.class);
 
         IteratorFunctionRegistry itereg = IteratorFunctionRegistry.get();
         itereg.put(ITE_JSONPath.URI, ITE_JSONPath.class);

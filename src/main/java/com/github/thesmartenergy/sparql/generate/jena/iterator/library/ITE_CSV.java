@@ -20,6 +20,8 @@ import com.github.thesmartenergy.sparql.generate.jena.iterator.IteratorFunctionB
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.IteratorFunctionBase2;
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.StringWriter;
 import java.util.List;
 import javax.xml.parsers.DocumentBuilder;
@@ -51,6 +53,12 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.dom.DOMSource; 
 import javax.xml.transform.stream.StreamResult;
+import org.supercsv.io.ICsvListReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import org.supercsv.io.CsvListReader;
+import org.supercsv.io.CsvListWriter;
+import org.supercsv.prefs.CsvPreference;
 
 /**
  * A SPARQL Iterator function that extracts a list of sub-XML elements of a
@@ -99,11 +107,32 @@ public class ITE_CSV extends IteratorFunctionBase1 {
         }
         */
         try {
-            
-            List<NodeValue> nodeValues = new ArrayList<>(2);
-            nodeValues.add(new NodeValueString("1"));
-            nodeValues.add(new NodeValueString("2"));
            
+            String sourceCSV = String.valueOf(v.asNode().getLiteralValue());
+           
+            ICsvListReader listReader = null;
+            InputStream is = new ByteArrayInputStream(sourceCSV.getBytes());
+            BufferedReader br = new BufferedReader(new InputStreamReader(is));
+            
+            String header = br.readLine();
+            
+            listReader = new CsvListReader(br, CsvPreference.STANDARD_PREFERENCE);
+           
+            List<NodeValue> nodeValues = new ArrayList<>(listReader.length());
+          
+           
+            while (listReader.read() != null){
+                StringWriter sw = new StringWriter();
+                
+                CsvListWriter listWriter = new CsvListWriter(sw, CsvPreference.TAB_PREFERENCE);
+                listWriter.writeHeader(header);
+                listWriter.write(listReader.getUntokenizedRow());
+                listWriter.close();
+                
+                NodeValue nodeValue = new NodeValueString(sw.toString());
+                nodeValues.add(nodeValue);
+            }
+      
             return nodeValues;  
         } catch (Exception e) {
             throw new ExprEvalException("FunctionBase: no evaluation", e);
