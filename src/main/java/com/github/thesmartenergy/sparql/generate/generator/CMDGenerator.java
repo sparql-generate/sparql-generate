@@ -74,6 +74,7 @@ public class CMDGenerator {
         Options opt = new Options()
                 .addOption("h", false, "Show help")
                 .addOption("qf", "queryfile", true, "Local path to the file containing the SPARGL query")
+                .addOption("qs", "query string", true, "The SPARGL query string")
                 .addOption("f","outputformat",true,"Output RDF format, e.g. -f TTL. Possible serializations are: TTL for Turtle, NTRIPLES for NTRIPLES, RDFXML for RDF/XML, N3 for N3, JSONLD for JSON-LD, TRIG for TRIG")
                 .addOption("l", false, "Disable logging, by default logging is enabled")
                 .addOption("c", true, "Configuration for mapping remote IRI to local files of the form IRI=/path/to/file1;IRI=/path/to/file2")
@@ -117,6 +118,12 @@ public class CMDGenerator {
                     LOG.error("File "+file_path+" not found.");
                 }   
             }
+            
+            //get query string
+            if (cl.hasOption("qs")){
+                query = cl.getOptionValue("qs");
+            }
+            System.out.println("Query:"+query);
             
             //get and validate the output format
             if (cl.hasOption("f")){
