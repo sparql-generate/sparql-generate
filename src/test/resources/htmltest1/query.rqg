@@ -3,10 +3,10 @@ PREFIX rqg-ite: <http://w3id.org/sparql-generate/ite/>
 PREFIX rqg-fn: <http://w3id.org/sparql-generate/fn/>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 GENERATE { 
-  [] rdfs:label ?test .
+  [] rdfs:label ?title .
 }
-SOURCE <http://example.com/index.html> AS ?source
-ITERATOR rqg-ite:CSSPath(?source, "p[id=4]" ) AS ?bus 
+SOURCE <http://www.pdfconvertonline.com/htm-to-jpg-online.html> AS ?source
+ITERATOR rqg-ite:CSSPath(?source, "title" ) AS ?body 
 WHERE {
-    BIND(rqg-fn:HTMLAttribute(?bus, "id") AS ?test )
+	BIND(rqg-fn:HTMLTag(?body, "title") AS ?title )
 }
