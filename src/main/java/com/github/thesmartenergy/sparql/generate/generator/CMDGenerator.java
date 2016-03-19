@@ -1,4 +1,4 @@
-/*
+ /*
  * Copyright 2016 ITEA 12004 SEAS Project.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -38,8 +38,11 @@ import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.logging.Level;
+import java.util.logging.LogManager;
 import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
@@ -56,7 +59,10 @@ import org.apache.jena.util.LocatorFile;
 import org.apache.log4j.Logger;
 import org.apache.commons.cli.Options;
 import org.apache.jena.atlas.logging.Log;
+import static org.apache.jena.rdf.model.impl.RDFDefaultErrorHandler.logger;
 import org.apache.jena.riot.Lang;
+import org.apache.log4j.Category;
+import static org.apache.log4j.Level.OFF;
 import org.apache.log4j.Logger;
 
 public class CMDGenerator {
@@ -70,38 +76,27 @@ public class CMDGenerator {
        
         List<String> formats = Arrays.asList("TTL","TURTLE","NTRIPLES","TRIG","RDFXML","JSONLD");
         
-        //command line options goes here
-        Options opt = new Options()
-                .addOption("h", false, "Show help")
-                .addOption("qf", "queryfile", true, "Local path to the file containing the SPARGL query")
-                .addOption("qs", "query string", true, "The SPARGL query string")
-                .addOption("f","outputformat",true,"Output RDF format, e.g. -f TTL. Possible serializations are: TTL for Turtle, NTRIPLES for NTRIPLES, RDFXML for RDF/XML, N3 for N3, JSONLD for JSON-LD, TRIG for TRIG")
-                .addOption("l", false, "Disable logging, by default logging is enabled")
-                .addOption("c", true, "Configuration for mapping remote IRI to local files of the form IRI=/path/to/file1;IRI=/path/to/file2")
-                ;
-                
+       
         try {
-            //parsing the command line options
-            BasicParser parser = new BasicParser();
-            CommandLine cl = parser.parse(opt, args);
-            
-            
+            CommandLine cl = CMDConfigurations.parseArguments(args);
+           
             String query = "";
             String outputFormat = "TTL";
             
-            //print help menu
-            if ( cl.hasOption('h') ) {
-                HelpFormatter f = new HelpFormatter();
-                f.printHelp("OptionsTip", opt);
-                return;
-            } 
             
-            LOG = Logger.getLogger(CMDGenerator.class);
+            
+            
             fileManager = FileManager.makeGlobal(); 
             if ( cl.hasOption('l') ) {
-                LOG.setLevel(org.apache.log4j.Level.OFF);
+               Enumeration<String> loggers = LogManager.getLogManager().getLoggerNames();
+              while (loggers.hasMoreElements()) {
+                 java.util.logging.Logger element = LogManager.getLogManager().getLogger(loggers.nextElement());
+                 element.setLevel(Level.OFF);
+              }
+              Logger.getRootLogger().setLevel(org.apache.log4j.Level.OFF);
+                       
             }
-            
+            LOG = Logger.getLogger(CMDGenerator.class);
             
             
         
@@ -137,95 +132,16 @@ public class CMDGenerator {
             }
             
             Model configurationModel = null;
+            String conf = "";
             if (cl.hasOption("c")){
-                
-                //creating local mappings
-                String configuration;
-                
-                configuration = cl.getOptionValue("c");
-                    
-                
-                //String configuration = "http://www.pdfconvertonline.com/htm-to-jpg-online.html=/home/bakerally/Documents/repositories/github/sparql-generate-jena/target/test-classes/htmltest1/doc.html";
-                System.out.println("Configurations:"+configuration);
-                List <String> IRI_mappings = Arrays.asList(configuration.split(";"));
-                if (IRI_mappings.size() == 0){
-                   System.out.println("Invalid configuration");
-                   return;
-                }
-                String rdfMapping = "@prefix lm: <http://jena.hpl.hp.com/2004/08/location-mapping#> .\n";
-                rdfMapping += "[] lm:mapping \n";
-                List <String> fileMappings = new ArrayList <String>();
-
-                for (String IRI_mapping:IRI_mappings){
-
-                    String filePaths []= IRI_mapping.split("=");
-                    if (filePaths.length == 0){
-                         System.out.println(IRI_mapping+" Invalid IRI configuration");
-                         return;
-                    } else {
-
-                            File f = new File(filePaths[1]);
-                            if(f.exists() && !f.isDirectory()) {
-                                 String currentMapping = "[ lm:name \""+filePaths[0]+"\" ; lm:altName \""+filePaths[1]+"\" ]";
-                                 System.out.println(currentMapping);
-                                 fileMappings.add(currentMapping);
-                                 System.out.println(fileMappings.size());
-                            } else {
-                                LOG.error("File "+filePaths[1]+" not found.");
-                                
-                            }
-                    }
-                }
-                if (fileMappings.size() > 0){
-                    System.out.println(fileMappings.size());
-                    String lastMapping = fileMappings.remove(fileMappings.size()-1);
-                    for (String currentMapping:fileMappings){
-                        rdfMapping += currentMapping +", \n";
-                    }
-                    rdfMapping += lastMapping + ".";
-                }
-                String strConf;
-                /*
-                strConf = "@prefix lm: <http://jena.hpl.hp.com/2004/08/location-mapping#> .\n" +
-"[] lm:mapping\n" +
-"   [ lm:name \"http://www.pdfconvertonline.com/htm-to-jpg-online.html\" ; lm:altName \"/home/bakerally/Documents/repositories/github/sparql-generate-jena/target/test-classes/htmltest1/doc.html\" ]\n" +
-"   .";
-                */
-                strConf = rdfMapping;
-                
-                configurationModel = ModelFactory.createDefaultModel();
-                configurationModel.read(new ByteArrayInputStream(strConf.getBytes()), null,"TTL");
-               
-        
-            
-                
+                conf =  cl.getOptionValue("c");
+                configurationModel = ProcessQuery.generateConfiguration(conf);
             }
+            
+            String output = ProcessQuery.process(query, conf, outputFormat);
+            System.out.println(output);
          
-            LOG.debug("Processing Query");
-            SPARQLGenerateQuery q = (SPARQLGenerateQuery) QueryFactory.create(query, SPARQLGenerate.SYNTAX);
-           
-            if (configurationModel !=null){
-                LocationMapper mapper = new LocationMapper(configurationModel);
-                fileManager.setLocationMapper(mapper);
-            }
             
-            
-        
-            PlanFactory factory = new PlanFactory(fileManager);
-            RootPlan plan = factory.create(q);
-            Model output = ModelFactory.createDefaultModel();
-           
-            QuerySolutionMap initialBinding = null;
-
-            // execute plan
-            plan.exec(initialBinding, output);
-            
-            StringWriter sw = new StringWriter();
-            
-            
-            output.write(sw,outputFormat);
-            System.out.println("RDF Output:");
-            System.out.println(sw.toString());
             
             
         } catch (org.apache.commons.cli.ParseException ex) {
