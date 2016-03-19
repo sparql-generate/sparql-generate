@@ -25,6 +25,7 @@ import com.github.thesmartenergy.sparql.generate.jena.engine.PlanFactory;
 import com.github.thesmartenergy.sparql.generate.jena.engine.RootPlan;
 import com.github.thesmartenergy.sparql.generate.jena.lang.ParseException;
 import com.github.thesmartenergy.sparql.generate.jena.query.SPARQLGenerateQuery;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -35,6 +36,7 @@ import java.io.OutputStream;
 import java.io.StringWriter;
 import java.net.URI;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
@@ -54,6 +56,7 @@ import org.apache.jena.util.LocatorFile;
 import org.apache.log4j.Logger;
 import org.apache.commons.cli.Options;
 import org.apache.jena.atlas.logging.Log;
+import org.apache.jena.riot.Lang;
 import org.apache.log4j.Logger;
 
 public class CMDGenerator {
@@ -73,6 +76,7 @@ public class CMDGenerator {
                 .addOption("qf", "queryfile", true, "Local path to the file containing the SPARGL query")
                 .addOption("f","outputformat",true,"Output RDF format, e.g. -f TTL. Possible serializations are: TTL for Turtle, NTRIPLES for NTRIPLES, RDFXML for RDF/XML, N3 for N3, JSONLD for JSON-LD, TRIG for TRIG")
                 .addOption("l", false, "Disable logging, by default logging is enabled")
+                .addOption("c", true, "Configuration for mapping remote IRI to local files of the form IRI=/path/to/file1;IRI=/path/to/file2")
                 ;
                 
         try {
@@ -101,6 +105,7 @@ public class CMDGenerator {
             
         
             //get query file path
+            //check if the file exists
             if (cl.hasOption("qf")){
                 String file_path = cl.getOptionValue("qf");
                 File f = new File(file_path);
@@ -112,6 +117,8 @@ public class CMDGenerator {
                     LOG.error("File "+file_path+" not found.");
                 }   
             }
+            
+            //get and validate the output format
             if (cl.hasOption("f")){
                 String format = cl.getOptionValue("f");
                 if (formats.contains(format)){
@@ -120,15 +127,87 @@ public class CMDGenerator {
                     LOG.error("Invalid output format,"+cl.getOptionProperties("f").getProperty("description"));
                     return;
                 }
+            }
+            
+            Model configurationModel = null;
+            if (cl.hasOption("c")){
+                
+                //creating local mappings
+                String configuration;
+                
+                configuration = cl.getOptionValue("c");
+                    
+                
+                //String configuration = "http://www.pdfconvertonline.com/htm-to-jpg-online.html=/home/bakerally/Documents/repositories/github/sparql-generate-jena/target/test-classes/htmltest1/doc.html";
+                System.out.println("Configurations:"+configuration);
+                List <String> IRI_mappings = Arrays.asList(configuration.split(";"));
+                if (IRI_mappings.size() == 0){
+                   System.out.println("Invalid configuration");
+                   return;
+                }
+                String rdfMapping = "@prefix lm: <http://jena.hpl.hp.com/2004/08/location-mapping#> .\n";
+                rdfMapping += "[] lm:mapping \n";
+                List <String> fileMappings = new ArrayList <String>();
+
+                for (String IRI_mapping:IRI_mappings){
+
+                    String filePaths []= IRI_mapping.split("=");
+                    if (filePaths.length == 0){
+                         System.out.println(IRI_mapping+" Invalid IRI configuration");
+                         return;
+                    } else {
+
+                            File f = new File(filePaths[1]);
+                            if(f.exists() && !f.isDirectory()) {
+                                 String currentMapping = "[ lm:name \""+filePaths[0]+"\" ; lm:altName \""+filePaths[1]+"\" ]";
+                                 System.out.println(currentMapping);
+                                 fileMappings.add(currentMapping);
+                                 System.out.println(fileMappings.size());
+                            } else {
+                                LOG.error("File "+filePaths[1]+" not found.");
+                                
+                            }
+                    }
+                }
+                if (fileMappings.size() > 0){
+                    System.out.println(fileMappings.size());
+                    String lastMapping = fileMappings.remove(fileMappings.size()-1);
+                    for (String currentMapping:fileMappings){
+                        rdfMapping += currentMapping +", \n";
+                    }
+                    rdfMapping += lastMapping + ".";
+                }
+                String strConf;
+                /*
+                strConf = "@prefix lm: <http://jena.hpl.hp.com/2004/08/location-mapping#> .\n" +
+"[] lm:mapping\n" +
+"   [ lm:name \"http://www.pdfconvertonline.com/htm-to-jpg-online.html\" ; lm:altName \"/home/bakerally/Documents/repositories/github/sparql-generate-jena/target/test-classes/htmltest1/doc.html\" ]\n" +
+"   .";
+                */
+                strConf = rdfMapping;
+                
+                configurationModel = ModelFactory.createDefaultModel();
+                configurationModel.read(new ByteArrayInputStream(strConf.getBytes()), null,"TTL");
+               
+        
+            
                 
             }
          
             LOG.debug("Processing Query");
             SPARQLGenerateQuery q = (SPARQLGenerateQuery) QueryFactory.create(query, SPARQLGenerate.SYNTAX);
+           
+            if (configurationModel !=null){
+                LocationMapper mapper = new LocationMapper(configurationModel);
+                fileManager.setLocationMapper(mapper);
+            }
             
+            
+        
             PlanFactory factory = new PlanFactory(fileManager);
             RootPlan plan = factory.create(q);
             Model output = ModelFactory.createDefaultModel();
+           
             QuerySolutionMap initialBinding = null;
 
             // execute plan
@@ -138,7 +217,7 @@ public class CMDGenerator {
             
             
             output.write(sw,outputFormat);
-            
+            System.out.println("RDF Output:");
             System.out.println(sw.toString());
             
             
