@@ -6,13 +6,20 @@ PREFIX schema: <http://schema.org/>
 PREFIX wgs84_pos: <http://www.w3.org/2003/01/geo/wgs84_pos#>
 PREFIX gn: <http://www.geonames.org/ontology#>
 PREFIX transit: <http://vocab.org/transit/terms/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> 
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
 GENERATE { 
   ?busURI a transit:Stop .
   GENERATE {
     ?busURI transit:stop ?stopId .
+    ?busURI rdfs:label ?stopLabel .
   }
-  ITERATOR rqg-ite:XPath(?bus, "//stop/@id" ) AS ?stopId .
+  ITERATOR rqg-ite:XPath(?bus, "//stop" ) AS ?stop 
+  WHERE {
+    BIND( STRDT(rqg-fn:XPath(?stop, "/stop/@id"),xsd:integer) AS ?stopId )
+    BIND( rqg-fn:XPath(?stop, "/stop") AS ?stopLabel )
+  } .
 }
 SOURCE <http://example.com/transport.xml> AS ?source
 ITERATOR rqg-ite:XPath(?source, "//bus" ) AS ?bus
