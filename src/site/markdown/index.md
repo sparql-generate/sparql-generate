@@ -218,3 +218,19 @@ To put it simply, the execution of a SPARQL Generate is defined as follows:
 1. this SPARQL 1.1 SELECT query is evaluated on the SPARQL dataset, and produces a set of solution bindings.
 1. for each of these solution bindings, and for each element in the GENERATE template, one either produce triples, or execute the embedded query.  
 
+
+## The SPARQL-Generate EBNF 
+
+The EBNF extends the [SPARQL 1.1 EBNF](https://www.w3.org/TR/sparql11-query/#sparqlGrammar) with the following production rules:
+
+```
+[173] GenerateUnit ::= Generate
+[174] Generate ::= Prologue GenerateQuery
+[175] GenerateQuery ::= 'GENERATE' GenerateTemplate DatasetClause* IteratorOrSourceClause* WhereClause? SolutionModifier
+[176] GenerateTemplate ::= '{' GenerateTemplateSub '}'
+[177] GenerateTemplateSub ::= ConstructTriples? ( SubGenerateQuery ConstructTriples? )*
+[178] IteratorOrSourceClause ::= IteratorClause | SourceClause
+[179] IteratorClause ::= 'ITERATOR' FunctionCall 'AS' Var
+[180] SourceClause ::= 'SOURCE' VarOrIri ( 'ACCEPT' VarOrIri )? 'AS' Var()
+[181] SubGenerateQuery ::= 'GENERATE' ( SourceSelector | GenerateTemplate ) ( IteratorOrSourceClause* SolutionModifier '.' )?
+```

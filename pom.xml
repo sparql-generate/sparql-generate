@@ -27,6 +27,14 @@
                 <picUrl>http://0.gravatar.com/userimage/102097381/dac8aeb15edac9a93e09a7974743957f</picUrl>
             </properties>        
         </developer>
+        <developer>
+            <name>Mohammad-Noorani Bakerally</name>            
+            <email>noorani.bakerally@emse.fr</email>
+            <url>https://mu.linkedin.com/in/bakerally-noorani-mohammad-95085146/fr</url>
+            <organization>Ecole des mines de Saint-Etienne</organization>
+            <organizationUrl>http://www.mines-stetienne.fr/</organizationUrl>
+            <timezone>UTC+01:00</timezone>
+        </developer>
     </developers>
     
     <contributors>
@@ -34,14 +42,6 @@
             <name>Antoine Zimmermann</name>            
             <email>antoine.zimmermann@emse.fr</email>
             <url>http://www.emse.fr/~zimmermann/</url>
-            <organization>Ecole des mines de Saint-Etienne</organization>
-            <organizationUrl>http://www.mines-stetienne.fr/</organizationUrl>
-            <timezone>UTC+01:00</timezone>
-        </contributor>
-        <contributor>
-            <name>Mohammad-Noorani Bakerally</name>            
-            <email>noorani.bakerally@emse.fr</email>
-            <url>https://mu.linkedin.com/in/bakerally-noorani-mohammad-95085146/fr</url>
             <organization>Ecole des mines de Saint-Etienne</organization>
             <organizationUrl>http://www.mines-stetienne.fr/</organizationUrl>
             <timezone>UTC+01:00</timezone>
