@@ -10,7 +10,7 @@ PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> 
 GENERATE { 
-    ?busiri rdf:type transit:Stop .
+    ?busiri rdf:type transit:Bus .
     GENERATE {
         ?busiri transit:stop ?stopiri .
         ?stopiri rdfs:label ?label .
@@ -19,7 +19,7 @@ GENERATE {
     ITERATOR ite:XPath(?bus, "//stop" ) AS ?stop
     WHERE {
         BIND( fn:XPath(?stop,"/stop/@id"  ) AS ?stopid )
-        BIND( CONCAT( ?base,?busid,"/",?stopid) AS ?stopiristr )
+        BIND( CONCAT( ?base,"stop/",?stopid) AS ?stopiristr )
         BIND( fn:XPath(?stop,"/stop/text()"  ) AS ?label )
         BIND( IRI(?stopiristr) AS ?stopiri )
     }.
@@ -29,5 +29,5 @@ ITERATOR ite:XPath(?source, "//bus" ) AS ?bus
 WHERE {
     BIND( "http://trans.example.com/" AS ?base )
     BIND( fn:XPath(?bus,"/bus/@id"  ) AS ?busid )
-    BIND( IRI( CONCAT( ?base, ?busid ) ) AS ?busiri )
+    BIND( IRI( CONCAT( ?base, "bus/",?busid ) ) AS ?busiri )
 }
