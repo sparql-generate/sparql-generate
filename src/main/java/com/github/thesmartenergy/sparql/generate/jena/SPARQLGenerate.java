@@ -26,6 +26,7 @@ import org.apache.jena.sparql.lang.SPARQLParserRegistry;
 import org.apache.jena.sparql.util.Symbol;
 import org.apache.jena.sparql.util.TranslationTable;
 import com.github.thesmartenergy.sparql.generate.jena.function.library.FN_JSONPath;
+import com.github.thesmartenergy.sparql.generate.jena.function.library.FN_SplitAtPostion;
 import com.github.thesmartenergy.sparql.generate.jena.function.library.FN_XPath;
 import com.github.thesmartenergy.sparql.generate.jena.lang.ParserSPARQLGenerate;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.IteratorFunctionRegistry;
@@ -33,6 +34,7 @@ import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITE_CSSPa
 import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITE_CSV;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITE_JSONListKeys;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITE_JSONPath;
+import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITE_Split;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITE_XPath;
 import com.github.thesmartenergy.sparql.generate.jena.serializer.SPARQLGenerateFormatterElement;
 import com.github.thesmartenergy.sparql.generate.jena.serializer.SPARQLGenerateQuerySerializer;
@@ -100,6 +102,7 @@ public final class SPARQLGenerate {
         fnreg.put(FN_JSONPath.URI, FN_JSONPath.class);
         fnreg.put(FN_XPath.URI, FN_XPath.class);
         fnreg.put(FN_CSV.URI, FN_CSV.class);
+        fnreg.put(FN_SplitAtPostion.URI, FN_SplitAtPostion.class);
         fnreg.put(FN_HTMLTag.URI, FN_HTMLTag.class);
         fnreg.put(FN_HTMLAttribute.URI, FN_HTMLAttribute.class);
 
@@ -107,6 +110,7 @@ public final class SPARQLGenerate {
         itereg.put(ITE_JSONPath.URI, ITE_JSONPath.class);
         itereg.put(ITE_JSONListKeys.URI, ITE_JSONListKeys.class);
         itereg.put(ITE_XPath.URI, ITE_XPath.class);
+        itereg.put(ITE_Split.URI, ITE_Split.class);
         itereg.put(ITE_CSV.URI, ITE_CSV.class);
         itereg.put(ITE_CSSPath.URI, ITE_CSSPath.class);
 
