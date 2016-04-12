@@ -1,0 +1,11 @@
+@prefix lm: <http://jena.hpl.hp.com/2004/08/location-mapping#> .
+
+[] lm:mapping
+   [ lm:name "http://w3id.org/sparql-generate/example/source/query" ; lm:altName "query.rqg" ] ,
+   [ lm:name "http://w3id.org/sparql-generate/example/source/expected_output" ; lm:altName "expected_output.ttl" ],
+   [ lm:name "http://ceur-ws.org/Vol-1128/" ; lm:altName "/home/bakerally/Documents/repositories/github/sparql-generate-jena/target/test-classes/rmlproeg9/doc.html" ] 
+   .
+
+
+
+
