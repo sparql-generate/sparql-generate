@@ -34,6 +34,7 @@ import com.github.thesmartenergy.sparql.generate.jena.iterator.IteratorFunctionR
 import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITE_CSSPath;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITE_CSV;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITE_CustomCSV;
+import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITE_JSONListElement;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITE_JSONListKeys;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITE_JSONPath;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITE_Split;
@@ -112,6 +113,7 @@ public final class SPARQLGenerate {
         IteratorFunctionRegistry itereg = IteratorFunctionRegistry.get();
         itereg.put(ITE_JSONPath.URI, ITE_JSONPath.class);
         itereg.put(ITE_JSONListKeys.URI, ITE_JSONListKeys.class);
+        itereg.put(ITE_JSONListElement.URI, ITE_JSONListElement.class);
         
         itereg.put(ITE_XPath.URI, ITE_XPath.class);
         itereg.put(ITE_Split.URI, ITE_Split.class);
