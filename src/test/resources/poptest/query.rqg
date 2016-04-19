@@ -1,0 +1,35 @@
+BASE <http://example.org/> 
+PREFIX ite: <http://w3id.org/sparql-generate/ite/>
+PREFIX fn: <http://w3id.org/sparql-generate/fn/>
+PREFIX country:<http://loc.example.com/city/>
+PREFIX schema: <http://schema.org/>
+PREFIX wgs84_pos: <http://www.w3.org/2003/01/geo/wgs84_pos#>
+PREFIX gn: <http://www.geonames.org/ontology#>
+PREFIX transit: <http://vocab.org/transit/terms/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> 
+
+
+
+GENERATE { 
+  [] xsd:countryName ?countryName ;
+     xsd:countryCode ?countryCode ;
+     xsd:continentCode ?continentCode;
+     xsd:continentName ?continentName;
+     xsd:countryPopulation ?countryPopulation;
+}
+SOURCE <http://example.com/continent.json> AS ?continents
+SOURCE <http://example.com/country-names.json> AS ?countryNames
+SOURCE <http://example.com/country-population.json> AS ?countriesPopulation
+SOURCE <http://example.com/continentnames.json> AS ?continentNames
+
+ITERATOR ite:JSONListKeys( ?countryNames ) AS ?countryCode
+WHERE {
+    BIND( fn:JSONPath( ?countryNames, CONCAT("$.",?countryCode) ) AS ?countryName )
+    BIND( fn:JSONPath( ?continents, CONCAT("$.",?countryCode) ) AS ?continentCode)
+    BIND( fn:JSONPath( ?continentNames, CONCAT("$.",?continentCode) ) AS ?continentName)
+    BIND (CONCAT("$[?(@.country=='",?countryName,"')].population") AS ?populationQuery)
+    BIND( xsd:decimal(fn:JSONPath( ?countriesPopulation, ?populationQuery )) AS ?countryPopulation )
+} 
+ORDER BY DESC(?countryPopulation) 
+LIMIT 10
+
