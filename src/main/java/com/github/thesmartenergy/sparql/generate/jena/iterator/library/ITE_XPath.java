@@ -97,6 +97,7 @@ public class ITE_XPath extends IteratorFunctionBase2 {
         }
         DocumentBuilderFactory builderFactory
                 = DocumentBuilderFactory.newInstance();
+        builderFactory.setNamespaceAware(true);
         DocumentBuilder builder = null;
         try {
             builder = builderFactory.newDocumentBuilder();
@@ -105,6 +106,7 @@ public class ITE_XPath extends IteratorFunctionBase2 {
                             xml.asNode().getLiteralLexicalForm().getBytes()));
             
             XPath xPath =  XPathFactory.newInstance().newXPath();
+            
             
             NodeList nodeList = (NodeList) xPath
                     .compile(v2.getString())

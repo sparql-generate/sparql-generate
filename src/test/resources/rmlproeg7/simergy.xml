@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<SimModel xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+          xmlns:simcore="http://www.lbl.gov/namespaces/Sim/SimModelCore" 
+          xmlns:simres="http://www.lbl.gov/namespaces/Sim/ResourcesGeneral" 
+          xmlns:simgeom="http://www.lbl.gov/namespaces/Sim/ResourcesGeometry" 
+          xmlns:simbldg="http://www.lbl.gov/namespaces/Sim/BuildingModel" 
+         xmlns:simmodel="http://www.lbl.gov/namespaces/Sim/Model/"
+          xmlns:simmep="http://www.lbl.gov/namespaces/Sim/MepModel">
+
+<simmodel:SimAppLibraryDefault_AppLibraryDefault_GlobalLibrary RefId="ID28781">
+    <simres:SimModelType>AppLibraryDefault</simres:SimModelType>
+    <simres:SimModelSubtype>GlobalLibrary</simres:SimModelSubtype>
+    <simres:SimModelName>simAppLibraryDefault</simres:SimModelName>
+    <simres:SourceModelSchema>Simergy v0.9.500</simres:SourceModelSchema>
+    <simres:DefaultPreferenceIndex>0</simres:DefaultPreferenceIndex>
+    <simres:LibraryLocation />
+    <simres:LibraryName />
+</simmodel:SimAppLibraryDefault_AppLibraryDefault_GlobalLibrary>
+
+<simmodel:SimAppLibraryDefault_AppLibraryDefault_GlobalLibrary RefId="ID28782">
+    <simres:SimModelType>AppLibraryDefault</simres:SimModelType>
+    <simres:SimModelSubtype>GlobalLibrary</simres:SimModelSubtype>
+    <simres:SimModelName>simAppLibraryDefault</simres:SimModelName>
+    <simres:SourceModelSchema>Simergy v0.9.500</simres:SourceModelSchema>
+    <simres:DefaultPreferenceIndex>1</simres:DefaultPreferenceIndex>
+    <simres:LibraryLocation />
+    <simres:LibraryName />
+</simmodel:SimAppLibraryDefault_AppLibraryDefault_GlobalLibrary>
+
+<simmodel:SimAppLibraryDefault_AppLibraryDefault_GlobalLibrary RefId="ID28783">
+    <simres:SimModelType>AppLibraryDefault</simres:SimModelType>
+    <simres:SimModelSubtype>GlobalLibrary</simres:SimModelSubtype>
+    <simres:SimModelName>simAppLibraryDefault</simres:SimModelName>
+    <simres:SourceModelSchema>Simergy v0.9.500</simres:SourceModelSchema>
+    <simres:DefaultPreferenceIndex>2</simres:DefaultPreferenceIndex>
+    <simres:LibraryLocation />
+    <simres:LibraryName />
+</simmodel:SimAppLibraryDefault_AppLibraryDefault_GlobalLibrary>
+
+<simmodel:SimAppLibraryDefault_AppLibraryDefault_GlobalLibrary RefId="ID28784">
+    <simres:SimModelType>AppLibraryDefault</simres:SimModelType>
+    <simres:SimModelSubtype>GlobalLibrary</simres:SimModelSubtype>
+    <simres:SimModelName>simAppLibraryDefault</simres:SimModelName>
+    <simres:SourceModelSchema>Simergy v0.9.500</simres:SourceModelSchema>
+    <simres:DefaultPreferenceIndex>3</simres:DefaultPreferenceIndex>
+    <simres:LibraryLocation />
+    <simres:LibraryName />
+</simmodel:SimAppLibraryDefault_AppLibraryDefault_GlobalLibrary>
+
+</SimModel>

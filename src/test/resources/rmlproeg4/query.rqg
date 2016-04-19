@@ -1,0 +1,28 @@
+BASE <http://example.org/> 
+PREFIX ite: <http://w3id.org/sparql-generate/ite/>
+PREFIX fn: <http://w3id.org/sparql-generate/fn/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> 
+PREFIX ex: <http://www.example.com/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> 
+PREFIX schema: <http://schema.org/>
+PREFIX wgs84_pos: <http://www.w3.org/2003/01/geo/wgs84_pos#>
+PREFIX geosp: <http://www.telegraphis.net/ontology/geography/geography#>
+PREFIX gn: <http://www.geonames.org/ontology#>
+GENERATE { 
+       ?cityIRI a schema:City;
+            wgs84_pos:lat ?latitude;
+            wgs84_pos:long ?longitude;
+            geosp:onContinent ?continent;
+            gn:countryCode ?country .
+}
+SOURCE <http://example.com/venue.json> AS ?source
+ITERATOR ite:JSONPath(?source,"$[*]") AS ?venue
+WHERE {
+    BIND(fn:JSONPath(?venue, "$.venue.latitude" ) AS ?latitude)
+    BIND(fn:JSONPath(?venue, "$.venue.latitude" ) AS ?longitude)
+    BIND(fn:JSONPath(?venue, "$.city" ) AS ?city)
+    BIND(fn:JSONPath(?venue, "$.continent" ) AS ?continent)
+    BIND(fn:JSONPath(?venue, "$.country" ) AS ?country)
+    BIND(IRI(CONCAT("http://loc.example.com/city/",?city)) as ?cityIRI)
+
+}

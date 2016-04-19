@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<notes>
+    <note id="M17" day="10" month="01" year="2008"> 
+            <to>Tove</to>
+            <from>Jani</from>
+            <heading>Reminder</heading>
+            <body>Don't forget me this weekend!</body>
+    </note>
+    <note id="M18" day="10" month="02" year="2008"> 
+            <to>Chris</to>
+            <from>Rick</from>
+            <heading>Update</heading>
+            <body>We now leave at six</body>
+    </note>
+</notes>

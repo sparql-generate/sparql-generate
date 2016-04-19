@@ -10,20 +10,8 @@ PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
 GENERATE { 
-  ?busURI a transit:Stop .
-  GENERATE {
-    ?busURI transit:stop ?stopId .
-    ?busURI rdfs:label ?stopLabel .
-  }
-  ITERATOR rqg-ite:XPath(?bus, "//stop" ) AS ?stop 
-  WHERE {
-    BIND( STRDT(rqg-fn:XPath(?stop, "/stop/@id"),xsd:integer) AS ?stopId )
-    BIND( rqg-fn:XPath(?stop, "/stop") AS ?stopLabel )
-  } .
+  [] rdfs:value ?s .
+  
 }
-SOURCE <http://example.com/transport.xml> AS ?source
-ITERATOR rqg-ite:XPath(?source, "//bus" ) AS ?bus
-WHERE {
-   BIND(rqg-fn:XPath( ?bus, "/bus/@id") AS ?id )
-   BIND (URI(CONCAT("http://trans.example.com/",?id)) AS ?busURI)
-} 
+SOURCE <https://dl.dropboxusercontent.com/u/108022472/parking_data/strasboug/strasboug_parking_geometry.json> AS ?source
+ITERATOR rqg-ite:JSONPath(?source, "$.s[*]" ) AS ?s

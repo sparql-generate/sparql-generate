@@ -18,6 +18,7 @@ package com.github.thesmartenergy.sparql.generate.jena.function.library;
 import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
 import com.jayway.jsonpath.JsonPath;
 import java.math.BigDecimal;
+import net.minidev.json.JSONArray;
 import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.NodeValue;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueBoolean;
@@ -28,6 +29,13 @@ import org.apache.jena.sparql.expr.nodevalue.NodeValueInteger;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueString;
 import org.apache.jena.sparql.function.FunctionBase2;
 import org.apache.log4j.Logger;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
+import org.apache.jena.graph.Node;
+import org.apache.jena.graph.NodeFactory;
+import org.apache.jena.sparql.expr.nodevalue.NodeValueNode;
 
 /**
  * A SPARQL Function that extracts a string from a JSON document, according to a
@@ -84,6 +92,7 @@ public final class FN_JSONPath extends FunctionBase2 {
         try {
             Object value = JsonPath.parse(json.asNode().getLiteralLexicalForm())
                     .limit(1).read(jsonpath.getString());
+            
             if (value instanceof String) {
                 return new NodeValueString((String) value);
             } else if (value instanceof Float) {
@@ -96,9 +105,24 @@ public final class FN_JSONPath extends FunctionBase2 {
                 return new NodeValueDouble((Double) value);
             } else if (value instanceof BigDecimal) {
                 return new NodeValueDecimal((BigDecimal) value);
+            } else {
+                String strValue = String.valueOf(value);
+                
+                
+                JsonParser parser = new JsonParser();
+                JsonElement valElement = parser.parse(strValue);
+                JsonArray list = valElement.getAsJsonArray();
+                
+                if (list.size() == 1){
+                    String jsonstring = list.get(0).getAsString();
+                    Node node = NodeFactory.createLiteral(jsonstring);
+                    NodeValue nodeValue = new NodeValueNode(node);
+                    return nodeValue;
+                    
+                } else {
+                  return new NodeValueString(String.valueOf(value)); 
+                }
             }
-            throw new ExprEvalException("FunctionBase: not a primitive type."
-                    + " Got" + value.getClass());
         } catch (Exception e) {
             throw new ExprEvalException("FunctionBase: no evaluation", e);
         }

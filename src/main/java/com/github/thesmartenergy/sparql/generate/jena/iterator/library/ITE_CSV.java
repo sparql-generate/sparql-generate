@@ -112,10 +112,10 @@ public class ITE_CSV extends IteratorFunctionBase1 {
            
             ICsvListReader listReader = null;
             InputStream is = new ByteArrayInputStream(sourceCSV.getBytes());
-            BufferedReader br = new BufferedReader(new InputStreamReader(is));
+            InputStreamReader reader = new InputStreamReader(is);
+            BufferedReader br = new BufferedReader(reader);
             
             String header = br.readLine();
-            
             listReader = new CsvListReader(br, CsvPreference.STANDARD_PREFERENCE);
            
             List<NodeValue> nodeValues = new ArrayList<>(listReader.length());

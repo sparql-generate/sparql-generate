@@ -92,6 +92,7 @@ public class FN_XPath extends FunctionBase2 {
         LOG.debug("===========> "+xpath);
         DocumentBuilderFactory builderFactory
                 = DocumentBuilderFactory.newInstance();
+        builderFactory.setNamespaceAware(true);
         DocumentBuilder builder = null;
         try {
             builder = builderFactory.newDocumentBuilder();
