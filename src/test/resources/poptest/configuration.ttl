@@ -5,7 +5,8 @@
    [ lm:name "http://w3id.org/sparql-generate/example/source/expected_output" ; lm:altName "expected_output.ttl" ],
    [ lm:name "http://example.com/continent.json" ; lm:altName "continent.json" ],
    [ lm:name "http://example.com/country-names.json" ; lm:altName "country-names.json" ],
-   [ lm:name "http://example.com/country-population.json" ; lm:altName "country-population.json" ]
+   [ lm:name "http://example.com/country-population.json" ; lm:altName "country-population.json" ],
+   [ lm:name "http://example.com/continentnames.json" ; lm:altName "continentnames.json" ]
    .
 
 

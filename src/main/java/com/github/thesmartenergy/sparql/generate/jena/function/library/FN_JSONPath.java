@@ -30,6 +30,9 @@ import org.apache.jena.sparql.expr.nodevalue.NodeValueString;
 import org.apache.jena.sparql.function.FunctionBase2;
 import org.apache.log4j.Logger;
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueNode;
@@ -89,6 +92,7 @@ public final class FN_JSONPath extends FunctionBase2 {
         try {
             Object value = JsonPath.parse(json.asNode().getLiteralLexicalForm())
                     .limit(1).read(jsonpath.getString());
+            
             if (value instanceof String) {
                 return new NodeValueString((String) value);
             } else if (value instanceof Float) {
@@ -102,16 +106,21 @@ public final class FN_JSONPath extends FunctionBase2 {
             } else if (value instanceof BigDecimal) {
                 return new NodeValueDecimal((BigDecimal) value);
             } else {
-                JSONArray list = (JSONArray)value;
-                Gson gson = new Gson();
+                String strValue = String.valueOf(value);
+                
+                
+                JsonParser parser = new JsonParser();
+                JsonElement valElement = parser.parse(strValue);
+                JsonArray list = valElement.getAsJsonArray();
+                
                 if (list.size() == 1){
-                    String jsonstring = gson.toJson(list.get(0));
+                    String jsonstring = list.get(0).getAsString();
                     Node node = NodeFactory.createLiteral(jsonstring);
                     NodeValue nodeValue = new NodeValueNode(node);
                     return nodeValue;
                     
                 } else {
-                  return new NodeValueString((String) value); 
+                  return new NodeValueString(String.valueOf(value)); 
                 }
             }
         } catch (Exception e) {
