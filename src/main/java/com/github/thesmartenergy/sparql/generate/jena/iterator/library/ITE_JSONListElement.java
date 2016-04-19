@@ -125,7 +125,7 @@ public class ITE_JSONListElement extends IteratorFunctionBase2 {
             for (Object value : values) {
                 RDFDatatype dt = TypeMapper.getInstance().getSafeTypeByName(datatypeUri);
                 String jsonstring = gson.toJson(value);
-                String structure = "{\"element\":elementValue,\"position\":intPos,\"hasNext\":\"hasNextValue\"}";
+                String structure = "{\"element\":elementValue,\"position\":intPos,\"hasNext\":hasNextValue}";
                 
                 
                 structure = structure.replaceAll("intPos",String.valueOf(position));

@@ -9,7 +9,7 @@ PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 GENERATE { 
     ?this1 rdf:first ?att1;rdf:rest ?rest1 .
-   
+    
 }
 SOURCE <http://example.com/list.json> AS ?source
 ITERATOR ite:JSONElement(?source,"$.att[*]") AS ?key
@@ -17,8 +17,8 @@ WHERE {
     BIND(xsd:decimal(fn:JSONPath(?key, "$.position" )) AS ?position)
     BIND(xsd:boolean(fn:JSONPath(?key, "$.hasNext" )) AS ?hasNext)
     BIND(fn:JSONPath(?key, "$.element.att1" ) AS ?att1)
-    BIND(fn:JSONPath(?key, "$.element.att2" ) AS ?att2)
-    BIND( IF( 0 = ?position , <myURI> , BNODE( CONCAT( "e_1_" , ?position ) ) ) AS ?this1 )
+    BIND (CONCAT("e_",STR(?position)) as ?id)
+    BIND( BNODE(?id) AS ?this1 )
     BIND( STR( ?position + 1) as ?nextPosition)
     BIND( IF( true = ?hasNext , BNODE( CONCAT( "e_1_" ,  ?nextPosition) ) , rdf:nil ) AS ?rest1 )
 }
