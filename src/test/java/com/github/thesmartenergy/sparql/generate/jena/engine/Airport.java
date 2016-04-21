@@ -26,6 +26,7 @@ import org.junit.Test;
  *
  * @author maxime.lefrancois
  */
+
 public class Airport extends TestBase {
 
     public Airport() {
