@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.github.thesmartenergy</groupId>
     <artifactId>sparql-generate-jena</artifactId>
-    <version>0.11-SNAPSHOT</version>
+    <version>0.10</version>
     <packaging>jar</packaging>
        
     <name>SPARQL Generate over Apache Jena</name>
@@ -531,6 +531,7 @@
                     <inherited>true</inherited>
                     <configuration>
                         <releaseProfiles>gpg</releaseProfiles>
+                        <tagNameFormat>@{project.version}</tagNameFormat>
                     </configuration>
                 </plugin>
 
