@@ -24,7 +24,7 @@
             <organizationUrl>http://www.mines-stetienne.fr/</organizationUrl>
             <timezone>UTC+01:00</timezone>
             <properties>
-                <picUrl>http://0.gravatar.com/userimage/102097381/dac8aeb15edac9a93e09a7974743957f</picUrl>
+                <picUrl>http://gravatar.com/userimage/102097381/dac8aeb15edac9a93e09a7974743957f</picUrl>
             </properties>        
         </developer>
         <developer>
@@ -34,6 +34,9 @@
             <organization>Ecole des mines de Saint-Etienne</organization>
             <organizationUrl>http://www.mines-stetienne.fr/</organizationUrl>
             <timezone>UTC+01:00</timezone>
+            <properties>
+                <picUrl>http://gravatar.com/avatar/64cb7dec1965ed4fa000bd6faa30a329</picUrl>
+            </properties>
         </developer>
     </developers>
     
