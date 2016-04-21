@@ -2,14 +2,21 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.github.thesmartenergy</groupId>
-    <artifactId>sparql-generate-jena</artifactId>
+    <artifactId>sparql-generate-parent</artifactId>
     <version>0.11-SNAPSHOT</version>
-    <packaging>jar</packaging>
+    <packaging>pom</packaging>
        
-    <name>SPARQL Generate over Apache Jena</name>
-    <description>An implementation of SPARQL-Generate over Apache Jena</description>
+    <name>SPARQL Generate</name>
+    <description>The parent project for SPARQL-Generate over Apache Jena, and its demonstration website</description>
     <url>http://${repository.domain}/${repository.user}/${repository.name}</url>
     <inceptionYear>2016</inceptionYear>
+
+    <!-- command to deploy to maven: mvn clean deploy -DperformRelease=true-->
+
+    <modules>
+        <module>sparql-generate-jena</module>
+        <module>sparql-generate-website</module>
+    </modules>
 
     <prerequisites>
         <maven>3.0.3</maven>
@@ -50,9 +57,6 @@
             <timezone>UTC+01:00</timezone>
         </contributor>
     </contributors>
-    
-    <!-- command to deploy to maven: mvn clean deploy -DperformRelease=true-->
-    <!-- command to deploy to ossrh: mvn clean site -->
 
     <organization>
         <name>ITEA 12004 SEAS Project</name>
@@ -70,7 +74,7 @@
         <url>http://${repository.domain}/${repository.user}/${repository.name}/issues</url>
         <system>GitHub Issues</system>
     </issueManagement>
-        
+
     <mailingLists>
         <mailingList>
             <name>Mailing list</name>
@@ -98,60 +102,29 @@
     </distributionManagement>
 
     <properties>
+        <websiteName>sparql-generate</websiteName>
         
         <!-- ========================  -->
         <!--    GitHub PROPERTIES      -->
         <!-- ========================  -->
 
         <github.global.server>github.com</github.global.server>
-        
-        <!-- ========================  -->
-        <!--    SITE DOC PROPERTIES    -->
-        <!-- ========================  -->
-
-        <repository.domain>github.com</repository.domain>
-        <repository.user>thesmartenergy</repository.user>
-        <repository.name>sparql-generate-jena</repository.name>
 
         <!-- ========================  -->
         <!--    PROJECT PROPERTIES     -->
         <!-- ========================  -->
         
-        <maven.compiler.source>1.7</maven.compiler.source>
-        <maven.compiler.target>1.7</maven.compiler.target>
-        <jdk.version>1.7</jdk.version>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <jdk.version>1.8</jdk.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>        
         <project.scm.id>git</project.scm.id>
         <maven.build.timestamp.format>yyyy-MM-dd'T'HH:mm:ssZ</maven.build.timestamp.format>
 
-        <!-- ==========================  -->
-        <!--    CHANGE LOG PROPERTIES    -->
-        <!-- ==========================  -->
-        <!-- GitHub Changelog Parameters -->
-        <changelog.github.fileUri>${project.scm.url}/tree/master/%FILE%</changelog.github.fileUri>
-        <changelog.revision.github.fileUri>${project.scm.url}/commit</changelog.revision.github.fileUri>
-        <changelog.fileUri>${changelog.github.fileUri}</changelog.fileUri>
-        <changelog.revision.fileUri>${changelog.revision.github.fileUri}</changelog.revision.fileUri>
     </properties>
     
     <dependencies>
-        <dependency>
-            <groupId>org.apache.jena</groupId>
-            <artifactId>jena-arq</artifactId>
-            <version>3.0.1</version>
-        </dependency>
-        <dependency>
-            <groupId>com.jayway.jsonpath</groupId>
-            <artifactId>json-path</artifactId>
-            <version>2.1.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.google.code.gson</groupId>
-            <artifactId>gson</artifactId>
-            <version>2.2.2</version>
-            <scope>compile</scope>
-        </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -164,27 +137,6 @@
             <version>1.3</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>commons-cli</groupId>
-            <artifactId>commons-cli</artifactId>
-            <version>1.3</version>
-        </dependency>
-        <dependency>
-            <!-- jsoup HTML parser library @ http://jsoup.org/ -->
-            <groupId>org.jsoup</groupId>
-            <artifactId>jsoup</artifactId>
-            <version>1.8.3</version>
-        </dependency>
-        <dependency>
-            <groupId>net.sf.supercsv</groupId>
-            <artifactId>super-csv</artifactId>
-            <version>2.4.0</version>
-        </dependency>    
-        <dependency>
-            <groupId>com.fasterxml.jackson.dataformat</groupId>
-            <artifactId>jackson-dataformat-cbor</artifactId>
-            <version>2.7.3</version>
-        </dependency>
     </dependencies>
 
     <build>
@@ -196,36 +148,11 @@
                 <version>2.10</version>
             </extension>
         </extensions>
-
-        <finalName>sparql-generate-jena-${project.version}</finalName>
-
         <pluginManagement>
             <plugins>
-
                 <!-- ========================  -->
                 <!--    DEFAULT LIFECYCLE      -->
                 <!-- ========================  -->
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-shade-plugin</artifactId>
-                    <version>2.4.1</version>
-                    <executions>
-                      <execution>
-                        <phase>package</phase>
-                        <goals>
-                          <goal>shade</goal>
-                        </goals>
-                        <configuration>
-                          <transformers>
-                            <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">                    
-                            <mainClass>com.github.thesmartenergy.sparql.generate.generator.CMDGenerator</mainClass>
-                            </transformer>
-                          </transformers>
-                        </configuration>
-                      </execution>
-                    </executions>
-                </plugin>
-
                 <!-- configure validate -->
                 <plugin>
                     <groupId>org.apache.rat</groupId>
@@ -244,15 +171,14 @@
                         <excludeSubProjects>true</excludeSubProjects>
                         <excludes>
                             <exclude>**/src/site/**/*.*</exclude>
-                            <exclude>**/*.xml</exclude>
                             <exclude>**/src/main/resources/**/*.json</exclude>
-                            <exclude>**/src/main/resources/**/*.ttl</exclude>
-                            <exclude>**/src/main/resources/**/*.rqg</exclude>
                             <exclude>**/src/main/**/*.html</exclude>
                             <exclude>**/src/test/**/*.*</exclude>
                             <exclude>**/src/**/package-info.java</exclude>
                             <exclude>**/*.txt</exclude>
-                            <exclude>**/*.md</exclude>
+                            <exclude>**/nb-configuration.xml</exclude>
+                            <exclude>**/nbactions.xml</exclude>
+                            <exclude>**/README.md</exclude>
                             <exclude>**/nbproject/*</exclude>
                             <exclude>**/log4j.properties</exclude>
                             <exclude>**/log4j-testing.properties</exclude>
@@ -262,268 +188,10 @@
                         </excludes>
                     </configuration>
                 </plugin>
-
-                <!-- configure generate-source -->
-                <plugin>
-                    <groupId>com.helger.maven</groupId>
-                    <artifactId>ph-javacc-maven-plugin</artifactId>
-                    <version>2.8.0</version>
-                    <executions>
-                        <execution>
-                            <id>javacc</id>
-                            <phase>generate-sources</phase>
-                            <goals>
-                                <goal>javacc</goal>
-                            </goals>
-                            <configuration>
-                                <jdkVersion>1.7</jdkVersion>
-                                <javadocFriendlyComments>true</javadocFriendlyComments>
-                                <packageName>com.github.thesmartenergy.sparql.generate.jena.lang</packageName>
-                            </configuration>
-                        </execution>
-                    </executions>
-                </plugin>
-
-                <!-- configure process-sources -->            
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-jxr-plugin</artifactId>
-                    <version>2.5</version>
-                    <inherited>true</inherited>
-                    <configuration>
-                        <aggregate>true</aggregate>
-                    </configuration>
-                    <executions>
-                        <execution>
-                            <id>run-jxr</id>
-                            <phase>process-resources</phase>
-                            <goals>
-                                <goal>jxr</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
-
-                <!-- configure verify -->
-                <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>taglist-maven-plugin</artifactId>
-                    <version>2.4</version>
-                    <!-- needs XRef --> 
-                    <inherited>true</inherited>
-                    <configuration>
-                        <aggregate>true</aggregate>
-                        <encoding>${project.build.sourceEncoding}</encoding>
-                        <sourceFileLocale>en</sourceFileLocale>
-                        <tagListOptions>
-                            <tagClasses>
-                                <tagClass>
-                                    <displayName>Code sections needing review</displayName>
-                                    <tags>
-                                        <tag>
-                                            <matchString>REVIEWREQUIRED</matchString>
-                                            <matchType>exact</matchType>
-                                        </tag>
-                                    </tags>
-                                </tagClass>
-                                <tagClass>
-                                    <displayName>Todo Work</displayName>
-                                    <tags>
-                                        <tag>
-                                            <matchString>todo</matchString>
-                                            <matchType>ignoreCase</matchType>
-                                        </tag>
-                                        <tag>
-                                            <matchString>@todo</matchString>
-                                            <matchType>ignoreCase</matchType>
-                                        </tag>
-                                    </tags>
-                                </tagClass>
-                                <tagClass>
-                                    <displayName>Noted Bugs</displayName>
-                                    <tag>
-                                        <matchString>fixme</matchString>
-                                        <matchType>ignoreCase</matchType>
-                                    </tag>
-                                </tagClass>
-                                <tagClass>
-                                    <displayName>Deprecated Items</displayName>
-                                    <tag>
-                                        <matchString>@deprecated</matchString>
-                                        <matchType>ignoreCase</matchType>
-                                    </tag>
-                                </tagClass>
-                            </tagClasses>
-                        </tagListOptions>
-                    </configuration>
-                    <executions>
-                        <execution>
-                            <id>run-taglist</id>
-                            <phase>verify</phase>
-                            <goals>
-                                <goal>taglist</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
-
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-checkstyle-plugin</artifactId>
-                    <version>2.17</version>
-                    <inherited>true</inherited>
-                    <configuration>
-                        <skip>${checkstyle.skip}</skip>
-                        <configLocation>${maven-checkstyle-plugin.configLocation}</configLocation>
-                        <failsOnError>false</failsOnError>
-                        <enableRulesSummary>true</enableRulesSummary>
-                        <includeTestSourceDirectory>true</includeTestSourceDirectory>
-                    </configuration>
-                    <executions>
-                        <execution>
-                            <id>run-checkstyle</id>
-                            <phase>verify</phase>
-                            <goals>
-                                <goal>checkstyle</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
-
-                <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>findbugs-maven-plugin</artifactId>
-                    <version>3.0.3</version>
-                    <inherited>true</inherited>
-                    <configuration>
-                        <skip>${findbugs.skip}</skip>
-                        <maxHeap>512</maxHeap>
-                        <xmlOutput>true</xmlOutput>
-                        <includeTests>true</includeTests>
-                        <effort>max</effort>
-                        <sourceEncoding>${project.build.sourceEncoding}</sourceEncoding>
-                    </configuration>
-                    <executions>
-                        <execution>
-                            <id>run-findbugs</id>
-                            <phase>verify</phase>
-                            <goals>
-                                <goal>findbugs</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
-
-
-                <!-- ========================  -->
-                <!--    PACKAGE LIFECYCLE      -->
-                <!-- ========================  -->
-
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-source-plugin</artifactId>
-                    <version>3.0.0</version>
-                    <executions>
-                        <execution>
-                            <id>attach-sources</id>
-                            <goals>
-                                <goal>jar</goal>
-                                <goal>jar-no-fork</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
                 
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-javadoc-plugin</artifactId>
-                    <version>2.10.3</version>
-                    <executions>
-                        <execution>
-                            <id>attach-javadocs</id>
-                            <goals>
-                                <goal>jar</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                    <configuration>
-                        <failOnError>false</failOnError>
-                        <links>
-                            <link>https://jena.apache.org/documentation/javadoc/arq/</link>
-                            <link>https://jena.apache.org/documentation/javadoc/jena/</link>
-                        </links>
-                    </configuration>
-                </plugin>
-
-                <!-- ========================  -->
-                <!--    SITE LIFECYCLE         -->
-                <!-- ========================  -->
-
-                <!-- configure attach-descriptor  -->
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-site-plugin</artifactId>
-                    <version>3.5</version>
-                    <inherited>true</inherited>
-                    <configuration>
-                        <attach>true</attach>
-                        <reportPlugins>
-                            <plugin>
-                                <groupId>org.apache.maven.plugins</groupId>
-                                <artifactId>maven-project-info-reports-plugin</artifactId>
-                                <configuration>
-                                    <dependencyDetailsEnabled>false</dependencyDetailsEnabled>
-                                    <dependencyLocationsEnabled>false</dependencyLocationsEnabled>
-                                </configuration>
-                                <reports>
-                                    <report>summary</report>
-                                    <report>scm</report>
-                                    <report>issue-tracking</report>
-                                    <report>mailing-list</report>
-                                    <report>license</report>
-                                    <report>project-team</report>
-                                </reports>
-                            </plugin>
-                            <plugin>
-                                <groupId>org.apache.maven.plugins</groupId>
-                                <artifactId>maven-javadoc-plugin</artifactId>
-                                <configuration>
-                                    <failOnError>false</failOnError>
-                                    <links>
-                                        <link>https://jena.apache.org/documentation/javadoc/arq/</link>
-                                        <link>https://jena.apache.org/documentation/javadoc/jena/</link>
-                                    </links>
-                                </configuration>
-                                <reports>
-                                    <report>javadoc</report>
-                                </reports>
-                            </plugin>
-                        </reportPlugins>
-                    </configuration>        
-                </plugin>
-
-                <!-- configure site-deploy  -->
-                <plugin>
-                    <groupId>com.github.github</groupId>
-                    <artifactId>site-maven-plugin</artifactId>
-                    <version>0.12</version>
-                    <configuration>
-                        <message>Creating site for ${project.version}</message>
-                    </configuration>
-                    <executions>
-                        <execution>
-                            <goals>
-                                <goal>site</goal>
-                            </goals>
-                            <phase>site</phase>
-                        </execution>
-                    </executions>
-                </plugin>
-
                 <!-- ========================  -->
                 <!-- CUSTOM RELEASE LIFECYCLE  -->
                 <!-- ========================  -->
-
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-release-plugin</artifactId>
@@ -534,88 +202,16 @@
                         <tagNameFormat>@{project.version}</tagNameFormat>
                     </configuration>
                 </plugin>
-
             </plugins>
         </pluginManagement>
 
         <!-- actual enabled plugins -->
         <plugins>
-
-            <!-- ========================  -->
-            <!--    DEFAULT LIFECYCLE      -->
-            <!-- ========================  -->
-
-            <!-- shade -->
-           <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-            </plugin>
-
             <!-- validate -->
             <plugin>
                 <groupId>org.apache.rat</groupId>
                 <artifactId>apache-rat-plugin</artifactId>
             </plugin>
-
-            <!-- generate-source -->
-            <plugin>
-                <groupId>com.helger.maven</groupId>
-                <artifactId>ph-javacc-maven-plugin</artifactId>
-            </plugin>
-
-            <!-- process-sources -->            
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jxr-plugin</artifactId>
-    
-            </plugin>
-
-            <!-- verify -->
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>taglist-maven-plugin</artifactId>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-checkstyle-plugin</artifactId>
-            </plugin>
-
-            <!--            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>findbugs-maven-plugin</artifactId>
-            </plugin>-->
-
-            <!-- ========================  -->
-            <!--    PACKAGE LIFECYCLE      -->
-            <!-- ========================  -->
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-            </plugin>
-                
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-            </plugin>
-
-            <!-- ========================  -->
-            <!--    SITE LIFECYCLE         -->
-            <!-- ========================  -->
-
-            <!-- attach-descriptor  -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-site-plugin</artifactId>
-            </plugin>
-
-            <!-- site-deploy  -->
-            <plugin>
-                <groupId>com.github.github</groupId>
-                <artifactId>site-maven-plugin</artifactId>
-            </plugin>
-
 
             <!-- ========================  -->
             <!-- CUSTOM RELEASE LIFECYCLE  -->

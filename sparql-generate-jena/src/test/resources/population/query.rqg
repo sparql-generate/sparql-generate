@@ -1,0 +1,49 @@
+BASE <http://example.org/> 
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX ite: <http://w3id.org/sparql-generate/ite/>
+PREFIX fn: <http://w3id.org/sparql-generate/fn/>
+GENERATE {
+
+  ?continent_iri a            <Continent> .
+  ?continent_iri <population> ?continent_population .
+
+  GENERATE {
+
+    ?country_iri <continent>  ?continent_iri .
+    ?country_iri <population> ?country_population .
+
+  } ITERATOR ite:JSONPath( ?source_continent , CONCAT("$.[:]") ) AS ?continent_code_2
+  WHERE {
+    FILTER ( ?continent_code = ?continent_code_2 )
+  }
+  ORDER BY DESC( ?population )
+  LIMIT 3 .
+}
+SOURCE <http://country.io/continent.json> AS ?source_continent
+SOURCE <http://country.io/names.json> AS ?source_names
+SOURCE <https://raw.githubusercontent.com/samayo/country-data/master/src/country-population.json> AS ?source_population
+ITERATOR ite:JSONListKeys( ?source_continent ) AS ?contry_code
+WHERE {
+
+  SELECT ?source_continent
+         ?continent_iri ( SUM( ?population ) AS ?continent_population)
+         ?country_iri ?population
+  WHERE {
+
+    BIND( "http://example.org/" AS ?base )
+
+    BIND( CONCAT( "$.", ?contry_code ) AS ?query_continent )
+    BIND( fn:JSONPath( ?source_continent, ?query_continent ) AS ?continent_code )
+    BIND( IRI( CONCAT( ?base, "continent/", ?continent_code ) ) AS ?continent_iri )
+
+    BIND( CONCAT( "$.", ?contry_code ) AS ?query_names )
+    BIND( fn:JSONPath ( ?source_country , ?query_names ) AS ?country_name )
+    BIND( IRI( CONCAT( ?base, "country/", ?country_code ) ) AS ?country_iri )
+
+    BIND( CONCAT( "$.[?(@.country == '", ?country_name, "')].population") AS ?query_population )
+    BIND( xsd:integer( fn:JSONPath( ?source_population , ?query_population ) ) AS ?population )
+
+  } GROUP BY ?continent_code
+
+
+}

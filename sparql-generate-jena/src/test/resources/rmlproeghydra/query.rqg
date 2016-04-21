@@ -1,0 +1,33 @@
+PREFIX ite: <http://w3id.org/sparql-generate/ite/>
+PREFIX fn: <http://w3id.org/sparql-generate/fn/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX bibo:    <http://purl.org/ontology/bibo/> 
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX spc:     <http://semweb.mmlab.be/ns/spc/>
+PREFIX ex:     <http://www.example.com/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+GENERATE { 
+    ?paperIRI a ex:Paper .
+    
+    ?paperIRI ex:country ?resource_uri .
+        ?resource_uri a <http://dbpedia.org/ontology/Country> .
+        ?resource_uri ex:name ?fr_label .
+
+}
+SOURCE <http://example.com/example.csv> AS ?countries
+ITERATOR ite:CSV(?countries) AS ?countryInfo
+WHERE {
+    BIND(fn:CSV(?countryInfo, "id" ) AS ?id )
+    BIND(IRI(CONCAT("http://www.ex.com/paper/",?id)) as ?paperIRI)
+    BIND(STRLANG(fn:CSV(?countryInfo, "country" ),"en") as ?countryName)
+    SERVICE <http://dbpedia.org/sparql> {
+                SELECT ?resource_uri ?cName ?fr_label WHERE {
+                    ?resource_uri rdf:type <http://dbpedia.org/ontology/Country> ;
+                              rdfs:label ?cName,?fr_label .
+                              FILTER(lang(?fr_label) = "fr")
+                 
+               }
+         }
+    FILTER(?countryName=?cName) 
+ 
+}

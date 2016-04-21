@@ -1,0 +1,26 @@
+BASE <http://example.org/> 
+PREFIX rqg-ite: <http://w3id.org/sparql-generate/ite/>
+PREFIX rqg-fn: <http://w3id.org/sparql-generate/fn/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> 
+PREFIX ex: <http://www.example.com/>
+PREFIX simmodel: <http://www.lbl.gov/namespaces/Sim/Model/>
+PREFIX simres: <http://www.lbl.gov/namespaces/Sim/ResourcesGeneral/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> 
+PREFIX transit: <http://vocab.org/transit/terms/>
+
+
+GENERATE { 
+     ?stopIRI a transit:Stop;
+            ?typeIRI ?bus .
+  #generate triples in graph
+   
+}
+SOURCE <http://example.com/airport.csv> AS ?source
+ITERATOR rqg-ite:CSV(?source) AS ?stop
+WHERE {
+    BIND( rqg-fn:CSV(?stop, "id" ) AS ?id )
+    BIND( rqg-fn:CSV(?stop, "bus" ) AS ?bus )
+    BIND( rqg-fn:CSV(?stop, "type" ) AS ?type )
+    BIND (IRI(CONCAT("http://vocab.org/transit/terms/",?type)) AS ?typeIRI)
+    BIND(IRI(CONCAT("http://airport.example.com/",?id)) as ?stopIRI)
+}

@@ -1,13 +1,27 @@
-nbactions.xml
+# max
 notesmax.txt
+
+# NetBeans
+nbactions.xml
 nb-configuration.xml
+/nbproject/
+
+# Eclipse
+.classpath
+.project
+.settings
+.recommenders
+.metadata
+
+# Maven
 target/
+*/target/
 pom.xml.tag
 pom.xml.releaseBackup
 pom.xml.versionsBackup
 pom.xml.next
+
 release.properties
 dependency-reduced-pom.xml
 buildNumber.properties
 .mvn/timing.properties
-/nbproject/
