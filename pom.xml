@@ -197,6 +197,8 @@
             </extension>
         </extensions>
 
+        <finalName>spargl-generator-${project.version}</finalName>
+
         <pluginManagement>
             <plugins>
 
@@ -535,10 +537,6 @@
             </plugins>
         </pluginManagement>
 
-        <!-- actual enabled plugins -->
-        <plugins>
-
-        <finalName>spargl-generator-${project.version}</finalName>
         <!-- actual enabled plugins -->
         <plugins>
 

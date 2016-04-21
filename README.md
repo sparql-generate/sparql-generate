@@ -1,8 +1,4 @@
-# SPARQL-Generate-Jena
+# SPARQL-Generate
 
-This project implements the SPARQL-Generate language http://ci.emse.fr/sparql-generate/ .
-
-A SPARQL-Generate implementation over Apache Jena.
-
-This is the source code of project http://thesmartenergy.github.io/sparql-generate-jena .
+This project contains the spec and implementations for the SPARQL-Generate language http://w3id.org/sparql-generate/ .
 
