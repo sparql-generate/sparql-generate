@@ -78,7 +78,7 @@ public class FN_CSV extends FunctionBase2 {
     /**
      * The datatype URI of the first parameter and the return literals.
      */
-    private static final String datatypeUri = "urn:iana:mime:application/xml";
+    private static final String datatypeUri = "urn:iana:mime:text/csv";
 
     /**
      * Returns the evaluation of XPath {@code xpath} over the XML

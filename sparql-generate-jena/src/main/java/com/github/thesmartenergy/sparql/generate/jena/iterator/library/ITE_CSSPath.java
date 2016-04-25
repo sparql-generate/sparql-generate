@@ -18,11 +18,8 @@ package com.github.thesmartenergy.sparql.generate.jena.iterator.library;
 import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
 import java.util.ArrayList;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.IteratorFunctionBase2;
-import java.io.StringWriter;
 import java.util.List;
 
-import org.apache.jena.datatypes.RDFDatatype;
-import org.apache.jena.datatypes.TypeMapper;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.sparql.expr.ExprEvalException;
@@ -30,19 +27,7 @@ import org.apache.jena.sparql.expr.NodeValue;
 
 import org.apache.log4j.Logger;
 
-import org.apache.jena.sparql.expr.nodevalue.NodeValueBoolean;
-import org.apache.jena.sparql.expr.nodevalue.NodeValueDecimal;
-import org.apache.jena.sparql.expr.nodevalue.NodeValueDouble;
-import org.apache.jena.sparql.expr.nodevalue.NodeValueFloat;
-import org.apache.jena.sparql.expr.nodevalue.NodeValueInteger;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueNode;
-import org.apache.jena.sparql.expr.nodevalue.NodeValueString;
-import java.math.BigDecimal;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-
-import javax.xml.transform.dom.DOMSource; 
-import javax.xml.transform.stream.StreamResult;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;

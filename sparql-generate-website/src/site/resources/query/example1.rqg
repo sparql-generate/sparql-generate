@@ -1,0 +1,14 @@
+BASE <http://example.org/>
+PREFIX rqg-fn: <http://w3id.org/sparql-generate/fn/>
+PREFIX rqg-ite: <http://w3id.org/sparql-generate/ite/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+GENERATE {
+ <s> ?keyiri ?valuedec .
+} ITERATOR rqg-ite:JSONListKeys( ?message ) AS ?key 
+WHERE {
+ BIND( IRI( ?key ) AS ?keyiri )
+ BIND( rqg-fn:JSONPath( ?message , CONCAT( "$." , ?key )) AS ?value ) 
+ BIND( xsd:decimal( ?value ) AS ?valuedec )
+ FILTER( ?valuedec > 3 )
+} 

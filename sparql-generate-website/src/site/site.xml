@@ -37,12 +37,25 @@ See the License for the specific language governing permissions and
         
         <menu name="Overview">
             <item name="Introduction" href="index.html"/>
-            <item name="Specification" href="spec.html"/>        
+            <!--<item name="Specification" href="spec.html"/>-->
         </menu>
-        
-        <menu name="Implementation">
-            <item name="Examples" href="examples.html"/>
-            <item name="API Documentation" href="apidocs/index.html"/>        
+
+        <menu name="The Language">
+            <item name="Specification" href="language.html"/>
+            <item name="Test it online" href="language-form.html"/>
+            <item name="Web API" href="language-api.html"/>
+        </menu>
+            
+        <menu name="The protocol">
+            <item name="Specification" href="protocol.html"/>
+            <item name="Test it online" href="protocol-form.html"/>
+            <item name="Web API" href="protocol-api.html"/>
+        </menu>
+            
+        <menu name="Implementation Over Jena">
+            <item name="Get started" href="getStarted.html"/>
+            <item name="Available functions" href="functions.html"/>
+            <item name="Documentation" href="apidocs/index.html"/>        
         </menu>
 
         <menu ref="reports" inherit="top"/>

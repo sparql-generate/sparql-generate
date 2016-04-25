@@ -425,6 +425,7 @@ public class PlanFactory {
             @Override
             public void visitPrologue(final Prologue prologue) {
                 output.setPrefixMapping(query.getPrefixMapping());
+                output.setBaseURI(query.getBaseURI());
             }
 
             @Override

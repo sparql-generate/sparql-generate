@@ -138,7 +138,7 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
+  
     <build>
         <extensions>
             <extension>
@@ -172,6 +172,8 @@
                         <excludes>
                             <exclude>**/src/site/**/*.*</exclude>
                             <exclude>**/src/main/resources/**/*.json</exclude>
+                            <exclude>**/*.js</exclude>
+                            <exclude>**/*.rqg</exclude>
                             <exclude>**/src/main/**/*.html</exclude>
                             <exclude>**/src/test/**/*.*</exclude>
                             <exclude>**/src/**/package-info.java</exclude>
