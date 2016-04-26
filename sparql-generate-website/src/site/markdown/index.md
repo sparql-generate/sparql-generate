@@ -13,7 +13,7 @@ On this site you will find:
     * A [form to test the SPARQL RDF Generation Language online](language-form.html);
     * The [description of an online API](language-api.html) to start using the SPARQL RDF Generation Language;
 * For the SPARQL-Generate Protocol:
-    * The [protocol.html](specification);
+    * The [specification](protocol.html);
     * A [form to test the SPARQL-Generate Protocol online](protocol-form.html);
     * The [description of an online API](protocol-api.html) to start using the SPARQL-Generate Protocol;
 * The description of the reference implementation over [Apache Jena](https://jena.apache.org/):

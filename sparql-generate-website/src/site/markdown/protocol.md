@@ -1,4 +1,4 @@
-# The Protocol
+# The SPARQL-Generate Protocol
 
 The protocol part of SPARQL-Generate enables a web client or a web server to point to the IRI of a SPARQL-Generate document that may be used to interpret the request (or the response) payload as RDF.
 
@@ -14,8 +14,8 @@ If:
 
 1. client sets:
     1. HTTP Request Header Field `Content-Type` to IRI `ct`;
-    1. HTTP Request Header Field `RDF-Query` to IRI `url`;
-    1. HTTP Request Header Field `RDF-Variable` to string `var`;
+    1. HTTP Request Header Field `SPARGL-Query` to IRI `url`;
+    1. HTTP Request Header Field `SPARGL-Variable` to string `var`;
     1. HTTP Request Body `body`;
 1. server operates a HTTP GET at IRI `url`, with Accept Field `application/sparql-generate`;
     1. the response header has `Content-Type : application/sparql-generate`;
@@ -36,7 +36,7 @@ If:
 1. server sets:
     1. HTTP Request Header Field `Link` (a web-link) with:
         1. context is the originally requested IRI;
-        1. link relation is [http://w3id.org/sparql-generate/voc#query](http://w3id.org/sparql-generate/voc#query);
+        1. link relation is `spargl-query`, or [https://w3id.org/sparql-generate/voc#spargl-query](https://w3id.org/sparql-generate/voc#spargl-query);
         1. target IRI is `url`;
         1. target attribute `var` is set to `v`;
     1. HTTP Response Header Field `Content-Type` to IRI `ct`;
@@ -53,6 +53,6 @@ Then, the server _believes_ that `G` is an equivalent resource representation of
 Below is an example of such a web-link:
 
 ```
-Link: <http://manufacturer.com/deviceX/sparql-gen>; rel="http://w3id.org/sparql-generate/voc#query"; var="message"
+Link: <http://manufacturer.com/deviceX/sparql-gen>; rel="spargl-query"; var="message"
 ```
 

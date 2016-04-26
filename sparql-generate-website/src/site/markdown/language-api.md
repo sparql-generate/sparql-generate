@@ -2,7 +2,7 @@
 
 This website exposes a Web API at URL [http://w3id.org/sparql-generate/api/transform](http://w3id.org/sparql-generate/api/transform).
 
-This API accepts the following query parameters, which all must be URL-encoded:
+This API accepts only `GET` operations with the following query parameters, which all must be URL-encoded:
 
  - `queryuri`: the URL to the query file to execute;
  - `query`: the query to execute (takes precedence over `queryuri`);

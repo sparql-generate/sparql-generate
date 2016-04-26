@@ -15,6 +15,7 @@
  */
 package com.github.thesmartenergy.sparql.generate.api;
 
+import arq.query;
 import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
 import com.github.thesmartenergy.sparql.generate.jena.engine.PlanFactory;
 import com.github.thesmartenergy.sparql.generate.jena.engine.RootPlan;
@@ -22,10 +23,12 @@ import com.github.thesmartenergy.sparql.generate.jena.query.SPARQLGenerateQuery;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
+import static java.lang.System.in;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -35,10 +38,12 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.Link;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
+import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.Variant;
 import org.apache.commons.io.IOUtils;
 import org.apache.jena.datatypes.RDFDatatype;
@@ -58,19 +63,18 @@ import org.apache.jena.util.Locator;
  *
  * @author maxime.lefrancois
  */
-@Path("")
-public class Api extends HttpServlet {
+@Path("/transform")
+public class Transform extends HttpServlet {
 
-    private static final Logger LOG = Logger.getLogger(Api.class.getSimpleName());
+    private static final Logger LOG = Logger.getLogger(Transform.class.getSimpleName());
 
     @GET
-    @Path("/transform")
     public Response doGet(
             @Context Request r,
             @Context HttpServletRequest request,
+            @DefaultValue("") @QueryParam("message") String message,
             @DefaultValue("") @QueryParam("query") String query,
             @DefaultValue("http://localhost:8080/sparql-generate/query/example1.rqg") @QueryParam("queryuri") String queryuri,
-            @DefaultValue("") @QueryParam("message") String message,
             @DefaultValue("message") @QueryParam("var") String var,
             @DefaultValue("") @QueryParam("accept") String accept)  throws IOException {
 
@@ -107,7 +111,9 @@ public class Api extends HttpServlet {
             
             Syntax syntax = SPARQLGenerate.SYNTAX;
             SPARQLGenerateQuery q = (SPARQLGenerateQuery) QueryFactory.create(query, syntax);
-            q.setBaseURI("http://example.org/");
+            if( q.getBaseURI() == null) {
+                q.setBaseURI("http://example.org/");
+            }
             RootPlan plan = factory.create(q);
             
             // create the initial model
@@ -152,5 +158,6 @@ public class Api extends HttpServlet {
 //            return Response.serverError().entity(sw.toString()).build();
 //        }
     }
+
 
 }

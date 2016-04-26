@@ -1,32 +1,26 @@
 <div id="bodyColumn"  class="span10">
 <script  src="form.js"/>
     
-<form action="api/transform" method="get" id="form" onsubmit="submit()">
+<form action="api/fetch" method="get" id="form" onsubmit="submitProtocol()">
 
 
-    <h1>Execute SPARQL-Generate</h1>
+    <h1>Fetch a message and Generate RDF from it</h1>
+    <p>Input a URL to a message file, the requested media type for this message, and the requested media type for the generated RDF.</p>
 
-    <p>Input a query of a URL to a query file, and a message to bind to a variable in the query. Then click on Generate to generate the RDF.</p>
-
-    <label for="source">Load a query file from its URL, or enter it manually.</label>
-    <input type="radio" name="source" id="url" value="url" checked="checked" onclick="change()"/><label for="url">from URL</label>
-    <input type="radio" name="source" id="text" value="text" onclick="change()"/><label for="text">from text</label>
-    <label class="forurl" for="queryuri">Enter the URL of the query file, or <input type="button" onclick="document.getElementById('queryuri').value='http://localhost:8080/sparql-generate/query/example1.rqg'" value="use example"/>:</label><input class="forurl" type="text" size="60" id="queryuri" name="queryuri" value="http://localhost:8080/sparql-generate/query/example1.rqg"/><br  class="forurl"/>
-    <label class="fortext" style="display:none" for="queryform">Enter the query as text, or <input type="button" onclick="document.getElementById('queryform').value=varQueryText" value="use example"/>:</label>
-    <textarea class="fortext" style="display:none" cols="100" rows="20" id="queryform" name="query"></textarea><br class="fortext" style="display:none"/>
-    <label for="var">Enter the query variable to be bound to the message:</label><input type="text" size="20" id="var" name="var" required="required" value ="message"/>
-
-    <label for="message">Enter the message, or <input type="button" onclick="document.getElementById('message').value=varMessage" value="use example"/>:</label>
-    <textarea cols="100" rows="20" id="message" name="message"></textarea>
+    <label for="source">Enter the URL of the message file, or <input type="button" onclick="document.getElementById('queryuri').value='http://cnr-seas.cloudapp.net/scp/rest/ChargingPlan/1fc4ltccsrsun9mdijrgaruhe5'" value="use example"/>:</label>
+    <input type="text" size="60" id="queryuri" name="uri" value="http://cnr-seas.cloudapp.net/scp/rest/ChargingPlan/1fc4ltccsrsun9mdijrgaruhe5"/><br/>
+   
+    <label for="accept">Select the requested media type for the message, or <input type="button" onclick="document.getElementById('useaccept').value='*/*'" value="use default"/>:</label>
+    <input type="text" size="60" id="useaccept" name="useaccept" value="*/*"/><br/>
     
-    <label for="accept">Select the format of the returned result</label>
+    <label for="accept">Select the format of the returned result:</label>
     <select name="accept">
         <option value="text/turtle">Turtle</option>
         <option value="application/rdf+xml">XML</option>
     </select>
     
 	<div>
-    <input type="submit" value="Generate"></input>
+    <input type="submit" value="Fetch"></input>
 	</div>
 </form>
 

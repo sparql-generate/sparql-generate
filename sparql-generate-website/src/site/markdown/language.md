@@ -1,6 +1,6 @@
-# The RDF Generation Language
+# The SPARQL RDF Generation Language
 
-The RDF Generation Language part of SPARQL-Generate extends the SPARQL 1.1 Query language, and offers a simple template-based RDF Graph generation from RDF literals. 
+The SPARQL RDF Generation Language part of SPARQL-Generate extends the SPARQL 1.1 Query language, and offers a simple template-based RDF Graph generation from RDF literals. 
 
 Other languages enable to describe mapping from documents to RDF. By design, SPARQL-Generate extends SPARQL and hence offers an alternative that presents the following advantages:
 
