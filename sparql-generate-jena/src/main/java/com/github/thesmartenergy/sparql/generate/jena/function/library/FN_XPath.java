@@ -23,6 +23,9 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathFactory;
 import java.math.BigDecimal;
+import java.util.Iterator;
+import javax.xml.XMLConstants;
+import javax.xml.namespace.NamespaceContext;
 import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.NodeValue;
 import org.apache.jena.sparql.function.FunctionBase2;
@@ -34,11 +37,12 @@ import org.apache.jena.sparql.expr.nodevalue.NodeValueDouble;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueFloat;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueInteger;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueString;
+
 /**
  * A SPARQL Function that extracts a string from a XML document, according to a
  * XPath expression. The Function URI is
- * {@code <http://w3id.org/sparql-generate/fn/XPath>}.
- * It takes two parameters as input:
+ * {@code <http://w3id.org/sparql-generate/fn/XPath>}. It takes two parameters
+ * as input:
  * <ul>
  * <li>a RDF Literal with datatype URI
  * {@code <urn:iana:mime:application/json>}</li>
@@ -68,8 +72,9 @@ public class FN_XPath extends FunctionBase2 {
     private static final String datatypeUri = "urn:iana:mime:application/xml";
 
     /**
-     * Returns the evaluation of XPath {@code xpath} over the XML
-     * document {@code xml}.
+     * Returns the evaluation of XPath {@code xpath} over the XML document
+     * {@code xml}.
+     *
      * @param xml the RDF Literal that represents a XML document
      * @param xpath the xsd:string that represents the XPath
      * @return -
@@ -85,37 +90,89 @@ public class FN_XPath extends FunctionBase2 {
                     + "or <http://www.w3.org/2001/XMLSchema#string>."
                     + " Returning null.");
         }
-        LOG.debug("===========> "+xpath);
+        LOG.debug("===========> " + xpath);
         DocumentBuilderFactory builderFactory
                 = DocumentBuilderFactory.newInstance();
         builderFactory.setNamespaceAware(true);
         DocumentBuilder builder = null;
         try {
+            // THIS IS A HACK !! FIND A BETTER WAY TO MANAGE NAMESPACES
+            String xmlstring = xml.asNode().getLiteralLexicalForm().replaceAll("xmlns=\"[^\"]*\"", "");
+            
+            
             builder = builderFactory.newDocumentBuilder();
-            InputStream in = new ByteArrayInputStream(
-                    xml.asNode().getLiteralLexicalForm().getBytes());
+            InputStream in = new ByteArrayInputStream(xmlstring.getBytes());
             Document document = builder.parse(in);
 
-            XPath xPath =  XPathFactory.newInstance().newXPath();
+            XPath xPath = XPathFactory.newInstance().newXPath();
+            xPath.setNamespaceContext(new UniversalNamespaceResolver(document));
             //Node node = (Node) xPath.compile(xpath.getString()).evaluate(document, XPathConstants.NODE);
-           Object value =  xPath.compile(xpath.getString()).evaluate(document);
+            Object value = xPath.compile(xpath.getString()).evaluate(document);
             if (value instanceof String) {
-                   return new NodeValueString((String) value);
-               } else if (value instanceof Float) {
-                   return new NodeValueFloat((Float) value);
-               } else if (value instanceof Boolean) {
-                   return new NodeValueBoolean((Boolean) value);
-               } else if (value instanceof Integer) {
-                   return new NodeValueInteger((Integer) value);
-               } else if (value instanceof Double) {
-                   return new NodeValueDouble((Double) value);
-               } else if (value instanceof BigDecimal) {
-                   return new NodeValueDecimal((BigDecimal) value);
-               }
+                return new NodeValueString((String) value);
+            } else if (value instanceof Float) {
+                return new NodeValueFloat((Float) value);
+            } else if (value instanceof Boolean) {
+                return new NodeValueBoolean((Boolean) value);
+            } else if (value instanceof Integer) {
+                return new NodeValueInteger((Integer) value);
+            } else if (value instanceof Double) {
+                return new NodeValueDouble((Double) value);
+            } else if (value instanceof BigDecimal) {
+                return new NodeValueDecimal((BigDecimal) value);
+            }
             return new NodeValueString("1");
         } catch (Exception e) {
-            LOG.debug("Error:XPATJ "+e.getMessage());
+            LOG.debug("Error:XPATJ " + e.getMessage());
             throw new ExprEvalException("FunctionBase: no evaluation", e);
         }
+    }
+
+    public class UniversalNamespaceResolver implements NamespaceContext {
+        // the delegate
+
+        private final Document sourceDocument;
+
+        /**
+         * This constructor stores the source document to search the namespaces
+         * in it.
+         *
+         * @param document source document
+         */
+        public UniversalNamespaceResolver(Document document) {
+            sourceDocument = document;
+        }
+
+        /**
+         * The lookup for the namespace uris is delegated to the stored
+         * document.
+         *
+         * @param prefix to search for
+         * @return uri
+         */
+        @Override
+        public String getNamespaceURI(String prefix) {
+            if (prefix.equals(XMLConstants.DEFAULT_NS_PREFIX)) {
+                return sourceDocument.lookupNamespaceURI(null);
+            } else {
+                return sourceDocument.lookupNamespaceURI(prefix);
+            }
+        }
+
+        /**
+         * This method is not needed in this context, but can be implemented in
+         * a similar way.
+         */
+        @Override
+        public String getPrefix(String namespaceURI) {
+            return sourceDocument.lookupPrefix(namespaceURI);
+        }
+
+        @Override
+        public Iterator getPrefixes(String namespaceURI) {
+            // not implemented yet
+            return null;
+        }
+
     }
 }

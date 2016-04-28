@@ -16,6 +16,7 @@
 package com.github.thesmartenergy.sparql.generate.jena.iterator.library;
 
 import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
+import com.github.thesmartenergy.sparql.generate.jena.function.library.FN_XPath;
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.IteratorFunctionBase2;
@@ -44,6 +45,9 @@ import org.apache.jena.sparql.expr.nodevalue.NodeValueInteger;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueNode;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueString;
 import java.math.BigDecimal;
+import java.util.Iterator;
+import javax.xml.XMLConstants;
+import javax.xml.namespace.NamespaceContext;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.TransformerException;
@@ -100,12 +104,15 @@ public class ITE_XPath extends IteratorFunctionBase2 {
         builderFactory.setNamespaceAware(true);
         DocumentBuilder builder = null;
         try {
+            // THIS IS A HACK !! FIND A BETTER WAY TO MANAGE NAMESPACES
+            String xmlstring = xml.asNode().getLiteralLexicalForm().replaceAll("xmlns=\"[^\"]*\"", "");
+                    
             builder = builderFactory.newDocumentBuilder();
             Document document = builder
-                    .parse(new ByteArrayInputStream(
-                            xml.asNode().getLiteralLexicalForm().getBytes()));
+                    .parse(new ByteArrayInputStream(xmlstring.getBytes()));
             
             XPath xPath =  XPathFactory.newInstance().newXPath();
+            xPath.setNamespaceContext(new UniversalNamespaceResolver(document));
             
             
             NodeList nodeList = (NodeList) xPath
@@ -159,5 +166,54 @@ public class ITE_XPath extends IteratorFunctionBase2 {
         } catch (Exception e) {
             throw new ExprEvalException("FunctionBase: no evaluation", e);
         }
+    }
+    
+    
+    public class UniversalNamespaceResolver implements NamespaceContext {
+        // the delegate
+
+        private final Document sourceDocument;
+
+        /**
+         * This constructor stores the source document to search the namespaces
+         * in it.
+         *
+         * @param document source document
+         */
+        public UniversalNamespaceResolver(Document document) {
+            sourceDocument = document;
+        }
+
+        /**
+         * The lookup for the namespace uris is delegated to the stored
+         * document.
+         *
+         * @param prefix to search for
+         * @return uri
+         */
+        @Override
+        public String getNamespaceURI(String prefix) {
+            if (prefix.equals(XMLConstants.DEFAULT_NS_PREFIX)) {
+                return sourceDocument.lookupNamespaceURI(null);
+            } else {
+                return sourceDocument.lookupNamespaceURI(prefix);
+            }
+        }
+
+        /**
+         * This method is not needed in this context, but can be implemented in
+         * a similar way.
+         */
+        @Override
+        public String getPrefix(String namespaceURI) {
+            return sourceDocument.lookupPrefix(namespaceURI);
+        }
+
+        @Override
+        public Iterator getPrefixes(String namespaceURI) {
+            // not implemented yet
+            return null;
+        }
+
     }
 }

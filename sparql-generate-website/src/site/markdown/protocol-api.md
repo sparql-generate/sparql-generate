@@ -18,7 +18,7 @@ This API accepts only `GET` operations with the following query parameters, whic
 
 ## This server acts as a SPARQL-Generate Server
 
-The Web API at URL [http://w3id.org/sparql-generate/api/fetch](http://w3id.org/sparql-generate/api/take).
+The Web API at URL [http://w3id.org/sparql-generate/api/take](http://w3id.org/sparql-generate/api/take).
 
 This server acts as a SPARQL-Generate Server and attempts to generate RDF from the origin client request.
 It uses the header parameters as described in the [protocol for servers](protocol.html), and returns the generated RDF to the origin client.

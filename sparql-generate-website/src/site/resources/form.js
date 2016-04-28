@@ -17,11 +17,6 @@ var varMessage = "{\n \"a\" : \"1\",\n \"b\" : \"2\",\n \"c\" : \"3\",\n \"d\" :
 };
 
 function submitProtocol() {
-    var uri = document.getElementById('uri');
-    uri.value = encodeURIComponent(uri.value);
-    console.log(queryuri.value);
-    var useaccept = document.getElementById('useaccept');
-    useaccept.value = encodeURIComponent(useaccept.value);
     var accept = document.getElementById('accept');
     accept.value = encodeURIComponent(accept.value);
     return true;
