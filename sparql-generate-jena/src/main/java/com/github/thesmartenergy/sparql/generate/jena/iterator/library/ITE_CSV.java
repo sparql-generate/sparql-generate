@@ -87,24 +87,27 @@ public class ITE_CSV extends IteratorFunctionBase1 {
      */
     private static final String datatypeUri = "urn:iana:mime:text/csv";
 
+    /**
+     * {@inheritDoc }
+     */
     @Override
-    public List<NodeValue> exec(NodeValue v) {
+    public List<NodeValue> exec(NodeValue csv) {
         
-        if (v.getDatatypeURI() == null
+        if (csv.getDatatypeURI() == null
                 && datatypeUri == null
-                || v.getDatatypeURI() != null
-                && !v.getDatatypeURI().equals(datatypeUri)
-                && !v.getDatatypeURI().equals("http://www.w3.org/2001/XMLSchema#string")) {
+                || csv.getDatatypeURI() != null
+                && !csv.getDatatypeURI().equals(datatypeUri)
+                && !csv.getDatatypeURI().equals("http://www.w3.org/2001/XMLSchema#string")) {
             LOG.warn("The URI of NodeValue1 MUST be"
                     + " <" + datatypeUri + "> or"
                     + " <http://www.w3.org/2001/XMLSchema#string>. Got <"
-                    + v.getDatatypeURI() + ">. Returning null.");
+                    + csv.getDatatypeURI() + ">. Returning null.");
         }
         RDFDatatype dt = TypeMapper.getInstance()
                         .getSafeTypeByName(datatypeUri);
         try {
            
-            String sourceCSV = String.valueOf(v.asNode().getLiteralValue());
+            String sourceCSV = String.valueOf(csv.asNode().getLiteralValue());
            
             ICsvListReader listReader = null;
             InputStream is = new ByteArrayInputStream(sourceCSV.getBytes());

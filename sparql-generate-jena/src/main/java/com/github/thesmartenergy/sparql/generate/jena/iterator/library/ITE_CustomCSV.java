@@ -67,12 +67,12 @@ import org.supercsv.prefs.CsvPreference;
  * @see <a href="https://www.w3.org/TR/tabular-metadata/#dialect-descriptions">CSVW Dialect Descriptions</a>
  * It takes six parameters as input:
  * <ul>
- *      <li>a RDF Literal with datatype URI 
+ *      <li>{@param csv} a RDF Literal with datatype URI 
  *      {@code <urn:iana:mime:text/csv>} representing the source CSV document</li>
- *      <li>a RDF Literal with datatype {@code xsd:string} for the quote character</li>
- *      <li>a RDF Literal with datatype {@code xsd:string} for the delimiter character</li>
- *      <li>a RDF Literal with datatype {@code xsd:string} for the end of line symbol</li>
- *      <li>a RDF Literal with datatype {@code xsd:string} for the header of the document</li>
+ *      <li>{@param quoteChar} a RDF Literal with datatype {@code xsd:string} for the quote character</li>
+ *      <li>{@param delimiterChar} a RDF Literal with datatype {@code xsd:string} for the delimiter character</li>
+ *      <li>{@param endOfLineSymbols} a RDF Literal with datatype {@code xsd:string} for the end of line symbol</li>
+ *      <li>{@param header} a RDF Literal with datatype {@code xsd:boolean} where true represents the presence of a header in the CSV document</li>
  * </ul>
  * and returns a RDF Literal with datatype URI
  * {@code <urn:iana:mime:text/csv>}.
@@ -96,24 +96,26 @@ public class ITE_CustomCSV extends IteratorFunctionBase5 {
      */
     private static final String datatypeUri = "urn:iana:mime:text/csv";
 
+    /**
+     * {@inheritDoc }
+     */
     @Override
-    public List<NodeValue> exec(NodeValue v,NodeValue quoteChar,NodeValue delimiterChar, NodeValue endOfLineSymbols,NodeValue header) {
-         /*
-        if (xml.getDatatypeURI() == null
+    public List<NodeValue> exec(NodeValue csv,NodeValue quoteChar,NodeValue delimiterChar, NodeValue endOfLineSymbols,NodeValue header) {
+         
+        if (csv.getDatatypeURI() == null
                 && datatypeUri == null
-                || xml.getDatatypeURI() != null
-                && !xml.getDatatypeURI().equals(datatypeUri)
-                && !xml.getDatatypeURI().equals("http://www.w3.org/2001/XMLSchema#string")) {
+                || csv.getDatatypeURI() != null
+                && !csv.getDatatypeURI().equals(datatypeUri)
+                && !csv.getDatatypeURI().equals("http://www.w3.org/2001/XMLSchema#string")) {
             LOG.warn("The URI of NodeValue1 MUST be"
                     + " <" + datatypeUri + "> or"
                     + " <http://www.w3.org/2001/XMLSchema#string>. Got <"
-                    + xml.getDatatypeURI() + ">. Returning null.");
+                    + csv.getDatatypeURI() + ">. Returning null.");
         }
-        */
-         System.out.println("test=================");
+        
         try {
            
-            String sourceCSV = String.valueOf(v.asNode().getLiteralValue());
+            String sourceCSV = String.valueOf(csv.asNode().getLiteralValue());
            
             ICsvListReader listReader = null;
             InputStream is = new ByteArrayInputStream(sourceCSV.getBytes());

@@ -45,9 +45,9 @@ import org.apache.log4j.Logger;
  * {@code <http://w3id.org/sparql-generate/ite/JSONElement>}.
  * It takes two parameters as input:
  * <ul>
- * <li>a RDF Literal with datatype URI
+ * <li>{@param json} a RDF Literal with datatype URI
  * {@code <urn:iana:mime:application/json>}</li>
- * <li>a RDF Literal with datatype {@code xsd:string}</li>
+ * <li>{@param jsonquery} a RDF Literal with datatype {@code xsd:string}</li>
  * </ul>
  * and returns a list of RDF Literal with datatype URI
  * {@code <urn:iana:mime:application/json>}.
@@ -60,7 +60,7 @@ import org.apache.log4j.Logger;
  * to the JSON query</li>
  * <li>hasNext: a boolean indicating there is another element after the current element </li>
  * </ul>
- * @author maxime.lefrancois
+ * @author Noorani Bakerally
  */
 public class ITE_JSONListElement extends IteratorFunctionBase2 {
 

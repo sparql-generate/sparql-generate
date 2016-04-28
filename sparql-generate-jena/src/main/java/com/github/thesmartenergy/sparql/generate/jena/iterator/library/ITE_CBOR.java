@@ -46,9 +46,9 @@ import org.apache.log4j.Logger;
  * {@code <http://w3id.org/sparql-generate/ite/CBOR>}.
  * It takes two parameters as input:
  * <ul>
- * <li>a RDF Literal with datatype URI
+ * <li> {@param  cbor} a RDF Literal with datatype URI
  * {@code <urn:iana:mime:application/cbor>}</li>
- * <li>a RDF Literal with datatype {@code xsd:string}</li>
+ * <li>{@param jsonquery} a RDF Literal with datatype {@code xsd:string}</li>
  * </ul>
  * and returns a list of RDF Literal with datatype URI
  * {@code <urn:iana:mime:application/json>}.
@@ -101,18 +101,18 @@ public class ITE_CBOR extends IteratorFunctionBase2 {
      */
     @Override
     public List<NodeValue> exec(NodeValue cbor, NodeValue jsonquery) {
-        /*
-        if (json.getDatatypeURI() == null
+        
+        if (cbor.getDatatypeURI() == null
                 && datatypeUri == null
-                || json.getDatatypeURI() != null
-                && !json.getDatatypeURI().equals(datatypeUri)
-                && !json.getDatatypeURI().equals("http://www.w3.org/2001/XMLSchema#string")) {
+                || cbor.getDatatypeURI() != null
+                && !cbor.getDatatypeURI().equals(datatypeUri)
+                && !cbor.getDatatypeURI().equals("http://www.w3.org/2001/XMLSchema#string")) {
             LOG.warn("The URI of NodeValue1 MUST be"
                     + " <" + datatypeUri + "> or"
                     + " <http://www.w3.org/2001/XMLSchema#string>. Got <"
-                    + json.getDatatypeURI() + ">. Returning null.");
+                    + cbor.getDatatypeURI() + ">. Returning null.");
         }
-        */
+        
         
         Configuration conf = Configuration.builder()
                 .options(Option.ALWAYS_RETURN_LIST).build();

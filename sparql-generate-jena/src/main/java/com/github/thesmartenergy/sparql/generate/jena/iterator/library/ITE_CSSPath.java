@@ -43,9 +43,9 @@ import org.jsoup.select.Elements;
  * {@code <http://w3id.org/sparql-generate/ite/CSSPath>}.
  * It takes two parameters as input:
  * <ul>
- * <li>a RDF Literal with datatype URI
+ * <li>{@param html} a RDF Literal with datatype URI
  * {@code <urn:iana:mime:text/html>} representing the source HTML document</li>
- * <li>a RDF Literal with datatype {@code xsd:string} representing the CSS selector expression</li>
+ * <li>{@param cssSelector} a RDF Literal with datatype {@code xsd:string} representing the CSS selector expression</li>
  * </ul>
  * and returns a list of RDF Literal with datatype URI
  * {@code <urn:iana:mime:text/html>} .
@@ -69,8 +69,11 @@ public class ITE_CSSPath extends IteratorFunctionBase2 {
      */
     private static final String datatypeUri = "urn:iana:mime:text/html";
 
+    /**
+     * {@inheritDoc }
+     */
     @Override
-    public List<NodeValue> exec(NodeValue html, NodeValue v2) {
+    public List<NodeValue> exec(NodeValue html, NodeValue cssSelector) {
         if (html.getDatatypeURI() == null
                 && datatypeUri == null
                 || html.getDatatypeURI() != null
@@ -88,10 +91,10 @@ public class ITE_CSSPath extends IteratorFunctionBase2 {
             String sourceHtml = String.valueOf(html.asNode().getLiteralValue());
             Document htmldoc = Jsoup.parse(sourceHtml);
             
-            String selectPath = String.valueOf(v2.asNode().getLiteralValue());
+            String selectPath = String.valueOf(cssSelector.asNode().getLiteralValue());
             Elements elements = htmldoc.select(selectPath);
             
-            LOG.debug("===> Number of iterations for "+v2+" "+elements.size());
+            LOG.debug("===> Number of iterations for "+cssSelector+" "+elements.size());
             
             List<NodeValue> nodeValues = new ArrayList<>(elements.size());
             

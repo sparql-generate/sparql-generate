@@ -30,9 +30,9 @@ import java.util.Arrays;
  * {@code <http://w3id.org/sparql-generate/ite/Split>}.
  * It takes two parameters as input:
  * <ul>
- * <li>a RDF Literal with datatype {@code xsd:string} 
+ * <li>{@param  stringValue} a RDF Literal with datatype {@code xsd:string} 
  * representing the source string</li>
- * <li>a RDF Literal with datatype {@code xsd:string} representing the delimeter which can be regular expression</li>
+ * <li>{@param  delimeterValue} a RDF Literal with datatype {@code xsd:string} representing the delimeter which can be regular expression</li>
  * </ul>
  * and returns a list of RDF Literal with datatype {@code xsd:string} 
  *
