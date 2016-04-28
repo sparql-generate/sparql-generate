@@ -112,7 +112,7 @@ public class FN_XPath extends FunctionBase2 {
                } else if (value instanceof BigDecimal) {
                    return new NodeValueDecimal((BigDecimal) value);
                }
-            return new NodeValueString("1");
+            return new NodeValueString(String.valueOf(value));
         } catch (Exception e) {
             LOG.debug("Error:XPATJ "+e.getMessage());
             throw new ExprEvalException("FunctionBase: no evaluation", e);
