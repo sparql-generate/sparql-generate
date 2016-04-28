@@ -14,9 +14,9 @@ GENERATE {
 }
 SOURCE <http://example.com/venue.cbor> AS ?source
 WHERE {
-   BIND(rqg-fn:JSONPath(?source, "$.location.city" ) AS ?city)
-   BIND(rqg-fn:JSONPath(?source, "$.venue.latitude" ) AS ?latitude)
-   BIND(rqg-fn:JSONPath(?source, "$.venue.longitude" ) AS ?longitude)
-   BIND(rqg-fn:JSONPath(?source, "$.location.country" ) AS ?countryCode)
+   BIND(rqg-fn:CBOR(?source, "$.location.city" ) AS ?city)
+   BIND(rqg-fn:CBOR(?source, "$.venue.latitude" ) AS ?latitude)
+   BIND(rqg-fn:CBOR(?source, "$.venue.longitude" ) AS ?longitude)
+   BIND(rqg-fn:CBOR(?source, "$.location.country" ) AS ?countryCode)
    BIND (URI(CONCAT("http://loc.example.com/city/",?city)) AS ?s)
 }
