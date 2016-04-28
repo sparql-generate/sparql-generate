@@ -42,7 +42,7 @@ import org.apache.log4j.Logger;
 /**
  * A SPARQL Iterator function that extracts a list of sub-JSON documents of a
  * JSON document, according to a JSONPath expression. The Iterator function URI is
- * {@code <http://w3id.org/sparql-generate/ite/JSON_Path_jayway>}.
+ * {@code <http://w3id.org/sparql-generate/ite/JSONElement>}.
  * It takes two parameters as input:
  * <ul>
  * <li>a RDF Literal with datatype URI
@@ -51,7 +51,15 @@ import org.apache.log4j.Logger;
  * </ul>
  * and returns a list of RDF Literal with datatype URI
  * {@code <urn:iana:mime:application/json>}.
- *
+ * For this iterator function, the returned RDF literal has a specific 
+ * JSON Structure. The structure is {"element":elementValue,"position":position,"hasNext":hasNextValue}
+ * where:
+ * <ul>
+ * <li>elementValue: a JSON element selected according to JSON query</li>
+ * <li>position: an integer corresponding to the location of the JSON element is the list of generated elements according
+ * to the JSON query</li>
+ * <li>hasNext: a boolean indicating there is another element after the current element </li>
+ * </ul>
  * @author maxime.lefrancois
  */
 public class ITE_JSONListElement extends IteratorFunctionBase2 {

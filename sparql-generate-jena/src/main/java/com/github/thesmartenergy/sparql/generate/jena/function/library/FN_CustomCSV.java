@@ -50,20 +50,24 @@ import org.supercsv.io.CsvMapReader;
 import org.supercsv.io.ICsvListReader;
 import org.supercsv.prefs.CsvPreference;
 /**
- * A SPARQL Function that extracts a string from a XML document, according to a
- * XPath expression. The Function URI is
- * {@code <http://w3id.org/sparql-generate/fn/XPath>}.
- * It takes two parameters as input:
+ * A SPARQL Iterator function that return a row of a CSV document, together with the header if it exists. The Iterator function URI is
+ * {@code <http://w3id.org/sparql-generate/ite/CustomCSV>}. This iterator partly implements the CSV dialect description at 
+ * @see <a href="https://www.w3.org/TR/tabular-metadata/#dialect-descriptions">CSVW Dialect Descriptions</a>
+ * It takes six parameters as input:
  * <ul>
- * <li>a RDF Literal with datatype URI
- * {@code <urn:iana:mime:application/json>}</li>
- * <li>a RDF Literal with datatype {@code xsd:string}</li>
+ *      <li>a RDF Literal with datatype URI 
+ *      {@code <urn:iana:mime:text/csv>} representing the source CSV document</li>
+ *      <li>a RDF Literal with datatype {@code xsd:string} for the quote character</li>
+ *      <li>a RDF Literal with datatype {@code xsd:string} for the delimiter character</li>
+ *      <li>a RDF Literal with datatype {@code xsd:string} for the end of line symbol</li>
+ *      <li>a RDF Literal with datatype {@code xsd:string} for the header of the document</li>
  * </ul>
  * and returns a RDF Literal with datatype URI
- * {@code <urn:iana:mime:application/json>}.
+ * {@code <urn:iana:mime:text/csv>}.
  *
- * @author maxime.lefrancois
+ * @author Noorani Bakerally
  */
+
 public class FN_CustomCSV extends FunctionBase6 {
     //TODO write multiple unit tests for this class.
 
@@ -92,17 +96,17 @@ public class FN_CustomCSV extends FunctionBase6 {
     @Override
     public NodeValue exec(NodeValue csv, NodeValue path,NodeValue quoteChar,NodeValue delimiterChar, NodeValue endOfLineSymbols,NodeValue header) {
         
-        /*
-        if (xml.getDatatypeURI() == null
+       
+        if (csv.getDatatypeURI() == null
                 && datatypeUri == null
-                || xml.getDatatypeURI() != null
-                && !xml.getDatatypeURI().equals(datatypeUri)
-                && !xml.getDatatypeURI().equals("http://www.w3.org/2001/XMLSchema#string")) {
+                || csv.getDatatypeURI() != null
+                && !csv.getDatatypeURI().equals(datatypeUri)
+                && !csv.getDatatypeURI().equals("http://www.w3.org/2001/XMLSchema#string")) {
             LOG.warn("The URI of NodeValue1 MUST be <" + datatypeUri + ">"
                     + "or <http://www.w3.org/2001/XMLSchema#string>."
                     + " Returning null.");
         }
-        */
+        
         
         LOG.debug("===========> "+path);
         DocumentBuilderFactory builderFactory

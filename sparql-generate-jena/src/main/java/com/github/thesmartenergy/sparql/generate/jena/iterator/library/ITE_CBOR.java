@@ -41,19 +41,19 @@ import org.apache.jena.sparql.expr.nodevalue.NodeValueNode;
 import org.apache.log4j.Logger;
 
 /**
- * A SPARQL Iterator function that extracts a list of sub-JSON documents of a
- * JSON document, according to a JSONPath expression. The Iterator function URI is
- * {@code <http://w3id.org/sparql-generate/ite/JSON_Path_jayway>}.
+ * A SPARQL Iterator function that takes as an input a CBOR document, decodes it and extracts a list of sub-JSON documents 
+ * according to a JSONPath expression. The Iterator function URI is
+ * {@code <http://w3id.org/sparql-generate/ite/CBOR>}.
  * It takes two parameters as input:
  * <ul>
  * <li>a RDF Literal with datatype URI
- * {@code <urn:iana:mime:application/json>}</li>
+ * {@code <urn:iana:mime:application/cbor>}</li>
  * <li>a RDF Literal with datatype {@code xsd:string}</li>
  * </ul>
  * and returns a list of RDF Literal with datatype URI
  * {@code <urn:iana:mime:application/json>}.
  *
- * @author maxime.lefrancois
+ * @author Noorani Bakerally
  */
 public class ITE_CBOR extends IteratorFunctionBase2 {
 
@@ -94,7 +94,7 @@ public class ITE_CBOR extends IteratorFunctionBase2 {
     /**
      * The datatype URI of the first parameter and the return literals.
      */
-    private static final String datatypeUri = "urn:iana:mime:application/json";
+    private static final String datatypeUri = "urn:iana:mime:application/cbor";
 
     /**
      * {@inheritDoc }

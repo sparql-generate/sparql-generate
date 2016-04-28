@@ -62,19 +62,22 @@ import org.supercsv.io.CsvListWriter;
 import org.supercsv.prefs.CsvPreference;
 
 /**
- * A SPARQL Iterator function that extracts a list of sub-XML elements of a
- * XML root element, according to a XPath expression. The Iterator function URI is
- * {@code <http://w3id.org/sparql-generate/ite/XPath>}.
- * It takes two parameters as input:
+ * A SPARQL Iterator function that return a row of a CSV document, together with the header if it exists. The Iterator function URI is
+ * {@code <http://w3id.org/sparql-generate/ite/CustomCSV>}. This iterator partly implements the CSV dialect description at 
+ * @see <a href="https://www.w3.org/TR/tabular-metadata/#dialect-descriptions">CSVW Dialect Descriptions</a>
+ * It takes six parameters as input:
  * <ul>
- * <li>a RDF Literal with datatype URI
- * {@code <urn:iana:mime:application/xml>}</li>
- * <li>a RDF Literal with datatype {@code xsd:string}</li>
+ *      <li>a RDF Literal with datatype URI 
+ *      {@code <urn:iana:mime:text/csv>} representing the source CSV document</li>
+ *      <li>a RDF Literal with datatype {@code xsd:string} for the quote character</li>
+ *      <li>a RDF Literal with datatype {@code xsd:string} for the delimiter character</li>
+ *      <li>a RDF Literal with datatype {@code xsd:string} for the end of line symbol</li>
+ *      <li>a RDF Literal with datatype {@code xsd:string} for the header of the document</li>
  * </ul>
- * and returns a list of RDF Literal with datatype URI
- * {@code <urn:iana:mime:application/xml>}.
+ * and returns a RDF Literal with datatype URI
+ * {@code <urn:iana:mime:text/csv>}.
  *
- * @author maxime.lefrancois
+ * @author Noorani Bakerally
  */
 public class ITE_CustomCSV extends IteratorFunctionBase5 {
 
