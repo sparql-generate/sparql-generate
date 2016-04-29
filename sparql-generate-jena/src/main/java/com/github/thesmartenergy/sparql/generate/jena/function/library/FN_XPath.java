@@ -40,12 +40,13 @@ import org.apache.jena.sparql.expr.nodevalue.NodeValueString;
  * {@code <http://w3id.org/sparql-generate/fn/XPath>}.
  * It takes two parameters as input:
  * <ul>
- * <li>a RDF Literal with datatype URI
- * {@code <urn:iana:mime:application/json>}</li>
- * <li>a RDF Literal with datatype {@code xsd:string}</li>
+ * <li>{@param xml}a RDF Literal with datatype URI
+ * {@code <urn:iana:mime:application/xml>} representing the source XML document</li>
+ * <li>{@param xpath} a RDF Literal with datatype {@code xsd:string} representing the XPath expression to
+ * be evaluated on the XML document
+ * </li>
  * </ul>
- * and returns a RDF Literal with datatype URI
- * {@code <urn:iana:mime:application/json>}.
+ * and returns a RDF Literal with datatype being the type of the object extracted from the XML document
  *
  * @author maxime.lefrancois
  */
@@ -68,11 +69,7 @@ public class FN_XPath extends FunctionBase2 {
     private static final String datatypeUri = "urn:iana:mime:application/xml";
 
     /**
-     * Returns the evaluation of XPath {@code xpath} over the XML
-     * document {@code xml}.
-     * @param xml the RDF Literal that represents a XML document
-     * @param xpath the xsd:string that represents the XPath
-     * @return -
+     * {@inheritDoc }
      */
     @Override
     public NodeValue exec(NodeValue xml, NodeValue xpath) {

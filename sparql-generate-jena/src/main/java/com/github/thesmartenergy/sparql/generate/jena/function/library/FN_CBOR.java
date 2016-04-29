@@ -39,19 +39,19 @@ import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueNode;
 
 /**
- * A SPARQL Function that extracts a string from a JSON document, according to a
- * JSONPath expression. The Function URI is
- * {@code <http://w3id.org/sparql-generate/fn/JSON_Path_jayway>}.
+ * A SPARQL function that takes as an input a CBOR document, decodes it and return a sub-JSON document 
+ * according to a JSONPath expression. The Iterator function URI is
+ * {@code <http://w3id.org/sparql-generate/fn/CBOR>}.
  * It takes two parameters as input:
  * <ul>
- * <li>a RDF Literal with datatype URI
- * {@code <urn:iana:mime:application/json>}</li>
- * <li>a RDF Literal with datatype {@code xsd:string}</li>
+ * <li> {@param  cbor} a RDF Literal with datatype URI
+ * {@code <urn:iana:mime:application/cbor>}</li>
+ * <li>{@param jsonpath} a RDF Literal with datatype {@code xsd:string}</li>
  * </ul>
  * and returns a RDF Literal with datatype URI
  * {@code <urn:iana:mime:application/json>}.
  *
- * @author maxime.lefrancois
+ * @author Noorani Bakerally
  */
 public final class FN_CBOR extends FunctionBase2 {
     //TODO write multiple unit tests for this class.
@@ -69,27 +69,35 @@ public final class FN_CBOR extends FunctionBase2 {
     /**
      * The datatype URI of the first parameter and the return literals.
      */
-    private static final String datatypeUri = "urn:iana:mime:application/json";
+    private static final String datatypeUri = "urn:iana:mime:application/cbor";
 
     /**
-     * Returns the evaluation of JSONPath {@code jsonpath} over the JSON
-     * document {@code json}.
-     * @param json the RDF Literal that represents a JSON document
-     * @param jsonpath the xsd:string that represents the JSONPath
-     * @return
-     */
+    * A SPARQL function that takes as an input a CBOR document, decodes it and return a sub-JSON document 
+    * according to a JSONPath expression. The Iterator function URI is
+    * {@code <http://w3id.org/sparql-generate/fn/CBOR>}.
+    * It takes two parameters as input:
+    * <ul>
+    * <li> {@param  cbor} a RDF Literal with datatype URI
+    * {@code <urn:iana:mime:application/cbor>}</li>
+    * <li>{@param jsonpath} a RDF Literal with datatype {@code xsd:string}</li>
+    * </ul>
+    * and returns a RDF Literal with datatype URI
+    * {@code <urn:iana:mime:application/json>}.
+    *
+    * @author Noorani Bakerally
+    */
     @Override
     public NodeValue exec(NodeValue cbor, NodeValue jsonpath) {
-        /*
-        if (json.getDatatypeURI() == null
+        
+        if (cbor.getDatatypeURI() == null
                 && datatypeUri == null
-                || json.getDatatypeURI() != null
-                && !json.getDatatypeURI().equals(datatypeUri)
-                && !json.getDatatypeURI().equals("http://www.w3.org/2001/XMLSchema#string")) {
+                || cbor.getDatatypeURI() != null
+                && !cbor.getDatatypeURI().equals(datatypeUri)
+                && !cbor.getDatatypeURI().equals("http://www.w3.org/2001/XMLSchema#string")) {
             LOG.warn("The URI of NodeValue1 MUST be <" + datatypeUri + ">"
                     + "or <http://www.w3.org/2001/XMLSchema#string>."
                     + " Returning null.");
-        } */
+        } 
 
         String json = Base64.base64Decode(cbor.asNode().getLiteralLexicalForm());
         try {

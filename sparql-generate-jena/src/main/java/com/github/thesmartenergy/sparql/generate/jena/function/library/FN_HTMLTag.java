@@ -25,6 +25,17 @@ import org.jsoup.Jsoup;
 import org.jsoup.select.Elements;
 
 /**
+ * A SPARQL function that extracts the text from an HTML element 
+ * The function URI is {@code <http://w3id.org/sparql-generate/fn/HTMLTag>}.
+ * It takes two parameters as input:
+ * <ul>
+ * <li>{@param html} a RDF Literal with datatype URI
+ * {@code <urn:iana:mime:text/html>} representing the source HTML document</li>
+ * <li>{@param elementName} a RDF Literal with datatype {@code xsd:string} representing 
+ * name of the HTML element from which text is to be extracted
+ * </li>
+ * </ul>
+ * and return a RDF Literal with datatype URI {@code xsd:string} for the text of the element {@param elementName}.
  *
  * @author Noorani Bakerally
  */
@@ -46,12 +57,8 @@ public class FN_HTMLTag extends FunctionBase2{
      */
     private static final String datatypeUri = "urn:iana:mime:text/html";
 
-    /**
-     * Returns the evaluation of XPath {@code xpath} over the XML
-     * document {@code xml}.
-     * @param xml the RDF Literal that represents a XML document
-     * @param xpath the xsd:string that represents the XPath
-     * @return -
+   /**
+     * {@inheritDoc }
      */
     @Override
     public NodeValue exec(NodeValue html, NodeValue v2) {

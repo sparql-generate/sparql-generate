@@ -41,7 +41,7 @@ import org.apache.jena.sparql.expr.nodevalue.NodeValueNode;
 import org.apache.log4j.Logger;
 
 /**
- * A SPARQL Iterator function that takes as an input a CBOR document, decodes it and extracts a list of sub-JSON documents 
+ * A SPARQL function that takes as an input a CBOR document, decodes it and extracts a list of sub-JSON documents 
  * according to a JSONPath expression. The Iterator function URI is
  * {@code <http://w3id.org/sparql-generate/ite/CBOR>}.
  * It takes two parameters as input:
@@ -100,7 +100,7 @@ public class ITE_CBOR extends IteratorFunctionBase2 {
      * {@inheritDoc }
      */
     @Override
-    public List<NodeValue> exec(NodeValue cbor, NodeValue jsonquery) {
+    public List<NodeValue> exec(NodeValue cbor, NodeValue jsonpath) {
         
         if (cbor.getDatatypeURI() == null
                 && datatypeUri == null
@@ -123,7 +123,7 @@ public class ITE_CBOR extends IteratorFunctionBase2 {
             List<Object> values = JsonPath
                     .using(conf)
                     .parse(json)
-                    .read(jsonquery.getString());
+                    .read(jsonpath.getString());
             List<NodeValue> nodeValues = new ArrayList<>(values.size());
             Gson gson = new Gson();
             for (Object value : values) {

@@ -65,7 +65,7 @@ import org.supercsv.prefs.CsvPreference;
  * A SPARQL Iterator function that return a row of a CSV document, together with the header if it exists. The Iterator function URI is
  * {@code <http://w3id.org/sparql-generate/ite/CustomCSV>}. This iterator partly implements the CSV dialect description at 
  * @see <a href="https://www.w3.org/TR/tabular-metadata/#dialect-descriptions">CSVW Dialect Descriptions</a>
- * It takes six parameters as input:
+ * It takes five parameters as input:
  * <ul>
  *      <li>{@param csv} a RDF Literal with datatype URI 
  *      {@code <urn:iana:mime:text/csv>} representing the source CSV document</li>

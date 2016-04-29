@@ -47,10 +47,8 @@ import org.apache.jena.sparql.expr.nodevalue.NodeValueNode;
  * {@code <urn:iana:mime:application/json>}</li>
  * <li>a RDF Literal with datatype {@code xsd:string}</li>
  * </ul>
- * and returns a RDF Literal with datatype URI
- * {@code <urn:iana:mime:application/json>}.
- *
- * @author maxime.lefrancois
+ * and returns a RDF Literal with datatype being the type of the object extracted from the JSON document
+ * @author Noorani Bakerally
  */
 public final class FN_JSONPath extends FunctionBase2 {
     //TODO write multiple unit tests for this class.
@@ -71,11 +69,7 @@ public final class FN_JSONPath extends FunctionBase2 {
     private static final String datatypeUri = "urn:iana:mime:application/json";
 
     /**
-     * Returns the evaluation of JSONPath {@code jsonpath} over the JSON
-     * document {@code json}.
-     * @param json the RDF Literal that represents a JSON document
-     * @param jsonpath the xsd:string that represents the JSONPath
-     * @return
+     * {@inheritDoc }
      */
     @Override
     public NodeValue exec(NodeValue json, NodeValue jsonpath) {

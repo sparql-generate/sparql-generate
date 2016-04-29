@@ -49,18 +49,15 @@ import org.supercsv.io.CsvMapReader;
 import org.supercsv.io.ICsvListReader;
 import org.supercsv.prefs.CsvPreference;
 /**
- * A SPARQL Function that extracts a string from a XML document, according to a
- * XPath expression. The Function URI is
- * {@code <http://w3id.org/sparql-generate/fn/XPath>}.
- * It takes two parameters as input:
+ * A SPARQL Function that extracts part of a string from another string, based on a
+ * regular expression and position. The Function URI is
+ * {@code <http://w3id.org/sparql-generate/fn/SplitAtPosition>}.
+ * It takes three parameters as input:
  * <ul>
- * <li>a RDF Literal with datatype URI
- * {@code <urn:iana:mime:application/json>}</li>
- * <li>a RDF Literal with datatype {@code xsd:string}</li>
+ * <li>{@param string} a RDF Literal with datatype {@code xsd:string} for the source string </li>
+ * <li>{@param regex} a RDF Literal with datatype {@code xsd:string} for the regular expression </li>
+ * <li>{@param position} a RDF Literal with datatype {@code xsd:int} for index of the array of string obtained after splitting </li>
  * </ul>
- * and returns a RDF Literal with datatype URI
- * {@code <urn:iana:mime:application/json>}.
- *
  * @author Noorani Bakerally
  */
 public class FN_SplitAtPostion extends FunctionBase3 {
@@ -78,11 +75,7 @@ public class FN_SplitAtPostion extends FunctionBase3 {
    public static final String URI = SPARQLGenerate.FN + "SplitAtPosition";
 
     /**
-     * Returns the evaluation of XPath {@code xpath} over the XML
-     * document {@code xml}.
-     * @param csv the RDF Literal that represents a csv document
-     * @param path the xsd:string that represents the csv column
-     * @return -
+     * {@inheritDoc }
      */
     public NodeValue exec(NodeValue string, NodeValue regex, NodeValue position) {
         String [] splits = string.getString().split(regex.getString());
