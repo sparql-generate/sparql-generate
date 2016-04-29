@@ -45,9 +45,9 @@ import org.apache.log4j.Logger;
  * {@code <http://w3id.org/sparql-generate/ite/JSON_Path_jayway>}.
  * It takes two parameters as input:
  * <ul>
- * <li>a RDF Literal with datatype URI
+ * <li> {@param  json} a RDF Literal with datatype URI
  * {@code <urn:iana:mime:application/json>}</li>
- * <li>a RDF Literal with datatype {@code xsd:string}</li>
+ * <li> {@param  jsonquery} a RDF Literal with datatype {@code xsd:string}</li>
  * </ul>
  * and returns a list of RDF Literal with datatype URI
  * {@code <urn:iana:mime:application/json>}.

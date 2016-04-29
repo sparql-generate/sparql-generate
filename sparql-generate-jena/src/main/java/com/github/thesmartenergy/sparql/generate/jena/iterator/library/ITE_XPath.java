@@ -61,9 +61,9 @@ import javax.xml.transform.stream.StreamResult;
  * {@code <http://w3id.org/sparql-generate/ite/XPath>}.
  * It takes two parameters as input:
  * <ul>
- * <li>a RDF Literal with datatype URI
- * {@code <urn:iana:mime:application/xml>}</li>
- * <li>a RDF Literal with datatype {@code xsd:string}</li>
+ * <li> {@param  xml} a RDF Literal with datatype URI
+ * {@code <urn:iana:mime:application/xml>} representing the source XML document</li>
+ * <li>{@param  json} a RDF Literal with datatype {@code xsd:string} representing the XPath</li>
  * </ul>
  * and returns a list of RDF Literal with datatype URI
  * {@code <urn:iana:mime:application/xml>}.

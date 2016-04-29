@@ -47,20 +47,19 @@ import org.supercsv.io.CsvListReader;
 import org.supercsv.io.CsvMapReader;
 import org.supercsv.io.ICsvListReader;
 import org.supercsv.prefs.CsvPreference;
+
 /**
- * A SPARQL Function that extracts a string from a XML document, according to a
- * XPath expression. The Function URI is
- * {@code <http://w3id.org/sparql-generate/fn/XPath>}.
- * It takes two parameters as input:
+ * A SPARQL function that return a RDF literal. The function URI is
+ * {@code <http://w3id.org/sparql-generate/fn/CSV>}.
+ * It takes the following two parameters:
  * <ul>
- * <li>a RDF Literal with datatype URI
- * {@code <urn:iana:mime:application/json>}</li>
- * <li>a RDF Literal with datatype {@code xsd:string}</li>
+ *      <li>{@param csv} the source CSV document(basically a single row) which is a RDF Literal with datatype URI
+ * {@code <urn:iana:mime:text/csv>} </li>
+ *      <li>{@param column} the column to be extracted from {@param csv} </li>
  * </ul>
- * and returns a RDF Literal with datatype URI
- * {@code <urn:iana:mime:application/json>}.
- *
- * @author maxime.lefrancois
+ * and returns a RDF Literal with datatype URI 
+ * {@code <urn:iana:mime:text/csv>} for the {@param column}.
+ * @author Noorani Bakerally
  */
 public class FN_CSV extends FunctionBase2 {
     //TODO write multiple unit tests for this class.
@@ -81,14 +80,10 @@ public class FN_CSV extends FunctionBase2 {
     private static final String datatypeUri = "urn:iana:mime:text/csv";
 
     /**
-     * Returns the evaluation of XPath {@code xpath} over the XML
-     * document {@code xml}.
-     * @param csv the RDF Literal that represents a csv document
-     * @param path the xsd:string that represents the csv column
-     * @return -
+     * {@inheritDoc }
      */
     @Override
-    public NodeValue exec(NodeValue csv, NodeValue path) {
+    public NodeValue exec(NodeValue csv, NodeValue column) {
         
         /*
         if (xml.getDatatypeURI() == null
@@ -102,7 +97,7 @@ public class FN_CSV extends FunctionBase2 {
         }
         */
         
-        LOG.debug("===========> "+path);
+        LOG.debug("===========> "+column);
         DocumentBuilderFactory builderFactory
                 = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = null;
@@ -123,7 +118,7 @@ public class FN_CSV extends FunctionBase2 {
            
             //return new NodeValueString(headers.get(path.asNode().getLiteralValue()));
             
-            String columnName = (String) path.asNode().getLiteralValue();
+            String columnName = (String) column.asNode().getLiteralValue();
             
             return new NodeValueString(headers.get(columnName));
             

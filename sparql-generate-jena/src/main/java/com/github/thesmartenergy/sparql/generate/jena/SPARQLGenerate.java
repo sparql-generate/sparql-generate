@@ -15,6 +15,7 @@
  */
 package com.github.thesmartenergy.sparql.generate.jena;
 
+import com.github.thesmartenergy.sparql.generate.jena.function.library.FN_CBOR;
 import com.github.thesmartenergy.sparql.generate.jena.function.library.FN_CSV;
 import com.github.thesmartenergy.sparql.generate.jena.function.library.FN_CustomCSV;
 import com.github.thesmartenergy.sparql.generate.jena.function.library.FN_HTMLAttribute;
@@ -31,6 +32,7 @@ import com.github.thesmartenergy.sparql.generate.jena.function.library.FN_SplitA
 import com.github.thesmartenergy.sparql.generate.jena.function.library.FN_XPath;
 import com.github.thesmartenergy.sparql.generate.jena.lang.ParserSPARQLGenerate;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.IteratorFunctionRegistry;
+import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITE_CBOR;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITE_CSSPath;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITE_CSV;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITE_CustomCSV;
@@ -109,6 +111,7 @@ public final class SPARQLGenerate {
         fnreg.put(FN_SplitAtPostion.URI, FN_SplitAtPostion.class);
         fnreg.put(FN_HTMLTag.URI, FN_HTMLTag.class);
         fnreg.put(FN_HTMLAttribute.URI, FN_HTMLAttribute.class);
+        fnreg.put(FN_CBOR.URI, FN_CBOR.class);
 
         IteratorFunctionRegistry itereg = IteratorFunctionRegistry.get();
         itereg.put(ITE_JSONPath.URI, ITE_JSONPath.class);
@@ -120,6 +123,7 @@ public final class SPARQLGenerate {
         itereg.put(ITE_CSV.URI, ITE_CSV.class);
         itereg.put(ITE_CustomCSV.URI, ITE_CustomCSV.class);
         itereg.put(ITE_CSSPath.URI, ITE_CSSPath.class);
+        itereg.put(ITE_CBOR.URI, ITE_CBOR.class);
 
         SPARQLParserRegistry.get()
                 .add(SYNTAX, new SPARQLParserFactory() {

@@ -33,58 +33,75 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+import com.sun.xml.internal.messaging.saaj.util.Base64;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueNode;
 
 /**
- * A SPARQL Function that extracts a string from a JSON document, according to a
- * JSONPath expression. The Function URI is
- * {@code <http://w3id.org/sparql-generate/fn/JSON_Path_jayway>}.
+ * A SPARQL function that takes as an input a CBOR document, decodes it and return a sub-JSON document 
+ * according to a JSONPath expression. The Iterator function URI is
+ * {@code <http://w3id.org/sparql-generate/fn/CBOR>}.
  * It takes two parameters as input:
  * <ul>
- * <li>a RDF Literal with datatype URI
- * {@code <urn:iana:mime:application/json>}</li>
- * <li>a RDF Literal with datatype {@code xsd:string}</li>
+ * <li> {@param  cbor} a RDF Literal with datatype URI
+ * {@code <urn:iana:mime:application/cbor>}</li>
+ * <li>{@param jsonpath} a RDF Literal with datatype {@code xsd:string}</li>
  * </ul>
- * and returns a RDF Literal with datatype being the type of the object extracted from the JSON document
+ * and returns a RDF Literal with datatype URI
+ * {@code <urn:iana:mime:application/json>}.
+ *
  * @author Noorani Bakerally
  */
-public final class FN_JSONPath extends FunctionBase2 {
+public final class FN_CBOR extends FunctionBase2 {
     //TODO write multiple unit tests for this class.
 
     /**
      * The logger.
      */
-    private static final Logger LOG = Logger.getLogger(FN_JSONPath.class);
+    private static final Logger LOG = Logger.getLogger(FN_CBOR.class);
 
     /**
      * The SPARQL function URI.
      */
-    public static final String URI = SPARQLGenerate.FN + "JSONPath";
+    public static final String URI = SPARQLGenerate.FN + "CBOR";
 
     /**
      * The datatype URI of the first parameter and the return literals.
      */
-    private static final String datatypeUri = "urn:iana:mime:application/json";
+    private static final String datatypeUri = "urn:iana:mime:application/cbor";
 
     /**
-     * {@inheritDoc }
-     */
+    * A SPARQL function that takes as an input a CBOR document, decodes it and return a sub-JSON document 
+    * according to a JSONPath expression. The Iterator function URI is
+    * {@code <http://w3id.org/sparql-generate/fn/CBOR>}.
+    * It takes two parameters as input:
+    * <ul>
+    * <li> {@param  cbor} a RDF Literal with datatype URI
+    * {@code <urn:iana:mime:application/cbor>}</li>
+    * <li>{@param jsonpath} a RDF Literal with datatype {@code xsd:string}</li>
+    * </ul>
+    * and returns a RDF Literal with datatype URI
+    * {@code <urn:iana:mime:application/json>}.
+    *
+    * @author Noorani Bakerally
+    */
     @Override
-    public NodeValue exec(NodeValue json, NodeValue jsonpath) {
-        if (json.getDatatypeURI() == null
+    public NodeValue exec(NodeValue cbor, NodeValue jsonpath) {
+        
+        if (cbor.getDatatypeURI() == null
                 && datatypeUri == null
-                || json.getDatatypeURI() != null
-                && !json.getDatatypeURI().equals(datatypeUri)
-                && !json.getDatatypeURI().equals("http://www.w3.org/2001/XMLSchema#string")) {
+                || cbor.getDatatypeURI() != null
+                && !cbor.getDatatypeURI().equals(datatypeUri)
+                && !cbor.getDatatypeURI().equals("http://www.w3.org/2001/XMLSchema#string")) {
             LOG.warn("The URI of NodeValue1 MUST be <" + datatypeUri + ">"
                     + "or <http://www.w3.org/2001/XMLSchema#string>."
                     + " Returning null.");
-        }
+        } 
 
+        String json = Base64.base64Decode(cbor.asNode().getLiteralLexicalForm());
         try {
-            Object value = JsonPath.parse(json.asNode().getLiteralLexicalForm())
+            Object value = JsonPath.parse(json)
                     .limit(1).read(jsonpath.getString());
             
             if (value instanceof String) {

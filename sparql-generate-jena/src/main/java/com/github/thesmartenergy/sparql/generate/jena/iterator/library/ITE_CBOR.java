@@ -26,6 +26,7 @@ import com.jayway.jsonpath.spi.json.JsonProvider;
 import com.jayway.jsonpath.spi.mapper.JacksonMappingProvider;
 import com.jayway.jsonpath.spi.mapper.MappingProvider;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.IteratorFunctionBase2;
+import com.sun.xml.internal.messaging.saaj.util.Base64;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
@@ -40,29 +41,21 @@ import org.apache.jena.sparql.expr.nodevalue.NodeValueNode;
 import org.apache.log4j.Logger;
 
 /**
- * A SPARQL Iterator function that extracts a list of sub-JSON documents of a
- * JSON document, according to a JSONPath expression. The Iterator function URI is
- * {@code <http://w3id.org/sparql-generate/ite/JSONElement>}.
+ * A SPARQL function that takes as an input a CBOR document, decodes it and extracts a list of sub-JSON documents 
+ * according to a JSONPath expression. The Iterator function URI is
+ * {@code <http://w3id.org/sparql-generate/ite/CBOR>}.
  * It takes two parameters as input:
  * <ul>
- * <li>{@param json} a RDF Literal with datatype URI
- * {@code <urn:iana:mime:application/json>}</li>
+ * <li> {@param  cbor} a RDF Literal with datatype URI
+ * {@code <urn:iana:mime:application/cbor>}</li>
  * <li>{@param jsonquery} a RDF Literal with datatype {@code xsd:string}</li>
  * </ul>
  * and returns a list of RDF Literal with datatype URI
  * {@code <urn:iana:mime:application/json>}.
- * For this iterator function, the returned RDF literal has a specific 
- * JSON Structure. The structure is {"element":elementValue,"position":position,"hasNext":hasNextValue}
- * where:
- * <ul>
- * <li>elementValue: a JSON element selected according to JSON query</li>
- * <li>position: an integer corresponding to the location of the JSON element is the list of generated elements according
- * to the JSON query</li>
- * <li>hasNext: a boolean indicating there is another element after the current element </li>
- * </ul>
+ *
  * @author Noorani Bakerally
  */
-public class ITE_JSONListElement extends IteratorFunctionBase2 {
+public class ITE_CBOR extends IteratorFunctionBase2 {
 
     static {
         Configuration.setDefaults(new Configuration.Defaults() {
@@ -91,65 +84,54 @@ public class ITE_JSONListElement extends IteratorFunctionBase2 {
     /**
      * The logger.
      */
-    private static final Logger LOG = Logger.getLogger(ITE_JSONListElement.class);
+    private static final Logger LOG = Logger.getLogger(ITE_CBOR.class);
 
     /**
      * The SPARQL function URI.
      */
-    public static final String URI = SPARQLGenerate.ITE + "JSONElement";
+    public static final String URI = SPARQLGenerate.ITE + "CBOR";
 
     /**
      * The datatype URI of the first parameter and the return literals.
      */
-    private static final String datatypeUri = "urn:iana:mime:application/json";
+    private static final String datatypeUri = "urn:iana:mime:application/cbor";
 
     /**
      * {@inheritDoc }
      */
     @Override
-    public List<NodeValue> exec(NodeValue json, NodeValue jsonquery) {
-        if (json.getDatatypeURI() == null
+    public List<NodeValue> exec(NodeValue cbor, NodeValue jsonpath) {
+        
+        if (cbor.getDatatypeURI() == null
                 && datatypeUri == null
-                || json.getDatatypeURI() != null
-                && !json.getDatatypeURI().equals(datatypeUri)
-                && !json.getDatatypeURI().equals("http://www.w3.org/2001/XMLSchema#string")) {
+                || cbor.getDatatypeURI() != null
+                && !cbor.getDatatypeURI().equals(datatypeUri)
+                && !cbor.getDatatypeURI().equals("http://www.w3.org/2001/XMLSchema#string")) {
             LOG.warn("The URI of NodeValue1 MUST be"
                     + " <" + datatypeUri + "> or"
                     + " <http://www.w3.org/2001/XMLSchema#string>. Got <"
-                    + json.getDatatypeURI() + ">. Returning null.");
+                    + cbor.getDatatypeURI() + ">. Returning null.");
         }
+        
+        
         Configuration conf = Configuration.builder()
                 .options(Option.ALWAYS_RETURN_LIST).build();
 
+        String json = Base64.base64Decode(cbor.asNode().getLiteralLexicalForm());
+        
         try {
             List<Object> values = JsonPath
                     .using(conf)
-                    .parse(json.asNode().getLiteralLexicalForm())
-                    .read(jsonquery.getString());
+                    .parse(json)
+                    .read(jsonpath.getString());
             List<NodeValue> nodeValues = new ArrayList<>(values.size());
             Gson gson = new Gson();
-            
-            int position=0;
             for (Object value : values) {
                 RDFDatatype dt = TypeMapper.getInstance().getSafeTypeByName(datatypeUri);
                 String jsonstring = gson.toJson(value);
-                String structure = "{\"element\":elementValue,\"position\":intPos,\"hasNext\":hasNextValue}";
-                
-                
-                structure = structure.replaceAll("intPos",String.valueOf(position));
-                if (position < values.size()-1){
-                    structure = structure.replaceAll("hasNextValue","true");
-                } else {
-                    structure = structure.replaceAll("hasNextValue","false");
-                }
-                structure = structure.replaceAll("elementValue",jsonstring);
-                jsonstring = structure;
-                
                 Node node = NodeFactory.createLiteral(jsonstring, dt);
                 NodeValue nodeValue = new NodeValueNode(node);
                 nodeValues.add(nodeValue);
-                
-                position++;
             }
             return nodeValues;
         } catch (Exception e) {

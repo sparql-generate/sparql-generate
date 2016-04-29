@@ -24,6 +24,17 @@ import org.apache.log4j.Logger;
 import org.jsoup.Jsoup;
 
 /**
+ * A SPARQL function that extracts an attribute from an HTML element 
+ * The function URI is {@code <http://w3id.org/sparql-generate/fn/HTMLAttribute>}.
+ * It takes two parameters as input:
+ * <ul>
+ * <li>{@param html} a RDF Literal with datatype URI
+ * {@code <urn:iana:mime:text/html>} representing the source HTML document</li>
+ * <li>{@param attributeName} a RDF Literal with datatype {@code xsd:string} representing name of the attribute to be extracted
+ * from the HTML element {@param html}
+ * </li>
+ * </ul>
+ * and a RDF Literal with datatype URI {@code xsd:string} .
  *
  * @author Noorani Bakerally
  */
@@ -46,13 +57,9 @@ public class FN_HTMLAttribute extends FunctionBase2{
     private static final String datatypeUri = "urn:iana:mime:text/html";
 
     /**
-     * Returns the evaluation of XPath {@code xpath} over the XML
-     * document {@code xml}.
-     * @param xml the RDF Literal that represents a XML document
-     * @param xpath the xsd:string that represents the XPath
-     * @return -
+     * {@inheritDoc }
      */
-    public NodeValue exec(NodeValue html, NodeValue v2) {
+    public NodeValue exec(NodeValue html, NodeValue attributeName) {
         if (html.getDatatypeURI() == null
                 && datatypeUri == null
                 || html.getDatatypeURI() != null
@@ -67,9 +74,9 @@ public class FN_HTMLAttribute extends FunctionBase2{
             String sourceHtml = String.valueOf(html.asNode().getLiteralValue());
             org.jsoup.nodes.Document htmldoc = Jsoup.parse(sourceHtml);
             
-            String attributeName = String.valueOf(v2.asNode().getLiteralValue());
+            String attributeNameValue = String.valueOf(attributeName.asNode().getLiteralValue());
             
-            String attributeValue = htmldoc.body().child(0).attributes().get(attributeName);
+            String attributeValue = htmldoc.body().child(0).attributes().get(attributeNameValue);
             return new NodeValueString(attributeValue);
             
             

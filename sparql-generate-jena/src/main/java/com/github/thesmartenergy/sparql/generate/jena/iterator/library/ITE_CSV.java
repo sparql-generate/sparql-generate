@@ -61,19 +61,14 @@ import org.supercsv.io.CsvListWriter;
 import org.supercsv.prefs.CsvPreference;
 
 /**
- * A SPARQL Iterator function that extracts a list of sub-XML elements of a
- * XML root element, according to a XPath expression. The Iterator function URI is
- * {@code <http://w3id.org/sparql-generate/ite/XPath>}.
- * It takes two parameters as input:
- * <ul>
- * <li>a RDF Literal with datatype URI
- * {@code <urn:iana:mime:application/xml>}</li>
- * <li>a RDF Literal with datatype {@code xsd:string}</li>
- * </ul>
+ * A SPARQL Iterator function that return a row of a CSV document, together with the header. The Iterator function URI is
+ * {@code <http://w3id.org/sparql-generate/ite/CSV>}.
+ * It takes one parameter as input which is the source CSV document which is a RDF Literal with datatype URI
+ * {@code <urn:iana:mime:text/csv>} 
  * and returns a list of RDF Literal with datatype URI
- * {@code <urn:iana:mime:application/xml>}.
- *
- * @author maxime.lefrancois
+ * {@code <urn:iana:mime:text/csv>} for each row of the CSV document.
+ * @see com.github.thesmartenergy.sparql.generate.jena.function.library.FN_CustomCSV for CSV document with different dialects
+ * @author Noorani Bakerally
  */
 public class ITE_CSV extends IteratorFunctionBase1 {
 
@@ -90,25 +85,29 @@ public class ITE_CSV extends IteratorFunctionBase1 {
     /**
      * The datatype URI of the first parameter and the return literals.
      */
-    private static final String datatypeUri = "urn:iana:mime:application/xml";
+    private static final String datatypeUri = "urn:iana:mime:text/csv";
 
+    /**
+     * {@inheritDoc }
+     */
     @Override
-    public List<NodeValue> exec(NodeValue v) {
-         /*
-        if (xml.getDatatypeURI() == null
+    public List<NodeValue> exec(NodeValue csv) {
+        
+        if (csv.getDatatypeURI() == null
                 && datatypeUri == null
-                || xml.getDatatypeURI() != null
-                && !xml.getDatatypeURI().equals(datatypeUri)
-                && !xml.getDatatypeURI().equals("http://www.w3.org/2001/XMLSchema#string")) {
+                || csv.getDatatypeURI() != null
+                && !csv.getDatatypeURI().equals(datatypeUri)
+                && !csv.getDatatypeURI().equals("http://www.w3.org/2001/XMLSchema#string")) {
             LOG.warn("The URI of NodeValue1 MUST be"
                     + " <" + datatypeUri + "> or"
                     + " <http://www.w3.org/2001/XMLSchema#string>. Got <"
-                    + xml.getDatatypeURI() + ">. Returning null.");
+                    + csv.getDatatypeURI() + ">. Returning null.");
         }
-        */
+        RDFDatatype dt = TypeMapper.getInstance()
+                        .getSafeTypeByName(datatypeUri);
         try {
            
-            String sourceCSV = String.valueOf(v.asNode().getLiteralValue());
+            String sourceCSV = String.valueOf(csv.asNode().getLiteralValue());
            
             ICsvListReader listReader = null;
             InputStream is = new ByteArrayInputStream(sourceCSV.getBytes());
@@ -129,7 +128,9 @@ public class ITE_CSV extends IteratorFunctionBase1 {
                 listWriter.write(listReader.getUntokenizedRow());
                 listWriter.close();
                 
-                NodeValue nodeValue = new NodeValueString(sw.toString());
+            
+                Node node = NodeFactory.createLiteral(sw.toString(),dt);
+                NodeValueNode nodeValue = new NodeValueNode(node);
                 nodeValues.add(nodeValue);
             }
       

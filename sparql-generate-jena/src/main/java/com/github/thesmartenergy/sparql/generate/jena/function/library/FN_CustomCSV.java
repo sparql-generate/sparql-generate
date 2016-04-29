@@ -50,20 +50,27 @@ import org.supercsv.io.CsvMapReader;
 import org.supercsv.io.ICsvListReader;
 import org.supercsv.prefs.CsvPreference;
 /**
- * A SPARQL Function that extracts a string from a XML document, according to a
- * XPath expression. The Function URI is
- * {@code <http://w3id.org/sparql-generate/fn/XPath>}.
- * It takes two parameters as input:
+ * A SPARQL function that return a RDF literal. The function URI is
+ * {@code <http://w3id.org/sparql-generate/fn/CustomCSV>}. This function partly implements the CSV dialect description at 
+ * @see <a href="https://www.w3.org/TR/tabular-metadata/#dialect-descriptions">CSVW Dialect Descriptions</a>
+ * It takes five parameters as input:
  * <ul>
- * <li>a RDF Literal with datatype URI
- * {@code <urn:iana:mime:application/json>}</li>
- * <li>a RDF Literal with datatype {@code xsd:string}</li>
+ *      <li>{@param csv} a RDF Literal with datatype URI 
+ *      {@code <urn:iana:mime:text/csv>} representing the source CSV document</li>
+ *      <li>{@param column} denotes the column to be selected for the CSV document. If the value for the header is true,
+ *      the path will be an RDF Literal of datatype {@code xsd:string} to represent the column name. Else, it is going to be an integer
+ *      of datatype {@code xsd:int} to denote the index of the column starting at 0 for the first column on the far left.
+ *      </li>
+ *      <li>{@param quoteChar} a RDF Literal with datatype {@code xsd:string} for the quote character</li>
+ *      <li>{@param delimeterChar} a RDF Literal with datatype {@code xsd:string} for the delimiter character</li>
+ *      <li>{@param endOfLineSymbols} a RDF Literal with datatype {@code xsd:string} for the end of line symbol</li>
+ *      <li>{@param header} a RDF Literal with datatype {@code xsd:boolean} where true represents the presence of a header in the source CSV document</li>
  * </ul>
  * and returns a RDF Literal with datatype URI
- * {@code <urn:iana:mime:application/json>}.
- *
- * @author maxime.lefrancois
+ * {@code <urn:iana:mime:text/csv>}.
+ * @author Noorani Bakerally
  */
+
 public class FN_CustomCSV extends FunctionBase6 {
     //TODO write multiple unit tests for this class.
 
@@ -82,29 +89,25 @@ public class FN_CustomCSV extends FunctionBase6 {
      */
     private static final String datatypeUri = "urn:iana:mime:text/csv";
 
-    /**
-     * Returns the evaluation of XPath {@code xpath} over the XML
-     * document {@code xml}.
-     * @param csv the RDF Literal that represents a csv document
-     * @param path the xsd:string that represents the csv column
-     * @return -
+   /**
+     * {@inheritDoc }
      */
     @Override
-    public NodeValue exec(NodeValue csv, NodeValue path,NodeValue quoteChar,NodeValue delimiterChar, NodeValue endOfLineSymbols,NodeValue header) {
+    public NodeValue exec(NodeValue csv, NodeValue column,NodeValue quoteChar,NodeValue delimiterChar, NodeValue endOfLineSymbols,NodeValue header) {
         
-        /*
-        if (xml.getDatatypeURI() == null
+       
+        if (csv.getDatatypeURI() == null
                 && datatypeUri == null
-                || xml.getDatatypeURI() != null
-                && !xml.getDatatypeURI().equals(datatypeUri)
-                && !xml.getDatatypeURI().equals("http://www.w3.org/2001/XMLSchema#string")) {
+                || csv.getDatatypeURI() != null
+                && !csv.getDatatypeURI().equals(datatypeUri)
+                && !csv.getDatatypeURI().equals("http://www.w3.org/2001/XMLSchema#string")) {
             LOG.warn("The URI of NodeValue1 MUST be <" + datatypeUri + ">"
                     + "or <http://www.w3.org/2001/XMLSchema#string>."
                     + " Returning null.");
         }
-        */
         
-        LOG.debug("===========> "+path);
+        
+        LOG.debug("===========> "+column);
         DocumentBuilderFactory builderFactory
                 = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = null;
@@ -136,7 +139,7 @@ public class FN_CustomCSV extends FunctionBase6 {
                 CsvMapReader mapReader = new CsvMapReader(br, prefs);
                 String headers_str [] = mapReader.getHeader(true);
                  Map  <String,String> headers= mapReader.read(headers_str);
-                 String columnName = (String) path.asNode().getLiteralValue();
+                 String columnName = (String) column.asNode().getLiteralValue();
                  nodeVal = headers.get(columnName);
                  
             } else {

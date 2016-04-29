@@ -25,17 +25,16 @@ import org.apache.jena.sparql.expr.nodevalue.NodeValueString;
 import java.util.Arrays;
 
 /**
- * A SPARQL Iterator function that extracts a list of sub-XML elements of a
- * XML root element, according to a XPath expression. The Iterator function URI is
- * {@code <http://w3id.org/sparql-generate/ite/XPath>}.
+ * A SPARQL Iterator function that returns a list of strings
+ * splitted based on delimter.  The Iterator function URI is
+ * {@code <http://w3id.org/sparql-generate/ite/Split>}.
  * It takes two parameters as input:
  * <ul>
- * <li>a RDF Literal with datatype URI
- * {@code <urn:iana:mime:application/xml>}</li>
- * <li>a RDF Literal with datatype {@code xsd:string}</li>
+ * <li>{@param  stringValue} a RDF Literal with datatype {@code xsd:string} 
+ * representing the source string</li>
+ * <li>{@param  delimeterValue} a RDF Literal with datatype {@code xsd:string} representing the delimeter which can be regular expression</li>
  * </ul>
- * and returns a list of RDF Literal with datatype URI
- * {@code <urn:iana:mime:application/xml>}.
+ * and returns a list of RDF Literal with datatype {@code xsd:string} 
  *
  * @author Noorani Bakerally
  */
