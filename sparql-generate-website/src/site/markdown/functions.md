@@ -2,13 +2,13 @@
 
 `sparql-generate-jena` provides a set of iterator functions and custom SPARQL functions that enable to generate RDF from JSON, XML, HTML, CSV, and plain text.
 
-Custom SPARQL functions all take a set of RDF terms as input, and output zero or one RDF term. They all have namespace `http://w3id.org/sparql-generate/fn/` with preferred prefix `rqg-fn`.
+Custom SPARQL functions all take a set of RDF terms as input, and output zero or one RDF term. They all have namespace `http://w3id.org/sparql-generate/fn/` with preferred prefix `fn`.
 
-Iterator functions are used in the `ITERATOR` clause. They all take a set of RDF terms as input, and output zero or more RDF terms. They all have namespace `http://w3id.org/sparql-generate/ite/` with preferred prefix `rqg-ite`.
+Iterator functions are used in the `ITERATOR` clause. They all take a set of RDF terms as input, and output zero or more RDF terms. They all have namespace `http://w3id.org/sparql-generate/ite/` with preferred prefix `ite`.
 
 ```
-PREFIX rqg-fn: <http://w3id.org/sparql-generate/fn/>
-PREFIX rqg-ite: <http://w3id.org/sparql-generate/ite/>
+PREFIX fn: <http://w3id.org/sparql-generate/fn/>
+PREFIX ite: <http://w3id.org/sparql-generate/ite/>
 ```
 
 This document overviews these functions, and gives an example for each. The javadoc also contains documentation for [iterator functions](apidocs/com/github/thesmartenergy/sparql/generate/jena/iterator/library/package-summary.html) and [custom SPARQL functions](apidocs/com/github/thesmartenergy/sparql/generate/jena/function/library/package-summary.html).
@@ -29,7 +29,7 @@ For example, let be the following partial solution binding:
 ?message => "<reading sensor='s12' unit='mmHg'><value time='12:00'>768</value><value time='13:00'>756</value></reading>"
 ```
 
-Then iterator clause `ITERATOR rqg-ite:XPath( ?message, "/reading/value" ) AS ?value` leads to the following set of partial solution bindings:
+Then iterator clause `ITERATOR ite:XPath( ?message, "/reading/value" ) AS ?value` leads to the following set of partial solution bindings:
 
 ```
 ?message => "<reading sensor='s12' unit='mmHg'><value time='12:00'>768</value><value time='13:00'>756</value></reading>" , ?value => "<value time='12:00'>768</value>"
@@ -62,7 +62,7 @@ For example, let be the following partial solution binding:
 ?message => "{ "x" : [ 1 , 2.0, "tt" , { } ] }"
 ```
 
-Then iterator clause `ITERATOR rqg-ite:JSONPath( ?message, "$.x[1:4]" ) AS ?value` leads to the following set of partial solution bindings:
+Then iterator clause `ITERATOR ite:JSONPath( ?message, "$.x[1:4]" ) AS ?value` leads to the following set of partial solution bindings:
 
 ```
 ?message => "{ 'x' : [ 1 , 2.0, 'tt' , { } ] }" , ?value => "1"^^xsd:integer
@@ -87,7 +87,7 @@ For example, let be the following partial solution binding:
 ?message => "{ 'a' : 1 , 'b' : 2 , 'c' : 3 }"
 ```
 
-Then iterator clause `ITERATOR rqg-ite:JSONPath( ?message ) AS ?value` leads to the following set of partial solution bindings:
+Then iterator clause `ITERATOR ite:JSONPath( ?message ) AS ?value` leads to the following set of partial solution bindings:
 
 ```
 ?message => "{ 'a' : 1 , 'b' : 2 , 'c' : 3 }" , ?value => "a"
@@ -110,7 +110,7 @@ For example, let be the following partial solution binding:
 ?message => "{ 'a' : 'aaa' , 'b' : 'bbb' , 'c' : 'ccc' }"
 ```
 
-Then iterator clause `ITERATOR rqg-ite:JSONPath( ?message , '$.[*]' ) AS ?value` leads to the following set of partial solution bindings:
+Then iterator clause `ITERATOR ite:JSONPath( ?message , '$.[*]' ) AS ?value` leads to the following set of partial solution bindings:
 
 ```
 ?message => "{ 'a' : 1 , 'b' : 2 , 'c' : 3 }" , ?value => "{ 'element' : 'aaa' , 'position' : 1 , 'hasNext' : true }"
@@ -139,7 +139,7 @@ Queries CSV conformant to [RFC 4180](https://tools.ietf.org/html/rfc4180).
 This iterator function generates a set of CSV documents from a CSV document.
 See also [the javadoc](apidocs/com/github/thesmartenergy/sparql/generate/jena/iterator/library/ITE_CSV.html).
 
-Use is `rqg-ite:CSV( literal message, literal colum)`, where `message` is the CSV document, and `columns` is the name of a colum.
+Use is `ite:CSV( literal message, literal colum)`, where `message` is the CSV document, and `columns` is the name of a colum.
 
 For example, let be the following partial solution binding (`?message` is bound to a multi-line literal in Turtle):
 
@@ -149,7 +149,7 @@ For example, let be the following partial solution binding (`?message` is bound 
 3,4"""
 ```
 
-Then iterator clause 'ITERATOR rqg-ite:CSV( ?message, "x" ) AS ?x' leads to the following set of partial solution bindings:
+Then iterator clause 'ITERATOR ite:CSV( ?message, "x" ) AS ?x' leads to the following set of partial solution bindings:
 
 ```
 ?x => 2 , ?message => """x,y
@@ -232,7 +232,7 @@ For example, let be the following partial solution binding:
 ?message => "a,b,c"
 ```
 
-Then iterator clause 'ITERATOR rqg-ite:Split( ?message, "," ) AS ?x' leads to the following set of partial solution bindings:
+Then iterator clause 'ITERATOR ite:Split( ?message, "," ) AS ?x' leads to the following set of partial solution bindings:
 
 ```
 ?message => "a,b,c" , ?x => "a"

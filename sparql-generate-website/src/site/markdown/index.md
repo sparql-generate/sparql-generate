@@ -73,7 +73,7 @@ PREFIX rqg:ite: <http://w3id.org/sparql-generate/ite/>
 PREFIX rqg:ite: <http://w3id.org/sparql-generate/ite/>
 GENERATE 
   { <> ?p ?o . }
-ITERATOR rqg-ite:JSONListKeys(?doc) AS ?key
+ITERATOR ite:JSONListKeys(?doc) AS ?key
 WHERE
   { 
     BIND( uri( ?key ) AS ?p )

@@ -1,6 +1,6 @@
 BASE <http://example.org/> 
-PREFIX rqg-ite: <http://w3id.org/sparql-generate/ite/>
-PREFIX rqg-fn: <http://w3id.org/sparql-generate/fn/>
+PREFIX ite: <http://w3id.org/sparql-generate/ite/>
+PREFIX fn: <http://w3id.org/sparql-generate/fn/>
 
 GENERATE { 
   [] a <Country> ;
@@ -9,11 +9,11 @@ GENERATE {
 
 }
 SOURCE <http://country.io/capital.json> AS ?source
-ITERATOR rqg-ite:JSONListKeys(?source) AS ?key
+ITERATOR ite:JSONListKeys(?source) AS ?key
 WHERE {
    FILTER(STRSTARTS(?key,"F"))
    BIND(CONCAT('$.', ?key) AS ?query)
-   BIND(rqg-fn:JSONPath(?source, ?query ) AS ?capital)
+   BIND(fn:JSONPath(?source, ?query ) AS ?capital)
 }
 ORDER BY ?key
 LIMIT 3
