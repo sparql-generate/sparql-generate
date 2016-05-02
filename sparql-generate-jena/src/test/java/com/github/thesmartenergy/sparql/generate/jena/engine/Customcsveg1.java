@@ -26,15 +26,15 @@ import org.junit.Test;
  *
  * @author maxime.lefrancois
  */
-public class Airportcustomcsv extends TestBase {
+public class Customcsveg1 extends TestBase {
 
-    public Airportcustomcsv() {
+    public Customcsveg1() {
 
     }
 
     @BeforeClass
     public static void setUpClass() throws Exception {
-        TestBase.setUpClass(Airportcustomcsv.class);
+        TestBase.setUpClass(Customcsveg1.class);
     }
 
     @AfterClass

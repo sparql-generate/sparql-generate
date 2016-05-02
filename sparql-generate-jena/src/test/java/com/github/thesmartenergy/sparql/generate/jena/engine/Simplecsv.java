@@ -27,15 +27,15 @@ import org.junit.Test;
  * @author maxime.lefrancois
  */
 
-public class Airport extends TestBase {
+public class Simplecsv extends TestBase {
 
-    public Airport() {
+    public Simplecsv() {
 
     }
 
     @BeforeClass
     public static void setUpClass() throws Exception {
-        TestBase.setUpClass(Airport.class);
+        TestBase.setUpClass(Simplecsv.class);
     }
 
     @AfterClass

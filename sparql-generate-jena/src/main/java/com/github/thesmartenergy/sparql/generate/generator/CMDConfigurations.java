@@ -47,7 +47,8 @@ public class CMDConfigurations {
     
     public static Options getCMDOptions(){
         Options opt = new Options()
-                .addOption("h", false, "Show help")
+                .addOption("h", "help",false, "Show help")
+                .addOption("m", "message", true, "URI to the message")
                 .addOption("qf", "queryfile", true, "Local path to the file containing the SPARGL query")
                 .addOption("qs", "query string", true, "The SPARGL query string")
                 .addOption("f","outputformat",true,"Output RDF format, e.g. -f TTL. Possible serializations are: TTL for Turtle, NTRIPLES for NTRIPLES, RDFXML for RDF/XML, N3 for N3, JSONLD for JSON-LD, TRIG for TRIG")
