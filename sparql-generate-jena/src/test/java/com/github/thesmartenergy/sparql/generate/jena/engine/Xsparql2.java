@@ -27,15 +27,15 @@ import org.junit.Test;
  * @author maxime.lefrancois
  */
 
-public class Xpsparql1 extends TestBase {
+public class Xsparql2 extends TestBase {
 
-    public Xpsparql1() {
+    public Xsparql2() {
 
     }
 
     @BeforeClass
     public static void setUpClass() throws Exception {
-        TestBase.setUpClass(Xpsparql1.class);
+        TestBase.setUpClass(Xsparql2.class);
     }
 
     @AfterClass

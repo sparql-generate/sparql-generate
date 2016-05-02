@@ -10,9 +10,9 @@ GENERATE {
         ?knowsPersonNode a foaf:Person .
         ?knowsPersonNode foaf:name ?knowsPerson .
     }
-    ITERATOR rqg-ite:XPath(?person, "//knows" ) AS ?knows 
+    ITERATOR ite:XPath(?person, "//knows" ) AS ?knows 
     WHERE {
-        BIND( rqg-fn:XPath(?knows,"/knows"  ) AS ?knowsPerson )
+        BIND( fn:XPath(?knows,"/knows"  ) AS ?knowsPerson )
         BIND (BNODE(?knowsPerson) AS ?knowsPersonNode)
     } .
 }
