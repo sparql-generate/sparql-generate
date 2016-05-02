@@ -1,10 +1,10 @@
 BASE <http://example.org/> 
-PREFIX rqg-ite: <http://w3id.org/sparql-generate/ite/>
-PREFIX rqg-fn: <http://w3id.org/sparql-generate/fn/>
+PREFIX ite: <http://w3id.org/sparql-generate/ite/>
+PREFIX fn: <http://w3id.org/sparql-generate/fn/>
 PREFIX foaf: <http://xmlns.com/foaf/0.1/>
 GENERATE { 
   ?personNode a foaf:Person .
-    ?personNode foaf:name ?personName .
+  ?personNode foaf:name ?personName .
     GENERATE {
         ?personNode foaf:knows ?knowsPersonNode .
         ?knowsPersonNode a foaf:Person .
@@ -17,8 +17,8 @@ GENERATE {
     } .
 }
 SOURCE <http://example.com/relations.xml> AS ?source
-ITERATOR rqg-ite:XPath(?source, "//person" ) AS ?person
+ITERATOR ite:XPath(?source, "//person" ) AS ?person
 WHERE {
-    BIND( rqg-fn:XPath(?person,"/person/@name"  ) AS ?personName )
+    BIND( fn:XPath(?person,"/person/@name"  ) AS ?personName )
     BIND (BNODE(?personName) AS ?personNode)
 }
