@@ -1,6 +1,6 @@
 BASE <http://example.org/> 
-PREFIX rqg-ite: <http://w3id.org/sparql-generate/ite/>
-PREFIX rqg-fn: <http://w3id.org/sparql-generate/fn/>
+PREFIX ite: <http://w3id.org/sparql-generate/ite/>
+PREFIX fn: <http://w3id.org/sparql-generate/fn/>
 PREFIX country:<http://loc.example.com/city/>
 PREFIX schema: <http://schema.org/>
 PREFIX wgs84_pos: <http://www.w3.org/2003/01/geo/wgs84_pos#>
@@ -14,9 +14,9 @@ GENERATE {
 }
 SOURCE <http://example.com/venue.cbor> AS ?source
 WHERE {
-   BIND(rqg-fn:CBOR(?source, "$.location.city" ) AS ?city)
-   BIND(rqg-fn:CBOR(?source, "$.venue.latitude" ) AS ?latitude)
-   BIND(rqg-fn:CBOR(?source, "$.venue.longitude" ) AS ?longitude)
-   BIND(rqg-fn:CBOR(?source, "$.location.country" ) AS ?countryCode)
+   BIND(fn:CBOR(?source, "$.location.city" ) AS ?city)
+   BIND(fn:CBOR(?source, "$.venue.latitude" ) AS ?latitude)
+   BIND(fn:CBOR(?source, "$.venue.longitude" ) AS ?longitude)
+   BIND(fn:CBOR(?source, "$.location.country" ) AS ?countryCode)
    BIND (URI(CONCAT("http://loc.example.com/city/",?city)) AS ?s)
 }

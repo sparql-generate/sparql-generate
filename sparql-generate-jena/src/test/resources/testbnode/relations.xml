@@ -1,0 +1,11 @@
+<relations>
+    <person name="Alice"> 
+      <knows>Bob</knows> 
+      <knows>Charles</knows> 
+    </person> 
+    <person name="Bob"> 
+      <knows>Charles</knows> 
+    </person> 
+    <person name="Charles"/> 
+</relations>
+

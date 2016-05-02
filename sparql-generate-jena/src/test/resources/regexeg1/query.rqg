@@ -1,6 +1,6 @@
 BASE <http://example.org/> 
-PREFIX rqg-ite: <http://w3id.org/sparql-generate/ite/>
-PREFIX rqg-fn: <http://w3id.org/sparql-generate/fn/>
+PREFIX ite: <http://w3id.org/sparql-generate/ite/>
+PREFIX fn: <http://w3id.org/sparql-generate/fn/>
 PREFIX gn: <http://www.geonames.org/ontology#>
 PREFIX ex: <http://example.com/> 
 GENERATE { 
@@ -9,10 +9,10 @@ GENERATE {
               ex:dob ?dob .
 }
 SOURCE <http://www.example.com/student.txt> AS ?source
-ITERATOR rqg-ite:Split(?source,"#") AS ?student
+ITERATOR ite:Split(?source,"#") AS ?student
 WHERE {
-    BIND(IRI(CONCAT("http://example.com/",rqg-fn:SplitAtPosition(?student,"-",0))) as ?studentIRI)
-    BIND(rqg-fn:SplitAtPosition(?student,"-",1) as ?name)
-    BIND(rqg-fn:SplitAtPosition(?student,"-",2) as ?dob)
+    BIND(IRI(CONCAT("http://example.com/",fn:SplitAtPosition(?student,"-",0))) as ?studentIRI)
+    BIND(fn:SplitAtPosition(?student,"-",1) as ?name)
+    BIND(fn:SplitAtPosition(?student,"-",2) as ?dob)
     FILTER(REGEX(?dob, "198.", "i"))
 }

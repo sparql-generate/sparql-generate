@@ -1,6 +1,6 @@
 BASE <http://example.org/> 
-PREFIX rqg-ite: <http://w3id.org/sparql-generate/ite/>
-PREFIX rqg-fn: <http://w3id.org/sparql-generate/fn/>
+PREFIX ite: <http://w3id.org/sparql-generate/ite/>
+PREFIX fn: <http://w3id.org/sparql-generate/fn/>
 
 GENERATE { 
 
@@ -13,11 +13,11 @@ GENERATE {
       _:country <capital> ?capital.
     }
     SOURCE <http://country.io/capital.json> AS ?source2
-    ITERATOR rqg-ite:JSONListKeys(?source) AS ?key2
+    ITERATOR ite:JSONListKeys(?source) AS ?key2
      WHERE {
       FILTER (?key=?key2)
       BIND(CONCAT('$.', ?key2) AS ?query2)
-      BIND(rqg-fn:JSONPath(?source2, ?query2 ) AS ?capital)
+      BIND(fn:JSONPath(?source2, ?query2 ) AS ?capital)
     } .
 
   # this must be the same blank node
@@ -26,11 +26,11 @@ GENERATE {
 
 }
 SOURCE <http://country.io/names.json> AS ?source
-ITERATOR rqg-ite:JSONListKeys(?source) AS ?key
+ITERATOR ite:JSONListKeys(?source) AS ?key
 WHERE {
    FILTER(STRSTARTS(?key,"F"))
    BIND(CONCAT('$.', ?key) AS ?query)
-   BIND(rqg-fn:JSONPath(?source, ?query ) AS ?name)
+   BIND(fn:JSONPath(?source, ?query ) AS ?name)
 }
 ORDER BY ?key
 LIMIT 10
