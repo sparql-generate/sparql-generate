@@ -31,8 +31,7 @@ import org.apache.log4j.Logger;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
-import java.util.Arrays;
-import org.apache.commons.codec.binary.Base64;
+import java.util.Base64;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueNode;
@@ -81,9 +80,9 @@ public final class FN_CBOR extends FunctionBase2 {
             LOG.warn("The URI of NodeValue1 MUST be <" + datatypeUri + ">"
                     + "or <http://www.w3.org/2001/XMLSchema#string>."
                     + " Returning null.");
-        }
-
-        String json = Arrays.toString(Base64.decodeBase64(cbor.asNode().getLiteralLexicalForm()));
+        } 
+        
+        String json = new String(Base64.getDecoder().decode(cbor.asNode().getLiteralLexicalForm().getBytes()));
         try {
             Object value = JsonPath.parse(json)
                     .limit(1).read(jsonpath.getString());

@@ -1,0 +1,23 @@
+BASE <http://example.org/> 
+PREFIX ite: <http://w3id.org/sparql-generate/ite/>
+PREFIX fn: <http://w3id.org/sparql-generate/fn/>
+PREFIX gn: <http://www.geonames.org/ontology#>
+PREFIX ex: <http://example.com/> 
+GENERATE { 
+   ?studentIRI a ex:Student;
+              ex:name ?name;
+              ex:dobmonth ?dobmonth;
+              ex:dobday ?dobday;
+              ex:dobyear ?dobyear;
+}
+SOURCE <http://www.example.com/student.txt> AS ?source
+ITERATOR ite:regex(?source,"([^#]+)(#|$)",1) AS ?student
+WHERE {
+    BIND ("([0-9]+)-([a-zA-Z ]+)-(([0-9]+)/([0-9]+)/([0-9]+))" as ?regex)
+    BIND(IRI(fn:regex(?student,?regex,1)) as ?studentIRI)
+    BIND(fn:regex(?student,?regex,2) as ?name)
+    BIND(fn:regex(?student,?regex,4) as ?dobday)
+    BIND(fn:regex(?student,?regex,5) as ?dobmonth)
+    BIND(fn:regex(?student,?regex,6) as ?dobyear)
+
+}

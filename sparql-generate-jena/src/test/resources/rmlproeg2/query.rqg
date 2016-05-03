@@ -1,5 +1,5 @@
 BASE <http://example.org/> 
-PREFIX iter: <http://w3id.org/sparql-generate/iter/>
+PREFIX ite: <http://w3id.org/sparql-generate/ite/>
 PREFIX fn: <http://w3id.org/sparql-generate/fn/>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> 
 PREFIX mail: <http://example.com/mail#>
@@ -16,13 +16,12 @@ GENERATE {
     ?dmy a ex:DateTime;
                 ex:day ?gDay;
                 ex:month ?gMonth;
-                ex:year ?gYear .  
-
-     ?noteIRI mail:when ?dmy .
-
+                ex:year ?gYear .       
+                
+    ?noteIRI mail:when ?dmy .
 }
 SOURCE <http://example.com/example1.xml> AS ?source
-ITERATOR iter:XPath(?source, "//note" ) AS ?note
+ITERATOR ite:XPath(?source, "//note" ) AS ?note
 WHERE {
      BIND( fn:XPath(?note,"/note/@id"  ) AS ?noteId )
      BIND( fn:XPath(?note,"/note/@day"  ) AS ?day )

@@ -24,17 +24,18 @@ import org.junit.Test;
 
 /**
  *
- * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
+ * @author maxime.lefrancois
  */
-public class Airportcustomcsv extends TestBase {
 
-    public Airportcustomcsv() {
+public class Xsparql2 extends TestBase {
+
+    public Xsparql2() {
 
     }
 
     @BeforeClass
     public static void setUpClass() throws Exception {
-        TestBase.setUpClass(Airportcustomcsv.class);
+        TestBase.setUpClass(Xsparql2.class);
     }
 
     @AfterClass

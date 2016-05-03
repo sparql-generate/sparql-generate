@@ -56,7 +56,9 @@ See the License for the specific language governing permissions and
             <item name="Get started" href="getStarted.html"/>
             <item name="Available functions" href="functions.html"/>
             <item name="Documentation" href="apidocs/index.html"/>        
-            <item name="Command Line (JAR)" href="commandline.html"/>        
+            <item name="Executable JAR" href="language-cli.html" />  
+            <item name="Examples" href="examples.html" />
+            <item name="Tests Reports" href="tests-reports.html" />      
         </menu>
 
         <menu ref="reports" inherit="top"/>

@@ -24,18 +24,17 @@ import org.junit.Test;
 
 /**
  *
- * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
+ * @author maxime.lefrancois
  */
+public class Jsontest1 extends TestBase {
 
-public class Xpsparql1 extends TestBase {
-
-    public Xpsparql1() {
+    public Jsontest1() {
 
     }
 
     @BeforeClass
     public static void setUpClass() throws Exception {
-        TestBase.setUpClass(Xpsparql1.class);
+        TestBase.setUpClass(Jsontest1.class);
     }
 
     @AfterClass

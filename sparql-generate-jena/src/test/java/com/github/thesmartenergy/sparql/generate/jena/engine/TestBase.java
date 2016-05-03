@@ -123,7 +123,7 @@ public class TestBase {
         StringWriter sw = new StringWriter();
         LOG.debug(expectedOutput.write(sw, "TTL"));
 
-        //assertTrue(output.isIsomorphicWith(expectedOutput));
+        assertTrue(output.isIsomorphicWith(expectedOutput));
        
     }
 }

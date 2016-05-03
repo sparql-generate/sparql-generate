@@ -24,18 +24,18 @@ import org.junit.Test;
 
 /**
  *
- * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
+ * @author maxime.lefrancois
  */
 
-public class Airport extends TestBase {
+public class Simplecsvheader extends TestBase {
 
-    public Airport() {
+    public Simplecsvheader() {
 
     }
 
     @BeforeClass
     public static void setUpClass() throws Exception {
-        TestBase.setUpClass(Airport.class);
+        TestBase.setUpClass(Simplecsvheader.class);
     }
 
     @AfterClass

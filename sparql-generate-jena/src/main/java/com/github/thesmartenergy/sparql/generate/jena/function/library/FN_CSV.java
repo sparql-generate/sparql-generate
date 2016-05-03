@@ -69,24 +69,25 @@ public class FN_CSV extends FunctionBase2 {
     @Override
     public NodeValue exec(NodeValue csv, NodeValue column) {
 
-        /*
-        if (xml.getDatatypeURI() == null
+        if (csv.getDatatypeURI() == null
                 && datatypeUri == null
-                || xml.getDatatypeURI() != null
-                && !xml.getDatatypeURI().equals(datatypeUri)
-                && !xml.getDatatypeURI().equals("http://www.w3.org/2001/XMLSchema#string")) {
+                || csv.getDatatypeURI() != null
+                && !csv.getDatatypeURI().equals(datatypeUri)
+                && !csv.getDatatypeURI().equals("http://www.w3.org/2001/XMLSchema#string")) {
             LOG.warn("The URI of NodeValue1 MUST be <" + datatypeUri + ">"
                     + "or <http://www.w3.org/2001/XMLSchema#string>."
                     + " Returning null.");
         }
-         */
-        LOG.debug("===========> " + column);
+
+        
+        LOG.debug("===========> "+column);
         DocumentBuilderFactory builderFactory
                 = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = null;
         try {
 
             String sourceCSV = String.valueOf(csv.asNode().getLiteralLexicalForm());
+
 
             InputStream is = new ByteArrayInputStream(sourceCSV.getBytes());
             BufferedReader br = new BufferedReader(new InputStreamReader(is));
