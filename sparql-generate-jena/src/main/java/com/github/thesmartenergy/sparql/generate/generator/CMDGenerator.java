@@ -17,7 +17,7 @@ package com.github.thesmartenergy.sparql.generate.generator;
 
 /**
  *
- * @author Noorani Bakerally
+ * @author Noorani Bakerally <noorani.bakerally at emse.fr>
  */
 import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
 import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerateException;

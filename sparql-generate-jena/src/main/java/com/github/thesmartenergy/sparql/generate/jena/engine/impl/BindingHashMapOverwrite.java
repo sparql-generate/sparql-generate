@@ -27,7 +27,7 @@ import org.apache.jena.sparql.engine.binding.BindingHashMap;
 /**
  * Class to store overridable bindings efficiently.
  * 
- * @author maxime.lefrancois
+ * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */
 public class BindingHashMapOverwrite extends PlanBase implements Binding {
 

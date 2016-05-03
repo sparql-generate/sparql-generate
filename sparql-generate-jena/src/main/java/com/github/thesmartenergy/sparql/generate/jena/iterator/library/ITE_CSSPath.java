@@ -36,21 +36,13 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 /**
- * A SPARQL Iterator function that extracts a list of HTML elements from a
- * HTML element, according to a CSS Selector expression. It can be used to select
- * HTML elements based on their name, id, classes, types, attributes, values of attributes etc.
- * The Iterator function URI is
- * {@code <http://w3id.org/sparql-generate/ite/CSSPath>}.
- * It takes two parameters as input:
- * <ul>
- * <li>{@param html} a RDF Literal with datatype URI
- * {@code <urn:iana:mime:text/html>} representing the source HTML document</li>
- * <li>{@param cssSelector} a RDF Literal with datatype {@code xsd:string} representing the CSS selector expression</li>
- * </ul>
- * and returns a list of RDF Literal with datatype URI
- * {@code <urn:iana:mime:text/html>} .
+ * A SPARQL Iterator function that extracts a list of HTML elements from a HTML
+ * element, according to a CSS Selector expression. It can be used to select
+ * HTML elements based on their name, id, classes, types, attributes, values of
+ * attributes etc. The Iterator function URI is
+ * {@code <http://w3id.org/sparql-generate/iter/CSSPath>}. 
  *
- * @author Noorani Bakerally
+ * @author Noorani Bakerally <noorani.bakerally at emse.fr>
  */
 public class ITE_CSSPath extends IteratorFunctionBase2 {
 
@@ -70,7 +62,12 @@ public class ITE_CSSPath extends IteratorFunctionBase2 {
     private static final String datatypeUri = "urn:iana:mime:text/html";
 
     /**
-     * {@inheritDoc }
+     * @param html a RDF Literal with datatype URI
+     * {@code <urn:iana:mime:text/html>}  or {@code xsd:string} representing the source HTML document
+     * @param cssSelector a RDF Literal with datatype {@code xsd:string}
+     * representing the CSS selector expression
+     * @return a list of RDF Literal with datatype URI
+     * {@code <urn:iana:mime:text/html>} .
      */
     @Override
     public List<NodeValue> exec(NodeValue html, NodeValue cssSelector) {
@@ -84,29 +81,29 @@ public class ITE_CSSPath extends IteratorFunctionBase2 {
                     + " <http://www.w3.org/2001/XMLSchema#string>. Got <"
                     + html.getDatatypeURI() + ">. Returning null.");
         }
-       RDFDatatype dt = TypeMapper.getInstance()
-                        .getSafeTypeByName(datatypeUri);
+        RDFDatatype dt = TypeMapper.getInstance()
+                .getSafeTypeByName(datatypeUri);
         try {
-            
+
             String sourceHtml = String.valueOf(html.asNode().getLiteralValue());
             Document htmldoc = Jsoup.parse(sourceHtml);
-            
+
             String selectPath = String.valueOf(cssSelector.asNode().getLiteralValue());
             Elements elements = htmldoc.select(selectPath);
-            
-            LOG.debug("===> Number of iterations for "+cssSelector+" "+elements.size());
-            
+
+            LOG.debug("===> Number of iterations for " + cssSelector + " " + elements.size());
+
             List<NodeValue> nodeValues = new ArrayList<>(elements.size());
-            
+
             NodeValue nodeValue;
-            for (Element element:elements){
+            for (Element element : elements) {
                 String htmlValue = element.toString();
-                Node node = NodeFactory.createLiteral(htmlValue,dt);
+                Node node = NodeFactory.createLiteral(htmlValue, dt);
                 nodeValue = new NodeValueNode(node);
-                
+
                 nodeValues.add(nodeValue);
             }
-            
+
             return nodeValues;
         } catch (Exception e) {
             throw new ExprEvalException("FunctionBase: no evaluation", e);

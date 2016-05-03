@@ -24,7 +24,7 @@ import org.apache.jena.sparql.util.NodeIsomorphismMap;
 /**
  * A SPARQL Generate {@code ITERATOR} clause.
  * 
- * @author maxime.lefrancois
+ * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */
 public class ElementIterator extends ElementIteratorOrSource {
     

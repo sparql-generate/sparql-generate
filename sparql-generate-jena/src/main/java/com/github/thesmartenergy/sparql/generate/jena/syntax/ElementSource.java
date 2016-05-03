@@ -24,7 +24,7 @@ import org.apache.jena.sparql.util.NodeIsomorphismMap;
 /**
  * The {@code SOURCE} clause.
  * 
- * @author maxime.lefrancois
+ * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */
 public class ElementSource extends ElementIteratorOrSource {
 

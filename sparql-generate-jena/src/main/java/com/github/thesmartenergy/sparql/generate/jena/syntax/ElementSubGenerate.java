@@ -25,7 +25,7 @@ import com.github.thesmartenergy.sparql.generate.jena.query.SPARQLGenerateQuery;
 /**
  * A SPARQL Generate sub-query.
  *
- * @author maxime.lefrancois
+ * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */
 public class ElementSubGenerate extends Element {
 

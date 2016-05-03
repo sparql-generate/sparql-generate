@@ -59,7 +59,7 @@ import org.apache.jena.util.FileManager;
  * The configuration entry point of SPARQL-Generate. Method {@link #init()} must
  * be called operated prior any further operation.
  *
- * @author maxime.lefrancois
+ * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */
 public final class SPARQLGenerate {
 
@@ -175,7 +175,7 @@ public final class SPARQLGenerate {
     /**
      * This class must be used instead of class <code>Syntax</code>.
      *
-     * @author maxime.lefrancois
+     * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
      */
     public static class SPARQLGenerateSyntax extends Syntax {
 

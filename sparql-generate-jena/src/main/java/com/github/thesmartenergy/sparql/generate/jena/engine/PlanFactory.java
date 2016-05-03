@@ -68,7 +68,7 @@ import com.github.thesmartenergy.sparql.generate.jena.iterator.IteratorFunctionF
  * query = (SPARQLGenerateQuery) QueryFactory.create(query, syntax);
  * }</pre>
  *
- * @author maxime.lefrancois
+ * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */
 public class PlanFactory {
 

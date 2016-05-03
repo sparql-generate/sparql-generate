@@ -21,7 +21,7 @@ import org.glassfish.jersey.server.ResourceConfig;
 
 /**
  *
- * @author maxime.lefrancois
+ * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */
 @ApplicationPath("api")
 public class JerseyApp extends ResourceConfig {

@@ -1,5 +1,5 @@
 BASE <http://example.org/> 
-PREFIX ite: <http://w3id.org/sparql-generate/ite/>
+PREFIX iter: <http://w3id.org/sparql-generate/iter/>
 PREFIX fn: <http://w3id.org/sparql-generate/fn/>
 
 GENERATE { 
@@ -13,7 +13,7 @@ GENERATE {
       _:country <capital> ?capital.
     }
     SOURCE <http://country.io/capital.json> AS ?source2
-    ITERATOR ite:JSONListKeys(?source) AS ?key2
+    ITERATOR iter:JSONListKeys(?source) AS ?key2
      WHERE {
       FILTER (?key=?key2)
       BIND(CONCAT('$.', ?key2) AS ?query2)
@@ -26,7 +26,7 @@ GENERATE {
 
 }
 SOURCE <http://country.io/names.json> AS ?source
-ITERATOR ite:JSONListKeys(?source) AS ?key
+ITERATOR iter:JSONListKeys(?source) AS ?key
 WHERE {
    FILTER(STRSTARTS(?key,"F"))
    BIND(CONCAT('$.', ?key) AS ?query)

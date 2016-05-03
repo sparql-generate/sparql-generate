@@ -18,6 +18,6 @@
  * Create an execution plan with {@link GenerationPlanFactory}, and
  * execute it using one of the {@code exec} methods.
  *
- * @author maxime.lefrancois
+ * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */
 package com.github.thesmartenergy.sparql.generate.jena.engine;

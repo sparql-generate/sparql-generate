@@ -32,7 +32,7 @@ import org.apache.log4j.Logger;
 /**
  * The GENERATE {...} template.
  *
- * @author maxime.lefrancois
+ * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */
 public class GenerateTemplatePlanImpl extends PlanBase implements GeneratePlan {
 

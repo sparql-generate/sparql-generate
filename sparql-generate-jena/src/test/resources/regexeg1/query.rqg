@@ -1,5 +1,5 @@
 BASE <http://example.org/> 
-PREFIX ite: <http://w3id.org/sparql-generate/ite/>
+PREFIX iter: <http://w3id.org/sparql-generate/iter/>
 PREFIX fn: <http://w3id.org/sparql-generate/fn/>
 PREFIX gn: <http://www.geonames.org/ontology#>
 PREFIX ex: <http://example.com/> 
@@ -9,7 +9,7 @@ GENERATE {
               ex:dob ?dob .
 }
 SOURCE <http://www.example.com/student.txt> AS ?source
-ITERATOR ite:Split(?source,"#") AS ?student
+ITERATOR iter:Split(?source,"#") AS ?student
 WHERE {
     BIND(IRI(CONCAT("http://example.com/",fn:SplitAtPosition(?student,"-",0))) as ?studentIRI)
     BIND(fn:SplitAtPosition(?student,"-",1) as ?name)

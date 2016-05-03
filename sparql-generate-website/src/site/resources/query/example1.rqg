@@ -1,11 +1,11 @@
 BASE <http://example.org/>
 PREFIX fn: <http://w3id.org/sparql-generate/fn/>
-PREFIX ite: <http://w3id.org/sparql-generate/ite/>
+PREFIX iter: <http://w3id.org/sparql-generate/iter/>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
 GENERATE {
  <s> ?keyiri ?valuedec .
-} ITERATOR ite:JSONListKeys( ?message ) AS ?key 
+} ITERATOR iter:JSONListKeys( ?message ) AS ?key 
 WHERE {
  BIND( IRI( ?key ) AS ?keyiri )
  BIND( fn:JSONPath( ?message , CONCAT( "$." , ?key )) AS ?value ) 

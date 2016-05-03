@@ -1,5 +1,5 @@
 BASE <http://example.org/> 
-PREFIX ite: <http://w3id.org/sparql-generate/ite/>
+PREFIX iter: <http://w3id.org/sparql-generate/iter/>
 PREFIX fn: <http://w3id.org/sparql-generate/fn/>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> 
 PREFIX ex: <http://www.example.com/>
@@ -20,7 +20,7 @@ GENERATE {
            simres:LibraryName ?libName .
 }
 SOURCE <http://example.com/simergy.xml> AS ?source
-ITERATOR ite:XPath(?source, "//*[local-name()='SimAppLibraryDefault_AppLibraryDefault_GlobalLibrary' and namespace-uri()='http://www.lbl.gov/namespaces/Sim/Model/']" ) AS ?model
+ITERATOR iter:XPath(?source, "//*[local-name()='SimAppLibraryDefault_AppLibraryDefault_GlobalLibrary' and namespace-uri()='http://www.lbl.gov/namespaces/Sim/Model/']" ) AS ?model
 WHERE {
     BIND( fn:XPath(?model,"/*[local-name()='SimAppLibraryDefault_AppLibraryDefault_GlobalLibrary' and namespace-uri()='http://www.lbl.gov/namespaces/Sim/Model/']/@*[local-name()='RefId' ]" ) AS ?refId )
     BIND( fn:XPath(?model,"/*[local-name()='SimAppLibraryDefault_AppLibraryDefault_GlobalLibrary' and namespace-uri()='http://www.lbl.gov/namespaces/Sim/Model/']/*[local-name()='SimModelType' and namespace-uri()='http://www.lbl.gov/namespaces/Sim/ResourcesGeneral']/text()" ) AS ?type )

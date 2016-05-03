@@ -24,7 +24,7 @@ import org.apache.commons.cli.ParseException;
 
 /**
  *
- * @author Noorani Bakerally
+ * @author Noorani Bakerally <noorani.bakerally at emse.fr>
  */
 public class CMDConfigurations {
     public static CommandLine parseArguments(String[] args) throws ParseException {

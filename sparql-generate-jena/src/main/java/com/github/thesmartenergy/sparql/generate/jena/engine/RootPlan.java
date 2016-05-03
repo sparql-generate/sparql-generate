@@ -84,7 +84,7 @@ import org.apache.jena.rdf.model.Model;
  * }</pre>
  *
  *
- * @author maxime.lefrancois
+ * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */
 public interface RootPlan extends GeneratePlan, GenerateTemplateElementPlan {
 

@@ -35,7 +35,7 @@ import com.github.thesmartenergy.sparql.generate.jena.engine.SelectPlan;
 /**
  * Entry point to a SPARQL Generate query execution.
  *
- * @author maxime.lefrancois
+ * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */
 public final class RootPlanImpl extends PlanBase implements RootPlan, GeneratePlan, GenerateTemplateElementPlan {
 

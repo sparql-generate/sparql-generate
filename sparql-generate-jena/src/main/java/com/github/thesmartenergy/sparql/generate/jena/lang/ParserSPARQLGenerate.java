@@ -34,7 +34,7 @@ import org.apache.log4j.Logger;
  * SPARQLGenerateQuery q = (SPARQLGenerateQuery) QueryFactory.create(query, SPARQLGenerate.SYNTAX);
  * }</pre>
  * 
- * @author maxime.lefrancois
+ * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */
 public class ParserSPARQLGenerate extends SPARQLParser {
 

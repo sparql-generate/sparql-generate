@@ -29,9 +29,17 @@ import org.apache.log4j.Logger;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
 
+/**
+ * A SPARQL Binding Function that generates a blank node, which is the same
+ * accross the different query solutions.
+ *
+ * {@code <http://w3id.org/sparql-generate/fn/bnode>}.
+ *
+ * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
+ */
 public class FN_BNode2 extends FunctionBase1 {
-    
-    public static Map<String,String> map = new HashMap<>() ;
+
+    public static Map<String, String> map = new HashMap<>();
 
     /**
      * The logger.
@@ -43,11 +51,18 @@ public class FN_BNode2 extends FunctionBase1 {
      */
     public static final String URI = SPARQLGenerate.FN + "bnode";
 
+    /**
+     * generates a blank node, which is the same accross the different query
+     * solutions.
+     *
+     * @param node A literal node identifier for the blank node.
+     * @return
+     */
     @Override
     public NodeValue exec(NodeValue node) {
         String input = (String) node.asNode().getLiteralValue();
-        if(!map.containsKey(input)) {
-            String hash = new BigInteger(120, new Random()).toString(32); 
+        if (!map.containsKey(input)) {
+            String hash = new BigInteger(120, new Random()).toString(32);
             map.put(input, hash);
         }
         Node n = NodeFactory.createBlankNode(map.get(input));

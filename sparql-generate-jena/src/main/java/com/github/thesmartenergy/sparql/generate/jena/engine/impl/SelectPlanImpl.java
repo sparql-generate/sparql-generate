@@ -36,7 +36,7 @@ import org.apache.log4j.Logger;
 /**
  * Executes the SPARQL SELECT query.
  *
- * @author maxime.lefrancois
+ * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */
 public class SelectPlanImpl extends PlanBase implements SelectPlan {
 

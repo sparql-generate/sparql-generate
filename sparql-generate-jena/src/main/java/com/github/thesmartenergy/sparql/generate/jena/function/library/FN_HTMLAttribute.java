@@ -24,22 +24,13 @@ import org.apache.log4j.Logger;
 import org.jsoup.Jsoup;
 
 /**
- * A SPARQL function that extracts an attribute from an HTML element 
- * The function URI is {@code <http://w3id.org/sparql-generate/fn/HTMLAttribute>}.
- * It takes two parameters as input:
- * <ul>
- * <li>{@param html} a RDF Literal with datatype URI
- * {@code <urn:iana:mime:text/html>} representing the source HTML document</li>
- * <li>{@param attributeName} a RDF Literal with datatype {@code xsd:string} representing name of the attribute to be extracted
- * from the HTML element {@param html}
- * </li>
- * </ul>
- * and a RDF Literal with datatype URI {@code xsd:string} .
+ * A SPARQL function that extracts an attribute from an HTML element The
+ * function URI is {@code <http://w3id.org/sparql-generate/fn/HTMLAttribute>}.
  *
- * @author Noorani Bakerally
+ * @author Noorani Bakerally <noorani.bakerally at emse.fr>
  */
-public class FN_HTMLAttribute extends FunctionBase2{
-     //TODO write multiple unit tests for this class.
+public class FN_HTMLAttribute extends FunctionBase2 {
+    //TODO write multiple unit tests for this class.
 
     /**
      * The logger.
@@ -57,7 +48,15 @@ public class FN_HTMLAttribute extends FunctionBase2{
     private static final String datatypeUri = "urn:iana:mime:text/html";
 
     /**
-     * {@inheritDoc }
+     *
+     * @param html a RDF Literal with datatype URI
+     * {@code <urn:iana:mime:text/html>} or {@code xsd:string} representing the
+     * source HTML document
+     * @param attributeName a RDF Literal with datatype {@code xsd:string}
+     * representing name of the attribute to be extracted from the HTML element
+     * {
+     * @param html}
+     * @return a RDF Literal with datatype URI {@code xsd:string}
      */
     public NodeValue exec(NodeValue html, NodeValue attributeName) {
         if (html.getDatatypeURI() == null
@@ -69,21 +68,20 @@ public class FN_HTMLAttribute extends FunctionBase2{
                     + "or <http://www.w3.org/2001/XMLSchema#string>."
                     + " Returning null.");
         }
-      
+
         try {
             String sourceHtml = String.valueOf(html.asNode().getLiteralValue());
             org.jsoup.nodes.Document htmldoc = Jsoup.parse(sourceHtml);
-            
+
             String attributeNameValue = String.valueOf(attributeName.asNode().getLiteralValue());
-            
+
             String attributeValue = htmldoc.body().child(0).attributes().get(attributeNameValue);
             return new NodeValueString(attributeValue);
-            
-            
+
         } catch (Exception e) {
-            LOG.debug("Error:HTML Tag "+e.getMessage());
+            LOG.debug("Error:HTML Tag " + e.getMessage());
             throw new ExprEvalException("FunctionBase: no evaluation", e);
         }
     }
-    
+
 }

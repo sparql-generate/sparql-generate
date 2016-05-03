@@ -1,5 +1,5 @@
 BASE <http://example.org/> 
-PREFIX ite: <http://w3id.org/sparql-generate/ite/>
+PREFIX iter: <http://w3id.org/sparql-generate/iter/>
 PREFIX fn: <http://w3id.org/sparql-generate/fn/>
 PREFIX country:<http://loc.example.com/city/>
 PREFIX schema: <http://schema.org/>
@@ -13,7 +13,7 @@ GENERATE {
     ?this2 a rdf:List;rdf:first ?att2;rdf:rest ?rest2 .
 }
 SOURCE <http://example.com/list.json> AS ?source
-ITERATOR ite:JSONElement(?source,"$.att[*]") AS ?key
+ITERATOR iter:JSONElement(?source,"$.att[*]") AS ?key
 WHERE {
     BIND(xsd:decimal(fn:JSONPath(?key, "$.position" )) AS ?position)
     BIND(xsd:boolean(fn:JSONPath(?key, "$.hasNext" )) AS ?hasNext)

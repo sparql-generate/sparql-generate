@@ -21,7 +21,7 @@ import org.apache.jena.sparql.syntax.Element;
 /**
  * A SPARQL Generate {@code SOURCE} or {@code ITERATOR} clause.
  * 
- * @author maxime.lefrancois
+ * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */
 public abstract class ElementIteratorOrSource extends Element {
     

@@ -1,5 +1,5 @@
 BASE <http://example.org/> 
-PREFIX ite: <http://w3id.org/sparql-generate/ite/>
+PREFIX iter: <http://w3id.org/sparql-generate/iter/>
 PREFIX fn: <http://w3id.org/sparql-generate/fn/>
 PREFIX country:<http://loc.example.com/city/>
 PREFIX schema: <http://schema.org/>
@@ -16,7 +16,7 @@ GENERATE {
 
 }
 SOURCE <http://example.com/airport.csv> AS ?source
-ITERATOR ite:CSV(?source) AS ?bus
+ITERATOR iter:CSV(?source) AS ?bus
 WHERE {
     BIND( fn:CSV(?bus, "id" ) AS ?id )
     BIND( fn:CSV(?bus, "stop" ) AS ?route )

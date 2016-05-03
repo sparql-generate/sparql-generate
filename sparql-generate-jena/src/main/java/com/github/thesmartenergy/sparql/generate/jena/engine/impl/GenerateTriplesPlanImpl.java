@@ -29,7 +29,7 @@ import org.apache.log4j.Logger;
 /**
  * Generates a triples block in the {@code GENERATE} clause.
  *
- * @author maxime.lefrancois
+ * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */
 public class GenerateTriplesPlanImpl
         extends PlanBase implements GenerateTemplateElementPlan {

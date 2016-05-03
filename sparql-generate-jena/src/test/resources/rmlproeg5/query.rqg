@@ -1,5 +1,5 @@
 BASE <http://example.org/> 
-PREFIX ite: <http://w3id.org/sparql-generate/ite/>
+PREFIX iter: <http://w3id.org/sparql-generate/iter/>
 PREFIX fn: <http://w3id.org/sparql-generate/fn/>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
@@ -11,7 +11,7 @@ GENERATE {
     
 }
 SOURCE <http://example.com/museum.json> AS ?source
-ITERATOR ite:JSONPath(?source,"$[*]") AS ?work
+ITERATOR iter:JSONPath(?source,"$[*]") AS ?work
 WHERE {
     BIND (fn:JSONPath(?work,"$.Artist") AS ?artist)
     BIND (IRI(CONCAT("http://ex.com/",?artist)) as ?artistIRI)

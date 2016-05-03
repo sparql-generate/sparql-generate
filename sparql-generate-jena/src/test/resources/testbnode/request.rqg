@@ -1,5 +1,5 @@
 BASE <http://example.org/> 
-PREFIX ite: <http://w3id.org/sparql-generate/ite/>
+PREFIX iter: <http://w3id.org/sparql-generate/iter/>
 PREFIX fn: <http://w3id.org/sparql-generate/fn/>
 PREFIX country:<http://loc.example.com/city/>
 PREFIX schema: <http://schema.org/>
@@ -16,8 +16,8 @@ GENERATE {
      foaf:knows ?p2 .
  ?p2 foaf:name ?name2 .
 }
-ITERATOR ite:XPath(?msg,"/relations/person") AS ?person1
-ITERATOR ite:XPath(?person1,"/person/knows") AS ?person2
+ITERATOR iter:XPath(?msg,"/relations/person") AS ?person1
+ITERATOR iter:XPath(?person1,"/person/knows") AS ?person2
 WHERE {
  BIND( fn:XPath(?person1, "/person/@name")  AS ?name1 )
  BIND( fn:XPath(?person2, "/knows")  AS ?name2 )

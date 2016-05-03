@@ -23,7 +23,7 @@ import org.apache.jena.sparql.core.Var;
 
 /**
  * The GENERATE Clause
- * @author maxime.lefrancois
+ * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */
 public interface GeneratePlan {
 

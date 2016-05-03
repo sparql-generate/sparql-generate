@@ -52,7 +52,7 @@ import org.apache.jena.rdf.model.RDFNode;
 
 /**
  *
- * @author maxime.lefrancois
+ * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */
 @Path("/fetch")
 public class Fetch extends HttpServlet {

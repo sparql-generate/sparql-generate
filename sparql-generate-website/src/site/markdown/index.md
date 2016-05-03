@@ -69,11 +69,11 @@ As a simple example, the following SPARQL-Generate query,
 
 ```
 BASE <http://example.org/>
-PREFIX rqg:ite: <http://w3id.org/sparql-generate/ite/>
-PREFIX rqg:ite: <http://w3id.org/sparql-generate/ite/>
+PREFIX rqg:iter: <http://w3id.org/sparql-generate/iter/>
+PREFIX rqg:iter: <http://w3id.org/sparql-generate/iter/>
 GENERATE 
   { <> ?p ?o . }
-ITERATOR ite:JSONListKeys(?doc) AS ?key
+ITERATOR iter:JSONListKeys(?doc) AS ?key
 WHERE
   { 
     BIND( uri( ?key ) AS ?p )

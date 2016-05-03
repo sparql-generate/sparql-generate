@@ -1,4 +1,4 @@
-PREFIX ite: <http://w3id.org/sparql-generate/ite/>
+PREFIX iter: <http://w3id.org/sparql-generate/iter/>
 PREFIX fn: <http://w3id.org/sparql-generate/fn/>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX bibo:    <http://purl.org/ontology/bibo/> 
@@ -15,7 +15,7 @@ GENERATE {
 
 }
 SOURCE <http://example.com/example.csv> AS ?countries
-ITERATOR ite:CSV(?countries) AS ?countryInfo
+ITERATOR iter:CSV(?countries) AS ?countryInfo
 WHERE {
     BIND(fn:CSV(?countryInfo, "id" ) AS ?id )
     BIND(IRI(CONCAT("http://www.ex.com/paper/",?id)) as ?paperIRI)

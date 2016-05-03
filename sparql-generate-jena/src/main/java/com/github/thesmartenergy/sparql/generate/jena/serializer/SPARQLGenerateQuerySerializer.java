@@ -30,7 +30,7 @@ import com.github.thesmartenergy.sparql.generate.jena.syntax.ElementSource;
 /**
  * Extends the ARQ Query Serializer with SPARQL Generate specificities.
  * 
- * @author maxime.lefrancois
+ * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */
 public class SPARQLGenerateQuerySerializer implements com.github.thesmartenergy.sparql.generate.jena.query.SPARQLGenerateQueryVisitor {
 

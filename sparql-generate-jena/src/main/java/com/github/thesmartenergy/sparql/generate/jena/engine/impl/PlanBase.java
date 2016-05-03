@@ -24,7 +24,7 @@ import org.apache.jena.sparql.engine.binding.BindingHashMap;
 /**
  * One execution.
  *
- * @author maxime.lefrancois
+ * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */
 abstract class PlanBase {
 

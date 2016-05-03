@@ -32,7 +32,6 @@ import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.NodeValue;
-import org.apache.jena.sparql.expr.nodevalue.NodeValueNode;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
@@ -46,25 +45,16 @@ import org.apache.jena.sparql.expr.nodevalue.NodeValueString;
 import java.math.BigDecimal;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.dom.DOMSource; 
+import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 /**
- * A SPARQL Iterator function that extracts a list of sub-XML elements of a
- * XML root element, according to a XPath expression. The Iterator function URI is
- * {@code <http://w3id.org/sparql-generate/ite/XPath>}.
- * It takes two parameters as input:
- * <ul>
- * <li> {@param  xml} a RDF Literal with datatype URI
- * {@code <urn:iana:mime:application/xml>} representing the source XML document</li>
- * <li>{@param  json} a RDF Literal with datatype {@code xsd:string} representing the XPath</li>
- * </ul>
- * and returns a list of RDF Literal with datatype URI
+ * A SPARQL Iterator function that extracts a list of sub-XML elements of a XML
+ * root element, according to a XPath expression. The Iterator function URI is
+ * {@code <http://w3id.org/sparql-generate/iter/XPath>}.
  * {@code <urn:iana:mime:application/xml>}.
  *
- * @author maxime.lefrancois
+ * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */
 public class ITE_XPath extends IteratorFunctionBase2 {
 
@@ -83,6 +73,14 @@ public class ITE_XPath extends IteratorFunctionBase2 {
      */
     private static final String datatypeUri = "urn:iana:mime:application/xml";
 
+    /**
+     *
+     * @param xml a RDF Literal with datatype URI
+     * @param v2 a RDF Literal with datatype {@code xsd:string} representing the
+     * XPath
+     * @return a list of RDF Literal with datatype URI
+     * {@code <urn:iana:mime:application/xml>}.
+     */
     @Override
     public List<NodeValue> exec(NodeValue xml, NodeValue v2) {
         if (xml.getDatatypeURI() == null
@@ -104,47 +102,44 @@ public class ITE_XPath extends IteratorFunctionBase2 {
             Document document = builder
                     .parse(new ByteArrayInputStream(
                             xml.asNode().getLiteralLexicalForm().getBytes()));
-            
-            XPath xPath =  XPathFactory.newInstance().newXPath();
-            
-            
+
+            XPath xPath = XPathFactory.newInstance().newXPath();
+
             NodeList nodeList = (NodeList) xPath
                     .compile(v2.getString())
                     .evaluate(document, XPathConstants.NODESET);
-            
-            
+
             //will contain the final results
             List<NodeValue> nodeValues = new ArrayList<>(nodeList.getLength());
-            LOG.debug("===> Number of iterations for "+v2+" "+nodeList.getLength());
-            
-            for (int i=0;i<nodeList.getLength();i++) {
-                
+            LOG.debug("===> Number of iterations for " + v2 + " " + nodeList.getLength());
+
+            for (int i = 0; i < nodeList.getLength(); i++) {
+
                 org.w3c.dom.Node xmlNode = nodeList.item(i);
-             
+
                 RDFDatatype dt = TypeMapper.getInstance()
                         .getSafeTypeByName(datatypeUri);
                 /*
                 Node node = NodeFactory.createLiteral(xmlNode.getNodeValue(), dt);
                 NodeValue nodeValue = new NodeValueNode(node);
                 nodeValues.add(nodeValue);
-                */
+                 */
                 NodeValue nodeValue = null;
-                Object value   = xmlNode.getNodeValue();
-               if (value instanceof Float) {
-                   nodeValue = new NodeValueFloat((Float) value);
-               } else if (value instanceof Boolean) {
-                   nodeValue = new NodeValueBoolean((Boolean) value);
-               } else if (value instanceof Integer) {
-                   nodeValue = new NodeValueInteger((Integer) value);
-               } else if (value instanceof Double) {
-                   nodeValue = new NodeValueDouble((Double) value);
-               } else if (value instanceof BigDecimal) {
-                   nodeValue = new NodeValueDecimal((BigDecimal) value);
-               } else if (value instanceof String) {
-                   nodeValue = new NodeValueString((String) value);
-               } 
-               else {
-                   
+                Object value = xmlNode.getNodeValue();
+                if (value instanceof Float) {
+                    nodeValue = new NodeValueFloat((Float) value);
+                } else if (value instanceof Boolean) {
+                    nodeValue = new NodeValueBoolean((Boolean) value);
+                } else if (value instanceof Integer) {
+                    nodeValue = new NodeValueInteger((Integer) value);
+                } else if (value instanceof Double) {
+                    nodeValue = new NodeValueDouble((Double) value);
+                } else if (value instanceof BigDecimal) {
+                    nodeValue = new NodeValueDecimal((BigDecimal) value);
+                } else if (value instanceof String) {
+                    nodeValue = new NodeValueString((String) value);
+                } else {
+
                     TransformerFactory tFactory = TransformerFactory.newInstance();
                     Transformer transformer = tFactory.newTransformer();
                     DOMSource source = new DOMSource(xmlNode);
@@ -152,8 +147,8 @@ public class ITE_XPath extends IteratorFunctionBase2 {
                     transformer.transform(source, new StreamResult(writer));
                     Node node = NodeFactory.createLiteral(writer.getBuffer().toString(), dt);
                     nodeValue = new NodeValueNode(node);
-               } 
-               nodeValues.add(nodeValue);
+                }
+                nodeValues.add(nodeValue);
             }
             return nodeValues;
         } catch (Exception e) {

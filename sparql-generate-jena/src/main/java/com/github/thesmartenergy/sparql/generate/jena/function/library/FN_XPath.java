@@ -34,21 +34,14 @@ import org.apache.jena.sparql.expr.nodevalue.NodeValueDouble;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueFloat;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueInteger;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueString;
+
 /**
  * A SPARQL Function that extracts a string from a XML document, according to a
  * XPath expression. The Function URI is
  * {@code <http://w3id.org/sparql-generate/fn/XPath>}.
- * It takes two parameters as input:
- * <ul>
- * <li>{@param xml}a RDF Literal with datatype URI
- * {@code <urn:iana:mime:application/xml>} representing the source XML document</li>
- * <li>{@param xpath} a RDF Literal with datatype {@code xsd:string} representing the XPath expression to
- * be evaluated on the XML document
- * </li>
- * </ul>
- * and returns a RDF Literal with datatype being the type of the object extracted from the XML document
  *
- * @author maxime.lefrancois
+ *
+ * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */
 public class FN_XPath extends FunctionBase2 {
     //TODO write multiple unit tests for this class.
@@ -69,7 +62,14 @@ public class FN_XPath extends FunctionBase2 {
     private static final String datatypeUri = "urn:iana:mime:application/xml";
 
     /**
-     * {@inheritDoc }
+     *
+     * @param xml a RDF Literal with datatype URI
+     * {@code <urn:iana:mime:application/xml>} pr {@code xsd:string}
+     * representing the source XML document
+     * @param xpath a RDF Literal with datatype {@code xsd:string} representing
+     * the XPath expression to be evaluated on the XML document
+     * @return a RDF Literal with datatype being the type of the object
+     * extracted from the XML document
      */
     @Override
     public NodeValue exec(NodeValue xml, NodeValue xpath) {
@@ -82,7 +82,7 @@ public class FN_XPath extends FunctionBase2 {
                     + "or <http://www.w3.org/2001/XMLSchema#string>."
                     + " Returning null.");
         }
-        LOG.debug("===========> "+xpath);
+        LOG.debug("===========> " + xpath);
         DocumentBuilderFactory builderFactory
                 = DocumentBuilderFactory.newInstance();
         builderFactory.setNamespaceAware(true);
@@ -93,25 +93,25 @@ public class FN_XPath extends FunctionBase2 {
                     xml.asNode().getLiteralLexicalForm().getBytes());
             Document document = builder.parse(in);
 
-            XPath xPath =  XPathFactory.newInstance().newXPath();
+            XPath xPath = XPathFactory.newInstance().newXPath();
             //Node node = (Node) xPath.compile(xpath.getString()).evaluate(document, XPathConstants.NODE);
-           Object value =  xPath.compile(xpath.getString()).evaluate(document);
+            Object value = xPath.compile(xpath.getString()).evaluate(document);
             if (value instanceof String) {
-                   return new NodeValueString((String) value);
-               } else if (value instanceof Float) {
-                   return new NodeValueFloat((Float) value);
-               } else if (value instanceof Boolean) {
-                   return new NodeValueBoolean((Boolean) value);
-               } else if (value instanceof Integer) {
-                   return new NodeValueInteger((Integer) value);
-               } else if (value instanceof Double) {
-                   return new NodeValueDouble((Double) value);
-               } else if (value instanceof BigDecimal) {
-                   return new NodeValueDecimal((BigDecimal) value);
-               }
+                return new NodeValueString((String) value);
+            } else if (value instanceof Float) {
+                return new NodeValueFloat((Float) value);
+            } else if (value instanceof Boolean) {
+                return new NodeValueBoolean((Boolean) value);
+            } else if (value instanceof Integer) {
+                return new NodeValueInteger((Integer) value);
+            } else if (value instanceof Double) {
+                return new NodeValueDouble((Double) value);
+            } else if (value instanceof BigDecimal) {
+                return new NodeValueDecimal((BigDecimal) value);
+            }
             return new NodeValueString(String.valueOf(value));
         } catch (Exception e) {
-            LOG.debug("Error:XPATJ "+e.getMessage());
+            LOG.debug("Error:XPATJ " + e.getMessage());
             throw new ExprEvalException("FunctionBase: no evaluation", e);
         }
     }

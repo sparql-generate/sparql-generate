@@ -16,49 +16,17 @@
 package com.github.thesmartenergy.sparql.generate.jena.function.library;
 
 import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.FileReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathFactory;
-import org.apache.jena.graph.Node;
-import java.math.BigDecimal;
-import java.util.Map;
-import static org.apache.jena.query.ResultSetFactory.result;
-import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.NodeValue;
-import org.apache.jena.sparql.expr.nodevalue.NodeValueString;
-import org.apache.jena.sparql.function.FunctionBase2;
 import org.apache.log4j.Logger;
-import org.w3c.dom.Document;
-import org.apache.jena.sparql.expr.nodevalue.NodeValueBoolean;
-import org.apache.jena.sparql.expr.nodevalue.NodeValueDecimal;
-import org.apache.jena.sparql.expr.nodevalue.NodeValueDouble;
-import org.apache.jena.sparql.expr.nodevalue.NodeValueFloat;
-import org.apache.jena.sparql.expr.nodevalue.NodeValueInteger;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueString;
 import org.apache.jena.sparql.function.FunctionBase3;
-import org.supercsv.cellprocessor.ift.CellProcessor;
-import org.supercsv.io.CsvListReader;
-import org.supercsv.io.CsvMapReader;
-import org.supercsv.io.ICsvListReader;
-import org.supercsv.prefs.CsvPreference;
+
 /**
- * A SPARQL Function that extracts part of a string from another string, based on a
- * regular expression and position. The Function URI is
+ * A SPARQL Function that extracts part of a string from another string, based
+ * on a regular expression and position. The Function URI is
  * {@code <http://w3id.org/sparql-generate/fn/SplitAtPosition>}.
- * It takes three parameters as input:
- * <ul>
- * <li>{@param string} a RDF Literal with datatype {@code xsd:string} for the source string </li>
- * <li>{@param regex} a RDF Literal with datatype {@code xsd:string} for the regular expression </li>
- * <li>{@param position} a RDF Literal with datatype {@code xsd:int} for index of the array of string obtained after splitting </li>
- * </ul>
- * @author Noorani Bakerally
+ *
+ * @author Noorani Bakerally <noorani.bakerally at emse.fr>
  */
 public class FN_SplitAtPostion extends FunctionBase3 {
     //TODO write multiple unit tests for this class.
@@ -67,18 +35,24 @@ public class FN_SplitAtPostion extends FunctionBase3 {
      * The logger.
      */
     private static final Logger LOG = Logger.getLogger(FN_SplitAtPostion.class);
-    
-    
+
     /**
      * The SPARQL function URI.
      */
-   public static final String URI = SPARQLGenerate.FN + "SplitAtPosition";
+    public static final String URI = SPARQLGenerate.FN + "SplitAtPosition";
 
     /**
-     * {@inheritDoc }
+     *
+     * @param string a RDF Literal with datatype {@code xsd:string} for the
+     * source string
+     * @param regex a RDF Literal with datatype {@code xsd:string} for the
+     * regular expression
+     * @param position a RDF Literal with datatype {@code xsd:int} for index of
+     * the array of string obtained after splitting
+     * @return 
      */
     public NodeValue exec(NodeValue string, NodeValue regex, NodeValue position) {
-        String [] splits = string.getString().split(regex.getString());
+        String[] splits = string.getString().split(regex.getString());
         NodeValue nodeValue = new NodeValueString(splits[position.getInteger().intValue()]);
         //NodeValue nodeValue = new NodeValueString(position.getString);
         return nodeValue;

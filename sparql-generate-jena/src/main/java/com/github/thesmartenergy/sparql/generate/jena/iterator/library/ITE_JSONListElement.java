@@ -15,7 +15,6 @@
  */
 package com.github.thesmartenergy.sparql.generate.jena.iterator.library;
 
-
 import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
 import com.google.gson.Gson;
 import com.jayway.jsonpath.Configuration;
@@ -41,26 +40,10 @@ import org.apache.log4j.Logger;
 
 /**
  * A SPARQL Iterator function that extracts a list of sub-JSON documents of a
- * JSON document, according to a JSONPath expression. The Iterator function URI is
- * {@code <http://w3id.org/sparql-generate/ite/JSONElement>}.
- * It takes two parameters as input:
- * <ul>
- * <li>{@param json} a RDF Literal with datatype URI
- * {@code <urn:iana:mime:application/json>}</li>
- * <li>{@param jsonquery} a RDF Literal with datatype {@code xsd:string}</li>
- * </ul>
- * and returns a list of RDF Literal with datatype URI
- * {@code <urn:iana:mime:application/json>}.
- * For this iterator function, the returned RDF literal has a specific 
- * JSON Structure. The structure is {"element":elementValue,"position":position,"hasNext":hasNextValue}
- * where:
- * <ul>
- * <li>elementValue: a JSON element selected according to JSON query</li>
- * <li>position: an integer corresponding to the location of the JSON element is the list of generated elements according
- * to the JSON query</li>
- * <li>hasNext: a boolean indicating there is another element after the current element </li>
- * </ul>
- * @author Noorani Bakerally
+ * JSON document, according to a JSONPath expression. The Iterator function URI
+ * is {@code <http://w3id.org/sparql-generate/iter/JSONElement>}.
+ *
+ * @author Noorani Bakerally <noorani.bakerally at emse.fr>
  */
 public class ITE_JSONListElement extends IteratorFunctionBase2 {
 
@@ -104,7 +87,23 @@ public class ITE_JSONListElement extends IteratorFunctionBase2 {
     private static final String datatypeUri = "urn:iana:mime:application/json";
 
     /**
-     * {@inheritDoc }
+     *
+     * @param json a RDF Literal with datatype URI
+     * {@code <urn:iana:mime:application/json>} or {@code xsd:string}
+     * @param jsonquery a RDF Literal with datatype {@code xsd:string}
+     * @return a list of RDF Literal with datatype URI
+     * {@code <urn:iana:mime:application/json>}. For this iterator function, the
+     * returned RDF literal has a specific JSON Structure. The structure is
+     * {@code {"element":elementValue,"position":position,"hasNext":hasNextValue}}
+     * where:
+     * <ul>
+     * <li>elementValue: a JSON element selected according to JSON query</li>
+     * <li>position: an integer corresponding to the location of the JSON
+     * element is the list of generated elements according to the JSON
+     * query</li>
+     * <li>hasNext: a boolean indicating there is another element after the
+     * current element </li>
+     * </ul>
      */
     @Override
     public List<NodeValue> exec(NodeValue json, NodeValue jsonquery) {
@@ -128,27 +127,26 @@ public class ITE_JSONListElement extends IteratorFunctionBase2 {
                     .read(jsonquery.getString());
             List<NodeValue> nodeValues = new ArrayList<>(values.size());
             Gson gson = new Gson();
-            
-            int position=0;
+
+            int position = 0;
             for (Object value : values) {
                 RDFDatatype dt = TypeMapper.getInstance().getSafeTypeByName(datatypeUri);
                 String jsonstring = gson.toJson(value);
                 String structure = "{\"element\":elementValue,\"position\":intPos,\"hasNext\":hasNextValue}";
-                
-                
-                structure = structure.replaceAll("intPos",String.valueOf(position));
-                if (position < values.size()-1){
-                    structure = structure.replaceAll("hasNextValue","true");
+
+                structure = structure.replaceAll("intPos", String.valueOf(position));
+                if (position < values.size() - 1) {
+                    structure = structure.replaceAll("hasNextValue", "true");
                 } else {
-                    structure = structure.replaceAll("hasNextValue","false");
+                    structure = structure.replaceAll("hasNextValue", "false");
                 }
-                structure = structure.replaceAll("elementValue",jsonstring);
+                structure = structure.replaceAll("elementValue", jsonstring);
                 jsonstring = structure;
-                
+
                 Node node = NodeFactory.createLiteral(jsonstring, dt);
                 NodeValue nodeValue = new NodeValueNode(node);
                 nodeValues.add(nodeValue);
-                
+
                 position++;
             }
             return nodeValues;

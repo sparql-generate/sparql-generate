@@ -26,7 +26,7 @@ import org.apache.jena.sparql.core.QueryCompare;
 
 /**
  *
- * @author maxime.lefrancois
+ * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */
 public class SPARQLGenerateQuery extends Query {
 

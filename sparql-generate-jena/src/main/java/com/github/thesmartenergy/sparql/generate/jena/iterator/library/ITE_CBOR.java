@@ -41,19 +41,12 @@ import org.apache.jena.sparql.expr.nodevalue.NodeValueNode;
 import org.apache.log4j.Logger;
 
 /**
- * A SPARQL function that takes as an input a CBOR document, decodes it and extracts a list of sub-JSON documents 
- * according to a JSONPath expression. The Iterator function URI is
- * {@code <http://w3id.org/sparql-generate/ite/CBOR>}.
- * It takes two parameters as input:
- * <ul>
- * <li> {@param  cbor} a RDF Literal with datatype URI
- * {@code <urn:iana:mime:application/cbor>}</li>
- * <li>{@param jsonquery} a RDF Literal with datatype {@code xsd:string}</li>
- * </ul>
- * and returns a list of RDF Literal with datatype URI
- * {@code <urn:iana:mime:application/json>}.
+ * A SPARQL function that takes as an input a CBOR document, decodes it and
+ * extracts a list of sub-JSON documents according to a JSONPath expression.
+ * The Iterator function URI is
+ * {@code <http://w3id.org/sparql-generate/iter/CBOR>}.
  *
- * @author Noorani Bakerally
+ * @author Noorani Bakerally <noorani.bakerally at emse.fr>
  */
 public class ITE_CBOR extends IteratorFunctionBase2 {
 
@@ -97,7 +90,13 @@ public class ITE_CBOR extends IteratorFunctionBase2 {
     private static final String datatypeUri = "urn:iana:mime:application/cbor";
 
     /**
-     * {@inheritDoc }
+     * This method takes two parameters as input:
+     * 
+     * @param cbor a RDF Literal with datatype URI
+     * {@code <urn:iana:mime:application/cbor>} or {@code xsd:string}
+     * @param jsonpath a RDF Literal with datatype {@code xsd:string}
+     * @return a list of RDF Literal with datatype URI
+     * {@code <urn:iana:mime:application/json>}.
      */
     @Override
     public List<NodeValue> exec(NodeValue cbor, NodeValue jsonpath) {

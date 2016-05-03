@@ -41,7 +41,7 @@ import static org.junit.Assert.assertTrue;
 
 /**
  *
- * @author maxime.lefrancois
+ * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */
 public class TestBase {
 

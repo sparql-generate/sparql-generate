@@ -1,5 +1,5 @@
 BASE <http://example.org/> 
-PREFIX ite: <http://w3id.org/sparql-generate/ite/>
+PREFIX iter: <http://w3id.org/sparql-generate/iter/>
 PREFIX fn: <http://w3id.org/sparql-generate/fn/>
 PREFIX foaf: <http://xmlns.com/foaf/0.1/>
 GENERATE { 
@@ -10,14 +10,14 @@ GENERATE {
         ?knowsPersonNode a foaf:Person .
         ?knowsPersonNode foaf:name ?knowsPerson .
     }
-    ITERATOR rqg-ite:XPath(?person, "//knows" ) AS ?knows 
+    ITERATOR rqg-iter:XPath(?person, "//knows" ) AS ?knows 
     WHERE {
         BIND( rqg-fn:XPath(?knows,"/knows"  ) AS ?knowsPerson )
         BIND (BNODE(?knowsPerson) AS ?knowsPersonNode)
     } .
 }
 SOURCE <http://example.com/relations.xml> AS ?source
-ITERATOR ite:XPath(?source, "//person" ) AS ?person
+ITERATOR iter:XPath(?source, "//person" ) AS ?person
 WHERE {
     BIND( fn:XPath(?person,"/person/@name"  ) AS ?personName )
     BIND (BNODE(?personName) AS ?personNode)

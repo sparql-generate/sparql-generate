@@ -16,6 +16,6 @@
 /**
  * Implementations of classes to execute generation plans.
  *
- * @author maxime.lefrancois
+ * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */
 package com.github.thesmartenergy.sparql.generate.jena.engine.impl;
