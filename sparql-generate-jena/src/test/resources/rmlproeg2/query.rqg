@@ -16,10 +16,9 @@ GENERATE {
     ?dmy a ex:DateTime;
                 ex:day ?gDay;
                 ex:month ?gMonth;
-                ex:year ?gYear .  
-
-     ?noteIRI mail:when ?dmy .
-
+                ex:year ?gYear .       
+                
+    ?noteIRI mail:when ?dmy .
 }
 SOURCE <http://example.com/example1.xml> AS ?source
 ITERATOR ite:XPath(?source, "//note" ) AS ?note

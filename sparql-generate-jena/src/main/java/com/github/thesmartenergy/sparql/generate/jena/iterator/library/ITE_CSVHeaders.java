@@ -13,66 +13,76 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.thesmartenergy.sparql.generate.jena.function.library;
+package com.github.thesmartenergy.sparql.generate.jena.iterator.library;
 
 import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
-import java.io.BufferedReader;
+import com.github.thesmartenergy.sparql.generate.jena.iterator.IteratorFunctionBase1;
 import java.io.ByteArrayInputStream;
+import java.util.ArrayList;
+import com.github.thesmartenergy.sparql.generate.jena.iterator.IteratorFunctionBase2;
+import java.io.BufferedReader;
 import java.io.FileReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.StringWriter;
+import java.util.List;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
+import org.apache.jena.datatypes.RDFDatatype;
+import org.apache.jena.datatypes.TypeMapper;
 import org.apache.jena.graph.Node;
-import java.math.BigDecimal;
-import java.util.Map;
-import static org.apache.jena.query.ResultSetFactory.result;
+import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.NodeValue;
-import org.apache.jena.sparql.expr.nodevalue.NodeValueString;
-import org.apache.jena.sparql.function.FunctionBase2;
+import org.apache.jena.sparql.expr.nodevalue.NodeValueNode;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueBoolean;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueDecimal;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueDouble;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueFloat;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueInteger;
+import org.apache.jena.sparql.expr.nodevalue.NodeValueNode;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueString;
-import org.supercsv.cellprocessor.ift.CellProcessor;
-import org.supercsv.io.CsvListReader;
-import org.supercsv.io.CsvMapReader;
+import java.math.BigDecimal;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.dom.DOMSource; 
+import javax.xml.transform.stream.StreamResult;
 import org.supercsv.io.ICsvListReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.Map;
+import org.supercsv.io.CsvListReader;
+import org.supercsv.io.CsvListWriter;
+import org.supercsv.io.CsvMapReader;
 import org.supercsv.prefs.CsvPreference;
 
 /**
- * A SPARQL function that return a RDF literal. The function URI is
- * {@code <http://w3id.org/sparql-generate/fn/CSV>}.
- * It takes the following two parameters:
- * <ul>
- *      <li>{@param csv} the source CSV document(basically a single row) which is a RDF Literal with datatype URI
- * {@code <urn:iana:mime:text/csv>} </li>
- *      <li>{@param column} the column to be extracted from {@param csv} </li>
- * </ul>
- * and returns a RDF Literal with datatype URI 
- * {@code <urn:iana:mime:text/csv>} for the {@param column}.
+ * A SPARQL Iterator function that return a row of a CSV document, together with the header. The Iterator function URI is
+ * {@code <http://w3id.org/sparql-generate/ite/CSV>}.
+ * It takes one parameter as input which is the source CSV document which is a RDF Literal with datatype URI
+ * {@code <urn:iana:mime:text/csv>} 
+ * and returns a list of RDF Literal with datatype URI
+ * {@code <urn:iana:mime:text/csv>} for each row of the CSV document.
+ * @see com.github.thesmartenergy.sparql.generate.jena.function.library.FN_CustomCSV for CSV document with different dialects
  * @author Noorani Bakerally
  */
-public class FN_CSV extends FunctionBase2 {
-    //TODO write multiple unit tests for this class.
+public class ITE_CSVHeaders extends IteratorFunctionBase1 {
 
     /**
      * The logger.
      */
-    private static final Logger LOG = Logger.getLogger(FN_CSV.class);
+    private static final Logger LOG = Logger.getLogger(ITE_CSVHeaders.class);
 
     /**
      * The SPARQL function URI.
      */
-    public static final String URI = SPARQLGenerate.FN + "CSV";
+    public static final String URI = SPARQLGenerate.ITE + "CSVHeaders";
 
     /**
      * The datatype URI of the first parameter and the return literals.
@@ -83,9 +93,8 @@ public class FN_CSV extends FunctionBase2 {
      * {@inheritDoc }
      */
     @Override
-    public NodeValue exec(NodeValue csv, NodeValue column) {
-        
-        
+    public List<NodeValue> exec(NodeValue csv) {
+       
         if (csv.getDatatypeURI() == null
                 && datatypeUri == null
                 || csv.getDatatypeURI() != null
@@ -95,9 +104,10 @@ public class FN_CSV extends FunctionBase2 {
                     + "or <http://www.w3.org/2001/XMLSchema#string>."
                     + " Returning null.");
         }
+        List<NodeValue> nodeValues = new ArrayList<>();
         
         
-        LOG.debug("===========> "+column);
+       
         DocumentBuilderFactory builderFactory
                 = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = null;
@@ -110,24 +120,20 @@ public class FN_CSV extends FunctionBase2 {
             BufferedReader br = new BufferedReader(new InputStreamReader(is));
             
             
-            //ICsvListReader listReader = null;
-            //listReader = new CsvListReader(br, CsvPreference.STANDARD_PREFERENCE);
-            //listReader.getHeader(true);
+           
             CsvMapReader mapReader = new CsvMapReader(br, CsvPreference.STANDARD_PREFERENCE);
             String headers_str [] = mapReader.getHeader(true);
-            Map  <String,String> headers= mapReader.read(headers_str);
-           
-            //return new NodeValueString(headers.get(path.asNode().getLiteralValue()));
             
-            String columnName = (String) column.asNode().getLiteralValue();
-            
-            return new NodeValueString(headers.get(columnName));
-            
-            //return new NodeValueString(csv.getString());
-            
+           for (String header:headers_str){
+                Node node = NodeFactory.createLiteral(header);
+                NodeValueNode nodeValue = new NodeValueNode(node);
+                nodeValues.add(nodeValue);
+           }
+            return nodeValues;  
         } catch (Exception e) {
-            LOG.debug("Error:XPATJ "+e.getMessage());
             throw new ExprEvalException("FunctionBase: no evaluation", e);
         }
     }
+
+    
 }
