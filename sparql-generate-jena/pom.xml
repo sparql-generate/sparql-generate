@@ -118,7 +118,7 @@
                                 <goal>javacc</goal>
                             </goals>
                             <configuration>
-                                <jdkVersion>1.7</jdkVersion>
+                                <jdkVersion>1.8</jdkVersion>
                                 <javadocFriendlyComments>true</javadocFriendlyComments>
                                 <packageName>com.github.thesmartenergy.sparql.generate.jena.lang</packageName>
                             </configuration>

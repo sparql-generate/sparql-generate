@@ -1,0 +1,44 @@
+PREFIX csvw: <http://www.w3.org/ns/csvw#> 
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> 
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> 
+PREFIX iter: <http://w3id.org/sparql-generate/iter/> 
+PREFIX fn: <http://w3id.org/sparql-generate/fn/> 
+
+GENERATE {
+ ?tablegroup a csvw:TableGroup ;
+    csvw:table ?table .
+
+ ?table a csvw:Table .
+
+
+    GENERATE {
+        ?table csvw:row ?rownode .
+        ?rownode a csvw:Row ;
+           csvw:describes ?descriptionnode ;
+           csvw:rownum ?rownum;
+           csvw:url ?rowuri .
+
+        GENERATE {
+            ?descriptionnode ?header ?vcell .
+        } ITERATOR iter:CSVFirstRow( ?row ) AS ?cell 
+        WHERE {
+            BIND( IRI( CONCAT( STR( ?relativerui ) , fn:JSONPath(?cell, "$.header" ) ) ) AS ?header ) 
+            BIND( fn:JSONPath(?cell, "$.cell" ) AS ?vcell ) 
+        } .
+    }
+    ITERATOR iter:CSVWrapped( ?message ) AS ?wrap 
+    WHERE {
+        BIND( bnode() AS ?rownode ) 
+        BIND( bnode() AS ?descriptionnode ) 
+        BIND( fn:JSONPath(?wrap, "$.position" ) AS ?rownum )
+        BIND( IRI( CONCAT( STR( ?relativerui ) , "row=" , (1 + ?rownum) ) ) AS ?rowuri) 
+        BIND( fn:JSONPath(?wrap, "$.row" ) AS ?row ) 
+    } .
+
+}
+SOURCE ?csvfile as ?message
+WHERE {
+  BIND( fn:bnode("tablegroup") AS ?tablegroup ) 
+  BIND( fn:bnode("table") AS ?table ) 
+  BIND( IRI( CONCAT( STR( ?csvfile ), "#" ) ) AS ?relativerui ) 
+}

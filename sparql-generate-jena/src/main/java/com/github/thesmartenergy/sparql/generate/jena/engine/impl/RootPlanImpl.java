@@ -256,6 +256,11 @@ public final class RootPlanImpl extends PlanBase implements RootPlan, GeneratePl
             final List<BindingHashMapOverwrite> values) {
         LOG.debug("exec");
 
+//        // pass the bnodes that need to be transmitted
+//        if(generatePlan instanceof RootPlanImpl && ((RootPlanImpl) generatePlan).distant == true) {
+//            
+//        }
+        
         for (String prefix : prefixMapping.getNsPrefixMap().keySet()) {
             initialModel.setNsPrefix(
                     prefix, prefixMapping.getNsPrefixURI(prefix));
@@ -268,6 +273,7 @@ public final class RootPlanImpl extends PlanBase implements RootPlan, GeneratePl
         if (selectPlan != null) {
             selectPlan.exec(inputDataset, variables, values);
         }
+        
         generatePlan.exec(inputDataset, initialModel, variables, values);
     }
 }

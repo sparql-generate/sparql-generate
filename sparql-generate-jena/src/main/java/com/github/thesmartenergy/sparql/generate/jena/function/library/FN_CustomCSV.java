@@ -101,7 +101,7 @@ public class FN_CustomCSV extends FunctionBase6 {
         DocumentBuilder builder = null;
         try {
 
-            String sourceCSV = String.valueOf(csv.asNode().getLiteralValue());
+            String sourceCSV = String.valueOf(csv.asNode().getLiteralLexicalForm());
 
             InputStream is = new ByteArrayInputStream(sourceCSV.getBytes());
             BufferedReader br = new BufferedReader(new InputStreamReader(is));

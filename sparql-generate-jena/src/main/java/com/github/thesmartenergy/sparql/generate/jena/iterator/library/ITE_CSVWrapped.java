@@ -38,26 +38,25 @@ import org.supercsv.io.CsvListWriter;
 import org.supercsv.prefs.CsvPreference;
 
 /**
- * A SPARQL Iterator function that return a row of a CSV document, together with
- * the header. The Iterator function URI is
- * {@code <http://w3id.org/sparql-generate/iter/CSV>}.
+ * A SPARQL Iterator function that iterates over the headers of a CSV document.
+ * The Iterator function URI is
+ * {@code <http://w3id.org/sparql-generate/iter/CSVWrapped>}.
+ * It returns a JSON string with a specific JSON structure. The structure is
+ * {@code {"row":csv with one line,"position":integer}}.
  *
- * @see
- * com.github.thesmartenergy.sparql.generate.jena.function.library.FN_CustomCSV
- * for CSV document with different dialects
- * @author Noorani Bakerally <noorani.bakerally at emse.fr>
+ * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */
-public class ITE_CSV extends IteratorFunctionBase1 {
+public class ITE_CSVWrapped extends IteratorFunctionBase1 {
 
     /**
      * The logger.
      */
-    private static final Logger LOG = Logger.getLogger(ITE_CSV.class);
+    private static final Logger LOG = Logger.getLogger(ITE_CSVWrapped.class);
 
     /**
      * The SPARQL function URI.
      */
-    public static final String URI = SPARQLGenerate.ITE + "CSV";
+    public static final String URI = SPARQLGenerate.ITE + "CSVWrapped";
 
     /**
      * The datatype URI of the first parameter and the return literals.
@@ -68,8 +67,8 @@ public class ITE_CSV extends IteratorFunctionBase1 {
      *
      * @param csv the source CSV document which is a RDF Literal with datatype
      * URI {@code <urn:iana:mime:text/csv>} or {@code xsd:string}
-     * @return a list of RDF Literal with datatype URI
-     * {@code <urn:iana:mime:text/csv>} for each row of the CSV document.
+     * @return a list of string literals representing the headers of the CSV
+     * document.
      */
     @Override
     public List<NodeValue> exec(NodeValue csv) {
@@ -85,7 +84,7 @@ public class ITE_CSV extends IteratorFunctionBase1 {
                     + csv.getDatatypeURI() + ">. Returning null.");
         }
         RDFDatatype dt = TypeMapper.getInstance()
-                .getSafeTypeByName(datatypeUri);
+                .getSafeTypeByName("urn:iana:mime:application/json");
         try {
 
             String sourceCSV = String.valueOf(csv.asNode().getLiteralLexicalForm());
@@ -99,20 +98,29 @@ public class ITE_CSV extends IteratorFunctionBase1 {
             listReader = new CsvListReader(br, CsvPreference.STANDARD_PREFERENCE);
 
             List<NodeValue> nodeValues = new ArrayList<>(listReader.length());
-
+           
+            int i = -1;
             while (listReader.read() != null) {
+                
+                StringBuilder json = new StringBuilder();
+                json.append("{");
+                i++;
+
                 StringWriter sw = new StringWriter();
+
 
                 CsvListWriter listWriter = new CsvListWriter(sw, CsvPreference.TAB_PREFERENCE);
                 listWriter.writeHeader(header);
                 listWriter.write(listReader.getUntokenizedRow());
                 listWriter.close();
 
-                Node node = NodeFactory.createLiteral(sw.toString(), dt);
+                json.append("\"row\":\"").append(sw.toString().replace("\"", "\\\"")).append("\"");
+                json.append(",\"position\":").append(i).append("}");
+                
+                Node node = NodeFactory.createLiteral(json.toString(), dt);
                 NodeValueNode nodeValue = new NodeValueNode(node);
                 nodeValues.add(nodeValue);
             }
-
             return nodeValues;
         } catch (Exception e) {
             throw new ExprEvalException("FunctionBase: no evaluation", e);

@@ -16,7 +16,8 @@
 package com.github.thesmartenergy.sparql.generate.jena.engine.impl;
 
 import java.util.List;
-import org.apache.jena.query.QuerySolutionMap;
+import java.util.Map;
+import org.apache.jena.graph.Node;
 import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.engine.binding.Binding;
 import org.apache.jena.sparql.engine.binding.BindingHashMap;
@@ -28,6 +29,9 @@ import org.apache.jena.sparql.engine.binding.BindingHashMap;
  */
 abstract class PlanBase {
 
+    
+    protected Map<Node,Node> bNodeMap;
+    
     /**
      * Checks that the object is not null.
      *

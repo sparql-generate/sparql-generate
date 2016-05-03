@@ -36,6 +36,8 @@ import com.github.thesmartenergy.sparql.generate.jena.iterator.IteratorFunctionR
 import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITE_CBOR;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITE_CSSPath;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITE_CSV;
+import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITE_CSVFirstRow;
+import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITE_CSVWrapped;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITE_CustomCSV;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITE_JSONListElement;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITE_JSONListKeys;
@@ -82,7 +84,7 @@ public final class SPARQLGenerate {
     /**
      * The namespace of SPARQL Generate iterator functions.
      */
-    public static final String ITE = NS + "ite/";
+    public static final String ITE = NS + "iter/";
 
     /**
      * The URI of the SPARQL Generate syntax.
@@ -124,6 +126,8 @@ public final class SPARQLGenerate {
         itereg.put(ITE_Split.URI, ITE_Split.class);
         itereg.put(ITE_CSV.URI, ITE_CSV.class);
         itereg.put(ITE_CustomCSV.URI, ITE_CustomCSV.class);
+        itereg.put(ITE_CSVFirstRow.URI, ITE_CSVFirstRow.class);
+        itereg.put(ITE_CSVWrapped.URI, ITE_CSVWrapped.class);
         itereg.put(ITE_CSSPath.URI, ITE_CSSPath.class);
         itereg.put(ITE_CBOR.URI, ITE_CBOR.class);
 

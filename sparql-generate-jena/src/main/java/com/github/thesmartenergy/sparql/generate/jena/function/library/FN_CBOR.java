@@ -31,7 +31,8 @@ import org.apache.log4j.Logger;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
-import com.sun.xml.internal.messaging.saaj.util.Base64;
+import java.util.Arrays;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueNode;
@@ -82,7 +83,7 @@ public final class FN_CBOR extends FunctionBase2 {
                     + " Returning null.");
         }
 
-        String json = Base64.base64Decode(cbor.asNode().getLiteralLexicalForm());
+        String json = Arrays.toString(Base64.decodeBase64(cbor.asNode().getLiteralLexicalForm()));
         try {
             Object value = JsonPath.parse(json)
                     .limit(1).read(jsonpath.getString());

@@ -26,11 +26,12 @@ import com.jayway.jsonpath.spi.json.JsonProvider;
 import com.jayway.jsonpath.spi.mapper.JacksonMappingProvider;
 import com.jayway.jsonpath.spi.mapper.MappingProvider;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.IteratorFunctionBase2;
-import com.sun.xml.internal.messaging.saaj.util.Base64;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.jena.datatypes.RDFDatatype;
 import org.apache.jena.datatypes.TypeMapper;
 import org.apache.jena.graph.Node;
@@ -116,7 +117,7 @@ public class ITE_CBOR extends IteratorFunctionBase2 {
         Configuration conf = Configuration.builder()
                 .options(Option.ALWAYS_RETURN_LIST).build();
 
-        String json = Base64.base64Decode(cbor.asNode().getLiteralLexicalForm());
+        String json = Arrays.toString(Base64.decodeBase64(cbor.asNode().getLiteralLexicalForm()));
         
         try {
             List<Object> values = JsonPath

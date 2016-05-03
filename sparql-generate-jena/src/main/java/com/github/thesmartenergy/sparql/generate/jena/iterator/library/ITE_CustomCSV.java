@@ -99,7 +99,7 @@ public class ITE_CustomCSV extends IteratorFunctionBase5 {
 
         try {
 
-            String sourceCSV = String.valueOf(csv.asNode().getLiteralValue());
+            String sourceCSV = String.valueOf(csv.asNode().getLiteralLexicalForm());
 
             ICsvListReader listReader = null;
             InputStream is = new ByteArrayInputStream(sourceCSV.getBytes());

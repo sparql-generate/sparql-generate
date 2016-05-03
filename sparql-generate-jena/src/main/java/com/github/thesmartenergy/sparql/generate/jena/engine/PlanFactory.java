@@ -295,6 +295,7 @@ public class PlanFactory {
         String iri = function.getFunctionIRI();
 
         IteratorFunctionFactory factory = sr.get(iri);
+        System.out.println(iri);
         IteratorFunction iterator = factory.create(iri);
         ExprList exprList = new ExprList(function.getArgs());
         iterator.build(exprList);
