@@ -1,0 +1,63 @@
+BASE <http://example.org/> 
+PREFIX ite: <http://w3id.org/sparql-generate/ite/>
+PREFIX fn: <http://w3id.org/sparql-generate/fn/>
+PREFIX country:<http://loc.example.com/city/>
+PREFIX schema: <http://schema.org/>
+PREFIX wgs84_pos: <http://www.w3.org/2003/01/geo/wgs84_pos#>
+PREFIX gn: <http://www.geonames.org/ontology#>
+PREFIX transit: <http://vocab.org/transit/terms/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> 
+PREFIX ex: <http://example.com/ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX geosp: <http://www.telegraphis.net/ontology/geography/geography#>
+
+GENERATE { 
+    ?airportURI a transit:Stop;
+          wgs84_pos:location ?latlongURI;
+          transit:service ?busIRI;
+          wgs84_pos:location ?cityURI .
+
+    ?latlongURI wgs84_pos:lat ?lat;
+                wgs84_pos:long ?long .
+
+    ?cityURI a schema:City ;
+             gn:countryCode ?countryCode;
+             geosp:onContinent ?continentCode;
+             wgs84_pos:location ?vlatlongURI .
+
+    ?vlatlongURI wgs84_pos:lat ?vlatitude;
+            wgs84_pos:long ?vlongitude .
+
+    ?busIRI  a transit:Stop;
+             transit:stop ?busStopIRI .
+
+    ?busStopIRI rdfs:label ?busStopLabel .
+       
+}
+SOURCE <http://example.com/airport.csv> AS ?source
+SOURCE <http://example.com/venue.json> AS ?sourcevenue
+SOURCE <http://example.com/transport.xml> AS ?sourcetransport
+ITERATOR ite:XPath(?sourcetransport, "//bus" ) AS ?busStop
+ITERATOR ite:XPath(?busStop, "//stop" ) AS ?stop
+ITERATOR ite:CSV(?source) AS ?airport
+WHERE {
+    BIND( fn:CSV(?airport, "id" ) AS ?id )
+    BIND( fn:CSV(?airport, "city" ) AS ?city )
+    BIND( fn:CSV(?airport, "longitude" ) AS ?long )
+    BIND( fn:CSV(?airport, "latitude" ) AS ?lat )
+    BIND (URI(CONCAT("http://airport.example.com/",?id)) AS ?airportURI)
+    BIND (URI(CONCAT("http://loc.example.com/latlong/",?lat,",",?long)) AS ?latlongURI)
+    BIND(fn:JSONPath(?sourcevenue, "$.location.city" ) AS ?cityName)
+    BIND(fn:JSONPath(?sourcevenue, "$.location.country" ) AS ?countryCode)
+    BIND(fn:JSONPath(?sourcevenue, "$.location.continent" ) AS ?continentCode)
+    BIND(URI(CONCAT("http://loc.example.com/city/",?cityName)) AS ?cityURI)
+    BIND(fn:JSONPath(?sourcevenue, "$.venue.latitude" ) AS ?vlatitude)
+    BIND(fn:JSONPath(?sourcevenue, "$.venue.longitude" ) AS ?vlongitude)
+    BIND (URI(CONCAT("http://loc.example.com/latlong/",?lat,",",?long)) AS ?vlatlongURI)
+    BIND( fn:XPath(?busStop,"/bus/@id") AS ?busId )
+    BIND( URI(CONCAT( "http://trans.example.com/busses/",?busId)) AS ?busIRI )
+    BIND( fn:XPath(?stop,"/stop/@id"  ) AS ?busStopId )
+    BIND( fn:XPath(?stop,"/stop/text()"  ) AS ?busStopLabel )
+    BIND( URI(CONCAT( "http://trans.example.com/stop/",?busStopId)) AS ?busStopIRI )
+}
