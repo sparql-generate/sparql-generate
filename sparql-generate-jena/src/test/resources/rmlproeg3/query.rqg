@@ -42,13 +42,13 @@ ITERATOR ite:XPath(?sourcetransport, "//bus" ) AS ?busStop
 ITERATOR ite:XPath(?busStop, "//stop" ) AS ?stop
 ITERATOR ite:CSV(?source) AS ?airport
 WHERE {
-    BIND( fn:CSV(?airport, "id" ) AS ?id )
-    BIND( fn:CSV(?airport, "city" ) AS ?city )
-    BIND( fn:CSV(?airport, "longitude" ) AS ?long )
-    BIND( fn:CSV(?airport, "latitude" ) AS ?lat )
+    BIND (fn:CSV(?airport, "id" ) AS ?id )
+    BIND (fn:CSV(?airport, "city" ) AS ?city )
+    BIND (fn:CSV(?airport, "longitude" ) AS ?long )
+    BIND (fn:CSV(?airport, "latitude" ) AS ?lat )
     BIND (URI(CONCAT("http://airport.example.com/",?id)) AS ?airportURI)
     BIND (URI(CONCAT("http://loc.example.com/latlong/",?lat,",",?long)) AS ?latlongURI)
-    BIND(fn:JSONPath(?sourcevenue, "$.location.city" ) AS ?cityName)
+    BIND (fn:JSONPath(?sourcevenue, "$.location.city" ) AS ?cityName)
     BIND(fn:JSONPath(?sourcevenue, "$.location.country" ) AS ?countryCode)
     BIND(fn:JSONPath(?sourcevenue, "$.location.continent" ) AS ?continentCode)
     BIND(URI(CONCAT("http://loc.example.com/city/",?cityName)) AS ?cityURI)
