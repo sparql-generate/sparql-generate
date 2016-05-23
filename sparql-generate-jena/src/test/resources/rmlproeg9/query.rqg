@@ -5,7 +5,7 @@ PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX bibo:    <http://purl.org/ontology/bibo/> 
 PREFIX dcterms: <http://purl.org/dc/terms/>
 PREFIX spc:     <http://semweb.mmlab.be/ns/spc/>
-GENERATE { 
+GENERATE {  
   ?volumeIRI a bibo:Volume;
                 dcterms:identifier ?identifier;
                 bibo:shortTitle ?shortTitle;
@@ -14,12 +14,11 @@ GENERATE {
                 rdfs:label ?volTitle;
                 spc:volTitle ?volTitle .
 }
-SOURCE <http://ceur-ws.org/Vol-1128/> AS ?source
-ITERATOR iter:CSSPath(?source, "body" ) AS ?body 
+SOURCE <http://ceur-ws.org/Vol-1128/index.html> AS ?source
+ITERATOR ite:CSSPath(?source, "body" ) AS ?body 
 WHERE {
 	BIND(fn:HTMLTag(?body, "span.CEURVOLNR") AS ?volume )
         BIND ( IRI(CONCAT("http://ceur-ws.org/",?volume)) as ?volumeIRI)
-
 	BIND(fn:HTMLTag(?body, "span.CEURURN") AS ?identifier )
 	BIND(fn:HTMLTag(?body, "span.CEURVOLACRONYM") AS ?shortTitle )
 	BIND(fn:HTMLTag(?body, "span.CEURFULLTITLE") AS ?fullTitle )

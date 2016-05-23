@@ -1,11 +1,26 @@
-@prefix schema: <http://schema.org/> .
-@prefix country: <http://loc.example.org/city/> .
-@prefix gn:    <http://www.geonames.org/ontology#> .
-@prefix wgs84_pos: <http://www.w3.org/2003/01/geo/wgs84_pos#> .
-@prefix fn: <http://w3id.org/sparql-generate/fn/> .
-@prefix iter: <http://w3id.org/sparql-generate/iter/> .
+@prefix ex:    <http://example.com/ns#> .
+@prefix transit: <http://vocab.org/transit/terms/> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
 
-country:Brussels  a     schema:City ;
-        gn:countryCode  "BE" ;
-        wgs84_pos:lat   "51.0500000" ;
-        wgs84_pos:long  "3.7166700" .
+<http://trans.example.com/stop/651>
+        rdfs:label  "Conference center" ;
+        ex:id       "651"^^xsd:int .
+
+<http://trans.example.com/stop/645>
+        rdfs:label  "Airport" ;
+        ex:id       "645"^^xsd:int .
+
+<http://airport.example.com/6523>
+        a           transit:Stop ;
+        ex:latlong  <http://loc.example.com/latlong/50.901389,4.484444> ;
+        ex:route    <http://trans.example.com/bus/25> .
+
+<http://loc.example.com/latlong/50.901389,4.484444>
+        ex:lat   "50.901389" ;
+        ex:long  "4.484444" .
+
+<http://trans.example.com/bus/25>
+        a        ex:Trannsport ;
+        ex:stop  <http://trans.example.com/stop/651> , <http://trans.example.com/stop/645> ;
+        ex:type  <http://trans.example.com/vehicle/SingeDecker> .

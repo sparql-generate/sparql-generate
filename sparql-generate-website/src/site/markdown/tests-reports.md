@@ -5,9 +5,8 @@
 
 | Test Name        	| Description                                                                  	| Status 	|
 |------------------	|------------------------------------------------------------------------------	|--------	|
-| [SimpleCSV](https://github.com/thesmartenergy/sparql-generate/tree/develop/sparql-generate-jena/src/test/resources/simplecsv)        	| A simple example to generate RDF from a CSV file                             	| Pass   	|
+| [SimpleCSV](https://github.com/thesmartenergy/sparql-generate/tree/develop/sparql-generate-jena/src/test/resources/simplecsv)        	| An example to generate RDF from a CSV file                             	| Pass   	|
 | [CustomCSVEg1](https://github.com/thesmartenergy/sparql-generate/tree/develop/sparql-generate-jena/src/test/resources/customcsveg1)     	| Simple RDF generation from CSV with different dialect                        	| Pass   	|
-
 
 ## XML Tests
 
@@ -53,12 +52,17 @@
 | [RMLSpecEg3](https://github.com/thesmartenergy/sparql-generate/tree/develop/sparql-generate-jena/src/test/resources/rmlspeceg3)       	| RML JSON Example 3 from RML specification found [here](http://rml.io/spec.html#example-JSON)                         	| Pass   	|
 | [RMLSpecEg4](https://github.com/thesmartenergy/sparql-generate/tree/develop/sparql-generate-jena/src/test/resources/rmlspeceg4)       	| RML multiple heterogenous sources (XML,CSV,JSOn) from RML specification page  found [here](http://rml.io/spec.html#integrated-mapping)	| Pass   	|
 | [RMLProEg1](https://github.com/thesmartenergy/sparql-generate/tree/develop/sparql-generate-jena/src/test/resources/rmlproeg1)        	| RML Example 1 found [here](https://github.com/RMLio/RML-Processor/tree/master/src/test/resources/example1)                                                     	| Pass   	|
+| [RMLProEg2](https://github.com/thesmartenergy/sparql-generate/tree/develop/sparql-generate-jena/src/test/resources/rmlproeg2)        	| RML Example 2 found [here](https://github.com/RMLio/RML-Processor/tree/master/src/test/resources/example2)                                                     	| Pass   	|
+| [RMLProEg3](https://github.com/thesmartenergy/sparql-generate/tree/develop/sparql-generate-jena/src/test/resources/rmlproeg3)        	| RML Example 3 found [here](https://github.com/RMLio/RML-Processor/tree/master/src/test/resources/example3)                                                     	| Pass   	|
 | [RMLProEg4](https://github.com/thesmartenergy/sparql-generate/tree/develop/sparql-generate-jena/src/test/resources/rmlproeg4)        	| RML Example 4 found [here](https://github.com/RMLio/RML-Processor/tree/master/src/test/resources/example4)                                                     	| Pass   	|
 | [RMLProEg5](https://github.com/thesmartenergy/sparql-generate/tree/develop/sparql-generate-jena/src/test/resources/rmlproeg5)        	| RML Example 5 found [here](https://github.com/RMLio/RML-Processor/tree/master/src/test/resources/example5)                                                     	| Pass   	|
+| [RMLProEg6](https://github.com/thesmartenergy/sparql-generate/tree/develop/sparql-generate-jena/src/test/resources/rmlproeg6)        	| RML Example 6 found [here](https://github.com/RMLio/RML-Processor/tree/master/src/test/resources/example6)                                                     	| Pass   	|
 | [RMLProEg7](https://github.com/thesmartenergy/sparql-generate/tree/develop/sparql-generate-jena/src/test/resources/rmlproeg7)        	| RML Example 7 found [here](https://github.com/RMLio/RML-Processor/tree/master/src/test/resources/example7)                                                     	| Pass   	|
 | [RMLProEg8](https://github.com/thesmartenergy/sparql-generate/tree/develop/sparql-generate-jena/src/test/resources/rmlproeg8)        	| RML Example 8 found [here](https://github.com/RMLio/RML-Processor/tree/master/src/test/resources/example8)                                                     	| Pass   	|
 | [RMLProEg9](https://github.com/thesmartenergy/sparql-generate/tree/develop/sparql-generate-jena/src/test/resources/rmlproeg9)        	| RML Example 9 found [here](https://github.com/RMLio/RML-Processor/tree/master/src/test/resources/example9)                                                     	| Pass   	|
 | [RMLLanguageMapEg](https://github.com/thesmartenergy/sparql-generate/tree/develop/sparql-generate-jena/src/test/resources/rmllanguageMapEg) 	| RML language map example found [here](https://github.com/RMLio/RML-Processor/tree/master/src/test/resources/exampleLanguageMap)                                          	| Pass   	|
+| [RMLProEgCSVW](https://github.com/thesmartenergy/sparql-generate/tree/develop/sparql-generate-jena/src/test/resources/rmlproegcsvw) 	| RML CSVW example found [here](https://github.com/RMLio/RML-Processor/tree/master/src/test/resources/exampleCSVW)                                          	| Pass   	|
+| [RMLProEgHydraSPARQL](https://github.com/thesmartenergy/sparql-generate/tree/develop/sparql-generate-jena/src/test/resources/rmlproegcsvw) 	| RML CSVW example found [here](https://github.com/thesmartenergy/sparql-generate/tree/develop/sparql-generate-jena/src/test/resources/rmlproeghydra)                                          	| Pass   	|
 
 
 ## XSPARQL Tests
@@ -67,3 +71,10 @@
 |------------------	|------------------------------------------------------------------------------	|--------	|
 | [XSPARQLEg1](https://github.com/thesmartenergy/sparql-generate/tree/develop/sparql-generate-jena/src/test/resources/xsparql1)       	| XSPARQL Example 3.1 foaf_lifting_naive.xsparql found [here](https://www.w3.org/Submission/xsparql-implementation/#sec:testcases1)                    	| Pass   	|
 | [XSPARQLEg2](https://github.com/thesmartenergy/sparql-generate/tree/develop/sparql-generate-jena/src/test/resources/xsparql2)       	| XSPARQL Example 3.2 foaf_lifting.xsparql found [here](https://www.w3.org/Submission/xsparql-implementation/#sec:testcases2)                          	| Pass   	|
+
+## CSVW Tests
+
+| Test Name        	| Description                                                                  	| Status 	|
+|------------------	|------------------------------------------------------------------------------	|--------	|
+| [SimpleCSVWNoHeader](https://github.com/thesmartenergy/sparql-generate/tree/develop/sparql-generate-jena/src/test/resources/simplecsvwnoheader)        	| An example to generate RDF from a CSV file with a different dialect not having a header                            	| Pass   	|
+| [SimpleCSVWWithHeader](https://github.com/thesmartenergy/sparql-generate/tree/develop/sparql-generate-jena/src/test/resources/simplecsvwwithheader)        	| An example to generate RDF from a CSV file with a different dialect having a header                            	| Pass   	|

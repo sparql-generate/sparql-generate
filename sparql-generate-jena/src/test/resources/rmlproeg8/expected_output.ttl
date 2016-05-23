@@ -1,11 +1,42 @@
-@prefix schema: <http://schema.org/> .
-@prefix country: <http://loc.example.org/city/> .
-@prefix gn:    <http://www.geonames.org/ontology#> .
-@prefix wgs84_pos: <http://www.w3.org/2003/01/geo/wgs84_pos#> .
-@prefix fn: <http://w3id.org/sparql-generate/fn/> .
-@prefix iter: <http://w3id.org/sparql-generate/iter/> .
+@prefix simres: <http://www.lbl.gov/namespaces/Sim/ResourcesGeneral/> .
+@prefix simmodel: <http://www.lbl.gov/namespaces/Sim/Model/> .
 
-country:Brussels  a     schema:City ;
-        gn:countryCode  "BE" ;
-        wgs84_pos:lat   "51.0500000" ;
-        wgs84_pos:long  "3.7166700" .
+simmodel:ID28782  a                    simmodel:SimAppLibraryDefault_AppLibraryDefault_GlobalLibrary ;
+        simmodel:refId                 "ID28782" ;
+        simres:DefaultPreferenceIndex  "1" ;
+        simres:LibraryLocation         "" ;
+        simres:LibraryName             "" ;
+        simres:SimModelName            "simAppLibraryDefault" ;
+        simres:SimModelSubtype         "GlobalLibrary" ;
+        simres:SourceModelSchema       "Simergy v0.9.500" ;
+        simres:simModelType            "AppLibraryDefault" .
+
+simmodel:ID28781  a                    simmodel:SimAppLibraryDefault_AppLibraryDefault_GlobalLibrary ;
+        simmodel:refId                 "ID28781" ;
+        simres:DefaultPreferenceIndex  "0" ;
+        simres:LibraryLocation         "" ;
+        simres:LibraryName             "" ;
+        simres:SimModelName            "simAppLibraryDefault" ;
+        simres:SimModelSubtype         "GlobalLibrary" ;
+        simres:SourceModelSchema       "Simergy v0.9.500" ;
+        simres:simModelType            "AppLibraryDefault" .
+
+simmodel:ID28784  a                    simmodel:SimAppLibraryDefault_AppLibraryDefault_GlobalLibrary ;
+        simmodel:refId                 "ID28784" ;
+        simres:DefaultPreferenceIndex  "3" ;
+        simres:LibraryLocation         "" ;
+        simres:LibraryName             "" ;
+        simres:SimModelName            "simAppLibraryDefault" ;
+        simres:SimModelSubtype         "GlobalLibrary" ;
+        simres:SourceModelSchema       "Simergy v0.9.500" ;
+        simres:simModelType            "AppLibraryDefault" .
+
+simmodel:ID28783  a                    simmodel:SimAppLibraryDefault_AppLibraryDefault_GlobalLibrary ;
+        simmodel:refId                 "ID28783" ;
+        simres:DefaultPreferenceIndex  "2" ;
+        simres:LibraryLocation         "" ;
+        simres:LibraryName             "" ;
+        simres:SimModelName            "simAppLibraryDefault" ;
+        simres:SimModelSubtype         "GlobalLibrary" ;
+        simres:SourceModelSchema       "Simergy v0.9.500" ;
+        simres:simModelType            "AppLibraryDefault" .

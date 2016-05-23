@@ -71,13 +71,9 @@ public class FN_HTMLAttribute extends FunctionBase2 {
 
         try {
             String sourceHtml = String.valueOf(html.asNode().getLiteralValue());
-            org.jsoup.nodes.Document htmldoc = Jsoup.parse(sourceHtml);
-
+            org.jsoup.nodes.Document htmldoc = Jsoup.parseBodyFragment(sourceHtml);
             String attributeNameValue = String.valueOf(attributeName.asNode().getLiteralValue());
-
-            String attributeValue = htmldoc.body().child(0).attributes().get(attributeNameValue);
-            return new NodeValueString(attributeValue);
-
+            return new NodeValueString(htmldoc.body().child(0).attributes().get(attributeNameValue));
         } catch (Exception e) {
             LOG.debug("Error:HTML Tag " + e.getMessage());
             throw new ExprEvalException("FunctionBase: no evaluation", e);

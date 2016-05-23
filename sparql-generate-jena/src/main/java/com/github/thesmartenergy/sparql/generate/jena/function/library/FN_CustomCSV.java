@@ -43,7 +43,6 @@ import org.supercsv.prefs.CsvPreference;
  * Dialect Descriptions</a>
  * @author Noorani Bakerally <noorani.bakerally at emse.fr>
  */
-
 public class FN_CustomCSV extends FunctionBase6 {
     //TODO write multiple unit tests for this class.
 
@@ -106,31 +105,27 @@ public class FN_CustomCSV extends FunctionBase6 {
             InputStream is = new ByteArrayInputStream(sourceCSV.getBytes());
             BufferedReader br = new BufferedReader(new InputStreamReader(is));
 
-            //ICsvListReader listReader = null;
-            //listReader = new CsvListReader(br, CsvPreference.STANDARD_PREFERENCE);
-            //listReader.getHeader(true);
-            String headerRow = "";
+            String headers_str = "";
             System.out.println("test=================header" + header.getBoolean());
             if (header.getBoolean()) {
-                headerRow = br.readLine().split(endOfLineSymbols.asString())[0];
+                headers_str = br.readLine().split(endOfLineSymbols.asString())[0];
             }
-            System.out.println("test=================header" + headerRow);
-            CsvPreference prefs = new CsvPreference.Builder(quoteChar.asString().charAt(0), delimiterChar.asString().charAt(0),
-                    endOfLineSymbols.asString()).build();
+            System.out.println("test=================header" + headers_str);
+
+            CsvPreference prefs = new CsvPreference.Builder(quoteChar.asString().charAt(0), delimiterChar.asString().charAt(0), endOfLineSymbols.asString()).build();
 
             String nodeVal = "none";
 
             if (header.getBoolean()) {
                 CsvMapReader mapReader = new CsvMapReader(br, prefs);
-                String headers_str[] = mapReader.getHeader(true);
-                Map<String, String> headers = mapReader.read(headers_str);
+
+                Map<String, String> row = mapReader.read(headers_str.split(delimiterChar.asString()));
                 String columnName = (String) column.asNode().getLiteralValue();
-                nodeVal = headers.get(columnName);
+                nodeVal = row.get(columnName);
 
             } else {
                 List<String> values = new CsvListReader(br, prefs).read();
-
-                nodeVal = values.get(0);
+                nodeVal = values.get(Integer.valueOf(column.asString()));
             }
             return new NodeValueString(nodeVal);
 

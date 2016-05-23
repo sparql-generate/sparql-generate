@@ -71,7 +71,7 @@ public class FN_HTMLTag extends FunctionBase2 {
         }
 
         try {
-            String sourceHtml = String.valueOf(html.asNode().getLiteralValue());
+            String sourceHtml = String.valueOf(html.asNode().getLiteralLexicalForm());
             org.jsoup.nodes.Document htmldoc = Jsoup.parse(sourceHtml);
 
             String selectPath = String.valueOf(v2.asNode().getLiteralValue());

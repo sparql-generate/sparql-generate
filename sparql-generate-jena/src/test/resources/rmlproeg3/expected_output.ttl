@@ -1,0 +1,36 @@
+@prefix schema: <http://schema.org/> .
+@prefix country: <http://loc.example.com/city/> .
+@prefix ex:    <http://example.com/ns#> .
+@prefix geosp: <http://www.telegraphis.net/ontology/geography/geography#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix transit: <http://vocab.org/transit/terms/> .
+@prefix gn:    <http://www.geonames.org/ontology#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix fn:    <http://w3id.org/sparql-generate/fn/> .
+@prefix wgs84_pos: <http://www.w3.org/2003/01/geo/wgs84_pos#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix ite:   <http://w3id.org/sparql-generate/ite/> .
+
+<http://trans.example.com/stop/651>
+        rdfs:label  "Conference center" .
+
+<http://trans.example.com/stop/645>
+        rdfs:label  "Int. Airport" .
+
+<http://trans.example.com/busses/25>
+        a             transit:Stop ;
+        transit:stop  <http://trans.example.com/stop/651> , <http://trans.example.com/stop/645> .
+
+<http://airport.example.com/6523>
+        a                   transit:Stop ;
+        transit:service     <http://trans.example.com/busses/25> ;
+        wgs84_pos:location  country:Brussels , <http://loc.example.com/latlong/50.901389,4.484444> .
+
+country:Brussels  a         schema:City ;
+        gn:countryCode      "BE" ;
+        geosp:onContinent   "Europe" ;
+        wgs84_pos:location  <http://loc.example.com/latlong/50.901389,4.484444> .
+
+<http://loc.example.com/latlong/50.901389,4.484444>
+        wgs84_pos:lat   "51.0500000" , "50.901389" ;
+        wgs84_pos:long  "3.7166700" , "4.484444" .

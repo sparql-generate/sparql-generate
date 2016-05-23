@@ -1,11 +1,13 @@
-@prefix schema: <http://schema.org/> .
-@prefix country: <http://loc.example.org/city/> .
-@prefix gn:    <http://www.geonames.org/ontology#> .
-@prefix wgs84_pos: <http://www.w3.org/2003/01/geo/wgs84_pos#> .
-@prefix fn: <http://w3id.org/sparql-generate/fn/> .
-@prefix iter: <http://w3id.org/sparql-generate/iter/> .
+@prefix spc:   <http://semweb.mmlab.be/ns/spc/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix bibo:  <http://purl.org/ontology/bibo/> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
 
-country:Brussels  a     schema:City ;
-        gn:countryCode  "BE" ;
-        wgs84_pos:lat   "51.0500000" ;
-        wgs84_pos:long  "3.7166700" .
+<http://ceur-ws.org/Vol-1128>
+        a                   bibo:Volume ;
+        rdfs:label          "15th International Configuration Workshop" , "Proceedings of the 15th International Configuration Workshop" ;
+        dcterms:identifier  "urn:nbn:de:0074-1128-8" ;
+        bibo:shortTitle     "ConfWS-2013" ;
+        spc:fullTitle       "Proceedings of the 15th International Configuration Workshop" ;
+        spc:volTitle        "15th International Configuration Workshop" .
+

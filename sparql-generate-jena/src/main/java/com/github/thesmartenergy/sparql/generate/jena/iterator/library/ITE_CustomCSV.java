@@ -125,10 +125,8 @@ public class ITE_CustomCSV extends IteratorFunctionBase5 {
                 StringWriter sw = new StringWriter();
 
                 CsvListWriter listWriter = new CsvListWriter(sw, CsvPreference.TAB_PREFERENCE);
-                listWriter.writeHeader(headerRow);
-
-                if (header.getBoolean()) {
-                    listWriter.writeHeader(headerRow);
+                if (header.getBoolean()){
+                     listWriter.writeHeader(headerRow);
                 }
 
                 listWriter.write(listReader.getUntokenizedRow());
@@ -143,5 +141,4 @@ public class ITE_CustomCSV extends IteratorFunctionBase5 {
             throw new ExprEvalException("FunctionBase: no evaluation", e);
         }
     }
-
 }
