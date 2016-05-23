@@ -9,7 +9,7 @@
 @prefix fn:    <http://w3id.org/sparql-generate/fn/> .
 @prefix wgs84_pos: <http://www.w3.org/2003/01/geo/wgs84_pos#> .
 @prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
-@prefix ite:   <http://w3id.org/sparql-generate/ite/> .
+@prefix iter:   <http://w3id.org/sparql-generate/iter/> .
 
 <http://trans.example.com/stop/651>
         rdfs:label  "Conference center" .
@@ -34,3 +34,4 @@ country:Brussels  a         schema:City ;
 <http://loc.example.com/latlong/50.901389,4.484444>
         wgs84_pos:lat   "51.0500000" , "50.901389" ;
         wgs84_pos:long  "3.7166700" , "4.484444" .
+ 

@@ -82,7 +82,7 @@ public class ITE_CBOR extends IteratorFunctionBase2 {
     /**
      * The SPARQL function URI.
      */
-    public static final String URI = SPARQLGenerate.ITE + "CBOR";
+    public static final String URI = SPARQLGenerate.ITER + "CBOR";
 
     /**
      * The datatype URI of the first parameter and the return literals.

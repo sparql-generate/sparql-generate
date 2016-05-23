@@ -75,7 +75,7 @@ public class ITE_JSONListKeys extends IteratorFunctionBase1 {
     /**
      * The SPARQL function URI.
      */
-    public static final String URI = SPARQLGenerate.ITE + "JSONListKeys";
+    public static final String URI = SPARQLGenerate.ITER + "JSONListKeys";
 
     /**
      * The datatype URI of the first parameter and the return literals.

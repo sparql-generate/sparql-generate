@@ -14,6 +14,6 @@ SOURCE <http://example.org/museum.json> AS ?source
 ITERATOR iter:JSONPath(?source,"$[*]") AS ?work
 WHERE {
     BIND (fn:JSONPath(?work,"$.Artist") AS ?artist)
-    BIND (IRI(CONCAT("http://ex.com/",?artist)) as ?artistIRI)
+    BIND (IRI( REPLACE( CONCAT("http://ex.com/",?artist) , " " , "_" ) ) as ?artistIRI)
 
 }

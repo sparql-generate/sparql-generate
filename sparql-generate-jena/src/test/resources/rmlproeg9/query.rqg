@@ -15,7 +15,7 @@ GENERATE {
                 spc:volTitle ?volTitle .
 }
 SOURCE <http://ceur-ws.org/Vol-1128/index.html> AS ?source
-ITERATOR ite:CSSPath(?source, "body" ) AS ?body 
+ITERATOR iter:CSSPath(?source, "body" ) AS ?body 
 WHERE {
 	BIND(fn:HTMLTag(?body, "span.CEURVOLNR") AS ?volume )
         BIND ( IRI(CONCAT("http://ceur-ws.org/",?volume)) as ?volumeIRI)

@@ -79,7 +79,7 @@ public class ITE_JSONPath extends IteratorFunctionBase2 {
     /**
      * The SPARQL function URI.
      */
-    public static final String URI = SPARQLGenerate.ITE + "JSONPath";
+    public static final String URI = SPARQLGenerate.ITER + "JSONPath";
 
     /**
      * The datatype URI of the first parameter and the return literals.

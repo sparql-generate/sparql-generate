@@ -23,7 +23,7 @@ import org.apache.jena.sparql.util.NodeIsomorphismMap;
 
 /**
  * The {@code SOURCE} clause.
- * 
+ *
  * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */
 public class ElementSource extends ElementIteratorOrSource {
@@ -39,26 +39,42 @@ public class ElementSource extends ElementIteratorOrSource {
     public Node getSource() {
         return source;
     }
-    
+
     public Node getAccept() {
         return accept;
-    }    
-    
+    }
+
     @Override
     public void visit(ElementVisitor v) {
         if (v instanceof SPARQLGenerateElementVisitor) {
             ((SPARQLGenerateElementVisitor) v).visit(this);
         }
     }
-    
+
     @Override
     public int hashCode() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return getVar().hashCode() ^ source.hashCode() ^ accept.hashCode();
     }
 
     @Override
     public boolean equalTo(Element el2, NodeIsomorphismMap isoMap) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        if (el2 == null) {
+            return false;
+        }
+        if (!(el2 instanceof ElementSource)) {
+            return false;
+        }
+        ElementSource s2 = (ElementSource) el2;
+        if (!this.getVar().equals(s2.getVar())) {
+            return false;
+        }
+        if (!this.getSource().equals(s2.getSource())) {
+            return false;
+        }
+        if (this.getAccept()== null && s2.getAccept()!=null || this.getAccept()!=null&&!this.getAccept().equals(s2.getAccept())) {
+            return false;
+        }
+        return true;
     }
-    
+
 }

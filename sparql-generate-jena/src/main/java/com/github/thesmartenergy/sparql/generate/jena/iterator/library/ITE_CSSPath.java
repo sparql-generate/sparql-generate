@@ -54,7 +54,7 @@ public class ITE_CSSPath extends IteratorFunctionBase2 {
     /**
      * The SPARQL function URI.
      */
-    public static final String URI = SPARQLGenerate.ITE + "CSSPath";
+    public static final String URI = SPARQLGenerate.ITER + "CSSPath";
 
     /**
      * The datatype URI of the first parameter and the return literals.

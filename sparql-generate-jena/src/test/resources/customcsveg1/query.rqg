@@ -15,7 +15,7 @@ GENERATE {
             wgs84_pos:long  ?long .
 }
 SOURCE <http://example.com/airport.csv> AS ?source
-ITERATOR ite:CustomCSV(?source,'"',";","\n","false"^^xsd:boolean) AS ?stop
+ITERATOR iter:CustomCSV(?source,'"',";","\n","false"^^xsd:boolean) AS ?stop
 WHERE {
     BIND( fn:CustomCSV(?stop, 0,'"',";","\n","false"^^xsd:boolean) AS ?id )
     BIND( fn:CustomCSV(?stop, 1,'"',";","\n","false"^^xsd:boolean) AS ?busId )

@@ -82,7 +82,7 @@ public class ITE_CSVHeaders extends IteratorFunctionBase1 {
     /**
      * The SPARQL function URI.
      */
-    public static final String URI = SPARQLGenerate.ITE + "CSVHeaders";
+    public static final String URI = SPARQLGenerate.ITER + "CSVHeaders";
 
     /**
      * The datatype URI of the first parameter and the return literals.

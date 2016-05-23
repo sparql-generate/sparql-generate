@@ -79,7 +79,7 @@ public class ITE_JSONListElement extends IteratorFunctionBase2 {
     /**
      * The SPARQL function URI.
      */
-    public static final String URI = SPARQLGenerate.ITE + "JSONElement";
+    public static final String URI = SPARQLGenerate.ITER + "JSONElement";
 
     /**
      * The datatype URI of the first parameter and the return literals.

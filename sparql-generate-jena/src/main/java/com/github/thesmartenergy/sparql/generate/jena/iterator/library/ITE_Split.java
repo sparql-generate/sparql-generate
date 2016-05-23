@@ -37,7 +37,7 @@ public class ITE_Split extends IteratorFunctionBase2 {
      * The logger.
      */
     private static final Logger LOG = Logger.getLogger(ITE_Split.class);
-    public static final String URI = SPARQLGenerate.ITE + "Split";
+    public static final String URI = SPARQLGenerate.ITER + "Split";
     
     /**
      * 

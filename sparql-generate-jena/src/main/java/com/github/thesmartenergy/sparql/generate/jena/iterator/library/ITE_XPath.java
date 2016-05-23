@@ -66,7 +66,7 @@ public class ITE_XPath extends IteratorFunctionBase2 {
     /**
      * The SPARQL function URI.
      */
-    public static final String URI = SPARQLGenerate.ITE + "XPath";
+    public static final String URI = SPARQLGenerate.ITER + "XPath";
 
     /**
      * The datatype URI of the first parameter and the return literals.

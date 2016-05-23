@@ -15,17 +15,12 @@
  */
 package com.github.thesmartenergy.sparql.generate.jena.engine.impl;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import org.apache.jena.ext.com.google.common.collect.Maps;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
-import org.apache.jena.query.QuerySolution;
 import org.apache.jena.sparql.core.Var;
-import org.apache.jena.sparql.engine.binding.BindingHashMap;
 
 /**
  * Class to store overridable blank node mappings efficiently.

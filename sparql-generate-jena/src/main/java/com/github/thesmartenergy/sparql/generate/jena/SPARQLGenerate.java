@@ -88,7 +88,7 @@ public final class SPARQLGenerate {
     /**
      * The namespace of SPARQL Generate iterator functions.
      */
-    public static final String ITE = NS + "iter/";
+    public static final String ITER = NS + "iter/";
 
     /**
      * The URI of the SPARQL Generate syntax.

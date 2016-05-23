@@ -48,12 +48,25 @@ public class ElementIterator extends ElementIteratorOrSource {
 
     @Override
     public int hashCode() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return getVar().hashCode() ^ getExpr().hashCode();
     }
 
     @Override
     public boolean equalTo(Element el2, NodeIsomorphismMap isoMap) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        if (el2 == null) {
+            return false;
+        }
+        if (!(el2 instanceof ElementIterator)) {
+            return false;
+        }
+        ElementIterator iter2 = (ElementIterator) el2;
+        if (!this.getVar().equals(iter2.getVar())) {
+            return false;
+        }
+        if (!this.getExpr().equals(iter2.getExpr())) {
+            return false;
+        }
+        return true;
     }
     
 }

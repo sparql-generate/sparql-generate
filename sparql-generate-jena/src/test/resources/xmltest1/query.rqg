@@ -1,5 +1,5 @@
 BASE <http://trans.example.org/>
-PREFIX ite: <http://w3id.org/sparql-generate/ite/>
+PREFIX iter: <http://w3id.org/sparql-generate/iter/>
 PREFIX fn: <http://w3id.org/sparql-generate/fn/>
 PREFIX country:<http://loc.example.org/city/>
 PREFIX schema: <http://schema.org/>
@@ -16,7 +16,7 @@ GENERATE {
         ?stopiri rdfs:label ?label .
         
     }
-    ITERATOR ite:XPath(?bus, "//stop" ) AS ?stop
+    ITERATOR iter:XPath(?bus, "//stop" ) AS ?stop
     WHERE {
         BIND( fn:XPath(?stop,"/stop/@id"  ) AS ?stopid )
         BIND( CONCAT( ?base,"stop/",?stopid) AS ?stopiristr )
@@ -25,7 +25,7 @@ GENERATE {
     }.
 }
 SOURCE <http://example.org/transport.xml> AS ?source
-ITERATOR ite:XPath(?source, "//bus" ) AS ?bus
+ITERATOR iter:XPath(?source, "//bus" ) AS ?bus
 WHERE {
     BIND( "http://trans.example.org/" AS ?base )
     BIND( fn:XPath(?bus,"/bus/@id"  ) AS ?busid )

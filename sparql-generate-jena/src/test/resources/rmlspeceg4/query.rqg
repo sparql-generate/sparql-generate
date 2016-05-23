@@ -28,7 +28,7 @@ GENERATE {
                       ex:id ?busStopIdStr .
 
       }
-      ITERATOR ite:XPath(?sourcetransport, CONCAT("//bus[@id=",?busId,"]//stop") ) AS ?busStop
+      ITERATOR iter:XPath(?sourcetransport, CONCAT("//bus[@id=",?busId,"]//stop") ) AS ?busStop
       WHERE {
           BIND( fn:XPath(?busStop,"/stop/@id"  ) AS ?busStopId )
           BIND( fn:XPath(?busStop,"/stop/text()"  ) AS ?busStopLabel )

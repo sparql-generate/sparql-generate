@@ -1,5 +1,5 @@
 BASE <http://example.org/> 
-PREFIX ite: <http://w3id.org/sparql-generate/ite/>
+PREFIX iter: <http://w3id.org/sparql-generate/iter/>
 PREFIX fn: <http://w3id.org/sparql-generate/fn/>
 PREFIX country:<http://loc.example.com/city/>
 PREFIX schema: <http://schema.org/>
@@ -38,12 +38,12 @@ GENERATE {
 SOURCE <http://example.com/airport.csv> AS ?source
 SOURCE <http://example.com/venue.json> AS ?sourcevenue
 SOURCE <http://example.com/transport.xml> AS ?sourcetransport
-ITERATOR ite:XPath(?sourcetransport, "//bus" ) AS ?busStop
-ITERATOR ite:XPath(?busStop, "//stop" ) AS ?stop
-ITERATOR ite:CSV(?source) AS ?airport
+ITERATOR iter:XPath(?sourcetransport, "//bus" ) AS ?busStop
+ITERATOR iter:XPath(?busStop, "//stop" ) AS ?stop
+ITERATOR iter:CSV(?source) AS ?airport
 WHERE {
     BIND (fn:CSV(?airport, "id" ) AS ?id )
-    BIND (fn:CSV(?airport, "city" ) AS ?city )
+    BIND (fn:CSV(?airport, "city" ) AS ?city ) 
     BIND (fn:CSV(?airport, "longitude" ) AS ?long )
     BIND (fn:CSV(?airport, "latitude" ) AS ?lat )
     BIND (URI(CONCAT("http://airport.example.com/",?id)) AS ?airportURI)

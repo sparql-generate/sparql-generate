@@ -1,5 +1,5 @@
 BASE <http://example.org/> 
-PREFIX ite: <http://w3id.org/sparql-generate/ite/>
+PREFIX iter: <http://w3id.org/sparql-generate/iter/>
 PREFIX fn: <http://w3id.org/sparql-generate/fn/>
 PREFIX country:<http://loc.example.org/city/>
 PREFIX schema: <http://schema.org/>

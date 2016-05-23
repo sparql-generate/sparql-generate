@@ -57,7 +57,7 @@ public class ITE_CSV extends IteratorFunctionBase1 {
     /**
      * The SPARQL function URI.
      */
-    public static final String URI = SPARQLGenerate.ITE + "CSV";
+    public static final String URI = SPARQLGenerate.ITER + "CSV";
 
     /**
      * The datatype URI of the first parameter and the return literals.

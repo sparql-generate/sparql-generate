@@ -1,10 +1,7 @@
 BASE <http://example.org/> 
 PREFIX iter: <http://w3id.org/sparql-generate/iter/>
 PREFIX fn: <http://w3id.org/sparql-generate/fn/>
-PREFIX country:<http://loc.example.org/city/>
-PREFIX schema: <http://schema.org/>
 PREFIX wgs84_pos: <http://www.w3.org/2003/01/geo/wgs84_pos#>
-PREFIX gn: <http://www.geonames.org/ontology#>
 PREFIX transit: <http://vocab.org/transit/terms/>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> 
 

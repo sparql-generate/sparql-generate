@@ -46,7 +46,7 @@ public class ITE_Regex extends IteratorFunctionBase3 {
      * The logger.
      */
     private static final Logger LOG = Logger.getLogger(ITE_Regex.class);
-    public static final String URI = SPARQLGenerate.ITE + "regex";
+    public static final String URI = SPARQLGenerate.ITER + "regex";
     
     public ITE_Regex(){
         System.out.println("~####################################### ITE REGEX");

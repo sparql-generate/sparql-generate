@@ -85,12 +85,14 @@ public class TestBase {
         }
         LOG.debug(q);
 
-//        SPARQLGenerateQuery q2 = (SPARQLGenerateQuery) QueryFactory.create(q.toString(), SPARQLGenerate.SYNTAX);
-//        assertTrue(q.equals(q2));
+        SPARQLGenerateQuery q2 = (SPARQLGenerateQuery) QueryFactory.create(q.toString(), SPARQLGenerate.SYNTAX);
+        LOG.debug(q2);
+        assertTrue(q.equals(q2));
     }
 
     void testPlanExecution() throws Exception {
         String query = IOUtils.toString(fileManager.open("query.rqg"), "UTF-8");
+        System.out.println("zzz is " + query);
         SPARQLGenerateQuery q = (SPARQLGenerateQuery) QueryFactory.create(query, SPARQLGenerate.SYNTAX);
 
         // create generation plan
@@ -118,7 +120,7 @@ public class TestBase {
            }
         }
 
-        fileName = exampleDir.toString()+"/expected_output.ttl";
+        fileName = exampleDir.toString()+"/output.ttl";
         out = new FileWriter( fileName );
         try {
             output.write( out, "TTL" );

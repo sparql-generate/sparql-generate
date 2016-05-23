@@ -1,5 +1,5 @@
 BASE <http://example.org/> 
-PREFIX ite: <http://w3id.org/sparql-generate/ite/>
+PREFIX iter: <http://w3id.org/sparql-generate/iter/>
 PREFIX fn: <http://w3id.org/sparql-generate/fn/>
 PREFIX country:<http://loc.example.com/city/>
 PREFIX schema: <http://schema.org/>
@@ -15,7 +15,7 @@ GENERATE {
        
 }
 SOURCE <http://example.com/airport.csv> AS ?source
-ITERATOR ite:CustomCSV(?source,'"',";","\n","true"^^xsd:boolean) AS ?busRow
+ITERATOR iter:CustomCSV(?source,'"',";","\n","true"^^xsd:boolean) AS ?busRow
 WHERE {
     BIND( fn:CustomCSV(?busRow, "bus",'"',";","\n","true"^^xsd:boolean) AS ?bus )
     BIND( fn:CustomCSV(?busRow, "city",'"',";","\n","true"^^xsd:boolean) AS ?city )
