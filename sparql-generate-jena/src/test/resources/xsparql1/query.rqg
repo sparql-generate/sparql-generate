@@ -11,7 +11,7 @@ GENERATE {
         ?knowsPersonNode foaf:name ?knowsPerson .
     
 }
-SOURCE <http://example.com/relations.xml> AS ?source
+SOURCE <http://example.org/relations.xml> AS ?source
 ITERATOR ite:XPath(?source, "//person" ) AS ?person
 ITERATOR ite:XPath(?person, "//knows" ) AS ?knows 
 WHERE {

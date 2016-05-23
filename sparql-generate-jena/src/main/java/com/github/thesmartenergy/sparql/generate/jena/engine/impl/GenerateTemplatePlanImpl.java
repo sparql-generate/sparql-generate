@@ -24,6 +24,7 @@ import java.util.Map;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.query.Dataset;
+import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.QuerySolutionMap;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.sparql.core.Var;
@@ -75,43 +76,40 @@ public class GenerateTemplatePlanImpl extends PlanBase implements GeneratePlan {
             final Dataset inputDataset,
             final Model initialModel,
             final List<Var> variables,
-            final List<BindingHashMapOverwrite> values) {
+            final List<BindingHashMapOverwrite> values,
+            final BNodeMap bNodeMap) {
         LOG.debug("exec");
-        //TODO write unit tests for bNodes
         for (BindingHashMapOverwrite binding : values) {
-            // create new blank node map
-            Map<Node, Node> bNodeMap = new HashMap<>();
-            for (Var v : binding.varsList()) {
-                Node n = binding.get(v);
-                if (n.isBlank()) {
-                    Node bn = NodeFactory.createBlankNode();
-                    bNodeMap.put(n, bn);
-                }
-            }
+            BNodeMap bNodeMap2 = new BNodeMap(bNodeMap, binding);
             for (GenerateTemplateElementPlan el : templateElementPlans) {
                 if (el instanceof GenerateTriplesPlanImpl) {
                     GenerateTriplesPlanImpl subPlanTriples
                             = (GenerateTriplesPlanImpl) el;
                     subPlanTriples.exec(
                             inputDataset, initialModel,
-                            binding, bNodeMap);
+                            binding, bNodeMap2);
                 } else if (el instanceof RootPlanImpl) {
                     RootPlanImpl rootPlan = (RootPlanImpl) el;
                     QuerySolutionMap b = new QuerySolutionMap();
                     for (Var v : binding.varsList()) {
                         Node n = binding.get(v);
-                        if (bNodeMap.containsKey(n)) {
+                        if (bNodeMap.contains(n)) {
                             b.add(v.getVarName(), initialModel.asRDFNode(bNodeMap.get(n)));
                         } else {
                             b.add(v.getVarName(), initialModel.asRDFNode(n));
                         }
                     }
-                    rootPlan.exec(inputDataset, b, initialModel);
+                    rootPlan.exec(inputDataset, b, initialModel, bNodeMap2);
                 } else {
                     throw new SPARQLGenerateException("should not reach this point");
                 }
             }
         }
+    }
+
+    @Override
+    public void exec(Dataset inputDataset, QuerySolution initialBindings, Model initialModel, BNodeMap bNodeMap) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
 }

@@ -23,10 +23,7 @@ import java.net.URI;
 import java.net.URL;
 import org.apache.commons.io.IOUtils;
 import org.apache.jena.query.QueryFactory;
-import org.apache.jena.query.QuerySolutionMap;
 import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.ModelFactory;
-import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.util.FileManager;
 import org.apache.jena.util.LocationMapper;
@@ -44,34 +41,17 @@ import org.junit.Test;
  *
  * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */
-public class CSVW extends TestBase {
+public class Bnodes {
 
     static Logger LOG;
-    static URL examplePath;
-    static File exampleDir;
-    static FileManager fileManager;
-
-    public CSVW() {
+    public Bnodes() {
 
     }
 
     @BeforeClass
     public static void setUpClass() throws Exception {
-        LOG = Logger.getLogger(CSVW.class);
-        LOG.debug(CSVW.class.getName());
-        examplePath = CSVW.class.getResource("/csvw");
-        exampleDir = new File(examplePath.toURI());
-
-        // read location-mapping
-        URI confUri = exampleDir.toURI().resolve("configuration.ttl");
-        Model conf = RDFDataMgr.loadModel(confUri.toString());
-
-        // initialize file manager
-        fileManager = FileManager.makeGlobal();
-        Locator loc = new LocatorFile(exampleDir.toURI().getPath());
-        LocationMapper mapper = new LocationMapper(conf);
-        fileManager.addLocator(loc);
-        fileManager.setLocationMapper(mapper);
+        LOG = Logger.getLogger(Bnodes.class);
+        LOG.debug(Bnodes.class.getName());
     }
 
     @AfterClass
@@ -86,38 +66,51 @@ public class CSVW extends TestBase {
     public void tearDown() {
     }
 
-
     @Test
-    public void test001() throws Exception {
-        testSimple("test001");
+    public void testbnode1() throws Exception {
+        test("bnode1");
     }
 
-    public void testSimple(String value) throws Exception {
+    @Test
+    public void testbnode2() throws Exception {
+        test("bnode2");
+    }
+
+    @Test
+    public void testbnode3() throws Exception {
+        test("bnode3");
+    }
+
+    public void test(String value) throws Exception {
+        URL examplePath = Bnodes.class.getResource("/" + value);
+        File exampleDir = new File(examplePath.toURI());
+
+        // read location-mapping
+        URI confUri = exampleDir.toURI().resolve("configuration.ttl");
+        Model conf = RDFDataMgr.loadModel(confUri.toString());
+
+        // initialize file manager
+        FileManager fileManager = FileManager.makeGlobal();
+        Locator loc = new LocatorFile(exampleDir.toURI().getPath());
+        LocationMapper mapper = new LocationMapper(conf);
+        fileManager.addLocator(loc);
+        fileManager.setLocationMapper(mapper);
+
         String qstring = IOUtils.toString(fileManager.open("query.rqg"), "UTF-8");
         SPARQLGenerateQuery q = (SPARQLGenerateQuery) QueryFactory.create(qstring, SPARQLGenerate.SYNTAX);
 
         // create generation plan
         PlanFactory factory = new PlanFactory(fileManager);
         RootPlan plan = factory.create(q);
-        Model output = ModelFactory.createDefaultModel();
-        QuerySolutionMap initialBinding = new QuerySolutionMap();
-
-        Model model = ModelFactory.createDefaultModel();
-
-        String variable = "csvfile";
-        RDFNode jenaLiteral = model.createResource(value + ".csv");
-        initialBinding.add(variable, jenaLiteral);
-
-        // execute plan
-        plan.exec(initialBinding, output);
+        Model output = plan.exec();
 
         // write output
         output.write(System.out, "TTL");
 
-        Model expectedOutput = fileManager.loadModel(value + ".ttl");
+        Model expectedOutput = fileManager.loadModel("expected_output.ttl");
         StringWriter sw = new StringWriter();
         expectedOutput.write(sw, "TTL");
-        LOG.debug(sw.toString());
+        LOG.debug("\n"+sw.toString());
 
         Assert.assertTrue(output.isIsomorphicWith(expectedOutput));
     }

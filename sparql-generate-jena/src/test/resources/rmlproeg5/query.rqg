@@ -10,7 +10,7 @@ GENERATE {
             rdfs:label ?artist .
     
 }
-SOURCE <http://example.com/museum.json> AS ?source
+SOURCE <http://example.org/museum.json> AS ?source
 ITERATOR iter:JSONPath(?source,"$[*]") AS ?work
 WHERE {
     BIND (fn:JSONPath(?work,"$.Artist") AS ?artist)

@@ -17,9 +17,9 @@ package com.github.thesmartenergy.sparql.generate.jena.engine;
 
 /**
  * Executes one block in the SPARQL GENERATE template.
- * 
+ *
  * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */
 public interface GenerateTemplateElementPlan {
-    
+
 }

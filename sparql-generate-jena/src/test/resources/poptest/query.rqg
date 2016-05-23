@@ -1,7 +1,7 @@
 BASE <http://example.org/> 
 PREFIX iter: <http://w3id.org/sparql-generate/iter/>
 PREFIX fn: <http://w3id.org/sparql-generate/fn/>
-PREFIX country:<http://loc.example.com/city/>
+PREFIX country:<http://loc.example.org/city/>
 PREFIX schema: <http://schema.org/>
 PREFIX wgs84_pos: <http://www.w3.org/2003/01/geo/wgs84_pos#>
 PREFIX gn: <http://www.geonames.org/ontology#>
@@ -17,10 +17,10 @@ GENERATE {
      xsd:continentName ?continentName;
      xsd:countryPopulation ?countryPopulation;
 }
-SOURCE <http://example.com/continent.json> AS ?continents
-SOURCE <http://example.com/country-names.json> AS ?countryNames
-SOURCE <http://example.com/country-population.json> AS ?countriesPopulation
-SOURCE <http://example.com/continentnames.json> AS ?continentNames
+SOURCE <http://example.org/continent.json> AS ?continents
+SOURCE <http://example.org/country-names.json> AS ?countryNames
+SOURCE <http://example.org/country-population.json> AS ?countriesPopulation
+SOURCE <http://example.org/continentnames.json> AS ?continentNames
 
 ITERATOR iter:JSONListKeys( ?countryNames ) AS ?countryCode
 WHERE {

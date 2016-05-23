@@ -30,8 +30,6 @@ import org.apache.jena.sparql.engine.binding.BindingHashMap;
 abstract class PlanBase {
 
     
-    protected Map<Node,Node> bNodeMap;
-    
     /**
      * Checks that the object is not null.
      *

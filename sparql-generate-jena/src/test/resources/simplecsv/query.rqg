@@ -1,7 +1,7 @@
 BASE <http://example.org/> 
 PREFIX iter: <http://w3id.org/sparql-generate/iter/>
 PREFIX fn: <http://w3id.org/sparql-generate/fn/>
-PREFIX country:<http://loc.example.com/city/>
+PREFIX country:<http://loc.example.org/city/>
 PREFIX schema: <http://schema.org/>
 PREFIX wgs84_pos: <http://www.w3.org/2003/01/geo/wgs84_pos#>
 PREFIX gn: <http://www.geonames.org/ontology#>
@@ -15,7 +15,7 @@ GENERATE {
         wgs84_pos:long ?long .
 
 }
-SOURCE <http://example.com/airport.csv> AS ?source
+SOURCE <http://example.org/airport.csv> AS ?source
 ITERATOR iter:CSV(?source) AS ?bus
 WHERE {
     BIND( fn:CSV(?bus, "id" ) AS ?id )
@@ -23,5 +23,5 @@ WHERE {
     BIND(STRDT(STR(?route), xsd:int) AS ?route1)
     BIND( fn:CSV(?bus, "longitude" ) AS ?long )
     BIND( fn:CSV(?bus, "latitude" ) AS ?lat )
-    BIND (URI(CONCAT("http://airport.example.com/",?id)) AS ?airportURI)
+    BIND (URI(CONCAT("http://airport.example.org/",?id)) AS ?airportURI)
 }

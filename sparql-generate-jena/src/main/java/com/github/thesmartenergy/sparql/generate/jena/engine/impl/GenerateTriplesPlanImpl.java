@@ -60,10 +60,10 @@ public class GenerateTriplesPlanImpl
             final Dataset inputDataset,
             final Model initialModel,
             final BindingHashMapOverwrite binding,
-            final Map<Node, Node> bNodeMap) {
+            final BNodeMap bNodeMap) {
         LOG.debug("exec");
         for (Triple t : bgp.getList()) {
-            Triple t2 = TemplateLib.subst(t, binding, bNodeMap);
+            Triple t2 = TemplateLib.subst(t, binding, bNodeMap.asMap());
             if (t2.isConcrete()) {
                 Statement s = initialModel.asStatement(t2);
                 initialModel.add(s);

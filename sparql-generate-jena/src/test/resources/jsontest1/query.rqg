@@ -1,7 +1,7 @@
 BASE <http://example.org/> 
 PREFIX ite: <http://w3id.org/sparql-generate/ite/>
 PREFIX fn: <http://w3id.org/sparql-generate/fn/>
-PREFIX country:<http://loc.example.com/city/>
+PREFIX country:<http://loc.example.org/city/>
 PREFIX schema: <http://schema.org/>
 PREFIX wgs84_pos: <http://www.w3.org/2003/01/geo/wgs84_pos#>
 PREFIX gn: <http://www.geonames.org/ontology#>
@@ -18,5 +18,5 @@ WHERE {
    BIND(fn:JSONPath(?source, "$.venue.latitude" ) AS ?latitude)
    BIND(fn:JSONPath(?source, "$.venue.longitude" ) AS ?longitude)
    BIND(fn:JSONPath(?source, "$.location.country" ) AS ?countryCode)
-   BIND (URI(CONCAT("http://loc.example.com/city/",?city)) AS ?s)
+   BIND (URI(CONCAT("http://loc.example.org/city/",?city)) AS ?s)
 }

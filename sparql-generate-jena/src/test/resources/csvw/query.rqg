@@ -8,8 +8,8 @@ GENERATE {
  ?tablegroup a csvw:TableGroup ;
     csvw:table ?table .
 
- ?table a csvw:Table .
-
+ ?table a csvw:Table ;
+    csvw:url ?tableuri .
 
     GENERATE {
         ?table csvw:row ?rownode .
@@ -22,7 +22,7 @@ GENERATE {
             ?descriptionnode ?header ?vcell .
         } ITERATOR iter:CSVFirstRow( ?row ) AS ?cell 
         WHERE {
-            BIND( IRI( CONCAT( STR( ?relativerui ) , fn:JSONPath(?cell, "$.header" ) ) ) AS ?header ) 
+            BIND( IRI( CONCAT( STR( ?tableuri ) , "#", fn:JSONPath(?cell, "$.header" ) ) ) AS ?header ) 
             BIND( fn:JSONPath(?cell, "$.cell" ) AS ?vcell ) 
         } .
     }
@@ -30,8 +30,8 @@ GENERATE {
     WHERE {
         BIND( bnode() AS ?rownode ) 
         BIND( bnode() AS ?descriptionnode ) 
-        BIND( fn:JSONPath(?wrap, "$.position" ) AS ?rownum )
-        BIND( IRI( CONCAT( STR( ?relativerui ) , "row=" , (1 + ?rownum) ) ) AS ?rowuri) 
+        BIND( (1 + fn:JSONPath(?wrap, "$.position" ) ) AS ?rownum )
+        BIND( IRI( CONCAT( STR( ?tableuri ) , "#row=" , STR(1 + ?rownum) ) ) AS ?rowuri) 
         BIND( fn:JSONPath(?wrap, "$.row" ) AS ?row ) 
     } .
 
@@ -40,5 +40,5 @@ SOURCE ?csvfile as ?message
 WHERE {
   BIND( fn:bnode("tablegroup") AS ?tablegroup ) 
   BIND( fn:bnode("table") AS ?table ) 
-  BIND( IRI( CONCAT( STR( ?csvfile ), "#" ) ) AS ?relativerui ) 
+  BIND( IRI( STR( ?csvfile ) ) AS ?tableuri ) 
 }

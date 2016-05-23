@@ -4,7 +4,7 @@ PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX bibo:    <http://purl.org/ontology/bibo/> 
 PREFIX dcterms: <http://purl.org/dc/terms/>
 PREFIX spc:     <http://semweb.mmlab.be/ns/spc/>
-PREFIX ex:     <http://www.example.com/>
+PREFIX ex:     <http://www.example.org/>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 GENERATE { 
     ?paperIRI a ex:Paper .
@@ -14,7 +14,7 @@ GENERATE {
         ?resource_uri ex:name ?fr_label .
 
 }
-SOURCE <http://example.com/example.csv> AS ?countries
+SOURCE <http://example.org/example.csv> AS ?countries
 ITERATOR iter:CSV(?countries) AS ?countryInfo
 WHERE {
     BIND(fn:CSV(?countryInfo, "id" ) AS ?id )

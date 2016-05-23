@@ -24,13 +24,13 @@ java -jar sparql-generate-jena.jar [arguments]
 
 `java -jar sparql-generate-jena.jar -qf /path/to/query.rqg `
 
-* Executing a query found in file query.rqg where query contains the URI http://example.com/countries.json of a remote file countries.json which can also be found locally.
+* Executing a query found in file query.rqg where query contains the URI http://example.org/countries.json of a remote file countries.json which can also be found locally.
 
-`java -jar sparql-generate-jena.jar -qf /path/to/query.rqg -c http://example.com/countries.json:/path/to/countries.json`
+`java -jar sparql-generate-jena.jar -qf /path/to/query.rqg -c http://example.org/countries.json:/path/to/countries.json`
 
-* Executing a query found in file query.rqg where query contains two URIs http://example.com/countries.json of a remote file countries.json and http://example.com/continents.json of a remote file continents.json and both files can be found locally.
+* Executing a query found in file query.rqg where query contains two URIs http://example.org/countries.json of a remote file countries.json and http://example.org/continents.json of a remote file continents.json and both files can be found locally.
 
-`java -jar sparql-generate-jena.jar -qf /path/to/query.rqg -c http://example.com/countries.json:/path/to/countries.json;http://example.com/continents.json:/path/to/continents.json`
+`java -jar sparql-generate-jena.jar -qf /path/to/query.rqg -c http://example.org/countries.json:/path/to/countries.json;http://example.org/continents.json:/path/to/continents.json`
 
 * Executing a query where the message is completely externalized from the query
 `java -jar sparql-generate-jena.jar -qf /path/to/query.rqg -m /path/to/message`

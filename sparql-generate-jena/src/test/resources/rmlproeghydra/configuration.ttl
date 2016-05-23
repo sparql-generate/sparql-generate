@@ -3,7 +3,7 @@
 [] lm:mapping
    [ lm:name "http://w3id.org/sparql-generate/example/source/query" ; lm:altName "query.rqg" ] ,
    [ lm:name "http://w3id.org/sparql-generate/example/source/expected_output" ; lm:altName "expected_output.ttl" ],
-   [ lm:name "http://example.com/example.csv" ; lm:altName "example.csv" ] 
+   [ lm:name "http://example.org/example.csv" ; lm:altName "example.csv" ] 
    .
 
 

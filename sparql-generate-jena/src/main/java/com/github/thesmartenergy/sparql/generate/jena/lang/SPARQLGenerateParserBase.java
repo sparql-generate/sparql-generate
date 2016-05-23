@@ -36,9 +36,11 @@ public class SPARQLGenerateParserBase extends SPARQLParserBase {
      * Starts parsing a sub GENERATE query.
      */
     protected final void startSubGenerate() {
+        String base = getQuery().getBaseURI();
         PrefixMapping pm = getQuery().getPrefixMapping();
         pushQuery();
         query = new SPARQLGenerateQuery();
+        query.setBaseURI(base);
         query.setPrefixMapping(pm);
     }
 
