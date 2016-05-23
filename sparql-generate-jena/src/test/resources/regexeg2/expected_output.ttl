@@ -1,11 +1,25 @@
-@prefix schema: <http://schema.org/> .
-@prefix country: <http://loc.example.com/city/> .
+@prefix ex:    <http://example.com/> .
 @prefix gn:    <http://www.geonames.org/ontology#> .
-@prefix wgs84_pos: <http://www.w3.org/2003/01/geo/wgs84_pos#> .
-@prefix rqg-fn: <http://w3id.org/sparql-generate/fn/> .
-@prefix rqg-ite: <http://w3id.org/sparql-generate/ite/> .
+@prefix fn:    <http://w3id.org/sparql-generate/fn/> .
+@prefix ite:   <http://w3id.org/sparql-generate/ite/> .
 
-country:Brussels  a     schema:City ;
-        gn:countryCode  "BE" ;
-        wgs84_pos:lat   "51.0500000" ;
-        wgs84_pos:long  "3.7166700" .
+<http://example.org/2>
+        a            ex:Student ;
+        ex:dobday    "13" ;
+        ex:dobmonth  "02" ;
+        ex:dobyear   "1987" ;
+        ex:name      "Sam" .
+
+<http://example.org/1>
+        a            ex:Student ;
+        ex:dobday    "12" ;
+        ex:dobmonth  "05" ;
+        ex:dobyear   "1980" ;
+        ex:name      "John" .
+
+<http://example.org/3>
+        a            ex:Student ;
+        ex:dobday    "10" ;
+        ex:dobmonth  "06" ;
+        ex:dobyear   "1990" ;
+        ex:name      "Tim" .

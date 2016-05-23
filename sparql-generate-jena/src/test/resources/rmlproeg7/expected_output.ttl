@@ -1,11 +1,12 @@
-@prefix schema: <http://schema.org/> .
-@prefix country: <http://loc.example.com/city/> .
-@prefix gn:    <http://www.geonames.org/ontology#> .
-@prefix wgs84_pos: <http://www.w3.org/2003/01/geo/wgs84_pos#> .
-@prefix fn: <http://w3id.org/sparql-generate/fn/> .
-@prefix ite: <http://w3id.org/sparql-generate/ite/> .
+@prefix simres: <http://www.lbl.gov/namespaces/Sim/ResourcesGeneral/> .
+@prefix ex:    <http://www.example.com/> .
+@prefix transit: <http://vocab.org/transit/terms/> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix fn:    <http://w3id.org/sparql-generate/fn/> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix simmodel: <http://www.lbl.gov/namespaces/Sim/Model/> .
+@prefix ite:   <http://w3id.org/sparql-generate/ite/> .
 
-country:Brussels  a     schema:City ;
-        gn:countryCode  "BE" ;
-        wgs84_pos:lat   "51.0500000" ;
-        wgs84_pos:long  "3.7166700" .
+<http://airport.example.com/6523>
+        a                transit:Stop ;
+        transit:service  "25" .

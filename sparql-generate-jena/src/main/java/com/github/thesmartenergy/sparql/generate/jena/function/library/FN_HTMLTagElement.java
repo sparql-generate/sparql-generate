@@ -39,18 +39,18 @@ import org.jsoup.select.Elements;
  *
  * @author Noorani Bakerally
  */
-public class FN_HTMLTag extends FunctionBase2{
+public class FN_HTMLTagElement extends FunctionBase2{
     //TODO write multiple unit tests for this class.
 
     /**
      * The logger.
      */
-    private static final Logger LOG = Logger.getLogger(FN_HTMLTag.class);
+    private static final Logger LOG = Logger.getLogger(FN_HTMLTagElement.class);
 
     /**
      * The SPARQL function URI.
      */
-    public static final String URI = SPARQLGenerate.FN + "HTMLTag";
+    public static final String URI = SPARQLGenerate.FN + "HTMLTagElement";
 
     /**
      * The datatype URI of the first parameter and the return literals.
@@ -73,12 +73,13 @@ public class FN_HTMLTag extends FunctionBase2{
         }
       
         try {
-            String sourceHtml = String.valueOf(html.asNode().getLiteralLexicalForm());
+            String sourceHtml = String.valueOf(html.asNode().getLiteralValue());
             org.jsoup.nodes.Document htmldoc = Jsoup.parse(sourceHtml);
             
             String selectPath = String.valueOf(v2.asNode().getLiteralValue());
             Elements elements = htmldoc.select(selectPath);
-            return new NodeValueString(elements.text());
+            
+            return new NodeValueString(elements.outerHtml());
         } catch (Exception e) {
             LOG.debug("Error:HTML Tag "+e.getMessage());
             throw new ExprEvalException("FunctionBase: no evaluation", e);

@@ -20,7 +20,7 @@ GENERATE {
                 
     ?noteIRI mail:when ?dmy .
 }
-SOURCE <http://example.com/example1.xml> AS ?source
+SOURCE <http://www.example.com/example2.xml> AS ?source
 ITERATOR ite:XPath(?source, "//note" ) AS ?note
 WHERE {
      BIND( fn:XPath(?note,"/note/@id"  ) AS ?noteId )

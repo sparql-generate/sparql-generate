@@ -1,11 +1,40 @@
 @prefix schema: <http://schema.org/> .
-@prefix country: <http://loc.example.com/city/> .
+@prefix ex:    <http://www.example.com/> .
+@prefix geosp: <http://www.telegraphis.net/ontology/geography/geography#> .
 @prefix gn:    <http://www.geonames.org/ontology#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix fn:    <http://w3id.org/sparql-generate/fn/> .
+@prefix skos:  <http://www.w3.org/2004/02/skos/core#> .
 @prefix wgs84_pos: <http://www.w3.org/2003/01/geo/wgs84_pos#> .
-@prefix fn: <http://w3id.org/sparql-generate/fn/> .
-@prefix ite: <http://w3id.org/sparql-generate/ite/> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix ite:   <http://w3id.org/sparql-generate/ite/> .
 
-country:Brussels  a     schema:City ;
-        gn:countryCode  "BE" ;
-        wgs84_pos:lat   "51.0500000" ;
-        wgs84_pos:long  "3.7166700" .
+[ a               skos:Concept ;
+  skos:altLabel   "'NL GRAVENWEZEL"@en ;
+  skos:prefLabel  "'S GRAVENWEZEL"@nl
+] .
+
+[ a               skos:Concept ;
+  skos:altLabel   "'NL HEEREN DIANE"@en ;
+  skos:prefLabel  "'S HEEREN DIANE"@nl
+] .
+
+[ a               skos:Concept ;
+  skos:altLabel   "'NL GRAVENVOEREN"@en ;
+  skos:prefLabel  "'S GRAVENVOEREN"@nl
+] .
+
+[ a               skos:Concept ;
+  skos:altLabel   "'NL GRAVESANDE AD"@en ;
+  skos:prefLabel  "'S GRAVESANDE AD"@nl
+] .
+
+[ a               skos:Concept ;
+  skos:altLabel   "'NL HEERENBERG"@en ;
+  skos:prefLabel  "'S HEERENBERG"@nl
+] .
+
+[ a               skos:Concept ;
+  skos:altLabel   "Trefwoorden"@en ;
+  skos:prefLabel  "Keywords"@nl
+] .
