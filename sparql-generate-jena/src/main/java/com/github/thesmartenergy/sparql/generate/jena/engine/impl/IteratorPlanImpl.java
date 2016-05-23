@@ -27,7 +27,7 @@ import com.github.thesmartenergy.sparql.generate.jena.engine.IteratorOrSourcePla
 /**
  * Executes a {@code ITERATOR <iterator>(<expreList>) AS <var>} clause.
  *
- * @author maxime.lefrancois
+ * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */
 public class IteratorPlanImpl extends PlanBase implements IteratorOrSourcePlan {
 

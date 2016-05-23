@@ -27,16 +27,9 @@ import java.util.Arrays;
 /**
  * A SPARQL Iterator function that returns a list of strings
  * splitted based on delimter.  The Iterator function URI is
- * {@code <http://w3id.org/sparql-generate/ite/Split>}.
- * It takes two parameters as input:
- * <ul>
- * <li>{@param  stringValue} a RDF Literal with datatype {@code xsd:string} 
- * representing the source string</li>
- * <li>{@param  delimeterValue} a RDF Literal with datatype {@code xsd:string} representing the delimeter which can be regular expression</li>
- * </ul>
- * and returns a list of RDF Literal with datatype {@code xsd:string} 
+ * {@code <http://w3id.org/sparql-generate/iter/Split>}.
  *
- * @author Noorani Bakerally
+ * @author Noorani Bakerally <noorani.bakerally at emse.fr>
  */
 public class ITE_Split extends IteratorFunctionBase2 {
 
@@ -44,8 +37,14 @@ public class ITE_Split extends IteratorFunctionBase2 {
      * The logger.
      */
     private static final Logger LOG = Logger.getLogger(ITE_Split.class);
-    public static final String URI = SPARQLGenerate.ITE + "Split";
+    public static final String URI = SPARQLGenerate.ITER + "Split";
     
+    /**
+     * 
+     * @param stringValue  a RDF Literal with datatype {@code xsd:string}  representing the source string
+     * @param delimeterValue  a RDF Literal with datatype {@code xsd:string} representing the delimeter which can be regular expression
+     * @return  a list of RDF Literal with datatype {@code xsd:string} 
+     */
     @Override
     public List<NodeValue> exec(NodeValue stringValue, NodeValue delimeterValue) {
             String string = stringValue.getString();

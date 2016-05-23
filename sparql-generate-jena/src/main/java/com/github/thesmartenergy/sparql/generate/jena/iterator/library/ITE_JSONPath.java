@@ -15,7 +15,6 @@
  */
 package com.github.thesmartenergy.sparql.generate.jena.iterator.library;
 
-
 import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
 import com.google.gson.Gson;
 import com.jayway.jsonpath.Configuration;
@@ -41,18 +40,10 @@ import org.apache.log4j.Logger;
 
 /**
  * A SPARQL Iterator function that extracts a list of sub-JSON documents of a
- * JSON document, according to a JSONPath expression. The Iterator function URI is
- * {@code <http://w3id.org/sparql-generate/ite/JSON_Path_jayway>}.
- * It takes two parameters as input:
- * <ul>
- * <li> {@param  json} a RDF Literal with datatype URI
- * {@code <urn:iana:mime:application/json>}</li>
- * <li> {@param  jsonquery} a RDF Literal with datatype {@code xsd:string}</li>
- * </ul>
- * and returns a list of RDF Literal with datatype URI
- * {@code <urn:iana:mime:application/json>}.
+ * JSON document, according to a JSONPath expression. The Iterator function URI
+ * is {@code <http://w3id.org/sparql-generate/iter/JSONPath>}.
  *
- * @author maxime.lefrancois
+ * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */
 public class ITE_JSONPath extends IteratorFunctionBase2 {
 
@@ -88,7 +79,7 @@ public class ITE_JSONPath extends IteratorFunctionBase2 {
     /**
      * The SPARQL function URI.
      */
-    public static final String URI = SPARQLGenerate.ITE + "JSONPath";
+    public static final String URI = SPARQLGenerate.ITER + "JSONPath";
 
     /**
      * The datatype URI of the first parameter and the return literals.
@@ -96,7 +87,12 @@ public class ITE_JSONPath extends IteratorFunctionBase2 {
     private static final String datatypeUri = "urn:iana:mime:application/json";
 
     /**
-     * {@inheritDoc }
+     *
+     * @param json a RDF Literal with datatype URI
+     * {@code <urn:iana:mime:application/json>} or {@code xsd:string}.
+     * @param jsonquery a RDF Literal with datatype {@code xsd:string}
+     * @return a list of RDF Literal with datatype URI
+     * {@code <urn:iana:mime:application/json>}.
      */
     @Override
     public List<NodeValue> exec(NodeValue json, NodeValue jsonquery) {

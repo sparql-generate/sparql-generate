@@ -1,11 +1,23 @@
-@prefix schema: <http://schema.org/> .
-@prefix country: <http://loc.example.com/city/> .
-@prefix gn:    <http://www.geonames.org/ontology#> .
-@prefix wgs84_pos: <http://www.w3.org/2003/01/geo/wgs84_pos#> .
-@prefix rqg-fn: <http://w3id.org/sparql-generate/fn/> .
-@prefix rqg-ite: <http://w3id.org/sparql-generate/ite/> .
+@prefix transit: <http://vocab.org/transit/terms/> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
 
-country:Brussels  a     schema:City ;
-        gn:countryCode  "BE" ;
-        wgs84_pos:lat   "51.0500000" ;
-        wgs84_pos:long  "3.7166700" .
+
+<http://trans.example.com/stop/651>
+        rdfs:label  "Conference center" .
+
+<http://trans.example.com/stop/645>
+        rdfs:label  "International Airport" .
+
+<http://trans.example.com/bus/26>
+        a             transit:Bus ;
+        transit:stop  <http://trans.example.com/stop/600> , <http://trans.example.com/stop/668> .
+
+<http://trans.example.com/stop/668>
+        rdfs:label  "Shopping Center" .
+
+<http://trans.example.com/stop/600>
+        rdfs:label  "Cinema" .
+
+<http://trans.example.com/bus/25>
+        a             transit:Bus ;
+        transit:stop  <http://trans.example.com/stop/651> , <http://trans.example.com/stop/645> .

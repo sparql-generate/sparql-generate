@@ -3,8 +3,8 @@
 [] lm:mapping
    [ lm:name "http://w3id.org/sparql-generate/example/source/query" ; lm:altName "query.rqg" ] ,
    [ lm:name "http://w3id.org/sparql-generate/example/source/expected_output" ; lm:altName "expected_output.ttl" ],
-   [ lm:name "http://example.com/museum.json" ; lm:altName "museum.json" ] ,
-   [ lm:name "http://example.com/moon-walkers.csv" ; lm:altName "moon-walkers.csv" ] 
+   [ lm:name "http://example.org/museum.json" ; lm:altName "museum.json" ] ,
+   [ lm:name "http://example.org/moon-walkers.csv" ; lm:altName "moon-walkers.csv" ] 
    .
 
 

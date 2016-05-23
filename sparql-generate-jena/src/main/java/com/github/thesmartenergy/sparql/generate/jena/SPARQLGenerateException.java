@@ -20,7 +20,7 @@ import org.apache.jena.sparql.ARQException;
 /**
  * The SPARQL Generate exception class.
  *
- * @author maxime.lefrancois
+ * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */
 public class SPARQLGenerateException extends ARQException {
 

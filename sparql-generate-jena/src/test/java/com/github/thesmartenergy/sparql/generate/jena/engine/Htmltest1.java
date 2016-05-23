@@ -24,7 +24,7 @@ import org.junit.Test;
 
 /**
  *
- * @author maxime.lefrancois
+ * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */
 public class Htmltest1 extends TestBase {
 

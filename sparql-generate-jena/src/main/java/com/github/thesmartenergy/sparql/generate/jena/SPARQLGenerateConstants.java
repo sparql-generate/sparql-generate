@@ -23,7 +23,7 @@ import org.apache.jena.sparql.util.Symbol;
  * Adds a symbol for {@link registrySelectors#registryIterators} 
  * to {@link ARQConstants}.
  * 
- * @author maxime.lefrancois
+ * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */
 public class SPARQLGenerateConstants extends ARQConstants {
 

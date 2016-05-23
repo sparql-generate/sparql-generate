@@ -15,7 +15,6 @@
  */
 package com.github.thesmartenergy.sparql.generate.jena.iterator.library;
 
-
 import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
 import com.google.gson.Gson;
 import com.jayway.jsonpath.Configuration;
@@ -36,15 +35,11 @@ import org.apache.log4j.Logger;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.IteratorFunctionBase1;
 
 /**
- * A SPARQL Iterator function that lists the keys of a JSON object represented by a
- * JSON document. The Iterator function URI is
- * {@code <http://w3id.org/sparql-generate/ite/JSON_Path_jayway>}.
- * It takes one parameter,{@param json} as input which is a RDF Literal with datatype URI
- * {@code <urn:iana:mime:application/json>}</li>
- * </ul>
- * and returns a list of {@code xsd:string} Literals.
+ * A SPARQL Iterator function that lists the keys of a JSON object represented
+ * by a JSON document. The Iterator function URI is
+ * {@code <http://w3id.org/sparql-generate/iter/JSONListKeys>}.
  *
- * @author maxime.lefrancois
+ * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */
 public class ITE_JSONListKeys extends IteratorFunctionBase1 {
 
@@ -80,7 +75,7 @@ public class ITE_JSONListKeys extends IteratorFunctionBase1 {
     /**
      * The SPARQL function URI.
      */
-    public static final String URI = SPARQLGenerate.ITE + "JSONListKeys";
+    public static final String URI = SPARQLGenerate.ITER + "JSONListKeys";
 
     /**
      * The datatype URI of the first parameter and the return literals.
@@ -88,7 +83,10 @@ public class ITE_JSONListKeys extends IteratorFunctionBase1 {
     private static final String datatypeUri = "urn:iana:mime:application/json";
 
     /**
-     * {@inheritDoc}
+     *
+     * @param json a RDF Literal with datatype URI
+     * {@code <urn:iana:mime:application/json>} or {@code xsd:string}
+     * @return a list of {@code xsd:string} Literals.
      */
     @Override
     public List<NodeValue> exec(NodeValue json) {
@@ -100,7 +98,7 @@ public class ITE_JSONListKeys extends IteratorFunctionBase1 {
             LOG.warn("The URI of NodeValue1 MUST have been"
                     + " <" + datatypeUri + "> or"
                     + " <http://www.w3.org/2001/XMLSchema#string>."
-                    + " Got <" +json.getDatatypeURI()+">"
+                    + " Got <" + json.getDatatypeURI() + ">"
                     + " Returning null.");
         }
         try {

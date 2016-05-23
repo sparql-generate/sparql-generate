@@ -17,7 +17,7 @@ package com.github.thesmartenergy.sparql.generate.generator;
 
 /**
  *
- * @author Noorani Bakerally
+ * @author Noorani Bakerally <noorani.bakerally at emse.fr>
  */
 import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
 import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerateException;
@@ -83,17 +83,20 @@ public class CMDGenerator {
             String query = "";
             String outputFormat = "TTL";
             
-            
+            if (cl.getArgList().size() == 0){
+                CMDConfigurations.displayHelp();
+                return;
+            }
             
             
             fileManager = FileManager.makeGlobal(); 
             if ( cl.hasOption('l') ) {
                Enumeration<String> loggers = LogManager.getLogManager().getLoggerNames();
-              while (loggers.hasMoreElements()) {
-                 java.util.logging.Logger element = LogManager.getLogManager().getLogger(loggers.nextElement());
-                 element.setLevel(Level.OFF);
-              }
-              Logger.getRootLogger().setLevel(org.apache.log4j.Level.OFF);
+                while (loggers.hasMoreElements()) {
+                   java.util.logging.Logger element = LogManager.getLogManager().getLogger(loggers.nextElement());
+                   element.setLevel(Level.OFF);
+                }
+                Logger.getRootLogger().setLevel(org.apache.log4j.Level.OFF);
                        
             }
             LOG = Logger.getLogger(CMDGenerator.class);

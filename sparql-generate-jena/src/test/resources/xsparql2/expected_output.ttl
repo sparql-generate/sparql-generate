@@ -1,0 +1,24 @@
+@prefix foaf:  <http://xmlns.com/foaf/0.1/> .
+
+[ foaf:knows  [ a          foaf:Person ;
+                foaf:name  "Charles"
+              ] ;
+  foaf:knows  [ a          foaf:Person ;
+                foaf:name  "Bob"
+              ] ] .
+
+[ a          foaf:Person ;
+  foaf:name  "Alice"
+] .
+
+[ a          foaf:Person ;
+  foaf:name  "Charles"
+] .
+
+[ foaf:knows  [ a          foaf:Person ;
+                foaf:name  "Charles"
+              ] ] .
+
+[ a          foaf:Person ;
+  foaf:name  "Bob"
+] .

@@ -26,7 +26,7 @@ import com.jayway.jsonpath.spi.json.JsonProvider;
 import com.jayway.jsonpath.spi.mapper.JacksonMappingProvider;
 import com.jayway.jsonpath.spi.mapper.MappingProvider;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.IteratorFunctionBase2;
-import com.sun.xml.internal.messaging.saaj.util.Base64;
+import java.util.Base64;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
@@ -41,19 +41,12 @@ import org.apache.jena.sparql.expr.nodevalue.NodeValueNode;
 import org.apache.log4j.Logger;
 
 /**
- * A SPARQL function that takes as an input a CBOR document, decodes it and extracts a list of sub-JSON documents 
- * according to a JSONPath expression. The Iterator function URI is
- * {@code <http://w3id.org/sparql-generate/ite/CBOR>}.
- * It takes two parameters as input:
- * <ul>
- * <li> {@param  cbor} a RDF Literal with datatype URI
- * {@code <urn:iana:mime:application/cbor>}</li>
- * <li>{@param jsonquery} a RDF Literal with datatype {@code xsd:string}</li>
- * </ul>
- * and returns a list of RDF Literal with datatype URI
- * {@code <urn:iana:mime:application/json>}.
+ * A SPARQL function that takes as an input a CBOR document, decodes it and
+ * extracts a list of sub-JSON documents according to a JSONPath expression.
+ * The Iterator function URI is
+ * {@code <http://w3id.org/sparql-generate/iter/CBOR>}.
  *
- * @author Noorani Bakerally
+ * @author Noorani Bakerally <noorani.bakerally at emse.fr>
  */
 public class ITE_CBOR extends IteratorFunctionBase2 {
 
@@ -89,7 +82,7 @@ public class ITE_CBOR extends IteratorFunctionBase2 {
     /**
      * The SPARQL function URI.
      */
-    public static final String URI = SPARQLGenerate.ITE + "CBOR";
+    public static final String URI = SPARQLGenerate.ITER + "CBOR";
 
     /**
      * The datatype URI of the first parameter and the return literals.
@@ -97,7 +90,13 @@ public class ITE_CBOR extends IteratorFunctionBase2 {
     private static final String datatypeUri = "urn:iana:mime:application/cbor";
 
     /**
-     * {@inheritDoc }
+     * This method takes two parameters as input:
+     * 
+     * @param cbor a RDF Literal with datatype URI
+     * {@code <urn:iana:mime:application/cbor>} or {@code xsd:string}
+     * @param jsonpath a RDF Literal with datatype {@code xsd:string}
+     * @return a list of RDF Literal with datatype URI
+     * {@code <urn:iana:mime:application/json>}.
      */
     @Override
     public List<NodeValue> exec(NodeValue cbor, NodeValue jsonpath) {
@@ -117,7 +116,7 @@ public class ITE_CBOR extends IteratorFunctionBase2 {
         Configuration conf = Configuration.builder()
                 .options(Option.ALWAYS_RETURN_LIST).build();
 
-        String json = Base64.base64Decode(cbor.asNode().getLiteralLexicalForm());
+        String json = new String(Base64.getDecoder().decode(cbor.asNode().getLiteralLexicalForm().getBytes()));
         
         try {
             List<Object> values = JsonPath

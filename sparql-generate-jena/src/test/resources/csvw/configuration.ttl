@@ -1,0 +1,9 @@
+@prefix lm: <http://jena.hpl.hp.com/2004/08/location-mapping#> .
+
+[] lm:mapping
+   [ lm:name "test001.csv" ; lm:altName "tests/test001.csv" ] ,
+   [ lm:name "test001.ttl" ; lm:altName "tests/test001.ttl" ] ,
+   [ lm:name "test005.csv" ; lm:altName "tests/test005.csv" ] ,
+   [ lm:name "test005.ttl" ; lm:altName "tests/test005.ttl" ] 
+   .
+

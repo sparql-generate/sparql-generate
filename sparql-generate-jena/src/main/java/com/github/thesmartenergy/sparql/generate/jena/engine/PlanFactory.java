@@ -68,7 +68,7 @@ import com.github.thesmartenergy.sparql.generate.jena.iterator.IteratorFunctionF
  * query = (SPARQLGenerateQuery) QueryFactory.create(query, syntax);
  * }</pre>
  *
- * @author maxime.lefrancois
+ * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */
 public class PlanFactory {
 
@@ -100,8 +100,8 @@ public class PlanFactory {
      * A factory that creates a {@link RootPlan} from a SPARQL Generate
      * query. Use the default {@link FileManager}.
      * <p>
-     * See static methods of class {@link IteratorFunctionRegistry#get} to use an
- existing IteratorFunction registry, or instantiate your own.
+     * See static methods of class {@link IteratorFunctionRegistry#get} to use
+     * an existing IteratorFunction registry, or instantiate your own.
      *
      * @param iteratorRegistry the iterator registry to use.
      */
@@ -132,8 +132,8 @@ public class PlanFactory {
      * }</pre>
      *
      * <p>
-     * See static methods of class {@link IteratorFunctionRegistry#get} to use an
- existing IteratorFunction registry, or instantiate your own.
+     * See static methods of class {@link IteratorFunctionRegistry#get} to use
+     * an existing IteratorFunction registry, or instantiate your own.
      *
      * @param iteratorRegistry the iterator registry to use.
      * @param fileManager the file manager to use.
@@ -188,8 +188,8 @@ public class PlanFactory {
      * }</pre>
      *
      * @param query the SPARQL Generate query.
-     * @return the RootPlan that may be used to execute the SPARQL
- Generate query.
+     * @return the RootPlan that may be used to execute the SPARQL Generate
+     * query.
      */
     public final RootPlan create(final SPARQLGenerateQuery query) {
         checkNotNull(query, "Query must not be null");
@@ -234,9 +234,10 @@ public class PlanFactory {
      * @param distant whether this query was obtained from a GENERATE URI.
      * @return the RootPlan.
      */
-    private RootPlan make(final SPARQLGenerateQuery query, boolean distant) {
+    private RootPlan make(final SPARQLGenerateQuery query,
+            final boolean distant) {
         checkNotNull(query, "The query must not be null");
-        
+
         List<IteratorOrSourcePlan> iteratorAndSourcePlans = new ArrayList<>();
         SelectPlan selectPlan = null;
         GeneratePlan generatePlan = null;
@@ -265,8 +266,7 @@ public class PlanFactory {
         } else if (query.hasGenerateTemplate()) {
             generatePlan = makeGenerateTemplatePlan(query);
         } else {
-            throw new UnsupportedOperationException("should not reach this"
-                    + " point");
+            LOG.debug("Query with no generate part.");
         }
         return new RootPlanImpl(
                 iteratorAndSourcePlans, selectPlan,
@@ -295,6 +295,7 @@ public class PlanFactory {
         String iri = function.getFunctionIRI();
 
         IteratorFunctionFactory factory = sr.get(iri);
+        System.out.println(iri);
         IteratorFunction iterator = factory.create(iri);
         ExprList exprList = new ExprList(function.getArgs());
         iterator.build(exprList);

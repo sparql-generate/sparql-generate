@@ -48,7 +48,7 @@ The execution of the following SPARQL-Generate query,
 BASE <http://example.org/>
 GENERATE 
   { <> ?p ?o . }
-ITERATOR <http://w3id.org/sparql-generate/ite/JSONListKeys>(?doc) AS ?key
+ITERATOR <http://w3id.org/sparql-generate/iter/JSONListKeys>(?doc) AS ?key
 WHERE
   { 
     BIND( uri( ?key ) AS ?p )
@@ -102,7 +102,7 @@ GENERATE {
     <capital> ?capital.
 }
 SOURCE <http://country.io/capital.json> AS ?source
-ITERATOR <http://w3id.org/sparql-generate/ite/JSONListKeys>(?source) AS ?key
+ITERATOR <http://w3id.org/sparql-generate/iter/JSONListKeys>(?source) AS ?key
 WHERE {
    FILTER( STRSTARTS(?key,"F") )
    BIND( CONCAT('$.', ?key) AS ?query )

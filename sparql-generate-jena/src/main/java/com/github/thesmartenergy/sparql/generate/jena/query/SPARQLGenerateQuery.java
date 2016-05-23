@@ -26,7 +26,7 @@ import org.apache.jena.sparql.core.QueryCompare;
 
 /**
  *
- * @author maxime.lefrancois
+ * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */
 public class SPARQLGenerateQuery extends Query {
 
@@ -209,12 +209,11 @@ public class SPARQLGenerateQuery extends Query {
 
     @Override
     public boolean equals(Object other) {
-        if ( ! ( other instanceof Query ) )
+        if ( ! ( other instanceof SPARQLGenerateQuery ) )
             return false ;
         if ( this == other ) return true ;
-        return QueryCompare.equals(this, (Query)other) ;
+        return SPARQLGenerateQueryCompare.equals(this, (SPARQLGenerateQuery)other) ;
     }
-    
     
 
 }

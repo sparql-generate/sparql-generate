@@ -21,7 +21,7 @@ import org.apache.jena.sparql.core.Var;
 
 /**
  * Executes a ITERATOR or a SOURE clause.
- * @author maxime.lefrancois
+ * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */
 public interface IteratorOrSourcePlan {
     

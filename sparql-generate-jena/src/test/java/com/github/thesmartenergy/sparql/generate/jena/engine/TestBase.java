@@ -41,7 +41,7 @@ import static org.junit.Assert.assertTrue;
 
 /**
  *
- * @author maxime.lefrancois
+ * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */
 public class TestBase {
 
@@ -86,11 +86,13 @@ public class TestBase {
         LOG.debug(q);
 
         SPARQLGenerateQuery q2 = (SPARQLGenerateQuery) QueryFactory.create(q.toString(), SPARQLGenerate.SYNTAX);
-//        assertTrue(q.equals(q2));
+        LOG.debug(q2);
+        assertTrue(q.equals(q2));
     }
 
     void testPlanExecution() throws Exception {
         String query = IOUtils.toString(fileManager.open("query.rqg"), "UTF-8");
+        System.out.println("zzz is " + query);
         SPARQLGenerateQuery q = (SPARQLGenerateQuery) QueryFactory.create(query, SPARQLGenerate.SYNTAX);
 
         // create generation plan
@@ -118,12 +120,25 @@ public class TestBase {
            }
         }
 
+        fileName = exampleDir.toString()+"/output.ttl";
+        out = new FileWriter( fileName );
+        try {
+            output.write( out, "TTL" );
+        }
+        finally {
+           try {
+               out.close();
+           }
+           catch (IOException closeException) {
+              LOG.debug("Error while writing to file");
+           }
+        }
+
         URI expectedOutputUri = exampleDir.toURI().resolve("expected_output.ttl");
         Model expectedOutput = RDFDataMgr.loadModel(expectedOutputUri.toString());
         StringWriter sw = new StringWriter();
         LOG.debug(expectedOutput.write(sw, "TTL"));
 
-        //assertTrue(output.isIsomorphicWith(expectedOutput));
-       
+        assertTrue(output.isIsomorphicWith(expectedOutput));       
     }
 }

@@ -21,7 +21,7 @@ import org.apache.jena.util.TypedStream;
 
 /**
  *
- * @author maxime.lefrancois
+ * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */
 public class UniqueLocator implements Locator {
 

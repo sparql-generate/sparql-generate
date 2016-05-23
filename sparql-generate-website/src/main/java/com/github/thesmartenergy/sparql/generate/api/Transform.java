@@ -61,7 +61,7 @@ import org.apache.jena.util.Locator;
 
 /**
  *
- * @author maxime.lefrancois
+ * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */
 @Path("/transform")
 public class Transform extends HttpServlet {

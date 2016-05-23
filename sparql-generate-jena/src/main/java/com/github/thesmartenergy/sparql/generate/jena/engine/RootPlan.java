@@ -15,6 +15,8 @@
  */
 package com.github.thesmartenergy.sparql.generate.jena.engine;
 
+import java.util.Map;
+import org.apache.jena.graph.Node;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.rdf.model.Model;
@@ -84,7 +86,7 @@ import org.apache.jena.rdf.model.Model;
  * }</pre>
  *
  *
- * @author maxime.lefrancois
+ * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */
 public interface RootPlan extends GeneratePlan, GenerateTemplateElementPlan {
 

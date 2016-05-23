@@ -1,12 +1,17 @@
 BASE <http://example.org/> 
-PREFIX rqg-ite: <http://w3id.org/sparql-generate/ite/>
-PREFIX rqg-fn: <http://w3id.org/sparql-generate/fn/>
+PREFIX iter: <http://w3id.org/sparql-generate/iter/>
+PREFIX fn: <http://w3id.org/sparql-generate/fn/>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX ex: <http://www.example.com/>
 GENERATE { 
-  [] rdfs:label ?title .
+  [] a ex:HTMLPage;
+    ex:title ?title;
+    ex:url ?URL;
+    ex:developer ?infobox;
 }
-SOURCE <http://www.pdfconvertonline.com/htm-to-jpg-online.html> AS ?source
-ITERATOR rqg-ite:CSSPath(?source, "title" ) AS ?body 
+SOURCE <https://en.wikipedia.org/wiki/SPARQL> AS ?source
 WHERE {
-	BIND(rqg-fn:HTMLTag(?body, "title") AS ?title )
+	BIND(fn:HTMLTag(?source, "title") AS ?title )
+        BIND(fn:HTMLTagElement(?source, "link[rel=canonical]") AS ?link )
+        BIND(fn:HTMLAttribute(?link, "href") AS ?URL )
 }

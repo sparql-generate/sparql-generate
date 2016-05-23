@@ -1,6 +1,6 @@
 BASE <http://example.org/> 
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
-PREFIX ite: <http://w3id.org/sparql-generate/ite/>
+PREFIX iter: <http://w3id.org/sparql-generate/iter/>
 PREFIX fn: <http://w3id.org/sparql-generate/fn/>
 GENERATE {
 
@@ -12,7 +12,7 @@ GENERATE {
     ?country_iri <continent>  ?continent_iri .
     ?country_iri <population> ?country_population .
 
-  } ITERATOR ite:JSONPath( ?source_continent , CONCAT("$.[:]") ) AS ?continent_code_2
+  } ITERATOR iter:JSONPath( ?source_continent , CONCAT("$.[:]") ) AS ?continent_code_2
   WHERE {
     FILTER ( ?continent_code = ?continent_code_2 )
   }
@@ -22,7 +22,7 @@ GENERATE {
 SOURCE <http://country.io/continent.json> AS ?source_continent
 SOURCE <http://country.io/names.json> AS ?source_names
 SOURCE <https://raw.githubusercontent.com/samayo/country-data/master/src/country-population.json> AS ?source_population
-ITERATOR ite:JSONListKeys( ?source_continent ) AS ?contry_code
+ITERATOR iter:JSONListKeys( ?source_continent ) AS ?contry_code
 WHERE {
 
   SELECT ?source_continent

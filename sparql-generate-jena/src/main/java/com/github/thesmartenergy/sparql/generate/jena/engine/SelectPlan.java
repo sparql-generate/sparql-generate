@@ -22,7 +22,7 @@ import org.apache.jena.sparql.core.Var;
 
 /**
  * Executes generated SPARQL SELECT query.
- * @author maxime.lefrancois
+ * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */
 public interface SelectPlan {
 

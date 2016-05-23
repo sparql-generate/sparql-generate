@@ -1,77 +1,77 @@
 BASE <http://example.org/> 
-PREFIX rqg-ite: <http://w3id.org/sparql-generate/ite/>
-PREFIX rqg-fn: <http://w3id.org/sparql-generate/fn/>
-PREFIX country:<http://loc.example.com/city/>
+PREFIX iter: <http://w3id.org/sparql-generate/iter/>
+PREFIX fn: <http://w3id.org/sparql-generate/fn/>
+PREFIX country:<http://loc.example.org/city/>
 PREFIX schema: <http://schema.org/>
 PREFIX wgs84_pos: <http://www.w3.org/2003/01/geo/wgs84_pos#>
 PREFIX gn: <http://www.geonames.org/ontology#>
 PREFIX transit: <http://vocab.org/transit/terms/>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> 
-PREFIX ex: <http://example.com/ns#>
+PREFIX ex: <http://example.org/ns#>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 GENERATE { 
-  ?airportURI a transit:Stop;
-        ex:latlong ?latlongURI .
+    ?airportURI a transit:Stop;
+          ex:latlong ?latlongURI .
 
-  ?latlongURI ex:lat ?lat;
-              ex:long ?long .
+    ?latlongURI ex:lat ?lat;
+                ex:long ?long .
   
-  GENERATE {
-    ?airportURI ex:route ?busIRI .
-    ?busIRI rdf:type ex:Trannsport.
-    ?busIRI ex:type ?vehicleType .
-    
     GENERATE {
-        ?busIRI ex:stop ?busStopIRI .
-        ?busStopIRI rdfs:label ?busStopLabel;
-                    ex:id ?busStopIdStr .
-        
+      ?airportURI ex:route ?busIRI .
+      ?busIRI rdf:type ex:Trannsport.
+      ?busIRI ex:type ?vehicleType .
+
+      GENERATE {
+          ?busIRI ex:stop ?busStopIRI .
+          ?busStopIRI rdfs:label ?busStopLabel;
+                      ex:id ?busStopIdStr .
+
+      }
+      ITERATOR iter:XPath(?sourcetransport, CONCAT("//bus[@id=",?busId,"]//stop") ) AS ?busStop
+      WHERE {
+          BIND( fn:XPath(?busStop,"/stop/@id"  ) AS ?busStopId )
+          BIND( fn:XPath(?busStop,"/stop/text()"  ) AS ?busStopLabel )
+          BIND (STRDT(?busStopId,xsd:int) as ?busStopIdStr)
+          BIND( URI(CONCAT( "http://trans.example.org/stop/",?busStopId)) AS ?busStopIRI )
+
+      }.
+
     }
-    ITERATOR rqg-ite:XPath(?sourcetransport, CONCAT("//bus[@id=",?busId,"]//stop") ) AS ?busStop
+    SOURCE <http://example.org/transport.xml> AS ?sourcetransport
     WHERE {
-        BIND( rqg-fn:XPath(?busStop,"/stop/@id"  ) AS ?busStopId )
-        BIND( rqg-fn:XPath(?busStop,"/stop/text()"  ) AS ?busStopLabel )
-        BIND (STRDT(?busStopId,xsd:int) as ?busStopIdStr)
-        BIND( URI(CONCAT( "http://trans.example.com/stop/",?busStopId)) AS ?busStopIRI )
-        
+      BIND ( CONCAT("//bus[@id=",?stop,"]") as ?busQuery )
+      BIND( fn:XPath(?sourcetransport,CONCAT(?busQuery,"/@id")  ) AS ?busId )
+      BIND( URI(CONCAT("http://trans.example.org/vehicle/",fn:XPath(?sourcetransport,CONCAT(?busQuery,"/@type")))) AS ?vehicleType )
+      BIND( URI( CONCAT( "http://trans.example.org/bus/",?busId ) ) AS ?busIRI )
     }.
 
-  }
-  SOURCE <http://example.com/transport.xml> AS ?sourcetransport
-  WHERE {
-    BIND ( CONCAT("//bus[@id=",?stop,"]") as ?busQuery )
-    BIND( rqg-fn:XPath(?sourcetransport,CONCAT(?busQuery,"/@id")  ) AS ?busId )
-    BIND( URI(CONCAT("http://trans.example.com/vehicle/",rqg-fn:XPath(?sourcetransport,CONCAT(?busQuery,"/@type")))) AS ?vehicleType )
-    BIND( URI( CONCAT( "http://trans.example.com/bus/",?busId ) ) AS ?busIRI )
-  }.
 
-
-  GENERATE {
-    ?airportURI ex:location ?cityURI .
-    ?cityURI rdf:type ex:City;
-             ex:countryCode ?countryCode;
-             ex:onContinent ?continentCode .
-  }
-  SOURCE <http://example.com/venue.json> AS ?sourcevenue
-  WHERE {
-    BIND (CONCAT("$..venue[?(@.location.city=='",?city,"')]") as ?cityQuery )
-    BIND(rqg-fn:JSONPath(?sourcevenue, ?cityQuery ) AS ?cityObject)
-    BIND(rqg-fn:JSONPath(?cityObject, "$.location.city" ) AS ?cityName)
-    BIND(rqg-fn:JSONPath(?cityObject, "$.location.country" ) AS ?countryCode)
-    BIND(rqg-fn:JSONPath(?cityObject, "$.location.continent" ) AS ?continentCode)
-    BIND(URI(CONCAT("http://loc.example.com/city/",?cityName)) AS ?cityURI)
-  }.
+    GENERATE {
+      ?airportURI ex:location ?cityURI .
+      ?cityURI rdf:type ex:City;
+               ex:countryCode ?countryCode;
+               ex:onContinent ?continentCode .
+    }
+    SOURCE <http://example.org/venue.json> AS ?sourcevenue
+    WHERE {
+      BIND (CONCAT("$..venue[?(@.location.city=='",?city,"')]") as ?cityQuery )
+      BIND(fn:JSONPath(?sourcevenue, ?cityQuery ) AS ?cityObject)
+      BIND(fn:JSONPath(?cityObject, "$.location.city" ) AS ?cityName)
+      BIND(fn:JSONPath(?cityObject, "$.location.country" ) AS ?countryCode)
+      BIND(fn:JSONPath(?cityObject, "$.location.continent" ) AS ?continentCode)
+      BIND(URI(CONCAT("http://loc.example.org/city/",?cityName)) AS ?cityURI)
+    }.
   
 }
-SOURCE <http://example.com/airport.csv> AS ?source
-ITERATOR rqg-ite:CSV(?source) AS ?airport
+SOURCE <http://example.org/airport.csv> AS ?source
+ITERATOR iter:CSV(?source) AS ?airport
 WHERE {
-    BIND( rqg-fn:CSV(?airport, "id" ) AS ?id )
-    BIND( rqg-fn:CSV(?airport, "city" ) AS ?city )
-    BIND( rqg-fn:CSV(?airport, "stop" ) AS ?stop )
-    BIND( rqg-fn:CSV(?airport, "longitude" ) AS ?long )
-    BIND( rqg-fn:CSV(?airport, "latitude" ) AS ?lat )
-    BIND (URI(CONCAT("http://airport.example.com/",?id)) AS ?airportURI)
-    BIND (URI(CONCAT("http://loc.example.com/latlong/",?lat,",",?long)) AS ?latlongURI)
+    BIND( fn:CSV(?airport, "id" ) AS ?id )
+    BIND( fn:CSV(?airport, "city" ) AS ?city )
+    BIND( fn:CSV(?airport, "stop" ) AS ?stop )
+    BIND( fn:CSV(?airport, "longitude" ) AS ?long )
+    BIND( fn:CSV(?airport, "latitude" ) AS ?lat )
+    BIND (URI(CONCAT("http://airport.example.org/",?id)) AS ?airportURI)
+    BIND (URI(CONCAT("http://loc.example.org/latlong/",?lat,",",?long)) AS ?latlongURI)
 }

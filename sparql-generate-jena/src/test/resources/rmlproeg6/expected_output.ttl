@@ -1,0 +1,33 @@
+@prefix note:  <http://www.example.com/note/> .
+@prefix ex:    <http://www.example.com/> .
+@prefix mail:  <http://example.com/mail#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix fn:    <http://w3id.org/sparql-generate/fn/> .
+@prefix iter:   <http://w3id.org/sparql-generate/iter/> .
+
+<http://www.example.com/DateTime/2008/02/10>
+        a         ex:DateTime ;
+        ex:day    "10"^^xsd:gDay ;
+        ex:month  "02"^^xsd:gMonth ;
+        ex:year   "2008"^^xsd:gYear .
+
+note:M17  a           mail:note ;
+        mail:body     "Don't forget me this weekend!" ;
+        mail:from     "Jani" ;
+        mail:heading  "Reminder" ;
+        mail:to       "Tove" ;
+        mail:when     <http://www.example.com/DateTime/2008/01/10> .
+
+<http://www.example.com/DateTime/2008/01/10>
+        a         ex:DateTime ;
+        ex:day    "10"^^xsd:gDay ;
+        ex:month  "01"^^xsd:gMonth ;
+        ex:year   "2008"^^xsd:gYear .
+
+note:M18  a           mail:note ;
+        mail:body     "We now leave at six" ;
+        mail:from     "Rick" ;
+        mail:heading  "Update" ;
+        mail:to       "Chris" ;
+        mail:when     <http://www.example.com/DateTime/2008/02/10> .
+

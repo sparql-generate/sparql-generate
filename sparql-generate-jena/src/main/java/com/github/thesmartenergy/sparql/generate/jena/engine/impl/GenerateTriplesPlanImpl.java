@@ -29,7 +29,7 @@ import org.apache.log4j.Logger;
 /**
  * Generates a triples block in the {@code GENERATE} clause.
  *
- * @author maxime.lefrancois
+ * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */
 public class GenerateTriplesPlanImpl
         extends PlanBase implements GenerateTemplateElementPlan {
@@ -60,10 +60,10 @@ public class GenerateTriplesPlanImpl
             final Dataset inputDataset,
             final Model initialModel,
             final BindingHashMapOverwrite binding,
-            final Map<Node, Node> bNodeMap) {
+            final BNodeMap bNodeMap) {
         LOG.debug("exec");
         for (Triple t : bgp.getList()) {
-            Triple t2 = TemplateLib.subst(t, binding, bNodeMap);
+            Triple t2 = TemplateLib.subst(t, binding, bNodeMap.asMap());
             if (t2.isConcrete()) {
                 Statement s = initialModel.asStatement(t2);
                 initialModel.add(s);

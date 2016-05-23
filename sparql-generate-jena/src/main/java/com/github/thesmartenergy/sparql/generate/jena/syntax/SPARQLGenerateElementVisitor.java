@@ -20,7 +20,7 @@ import org.apache.jena.sparql.syntax.ElementVisitor;
 /**
  * Extends the ARQ Element Visitor with SPARQL Generate specificities.
  * 
- * @author maxime.lefrancois
+ * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */
 public interface SPARQLGenerateElementVisitor extends ElementVisitor {
     

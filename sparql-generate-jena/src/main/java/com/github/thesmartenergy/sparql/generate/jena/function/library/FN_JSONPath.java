@@ -18,7 +18,6 @@ package com.github.thesmartenergy.sparql.generate.jena.function.library;
 import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
 import com.jayway.jsonpath.JsonPath;
 import java.math.BigDecimal;
-import net.minidev.json.JSONArray;
 import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.NodeValue;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueBoolean;
@@ -29,7 +28,6 @@ import org.apache.jena.sparql.expr.nodevalue.NodeValueInteger;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueString;
 import org.apache.jena.sparql.function.FunctionBase2;
 import org.apache.log4j.Logger;
-import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
@@ -40,18 +38,12 @@ import org.apache.jena.sparql.expr.nodevalue.NodeValueNode;
 /**
  * A SPARQL Function that extracts a string from a JSON document, according to a
  * JSONPath expression. The Function URI is
- * {@code <http://w3id.org/sparql-generate/fn/JSON_Path_jayway>}.
- * It takes two parameters as input:
- * <ul>
- * <li>a RDF Literal with datatype URI
- * {@code <urn:iana:mime:application/json>}</li>
- * <li>a RDF Literal with datatype {@code xsd:string}</li>
- * </ul>
- * and returns a RDF Literal with datatype being the type of the object extracted from the JSON document
- * @author Noorani Bakerally
+ * {@code <http://w3id.org/sparql-generate/fn/JSONPath>}.
+ * 
+ * @author Noorani Bakerally <noorani.bakerally at emse.fr>
+ * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */
 public final class FN_JSONPath extends FunctionBase2 {
-    //TODO write multiple unit tests for this class.
 
     /**
      * The logger.
@@ -69,7 +61,12 @@ public final class FN_JSONPath extends FunctionBase2 {
     private static final String datatypeUri = "urn:iana:mime:application/json";
 
     /**
-     * {@inheritDoc }
+     *
+     * @param json a RDF Literal with datatype URI
+     * {@code <urn:iana:mime:application/json>} or {@code xsd:string}
+     * @param jsonpath a RDF Literal with datatype {@code xsd:string}
+     * @return a RDF Literal with datatype being the type of the object
+     * extracted from the JSON document
      */
     @Override
     public NodeValue exec(NodeValue json, NodeValue jsonpath) {
@@ -86,7 +83,7 @@ public final class FN_JSONPath extends FunctionBase2 {
         try {
             Object value = JsonPath.parse(json.asNode().getLiteralLexicalForm())
                     .limit(1).read(jsonpath.getString());
-            
+
             if (value instanceof String) {
                 return new NodeValueString((String) value);
             } else if (value instanceof Float) {
@@ -94,6 +91,7 @@ public final class FN_JSONPath extends FunctionBase2 {
             } else if (value instanceof Boolean) {
                 return new NodeValueBoolean((Boolean) value);
             } else if (value instanceof Integer) {
+                System.out.println(value);
                 return new NodeValueInteger((Integer) value);
             } else if (value instanceof Double) {
                 return new NodeValueDouble((Double) value);
@@ -101,20 +99,19 @@ public final class FN_JSONPath extends FunctionBase2 {
                 return new NodeValueDecimal((BigDecimal) value);
             } else {
                 String strValue = String.valueOf(value);
-                
-                
+
                 JsonParser parser = new JsonParser();
                 JsonElement valElement = parser.parse(strValue);
                 JsonArray list = valElement.getAsJsonArray();
-                
-                if (list.size() == 1){
+
+                if (list.size() == 1) {
                     String jsonstring = list.get(0).getAsString();
                     Node node = NodeFactory.createLiteral(jsonstring);
                     NodeValue nodeValue = new NodeValueNode(node);
                     return nodeValue;
-                    
+
                 } else {
-                  return new NodeValueString(String.valueOf(value)); 
+                    return new NodeValueString(String.valueOf(value));
                 }
             }
         } catch (Exception e) {

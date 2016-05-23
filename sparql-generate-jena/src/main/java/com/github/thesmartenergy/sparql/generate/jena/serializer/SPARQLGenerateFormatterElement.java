@@ -34,7 +34,7 @@ import com.github.thesmartenergy.sparql.generate.jena.syntax.SPARQLGenerateEleme
 /**
  * Extends the ARQ Element Formatter with SPARQL Generate elements.
  * 
- * @author maxime.lefrancois
+ * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */
 public class SPARQLGenerateFormatterElement extends FormatterElement implements SPARQLGenerateElementVisitor {
     
