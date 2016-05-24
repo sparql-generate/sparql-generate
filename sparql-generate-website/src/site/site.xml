@@ -53,12 +53,11 @@ See the License for the specific language governing permissions and
         </menu>
             
         <menu name="Implementation Over Jena">
-            <item name="Get started" href="getStarted.html"/>
-            <item name="Available functions" href="functions.html"/>
-            <item name="Documentation" href="apidocs/index.html"/>        
             <item name="Executable JAR" href="language-cli.html" />  
-            <item name="Examples" href="examples.html" />
+            <item name="Java library" href="get-started.html"/>
+            <item name="Available functions" href="functions.html"/>
             <item name="Tests Reports" href="tests-reports.html" />      
+            <item name="Documentation" href="apidocs/index.html"/>        
         </menu>
 
         <menu ref="reports" inherit="top"/>

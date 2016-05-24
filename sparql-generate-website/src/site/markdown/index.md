@@ -1,95 +1,48 @@
 # What is SPARQL-Generate ?
 
-SPARQL-Generate stands for SPARQL-Generate Protocol and RDF Generation Language. The aim of SPARQL-Generate `GENERATE` queries is to offer a simple template-based option to interpret documents as proper RDF, with a formal abstract syntax and semantics grounded on SPARQL 1.1, making it easy to implement on top of any SPARQL 1.1 implementation. 
+RDF aims at being the universal abstract data model for structured data on the Web. While there is effort to convert data in RDF, the vast majority of data available on the Web does not conform to RDF. Indeed, exposing data in RDF, either natively or through wrappers, can be very costly. Furthermore, in the emerging Web of Things, resource constraints of devices prevent from processing RDF graphs. Hence one cannot expect that all the data on the Web be available as RDF anytime soon. 
 
-## What you can find on this website
+SPARQL-Generate is an extension of SPARQL for querying not only RDF datasets but also documents in arbitrary formats.
 
+SPARQL-Generate is a protocol to automatically determine what SPARQL-Generate query to use with a given data format or even per payload in HTTP or CoAP messages.
 
-On this site you will find:
-
-* An overview of SPARQL-Generate (this document);
-* For the SPARQL RDF Generation Language:
-    * The [specification](language.html);
-    * A [form to test the SPARQL RDF Generation Language online](language-form.html);
-    * The [description of an online API](language-api.html) to start using the SPARQL RDF Generation Language;
-* For the SPARQL-Generate Protocol:
-    * The [specification](protocol.html);
-    * A [form to test the SPARQL-Generate Protocol online](protocol-form.html);
-    * The [description of an online API](protocol-api.html) to start using the SPARQL-Generate Protocol;
-* The description of the reference implementation over [Apache Jena](https://jena.apache.org/):
-    * The [reference guide for iterator functions and SPARQL custom functions](functions.html) that enable to generate RDF from XML, JSON, CSV, HTML, and plain text;
-    * A guide to get started with the [library](getStarted.html);
-    * The [reference Java documentation](apidocs/index.html);
-* Other information [about this project](project-info.html), the [mailing list](mail-lists.html), and how to get involved.
+SPARQL-Generate has a first reference implementation on top of Apache Jena, which currently enables to query and transform web documents in XML, JSON, CSV, HTML, CBOR, and plain text with regular expressions.
 
 
-## What use cases for SPARQL-Generate ?
+## A language to generate RDF from RDF datasets and documents in arbitrary formats
 
-SPARQL-Generate is already in use for the following use cases:
+SPARQL-Generate is an extension of SPARQL 1.1 for querying not only RDF datasets but also documents in arbitrary formats. It offers a simple template-based option to generate RDF Graphs from documents, and presents the following advantages:
 
-- Give ways to interpret JSON or even CBOR documents as RDF (ongoing work in the ITEA 2 SEAS project: serve the consumption data of the GECAD microgrid as CBOR, and point to the SPARQL-Generate `GENERATE` query that enables to interpret it as RDF. More generally, any kind of document, XML, JSON, CBOR, can be interpreted as RDF using the proper SPARQL-Generate `GENERATE` query with proper *iterator functions*)
-- Generate a whole part of a vocabulary from a configuration file, and ensure that specific naming conventions are respected for resource URIs, labels and comments (in the ITEA 2 SEAS project: the [ontology of Multi-Dimensional Quantities](http://w3id.org/multidimensional-quantity/), is parametrized and generated from JSON configuration files);
-- generate RDF from several open data sources (ongoing work in the OpenSensingCity French ANR project)
-- generate RDF from the green-button API
-
-
-# The Protocol
-
-The protocol part of SPARQL-Generate enables a web client or a web server to point to the IRI of a SPARQL-Generate document that may be used to interpret the request (or the response) payload as RDF. It enables the following scenarios:
-
-* A HTTP client can send a HTTP request in a non-RDF format, and tell the server how it may generate a RDF Graph from it;
-* A HTTP server can send a HTTP response in a non-RDF format, and tell the client how it may generate a RDF Graph from it.
-
-See the [protocol.html](full description of the protocol).
-
-# The RDF Generation Language
-
-The RDF Generation Language part of SPARQL-Generate extends the SPARQL 1.1 Query language, and offers a simple template-based RDF Graph generation from RDF literals. 
-
-Other languages enable to describe mapping from documents to RDF. By design, SPARQL-Generate extends SPARQL and hence offers an alternative that presents the following advantages:
-
-- anyone familiar with SPARQL can easily learn SPARQL-Generate;
-- implementing over existing SPARQL engines is simple;
+- Anyone familiar with SPARQL can easily learn SPARQL-Generate;
 - SPARQL-Generate leverages the expressivity of SPARQL 1.1: Aggregates, Solution Sequences and Modifiers, SPARQL functions and their extension mechanism.
+- It integrates seamlessly with existing standards for consuming Semantic Web data, such as SPARQL or Semantic Web programming frameworks.
 
-SPARQL-Generate `GENERATE` extends the SPARQL 1.1 recommendation with the following keywords:
-
-The general structure of a SPARQL-Generate query is as follows:
-
-```
-PREFIX declarations          --- same as SPARQL 1.1
-GENERATE template            --- replaces and extends SPARQL 1.1 CONSTRUCT
-FROM and FROM NAMED clauses  --- same as SPARQL 1.1
-ITERATOR and SOURCE clauses  --- see below
-WHERE clause                 --- same as SPARQL 1.1
-Solution modifiers           --- group by, order by, limit, offset,... same as SPARQL 1.1
-```
-
-As a simple example, the following SPARQL-Generate query,
+As an example, the following SPARQL-Generate query,
 
 ```
 BASE <http://example.org/>
-PREFIX rqg:iter: <http://w3id.org/sparql-generate/iter/>
-PREFIX rqg:iter: <http://w3id.org/sparql-generate/iter/>
+PREFIX iter: <http://w3id.org/sparql-generate/iter/>
+PREFIX fn: <http://w3id.org/sparql-generate/fn/>
 GENERATE 
   { <> ?p ?o . }
+SOURCE <http://example.org/profile> AS ?doc
 ITERATOR iter:JSONListKeys(?doc) AS ?key
 WHERE
   { 
     BIND( uri( ?key ) AS ?p )
-    BIND( <http://w3id.org/sparql-generate/fn/JSONPath> ( ?doc, CONCAT( "$." , ?key ) ) AS ?o )
+    BIND( fn:JSONPath ( ?doc, CONCAT( "$." , ?key ) ) AS ?o )
   }
 ```
-executed with an initial binding of variable '?doc' to the following RDF literal,
+evaluated on a literals set where `<http://example.org/profile>` is the name for the following literal:
 
 ```
-?doc = """{ "firstname" : "Maxime" ,
-            "lastname" : "Lefrancois" ,
-            "birthday" : "04-26" ,
-            "country" : "FR"
-          }"""^^<urn:iana:mime:sparql-generate>
+"""{ "firstname" : "Maxime" ,
+     "lastname" : "Lefrancois" ,
+     "birthday" : "04-26" ,
+     "country" : "FR"
+   }"""^^<urn:iana:mime:sparql-generate>
 ```
-will generate the following RDF Graph:
+evaluates to the following RDF Graph:
 
 ```
 @base <http://example.org/> .
@@ -98,4 +51,52 @@ will generate the following RDF Graph:
         <birthday>  "04/26" ;
         <country>   "FR" .
 ```
+
+See also:
+* the [language specification](language.html);
+* a [form to test the SPARQL-Generate Language online](language-form.html);
+* the [description of an online API](language-api.html) to start using the SPARQL-Generate Language.
+
+
+## A protocol to interpret HTTP payloads as RDF
+
+The protocol part of SPARQL-Generate enables a web client or a web server to point to the IRI of a SPARQL-Generate document that may be used to interpret the request (or the response) payload as RDF. It enables the following scenarios:
+
+* A HTTP client can send a HTTP request in a non-RDF format, and tell the server how it may generate a RDF Graph from it;
+* A HTTP server can send a HTTP response in a non-RDF format, and tell the client how it may generate a RDF Graph from it.
+
+See also:
+* the [specification of the protocol](protocol.html) (ongoing work);
+* a [form to test the SPARQL-Generate Protocol online](protocol-form.html);
+* the [description of an online API](protocol-api.html) to start using the SPARQL-Generate Protocol;
+
+## A first implementation on top of Apache Jena
+
+Since we leverage the expressiveness of SPARQL and its function extension mechanism, its implementation on top of a SPARQL engine is straightforward. This website describes a first implementation over Apache Jena, which currently enables to query and transform web documents in XML, JSON, CSV, HTML, CBOR, and plain text with regular expressions.
+
+See also:
+* a description of how to use SPARQL-Generate as [an executable JAR](language-cli.html);
+* a guide to get started with [the Java library](get-started.html);
+* the [guide for SPARQL binding functions and SPARQL-Generate iterator functions](functions.html) that enable to generate RDF from documents in XML, JSON, CSV, HTML, and plain text;
+* the [reference Java documentation](apidocs/index.html);
+* a [tests report](tests-reports.html) with test from the related work and more;
+
+
+## Applications
+
+SPARQL-Generate is already in use in the following projects:
+
+* In the ITEA 3 SEAS project:
+    * with the [CNR](www.cnr.tm.fr), their [Electric Vehicle Smart Charging Provider API](http://cnr-seas.cloudapp.net/scp) exposes optimized charge plan in XML, but also sends a link to a SPARQL-Generate query, so that the client can interpret the response as RDF.
+    * with [TELECOM Saint-Etienne](https://www.telecom-st-etienne.fr/), an [implementation of Green-Button optimized for lightweight computers](http://w3id.org/seas/green-button/) also sends links to SPARQL-Generate queries, so that clients can interpret the response as RDF.
+    * ongoing work with [GECAD ](http://gecad.isep.ipp.pt): serve the consumption data of the Instituto Politecnico de Porto microgrid as CBOR, and point to the SPARQL-Generate `GENERATE` query that enables to interpret it as RDF. 
+    * the [ontology of Multi-Dimensional Quantities](https://w3id.org/multidimensional-quantity/), is parametrized and generated from JSON configuration files. SPARQL-Generate is used to generate a whole part of a vocabulary from a configuration file, and ensure that specific naming conventions are respected for resource URIs, labels and comments;
+* In the [OpenSensingCity French ANR project](http://opensensingcity.emse.fr/):
+    * ongoing work: generate RDF from several open data sources for the [Grand Lyon](www.grandlyon.com/).
+
+## What you can find on this website
+
+* The description of the reference implementation over [Apache Jena](https://jena.apache.org/):
+    
+* Other information [about this project](project-info.html), the [mailing list](mail-lists.html), and how to get involved.
 

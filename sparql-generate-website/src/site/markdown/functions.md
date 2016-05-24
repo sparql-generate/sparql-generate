@@ -1,10 +1,10 @@
-# Iterator and custom SPARQL functions
+# SPARQL binding functions and SPARQL-Generate iterator functions
 
-`sparql-generate-jena` provides a set of iterator functions and custom SPARQL functions that enable to generate RDF from JSON, XML, HTML, CSV, and plain text.
+`sparql-generate-jena` provides a set of SPARQL binding functions and SPARQL-Generate iterator functions that enable to generate RDF from JSON, XML, HTML, CSV, and plain text.
 
-Custom SPARQL functions all take a set of RDF terms as input, and output zero or one RDF term. They all have namespace `http://w3id.org/sparql-generate/fn/` with preferred prefix `fn`.
+Custom SPARQL binding functions all take a set of RDF terms as input, and output zero or one RDF term. They all have namespace `http://w3id.org/sparql-generate/fn/` with preferred prefix `fn`.
 
-Iterator functions are used in the `ITERATOR` clause. They all take a set of RDF terms as input, and output zero or more RDF terms. They all have namespace `http://w3id.org/sparql-generate/iter/` with preferred prefix `ite`.
+Iterator functions are used in the `ITERATOR` clause. They all take a set of RDF terms as input, and output zero or more RDF terms. They all have namespace `http://w3id.org/sparql-generate/iter/` with preferred prefix `iter`.
 
 ```
 PREFIX fn: <http://w3id.org/sparql-generate/fn/>

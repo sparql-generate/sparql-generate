@@ -6,14 +6,13 @@
 <dependency>
     <groupId>com.github.thesmartenergy</groupId>
     <artifactId>sparql-generate-jena</artifactId>
-    <version>0.10</version>
+    <version>1.0</version>
 </dependency>
 ```
 
-Latest version implements iterator and custom SPARQL functions to generate RDF from JSON, XML, HTML, CSV, plain text. See the [functions.html](functions.html). 
-The [javadoc](http://w3id.org/sparql-generate/apidocs/index.html) contains comprehensive documentations and examples, and the [sources](http://search.maven.org/#search%7Cga%7C1%7Csparql-generate-jena%22) contains a set of unit tests to get more examples. 
+Latest version implements iterator and custom SPARQL functions to generate RDF from JSON, XML, HTML, CSV, CBOR, plain text. See the implemented [SPARQL binding functions and SPARQL-Generate iterator functions](functions.html). 
 
-This document gives hints to get started with using the `sparql-generate-jena-0.10` library.
+The [javadoc](http://w3id.org/sparql-generate/apidocs/index.html) contains comprehensive documentations and examples, and the [sources](http://search.maven.org/#search%7Cga%7C1%7Csparql-generate-jena) contains a set of unit tests to get more examples. 
 
 ### Parsing a Query
 
@@ -33,7 +32,7 @@ PlanFactory factory = new PlanFactory();
 RootPlan plan = factory.create(query);
 ```
 
-Then the `RootPlan` can be executed several times on different SPARQL datasets, and with different initial bindings (i.e., on multiple _messages_). Call one of the `exec` methods to trigger the RDF generation. Here is the signature of two of these methods:
+Then the `RootPlan` can be executed several times on different SPARQL datasets, and with different initial bindings (i.e., on multiple _messages_). Call one of the `exec` methods to trigger the RDF generation. Here is the signature of three of these methods:
 
 ```java
 Model exec();
@@ -60,7 +59,7 @@ ModelFactory.createDefaultModel();
 Part of the SPARQL GENERATE query execution consists in evaluating a SPARQL 1.1 `SELECT *` query over a RDF Graph, or a SPARQL Dataset. Exactly like in SPARQL 1.1. The corresponding parameters are `inputModel` or `inputDataset`. To instantiate a `Dataset`, which is the Jena class for a SPARQL Dataset, one may use:
 
 ```java
-DatasetFactory.create(Model);
+DatasetFactory.create(Model model);
 ```
 
 Note:
@@ -100,7 +99,9 @@ plan.exec(initialBinding, initialModel);
 
 ### Using a File Manager
 
-In many use cases, it is useful to use local files instead of operating HTTP GET requests. The Jena FileManager is designed just for that. It uses a configuration file to load files from disk instead of attempting HTTP GET calls. See
+The default behaviour of the implementation is to attempt to operate a HTTP GET request to the URI of a source, and to use the retrieved document as the literal for this name. One may choose to use local files instead.
+
+The Jena FileManager is designed just for that. It uses a configuration file to load files from disk instead of attempting HTTP GET calls. See
 [The Jena FileManager and LocationMapper](https://jena.apache.org/documentation/notes/file-manager.html). The following code illustrates how a `FileManager` can be passed to the constructor of a `PlanFactory`, in order to be used during the execution of the plans this `PlanFactory` will create.
 
 ```java
@@ -110,8 +111,12 @@ FileManager fm = new FileManager();
 
 fm.setLocationMapper(mapper);
 
-Locator loc = new LocatorFile("file:/path/to/directory1");
-Locator loc = new LocatorFile("file:/path/to/directory2");
+Locator loc;
+
+loc = new LocatorFile("file:/path/to/directory1");
+fm.addLocator(loc);
+
+loc = new LocatorFile("file:/path/to/directory2");
 fm.addLocator(loc);
 
 PlanFactory factory = new PlanFactory(fm);

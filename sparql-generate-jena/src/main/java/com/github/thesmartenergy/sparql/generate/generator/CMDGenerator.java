@@ -80,7 +80,7 @@ public class CMDGenerator {
                 if(f.exists() && !f.isDirectory()) { 
                     FileInputStream fisTargetFile = new FileInputStream(f);
                     query = IOUtils.toString(fisTargetFile, "UTF-8");    
-                    LOG.debug("\n\nRead SPARGL Query ..\n"+query+"\n\n");
+                    LOG.debug("\n\nRead SPARQL-Generate Query ..\n"+query+"\n\n");
                 } else {
                     LOG.error("File "+file_path+" not found.");
                 }   
