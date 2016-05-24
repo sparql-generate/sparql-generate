@@ -19,50 +19,19 @@ package com.github.thesmartenergy.sparql.generate.generator;
  *
  * @author Noorani Bakerally <noorani.bakerally at emse.fr>
  */
-import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
-import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerateException;
-import com.github.thesmartenergy.sparql.generate.jena.engine.PlanFactory;
-import com.github.thesmartenergy.sparql.generate.jena.engine.RootPlan;
-import com.github.thesmartenergy.sparql.generate.jena.lang.ParseException;
-import com.github.thesmartenergy.sparql.generate.jena.query.SPARQLGenerateQuery;
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.StringWriter;
-import java.net.URI;
-import java.net.URL;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
-import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.io.IOUtils;
-import org.apache.jena.query.QueryFactory;
-import org.apache.jena.query.QuerySolutionMap;
 import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.ModelFactory;
-import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.util.FileManager;
-import org.apache.jena.util.LocationMapper;
-import org.apache.jena.util.Locator;
-import org.apache.jena.util.LocatorFile;
-import org.apache.log4j.Logger;
-import org.apache.commons.cli.Options;
-import org.apache.jena.atlas.logging.Log;
-import static org.apache.jena.rdf.model.impl.RDFDefaultErrorHandler.logger;
-import org.apache.jena.riot.Lang;
-import org.apache.log4j.Category;
-import static org.apache.log4j.Level.OFF;
 import org.apache.log4j.Logger;
 
 public class CMDGenerator {

@@ -45,13 +45,6 @@
         <endorsed.dir>${project.build.directory}/endorsed</endorsed.dir>
         <jersey.version>2.22.2</jersey.version>
                 
-        <!-- ========================  -->
-        <!--    SITE DOC PROPERTIES    -->
-        <!-- ========================  -->
-
-        <repository.domain>github.com</repository.domain>
-        <repository.user>thesmartenergy</repository.user>
-        <repository.name>sparql-generate</repository.name>
     </properties>
     
     <dependencyManagement>
@@ -141,7 +134,7 @@
                     <inherited>true</inherited>
                     <executions>
                         <execution>
-                            <phase>process-resources</phase>
+                            <phase>generate-resources</phase>
                             <goals>
                                 <goal>site</goal>
                             </goals>
@@ -170,6 +163,68 @@
                         </reportPlugins>
                     </configuration>        
                 </plugin>
+                <plugin>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <version>3.0.0</version>
+                    <executions>
+                        <execution>
+                            <id>copy-apidocs</id>
+                            <phase>process-resources</phase>
+                            <goals>
+                                <goal>copy-resources</goal>
+                            </goals>
+                            <configuration>
+                                <outputDirectory>${basedir}/target/sparql-generate/apidocs</outputDirectory>
+                                <resources>          
+                                    <resource>
+                                        <directory>../sparql-generate-jena/target/apidocs</directory>
+                                        <filtering>true</filtering>
+                                    </resource>
+                                </resources>              
+                            </configuration>            
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>com.coderplus.maven.plugins</groupId>
+                    <artifactId>copy-rename-maven-plugin</artifactId>
+                    <version>1.0</version>
+                    <executions>
+                        <execution>
+                            <id>copy-jar</id>
+                            <phase>process-resources</phase>
+                            <goals>
+                                <goal>copy</goal>
+                            </goals>
+                            <configuration>
+                                <sourceFile>../sparql-generate-jena/target/sparql-generate-jena-${project.version}.jar</sourceFile>
+                                <destinationFile>${basedir}/target/sparql-generate/sparql-generate-jena.jar</destinationFile>
+                            </configuration>            
+                        </execution>
+                        <execution>
+                            <id>copy-site-project-summary</id>
+                            <phase>process-resources</phase>
+                            <goals>
+                                <goal>copy</goal>
+                            </goals>
+                            <configuration>
+                                <sourceFile>../sparql-generate-jena/target/site/project-summary.html</sourceFile>
+                                <destinationFile>${basedir}/target/sparql-generate/project-summary.html</destinationFile>
+                            </configuration>            
+                        </execution>
+                        <execution>
+                            <id>copy-site-source-repository</id>
+                            <phase>process-resources</phase>
+                            <goals>
+                                <goal>copy</goal>
+                            </goals>
+                            <configuration>
+                                <sourceFile>../sparql-generate-jena/target/site/source-repository.html</sourceFile>
+                                <destinationFile>${basedir}/target/sparql-generate/source-repository.html</destinationFile>
+                            </configuration>            
+                        </execution>
+                    </executions>
+                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
@@ -196,7 +251,7 @@
                         <exclude>**/*.jsp</exclude>
                         <exclude>**/*.xhtml</exclude>
                         <exclude>**/*.rqg</exclude>
-                            <!--
+                        <!--
                         Text and Markdown files are typically used only for documentation purposes
                         and license declarations are usually spurious in these files since often they
                         will refer to the LICENSE/NOTICE for users to find the actual licenses
@@ -214,6 +269,14 @@
                         <exclude>**/dependency-reduced-pom.xml</exclude>
                     </excludes>
                 </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.0.0</version>
+            </plugin>
+            <plugin>
+                <groupId>com.coderplus.maven.plugins</groupId>
+                <artifactId>copy-rename-maven-plugin</artifactId>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

@@ -60,7 +60,7 @@ public class CMDConfigurations {
     
     public static void displayHelp() {
         HelpFormatter formatter = new HelpFormatter();
-        formatter.printHelp("RML Processor", getCMDOptions());
+        formatter.printHelp("SPARQL-Generate processor", getCMDOptions());
         System.exit(1);
     }
 }

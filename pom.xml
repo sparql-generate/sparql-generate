@@ -122,6 +122,14 @@
         <project.scm.id>git</project.scm.id>
         <maven.build.timestamp.format>yyyy-MM-dd'T'HH:mm:ssZ</maven.build.timestamp.format>
 
+        <!-- ========================  -->
+        <!--    SITE DOC PROPERTIES    -->
+        <!-- ========================  -->
+
+        <repository.domain>github.com</repository.domain>
+        <repository.user>thesmartenergy</repository.user>
+        <repository.name>sparql-generate</repository.name>
+
     </properties>
     
     <dependencies>
