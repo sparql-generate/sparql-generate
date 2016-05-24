@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.github.thesmartenergy</groupId>
     <artifactId>sparql-generate-parent</artifactId>
-    <version>0.11-SNAPSHOT</version>
+    <version>1.0</version>
     <packaging>pom</packaging>
        
     <name>SPARQL Generate</name>
@@ -68,7 +68,8 @@
         <url>https://${repository.domain}/${repository.user}/${repository.name}</url>
         <developerConnection>scm:git:ssh://${repository.domain}/${repository.user}/${repository.name}.git
         </developerConnection>
-    </scm>
+      <tag>1.0</tag>
+  </scm>
     
     <issueManagement>
         <url>http://${repository.domain}/${repository.user}/${repository.name}/issues</url>

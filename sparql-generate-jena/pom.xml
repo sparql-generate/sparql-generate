@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.github.thesmartenergy</groupId>
         <artifactId>sparql-generate-parent</artifactId>    
-        <version>0.11-SNAPSHOT</version>
+        <version>1.0</version>
     </parent>
 
     <artifactId>sparql-generate-jena</artifactId>
@@ -25,7 +25,8 @@
         <url>https://${repository.domain}/${repository.user}/sparql-generate</url>
         <developerConnection>scm:git:ssh://${repository.domain}/${repository.user}/sparql-generate.git
         </developerConnection>
-    </scm>
+      <tag>1.0</tag>
+  </scm>
 
     <issueManagement>
         <url>http://${repository.domain}/${repository.user}/sparql-generate/issues</url>
