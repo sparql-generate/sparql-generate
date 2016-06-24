@@ -111,6 +111,8 @@ public class FN_XPath extends FunctionBase2 {
                 return new NodeValueBoolean((Boolean) value);
             } else if (value instanceof Integer) {
                 return new NodeValueInteger((Integer) value);
+            } else if (value instanceof Long) {
+                return new NodeValueInteger((Integer) value);
             } else if (value instanceof Double) {
                 return new NodeValueDouble((Double) value);
             } else if (value instanceof BigDecimal) {

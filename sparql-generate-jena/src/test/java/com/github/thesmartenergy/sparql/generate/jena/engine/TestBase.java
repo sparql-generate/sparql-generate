@@ -92,7 +92,7 @@ public class TestBase {
 
     void testPlanExecution() throws Exception {
         String query = IOUtils.toString(fileManager.open("query.rqg"), "UTF-8");
-        System.out.println("zzz is " + query);
+        System.out.println("query is: \n" + query);
         SPARQLGenerateQuery q = (SPARQLGenerateQuery) QueryFactory.create(query, SPARQLGenerate.SYNTAX);
 
         // create generation plan

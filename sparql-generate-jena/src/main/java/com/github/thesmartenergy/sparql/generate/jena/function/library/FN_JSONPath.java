@@ -91,8 +91,9 @@ public final class FN_JSONPath extends FunctionBase2 {
             } else if (value instanceof Boolean) {
                 return new NodeValueBoolean((Boolean) value);
             } else if (value instanceof Integer) {
-                System.out.println(value);
                 return new NodeValueInteger((Integer) value);
+            } else if (value instanceof Long) {
+                return new NodeValueInteger((Long) value);
             } else if (value instanceof Double) {
                 return new NodeValueDouble((Double) value);
             } else if (value instanceof BigDecimal) {

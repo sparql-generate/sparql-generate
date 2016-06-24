@@ -19,6 +19,7 @@ import com.github.thesmartenergy.sparql.generate.jena.function.library.FN_BNode2
 import com.github.thesmartenergy.sparql.generate.jena.function.library.FN_CBOR;
 import com.github.thesmartenergy.sparql.generate.jena.function.library.FN_CSV;
 import com.github.thesmartenergy.sparql.generate.jena.function.library.FN_CustomCSV;
+import com.github.thesmartenergy.sparql.generate.jena.function.library.FN_DateTime;
 import com.github.thesmartenergy.sparql.generate.jena.function.library.FN_HTMLAttribute;
 import com.github.thesmartenergy.sparql.generate.jena.function.library.FN_HTMLTag;
 import com.github.thesmartenergy.sparql.generate.jena.function.library.FN_HTMLTagElement;
@@ -122,6 +123,7 @@ public final class SPARQLGenerate {
          fnreg.put(FN_Regex.URI, FN_Regex.class);
         fnreg.put(FN_BNode2.URI, FN_BNode2.class);
         fnreg.put(FN_HTMLTagElement.URI, FN_HTMLTagElement.class);
+        fnreg.put(FN_DateTime.URI, FN_DateTime.class);
         
         
                 
