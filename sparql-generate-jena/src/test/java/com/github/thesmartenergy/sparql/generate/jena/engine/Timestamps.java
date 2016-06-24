@@ -15,22 +15,8 @@
  */
 package com.github.thesmartenergy.sparql.generate.jena.engine;
 
-import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
-import static com.github.thesmartenergy.sparql.generate.jena.engine.TestBase.fileManager;
-import com.github.thesmartenergy.sparql.generate.jena.query.SPARQLGenerateQuery;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.StringWriter;
-import java.net.URI;
-import org.apache.commons.io.IOUtils;
-import org.apache.jena.query.QueryFactory;
-import org.apache.jena.query.QuerySolutionMap;
-import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.ModelFactory;
-import org.apache.jena.riot.RDFDataMgr;
 import org.junit.After;
 import org.junit.AfterClass;
-import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -63,22 +49,13 @@ public class Timestamps extends TestBase {
     }
     
     @Test
+    public void testQuerySerialization() throws Exception  {
+        super.testQuerySerialization();
+    }
+    
+    @Test
     public void testPlanExecution() throws Exception {
-        String query = IOUtils.toString(fileManager.open("query.rqg"), "UTF-8");
-        SPARQLGenerateQuery q = (SPARQLGenerateQuery) QueryFactory.create(query, SPARQLGenerate.SYNTAX);
-
-        // create generation plan
-        PlanFactory factory = new PlanFactory(fileManager);
-        RootPlan plan = factory.create(q);
-        Model output = ModelFactory.createDefaultModel();
-        QuerySolutionMap initialBinding = null;
-
-        // execute plan
-        plan.exec(initialBinding, output);
-
-        // write output
-        output.write( System.out, "TTL" );
-
-    }    
+        super.testPlanExecution();
+    }
     
 }
