@@ -1,10 +1,10 @@
-BASE <http://example.org/> 
+BASE <http://example.com/>  
 PREFIX iter: <http://w3id.org/sparql-generate/iter/>
 PREFIX fn: <http://w3id.org/sparql-generate/fn/>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> 
-PREFIX mail: <http://example.org/mail#>
-PREFIX note: <http://www.example.org/note/>
-PREFIX ex: <http://www.example.org/>
+PREFIX mail: <http://example.com/mail#>
+PREFIX note: <http://example.com/note/>
+PREFIX ex: <http://example.com/>
 
 GENERATE { 
     ?noteIRI a mail:note;
@@ -21,7 +21,7 @@ GENERATE {
      ?noteIRI mail:when ?dmy .
 
 }
-SOURCE <http://example.org/example1.xml> AS ?source
+SOURCE <http://example.com/example1.xml> AS ?source
 ITERATOR iter:XPath(?source, "//note" ) AS ?note
 WHERE {
      BIND( fn:XPath(?note,"/note/@id"  ) AS ?noteId )
@@ -35,7 +35,7 @@ WHERE {
      BIND( fn:XPath(?note,"/note/to/text()"  ) AS ?to )
      BIND( fn:XPath(?note,"/note/heading/text()"  ) AS ?heading )
      BIND( fn:XPath(?note,"/note/body/text()"  ) AS ?body )
-     BIND(IRI(CONCAT("http://www.example.org/note/",?noteId)) as ?noteIRI)
-     BIND(IRI(CONCAT("http://www.example.org/DateTime/",?year,"/",?month,"/",?day)) as ?dmy)
+     BIND(IRI(CONCAT("http://example.com/note/",?noteId)) as ?noteIRI)
+     BIND(IRI(CONCAT("http://example.com/DateTime/",?year,"/",?month,"/",?day)) as ?dmy)
 
 }

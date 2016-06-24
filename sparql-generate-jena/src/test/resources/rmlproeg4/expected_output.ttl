@@ -8,11 +8,11 @@
         gn:countryCode     "BE" ;
         geosp:onContinent  "EU" ;
         wgs84_pos:lat      "51.4657890" ;
-        wgs84_pos:long     "51.4657890" .
+        wgs84_pos:long     "3.7166700" .
 
 <http://loc.example.com/city/Brussels>
         a                  schema:City ;
         gn:countryCode     "BE" ;
         geosp:onContinent  "EU" ;
         wgs84_pos:lat      "51.0000000" ;
-        wgs84_pos:long     "51.0000000" .
+        wgs84_pos:long     "3.7166700" .

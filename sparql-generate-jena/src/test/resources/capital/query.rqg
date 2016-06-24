@@ -1,4 +1,4 @@
-BASE <http://example.org/> 
+BASE <http://example.com/> 
 PREFIX iter: <http://w3id.org/sparql-generate/iter/>
 PREFIX fn: <http://w3id.org/sparql-generate/fn/>
 

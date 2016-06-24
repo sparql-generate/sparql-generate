@@ -1,7 +1,74 @@
-@prefix schema: <http://schema.org/> .
-@prefix country: <http://loc.example.com/city/> .
-@prefix gn:    <http://www.geonames.org/ontology#> .
-@prefix wgs84_pos: <http://www.w3.org/2003/01/geo/wgs84_pos#> .
+@prefix seas:  <https://w3id.org/seas/ontology/all#> .
+@prefix owl:   <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix rqg-fn: <http://w3id.org/sparql-generate/fn/> .
-@prefix rqg-ite: <http://w3id.org/sparql-generate/ite/> .
+@prefix foaf:  <http://xmlns.com/foaf/0.1/> .
+@prefix rqg-ite: <http://w3id.org/sparql-generate/iter/> .
+@prefix dc:    <http://purl.org/dc/elements/1.1/> .
 
+[ a                      seas:Evaluation ;
+  seas:SystemOfInterest  <http://example.com/Charge/2> ;
+  seas:constantPower     "4"^^xsd:decimal ;
+  seas:temporalContext   [ seas:end    "2016-03-15T18:00:00"^^xsd:dateTime ;
+                           seas:start  "2016-03-15T17:00:00"^^xsd:dateTime
+                         ]
+] .
+
+[ a                      seas:Evaluation ;
+  seas:SystemOfInterest  <http://example.com/Charge/1> ;
+  seas:constantPower     "3"^^xsd:decimal ;
+  seas:temporalContext   [ seas:end    "2016-03-15T17:00:00"^^xsd:dateTime ;
+                           seas:start  "2016-03-15T16:00:00"^^xsd:dateTime
+                         ]
+] .
+
+[ a                      seas:Evaluation ;
+  seas:SystemOfInterest  <http://example.com/Charge/2> ;
+  seas:constantPower     "0"^^xsd:decimal ;
+  seas:temporalContext   [ seas:end    "2016-03-15T19:00:00"^^xsd:dateTime ;
+                           seas:start  "2016-03-15T18:00:00"^^xsd:dateTime
+                         ]
+] .
+
+[ a                      seas:Evaluation ;
+  seas:SystemOfInterest  <http://example.com/Charge/1> ;
+  seas:constantPower     "3"^^xsd:decimal ;
+  seas:temporalContext   [ seas:end    "2016-03-15T18:00:00"^^xsd:dateTime ;
+                           seas:start  "2016-03-15T17:00:00"^^xsd:dateTime
+                         ]
+] .
+
+[ a                      seas:Evaluation ;
+  seas:SystemOfInterest  <http://example.com/Charge/2> ;
+  seas:constantPower     "0"^^xsd:decimal ;
+  seas:temporalContext   [ seas:end    "2016-03-15T20:00:00"^^xsd:dateTime ;
+                           seas:start  "2016-03-15T19:00:00"^^xsd:dateTime
+                         ]
+] .
+
+[ a                      seas:Evaluation ;
+  seas:SystemOfInterest  <http://example.com/Charge/1> ;
+  seas:constantPower     "4"^^xsd:decimal ;
+  seas:temporalContext   [ seas:end    "2016-03-15T19:00:00"^^xsd:dateTime ;
+                           seas:start  "2016-03-15T18:00:00"^^xsd:dateTime
+                         ]
+] .
+
+[ a                      seas:Evaluation ;
+  seas:SystemOfInterest  <http://example.com/Charge/2> ;
+  seas:constantPower     "4"^^xsd:decimal ;
+  seas:temporalContext   [ seas:end    "2016-03-15T17:00:00"^^xsd:dateTime ;
+                           seas:start  "2016-03-15T16:00:00"^^xsd:dateTime
+                         ]
+] .
+
+<http://example.com/execution>
+        a       seas:AlgorithmExecution .
+
+<http://example.com/>
+        a                  foaf:Document ;
+        rdfs:comment       "This document demonstrates the generation of RDF from the CNR charging plan. The schema used by this RDF is still to be validated !"@en ;
+        dc:created         "2016-06-24T15:54:29.082+02:00"^^xsd:dateTime ;
+        foaf:primaryTopic  <http://example.com/Execution> .

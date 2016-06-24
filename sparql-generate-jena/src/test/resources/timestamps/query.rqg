@@ -1,4 +1,4 @@
-BASE <http://example.org/>
+BASE <http://example.com/>
 PREFIX rqgiter: <http://w3id.org/sparql-generate/iter/>
 PREFIX rqgfn: <http://w3id.org/sparql-generate/fn/>
 PREFIX seas: <https://w3id.org/seas/>
@@ -32,10 +32,10 @@ GENERATE{
             BIND( xsd:double(rqgfn:JSONPath(?key, "$.element[1]")) AS ?value)
 
             BIND( IF( 0 = ?position , ?consumptionTimeSeriesListURI  ,
-             IRI( CONCAT( "http://www.example.com/smartmeter/",?id, "/activity/timeseries/", STR(?firstTime),"/listvalue/",
+             IRI( CONCAT( "http://example.com/smartmeter/",?id, "/activity/timeseries/", STR(?firstTime),"/listvalue/",
              "e_" , STR (?position) ) ) ) AS ?this1 )
              BIND( STR( ?position + 1) as ?nextPosition)
-             BIND( IF( true = ?hasNext , IRI( CONCAT("http://www.example.com/smartmeter/",?id, "/activity/timeseries/",STR(?firstTime),"/listvalue/",
+             BIND( IF( true = ?hasNext , IRI( CONCAT("http://example.com/smartmeter/",?id, "/activity/timeseries/",STR(?firstTime),"/listvalue/",
              "e_" , ?nextPosition) ) , rdf:nil ) AS ?rest1 )
 
         }.
@@ -44,15 +44,15 @@ GENERATE{
        BIND(rqgfn:JSONPath(?source, "$.sensorId" ) AS ?id)
        BIND(rqgfn:JSONPath(?source, "$.dataSensor.Version" ) AS ?version)
        BIND(  rqgfn:dateTime( rqgfn:JSONPath(?source, "$.horodate" ) ) AS ?horodate)
-       BIND (URI(CONCAT("http://example.org/smartmeter/",?id)) AS ?smartMeterURI)
-       BIND (URI(CONCAT("http://example.org/smartmeter/",?id, "/activity")) AS ?ActivityURI)
-       BIND (URI(CONCAT("http://example.org/smartmeter/",?id,"/timeseries")) AS ?timeSeriesURI)
+       BIND (URI(CONCAT("http://example.com/smartmeter/",?id)) AS ?smartMeterURI)
+       BIND (URI(CONCAT("http://example.com/smartmeter/",?id, "/activity")) AS ?ActivityURI)
+       BIND (URI(CONCAT("http://example.com/smartmeter/",?id,"/timeseries")) AS ?timeSeriesURI)
        BIND ( rqgfn:JSONPath( ?dataSensor , "$.PXm[0]" ) AS ?msgtime)
        BIND ( rqgfn:JSONPath( ?msgtime, "$.[0]" ) AS ?firstTime)
        BIND ( rqgfn:dateTime( ?firstTime ) AS ?firstTimeDT)
-       BIND (URI(CONCAT("http://www.example.com/smartmeter/", ?id, "/activity/timeseries/", STR( ?firstTime ) , "/listvalue/") ) AS ?consumptionTimeSeriesListURI )
+       BIND (URI(CONCAT("http://example.com/smartmeter/", ?id, "/activity/timeseries/", STR( ?firstTime ) , "/listvalue/") ) AS ?consumptionTimeSeriesListURI )
     }.
 }
-SOURCE <http://www.example.com/smartmeters/elecW6labs.json> AS ?msg
+SOURCE <http://example.com/smartmeters/elecW6labs.json> AS ?msg
 ITERATOR rqgiter:JSONPath( ?msg , "$.[*]" ) AS ?source
 ITERATOR rqgiter:JSONPath( ?msg , "$.[*].dataSensor.Starts[*]" ) AS ?dataSensor

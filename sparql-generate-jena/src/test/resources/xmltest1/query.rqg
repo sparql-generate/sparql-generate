@@ -1,7 +1,7 @@
-BASE <http://trans.example.org/>
+BASE <http://trans.example.com/>
 PREFIX iter: <http://w3id.org/sparql-generate/iter/>
 PREFIX fn: <http://w3id.org/sparql-generate/fn/>
-PREFIX country:<http://loc.example.org/city/>
+PREFIX country:<http://loc.example.com/city/>
 PREFIX schema: <http://schema.org/>
 PREFIX wgs84_pos: <http://www.w3.org/2003/01/geo/wgs84_pos#>
 PREFIX gn: <http://www.geonames.org/ontology#>
@@ -24,10 +24,10 @@ GENERATE {
         BIND( IRI(?stopiristr) AS ?stopiri )
     }.
 }
-SOURCE <http://example.org/transport.xml> AS ?source
+SOURCE <http://example.com/transport.xml> AS ?source
 ITERATOR iter:XPath(?source, "//bus" ) AS ?bus
 WHERE {
-    BIND( "http://trans.example.org/" AS ?base )
+    BIND( "http://trans.example.com/" AS ?base )
     BIND( fn:XPath(?bus,"/bus/@id"  ) AS ?busid )
     BIND( IRI( CONCAT( ?base, "bus/",?busid ) ) AS ?busiri )
 }

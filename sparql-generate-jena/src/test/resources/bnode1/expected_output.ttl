@@ -1,0 +1,20 @@
+@prefix fn:    <http://w3id.org/sparql-generate/fn/> .
+@prefix iter:  <http://w3id.org/sparql-generate/iter/> .
+
+[ <http://example.com/p_2>   "bn after" , "bn before" ;
+  <http://example.com/p_21>  "bn in" ;
+  <http://example.com/p_22>  "bn in"
+] .
+
+[ <http://example.com/p_1>   "bn2 after" , "bn2 before" ;
+  <http://example.com/p_11>  "bn2 in" ;
+  <http://example.com/p_12>  "bn2 in" ;
+  <http://example.com/p_2>   "bn2 after" , "bn2 before" ;
+  <http://example.com/p_21>  "bn2 in" ;
+  <http://example.com/p_22>  "bn2 in"
+] .
+
+[ <http://example.com/p_1>   "bn after" , "bn before" ;
+  <http://example.com/p_11>  "bn in" ;
+  <http://example.com/p_12>  "bn in"
+] .

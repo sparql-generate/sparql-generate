@@ -1,4 +1,4 @@
-@base <http://example.org/> .
+@base <http://example.com/> .
 
 [] <source> """[
 	{ "firstname" : "Maxime" ,

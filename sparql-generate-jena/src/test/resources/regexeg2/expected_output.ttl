@@ -1,20 +1,20 @@
 @prefix ex:    <http://example.com/> .
 
-<http://example.org/2>
+<http://example.com/2>
         a            ex:Student ;
         ex:dobday    "13" ;
         ex:dobmonth  "02" ;
         ex:dobyear   "1987" ;
         ex:name      "Sam" .
 
-<http://example.org/1>
+<http://example.com/1>
         a            ex:Student ;
         ex:dobday    "12" ;
         ex:dobmonth  "05" ;
         ex:dobyear   "1980" ;
         ex:name      "John" .
 
-<http://example.org/3>
+<http://example.com/3>
         a            ex:Student ;
         ex:dobday    "10" ;
         ex:dobmonth  "06" ;

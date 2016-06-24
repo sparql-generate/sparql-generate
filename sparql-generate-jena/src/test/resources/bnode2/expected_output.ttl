@@ -1,0 +1,13 @@
+@prefix fn:    <http://w3id.org/sparql-generate/fn/> .
+@prefix iter:  <http://w3id.org/sparql-generate/iter/> .
+
+[ <http://example.com/p_1>   "bn before" ;
+  <http://example.com/p_11>  _:b0 ;
+  <http://example.com/p_12>  _:b1
+] .
+
+[ <http://example.com/p_2>   "bn before" ;
+  <http://example.com/p_21>  _:b0 ;
+  <http://example.com/p_22>  _:b1
+] .
+ 

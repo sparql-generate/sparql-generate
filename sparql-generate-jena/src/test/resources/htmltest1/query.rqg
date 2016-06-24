@@ -1,8 +1,8 @@
-BASE <http://example.org/> 
+BASE <http://example.com/> 
 PREFIX iter: <http://w3id.org/sparql-generate/iter/>
 PREFIX fn: <http://w3id.org/sparql-generate/fn/>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-PREFIX ex: <http://www.example.com/>
+PREFIX ex: <http://example.com/>
 GENERATE { 
   [] a ex:HTMLPage;
     ex:title ?title;

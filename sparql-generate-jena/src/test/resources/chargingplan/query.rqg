@@ -12,20 +12,55 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+BASE <http://example.com/>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX owl: <http://www.w3.org/2002/07/owl#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 PREFIX seas: <https://w3id.org/seas/ontology/all#>
-PREFIX rqg-ite: <http://w3id.org/sparql-generate/ite/>
+PREFIX rqg-ite: <http://w3id.org/sparql-generate/iter/>
 PREFIX rqg-fn: <http://w3id.org/sparql-generate/fn/>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+PREFIX dc: <http://purl.org/dc/elements/1.1/>
 
 GENERATE {
-    ?charge a seas:Charge ;
-       seas:chargingPlan ?chargingPlan ;
-} ITERATOR rqg-ite:XPath(?message, "//ChargingPlan") AS ?chargingPlan
+
+    <> a foaf:Document ;
+        rdfs:comment """This document demonstrates the generation of RDF from the CNR charging plan. The schema used by this RDF is still to be validated !"""@en ;
+        dc:created ?date ;
+        foaf:primaryTopic <Execution> .
+
+    <execution> a seas:AlgorithmExecution .
+
+
+    GENERATE {
+
+        GENERATE {
+            
+            [] a seas:Evaluation ;
+                seas:SystemOfInterest ?charge ;
+                seas:temporalContext [ seas:start ?start ; seas:end ?end ] ;
+                seas:constantPower ?power .
+
+
+        } ITERATOR rqg-ite:XPath(?chargingPlan, "//Order") AS ?order
+        WHERE {
+            BIND( strdt( rqg-fn:XPath(?order, "//DateDebut"), xsd:dateTime ) AS ?start )
+            BIND( strdt( rqg-fn:XPath(?order, "//DateFin"), xsd:dateTime ) AS ?end )
+            BIND( xsd:decimal( rqg-fn:XPath(?order, "//Puissance") ) AS ?power )
+        
+        } .
+
+    } ITERATOR rqg-ite:XPath(?message, "//ChargingPlan") AS ?chargingPlan
+    WHERE  {
+        BIND( rqg-fn:XPath(?chargingPlan, "//IdCharge") AS ?idCharge )
+        BIND( IRI( CONCAT ("Charge/" , ?idCharge ) ) AS ?charge )
+    } .
+
+
+} 
+SOURCE <http://cnr-seas.cloudapp.net/scp/rest/ChargingPlan/1fc4ltccsrsun9mdijrgaruhe5> AS ?message
 WHERE {
-    BIND( rqg-fn:XPath(?chargingPlan, "IdCharge") AS ?idCharge )
-    BIND( BNODE(?idCharge) AS ?charge )
+    BIND( now() AS ?date )
 }
 	

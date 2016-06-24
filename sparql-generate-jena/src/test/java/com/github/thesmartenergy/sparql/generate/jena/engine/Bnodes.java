@@ -68,17 +68,12 @@ public class Bnodes {
 
     @Test
     public void testbnode1() throws Exception {
-        test("bnode1");
+        test("bnode1"); 
     }
 
     @Test
     public void testbnode2() throws Exception {
-        test("bnode2");
-    }
-
-    @Test
-    public void testbnode3() throws Exception {
-        test("bnode3");
+        test("bnode2"); 
     }
 
     public void test(String value) throws Exception {

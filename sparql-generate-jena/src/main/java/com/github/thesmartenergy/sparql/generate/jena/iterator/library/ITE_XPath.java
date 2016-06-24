@@ -107,8 +107,7 @@ public class ITE_XPath extends IteratorFunctionBase2 {
                     
             builder = builderFactory.newDocumentBuilder();
             Document document = builder
-                    .parse(new ByteArrayInputStream(
-                            xml.asNode().getLiteralLexicalForm().getBytes()));
+                    .parse(new ByteArrayInputStream(xmlstring.getBytes()));
 
             XPath xPath = XPathFactory.newInstance().newXPath();
 

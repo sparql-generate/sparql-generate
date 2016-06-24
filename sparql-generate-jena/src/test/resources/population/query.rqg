@@ -1,4 +1,4 @@
-BASE <http://example.org/> 
+BASE <http://example.com/> 
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 PREFIX iter: <http://w3id.org/sparql-generate/iter/>
 PREFIX fn: <http://w3id.org/sparql-generate/fn/>
@@ -30,7 +30,7 @@ WHERE {
          ?country_iri ?population
   WHERE {
 
-    BIND( "http://example.org/" AS ?base )
+    BIND( "http://example.com/" AS ?base )
 
     BIND( CONCAT( "$.", ?contry_code ) AS ?query_continent )
     BIND( fn:JSONPath( ?source_continent, ?query_continent ) AS ?continent_code )
