@@ -280,7 +280,8 @@ public class PlanFactory {
      * @return -
      */
     IteratorOrSourcePlan makeIteratorPlan(
-            final ElementIterator elementIterator) {
+            final ElementIterator elementIterator) 
+                throws SPARQLGenerateException {
         checkNotNull(elementIterator, "The Iterator must not be null");
 
         Var var = elementIterator.getVar();
@@ -296,6 +297,9 @@ public class PlanFactory {
 
         IteratorFunctionFactory factory = sr.get(iri);
         System.out.println(iri);
+        if(factory == null) {
+            throw new SPARQLGenerateException("Unknown Iterator Function: " + iri);
+        }
         IteratorFunction iterator = factory.create(iri);
         ExprList exprList = new ExprList(function.getArgs());
         iterator.build(exprList);
@@ -310,8 +314,8 @@ public class PlanFactory {
      * @param elementSource the SPARQL SOURCE
      * @return -
      */
-    private IteratorOrSourcePlan makeSourcePlan(
-            final ElementSource elementSource) {
+    private IteratorOrSourcePlan makeSourcePlan (
+            final ElementSource elementSource) throws SPARQLGenerateException {
         checkNotNull(elementSource, "The Source must not be null");
 
         Node node = elementSource.getSource();
@@ -350,8 +354,8 @@ public class PlanFactory {
      * @throws IOException Thrown if the source query cannot be found, or if a
      * parse error occurs
      */
-    private RootPlan makeGenerateQueryPlan(
-            final SPARQLGenerateQuery query) {
+    private RootPlan makeGenerateQueryPlan (
+            final SPARQLGenerateQuery query) throws SPARQLGenerateException {
         checkNotNull(query, "The query must not be null");
         checkIsTrue(query.hasGenerateURI(), "Query was expected to be of type"
                 + " GENERATE ?source...");
@@ -377,8 +381,8 @@ public class PlanFactory {
      * @param query the query for which the plan is created.
      * @return -
      */
-    private GeneratePlan makeGenerateTemplatePlan(
-            final SPARQLGenerateQuery query) {
+    private GeneratePlan makeGenerateTemplatePlan (
+            final SPARQLGenerateQuery query) throws SPARQLGenerateException {
         checkNotNull(query, "The query must not be null");
         checkIsTrue(query.hasGenerateTemplate(), "Query was expected to be of"
                 + " type GENERATE {...} ...");

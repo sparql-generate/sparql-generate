@@ -77,6 +77,16 @@ public final class SPARQLGenerate {
     }
 
     /**
+     * The SPARQL Generate media type.
+     */
+    public static final String MEDIA_TYPE = "application/vnd.sparql-generate";
+
+    /**
+     * The SPARQL Generate media type URI.
+     */
+    public static final String MEDIA_TYPE_URI = "http://www.iana.org/assignments/media-types/" + MEDIA_TYPE;
+
+    /**
      * The namespace of SPARQL Generate.
      */
     public static final String NS = "http://w3id.org/sparql-generate/";

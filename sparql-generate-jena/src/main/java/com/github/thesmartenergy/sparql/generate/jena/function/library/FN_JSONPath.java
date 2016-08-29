@@ -16,6 +16,7 @@
 package com.github.thesmartenergy.sparql.generate.jena.function.library;
 
 import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
+import com.google.gson.Gson;
 import com.jayway.jsonpath.JsonPath;
 import java.math.BigDecimal;
 import org.apache.jena.sparql.expr.ExprEvalException;
@@ -31,6 +32,11 @@ import org.apache.log4j.Logger;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import static org.apache.jena.assembler.JA.data;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueNode;
@@ -98,6 +104,12 @@ public final class FN_JSONPath extends FunctionBase2 {
                 return new NodeValueDouble((Double) value);
             } else if (value instanceof BigDecimal) {
                 return new NodeValueDecimal((BigDecimal) value);
+            } else if (value instanceof ArrayList) {
+                String jsonString = new Gson().toJson(value);
+                return new NodeValueString(jsonString);
+            } else if (value instanceof Map) {
+                String jsonString = new Gson().toJson(value, Map.class);
+                return new NodeValueString(jsonString);
             } else {
                 String strValue = String.valueOf(value);
 
