@@ -24,7 +24,6 @@ import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.QueryExecutionFactory;
 import org.apache.jena.query.ResultSet;
 import org.apache.jena.query.Query;
-import org.apache.jena.query.ResultSetFormatter;
 import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.engine.binding.Binding;
 import org.apache.jena.sparql.engine.binding.BindingHashMap;
@@ -67,7 +66,6 @@ public class SelectPlanImpl extends PlanBase implements SelectPlan {
             final Dataset inputDataset,
             final List<Var> variables,
             final List<BindingHashMapOverwrite> values) {
-        LOG.debug("exec");
 
         Query q = select.cloneQuery();
         
@@ -88,13 +86,10 @@ public class SelectPlanImpl extends PlanBase implements SelectPlan {
             temp.addElement(olde);
         }
         q.setQueryPattern(temp);
-        LOG.debug("Resulting SELECT query:\n" + q);
 
         try {
             QueryExecution exec = QueryExecutionFactory.create(q, inputDataset);
-            ResultSet results = exec.execSelect(); // delete this
-            LOG.debug(ResultSetFormatter.asText(results)); // delete this
-            
+            ResultSet results = exec.execSelect();            
             exec = QueryExecutionFactory.create(q, inputDataset);
             results = exec.execSelect();
             List<Var> newVariables = new ArrayList<>();

@@ -296,7 +296,6 @@ public class PlanFactory {
         String iri = function.getFunctionIRI();
 
         IteratorFunctionFactory factory = sr.get(iri);
-        System.out.println(iri);
         if(factory == null) {
             throw new SPARQLGenerateException("Unknown Iterator Function: " + iri);
         }
@@ -552,7 +551,7 @@ public class PlanFactory {
             }
 
         });
-        LOG.debug("Generated query select query: " + output.serialize());
+//        LOG.debug("Generated query select query: " + output.serialize());
         return output;
     }
 

@@ -31,9 +31,6 @@ import org.apache.jena.sparql.core.Var;
 import org.apache.log4j.Logger;
 import com.github.thesmartenergy.sparql.generate.jena.engine.IteratorOrSourcePlan;
 import com.github.thesmartenergy.sparql.generate.jena.engine.SelectPlan;
-import java.util.HashMap;
-import java.util.Map;
-import org.apache.jena.graph.Node;
 import org.apache.jena.query.QuerySolutionMap;
 
 /**
@@ -271,7 +268,6 @@ public final class RootPlanImpl extends PlanBase implements RootPlan, GeneratePl
             final List<Var> variables,
             final List<BindingHashMapOverwrite> values,
             final BNodeMap bNodeMap) {
-        LOG.debug("exec");
 
         for (String prefix : prefixMapping.getNsPrefixMap().keySet()) {
             initialModel.setNsPrefix(

@@ -16,8 +16,6 @@
 package com.github.thesmartenergy.sparql.generate.jena.engine.impl;
 
 import java.util.List;
-import java.util.Map;
-import org.apache.jena.graph.Node;
 import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.engine.binding.Binding;
 import org.apache.jena.sparql.engine.binding.BindingHashMap;

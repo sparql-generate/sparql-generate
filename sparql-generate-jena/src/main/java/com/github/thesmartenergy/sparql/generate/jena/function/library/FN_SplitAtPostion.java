@@ -16,6 +16,7 @@
 package com.github.thesmartenergy.sparql.generate.jena.function.library;
 
 import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
+import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.NodeValue;
 import org.apache.log4j.Logger;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueString;
@@ -53,8 +54,10 @@ public class FN_SplitAtPostion extends FunctionBase3 {
      */
     public NodeValue exec(NodeValue string, NodeValue regex, NodeValue position) {
         String[] splits = string.getString().split(regex.getString());
-        NodeValue nodeValue = new NodeValueString(splits[position.getInteger().intValue()]);
-        //NodeValue nodeValue = new NodeValueString(position.getString);
-        return nodeValue;
+        int index = position.getInteger().intValue();
+        if(index > splits.length) {
+            throw new ExprEvalException("array index out of bounds: " + index + " , got " + splits.length);
+        }
+        return  new NodeValueString(splits[index]);
     }
 }

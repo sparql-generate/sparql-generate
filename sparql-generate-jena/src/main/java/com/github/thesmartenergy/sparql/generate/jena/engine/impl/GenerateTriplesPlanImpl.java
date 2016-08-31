@@ -16,8 +16,6 @@
 package com.github.thesmartenergy.sparql.generate.jena.engine.impl;
 
 import com.github.thesmartenergy.sparql.generate.jena.engine.GenerateTemplateElementPlan;
-import java.util.Map;
-import org.apache.jena.graph.Node;
 import org.apache.jena.graph.Triple;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.rdf.model.Model;
@@ -61,7 +59,6 @@ public class GenerateTriplesPlanImpl
             final Model initialModel,
             final BindingHashMapOverwrite binding,
             final BNodeMap bNodeMap) {
-        LOG.debug("exec");
         for (Triple t : bgp.getList()) {
             Triple t2 = TemplateLib.subst(t, binding, bNodeMap.asMap());
             if (t2.isConcrete()) {

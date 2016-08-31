@@ -75,7 +75,6 @@ public class GenerateTemplatePlanImpl extends PlanBase implements GeneratePlan {
             final List<Var> variables,
             final List<BindingHashMapOverwrite> values,
             final BNodeMap bNodeMap) {
-        LOG.debug("exec");
         for (BindingHashMapOverwrite binding : values) {
             BNodeMap bNodeMap2 = new BNodeMap(bNodeMap, binding);
             for (GenerateTemplateElementPlan el : templateElementPlans) {

@@ -78,7 +78,6 @@ public class IteratorPlanImpl extends PlanBase implements IteratorOrSourcePlan {
     final public void exec(
             final List<Var> variables,
             final List<BindingHashMapOverwrite> values) {
-        LOG.debug("exec");
 
         boolean added = variables.add(var);
         if (!added) {
