@@ -87,16 +87,16 @@ public class ITE_CBOR extends IteratorFunctionBase2 {
     /**
      * The datatype URI of the first parameter and the return literals.
      */
-    private static final String datatypeUri = "urn:iana:mime:application/cbor";
+    private static final String datatypeUri = "http://www.iana.org/assignments/media-types/application/cbor";
 
     /**
      * This method takes two parameters as input:
      * 
      * @param cbor a RDF Literal with datatype URI
-     * {@code <urn:iana:mime:application/cbor>} or {@code xsd:string}
+     * {@code <http://www.iana.org/assignments/media-types/application/cbor>} or {@code xsd:string}
      * @param jsonpath a RDF Literal with datatype {@code xsd:string}
      * @return a list of RDF Literal with datatype URI
-     * {@code <urn:iana:mime:application/json>}.
+     * {@code <http://www.iana.org/assignments/media-types/application/json>}.
      */
     @Override
     public List<NodeValue> exec(NodeValue cbor, NodeValue jsonpath) {

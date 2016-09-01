@@ -59,15 +59,15 @@ public class ITE_CSSPath extends IteratorFunctionBase2 {
     /**
      * The datatype URI of the first parameter and the return literals.
      */
-    private static final String datatypeUri = "urn:iana:mime:text/html";
+    private static final String datatypeUri = "http://www.iana.org/assignments/media-types/text/html";
 
     /**
      * @param html a RDF Literal with datatype URI
-     * {@code <urn:iana:mime:text/html>}  or {@code xsd:string} representing the source HTML document
+     * {@code <http://www.iana.org/assignments/media-types/text/html>}  or {@code xsd:string} representing the source HTML document
      * @param cssSelector a RDF Literal with datatype {@code xsd:string}
      * representing the CSS selector expression
      * @return a list of RDF Literal with datatype URI
-     * {@code <urn:iana:mime:text/html>} .
+     * {@code <http://www.iana.org/assignments/media-types/text/html>} .
      */
     @Override
     public List<NodeValue> exec(NodeValue html, NodeValue cssSelector) {

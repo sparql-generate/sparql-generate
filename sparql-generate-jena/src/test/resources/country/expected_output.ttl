@@ -12,4 +12,4 @@
           "country" : "GB" ,
 	  "interests" : [ "W3C" , "RDF" , "April Fools Day" ] 
 	}
-]"""^^<urn:iana:mime:application/json> .
+]"""^^<http://www.iana.org/assignments/media-types/application/json> .

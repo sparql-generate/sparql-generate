@@ -59,15 +59,15 @@ public final class FN_CBOR extends FunctionBase2 {
     /**
      * The datatype URI of the first parameter and the return literals.
      */
-    private static final String datatypeUri = "urn:iana:mime:application/cbor";
+    private static final String datatypeUri = "http://www.iana.org/assignments/media-types/application/cbor";
 
     /**
      *
      * @param cbor a RDF Literal with datatype URI
-     * {@code <urn:iana:mime:application/cbor>} or {@code xsd:string}
+     * {@code <http://www.iana.org/assignments/media-types/application/cbor>} or {@code xsd:string}
      * @param jsonpath a RDF Literal with datatype {@code xsd:string}
      * @return a RDF Literal with datatype URI
-     * {@code <urn:iana:mime:application/json>}
+     * {@code <http://www.iana.org/assignments/media-types/application/json>}
      */
     @Override
     public NodeValue exec(NodeValue cbor, NodeValue jsonpath) {

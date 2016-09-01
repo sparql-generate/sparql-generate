@@ -185,13 +185,13 @@ public class SourcePlanImpl extends PlanBase implements IteratorOrSourcePlan {
             throw new SPARQLGenerateException("Variable " + node.getName()
                     + " must be bound to a IRI that represents the internet"
                     + " media type of the source to be fetched. For"
-                    + " instance, <urn:iana:mime:application/xml>.");
+                    + " instance, <http://www.iana.org/assignments/media-types/application/xml>.");
         }
-        if (!actualAccept.getURI().startsWith("urn:iana:mime:")) {
+        if (!actualAccept.getURI().startsWith("http://www.iana.org/assignments/media-types/")) {
             throw new SPARQLGenerateException("Variable " + node.getName()
                     + " must be bound to a IANA MIME URN (RFC to be"
                     + " written). For instance,"
-                    + " <urn:iana:mime:application/xml>.");
+                    + " <http://www.iana.org/assignments/media-types/application/xml>.");
         }
         return actualAccept.getURI();
 
@@ -242,7 +242,7 @@ public class SourcePlanImpl extends PlanBase implements IteratorOrSourcePlan {
                 TypedStream stream = loc.open(sourceUri);
                 //TODO check charset --> UTF-8 ok. else, base64
                 literal = IOUtils.toString(stream.getInput());
-                datatypeURI = "urn:iana:mime:" + stream.getMimeType();
+                datatypeURI = "http://www.iana.org/assignments/media-types/" + stream.getMimeType();
                 RDFDatatype dt = tm.getSafeTypeByName(datatypeURI);
                 final Node n = NodeFactory.createLiteral(literal, dt);
                 if (!distantCache.containsKey(sourceUri)) {

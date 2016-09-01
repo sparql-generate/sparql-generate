@@ -145,7 +145,7 @@ public class Fetch extends HttpServlet {
         String dturi = "http://www.w3.org/2001/XMLSchema#string";
         String ct = con.getContentType();
         if(ct != null) {
-            dturi = "urn:iana:mime:"+ct;
+            dturi = "http://www.iana.org/assignments/media-types/"+ct;
         }
        
         QuerySolutionMap initialBinding = new QuerySolutionMap();

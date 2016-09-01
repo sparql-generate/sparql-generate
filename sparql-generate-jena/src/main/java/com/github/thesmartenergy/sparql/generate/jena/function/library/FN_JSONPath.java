@@ -64,12 +64,12 @@ public final class FN_JSONPath extends FunctionBase2 {
     /**
      * The datatype URI of the first parameter and the return literals.
      */
-    private static final String datatypeUri = "urn:iana:mime:application/json";
+    private static final String datatypeUri = "http://www.iana.org/assignments/media-types/application/json";
 
     /**
      *
      * @param json a RDF Literal with datatype URI
-     * {@code <urn:iana:mime:application/json>} or {@code xsd:string}
+     * {@code <http://www.iana.org/assignments/media-types/application/json>} or {@code xsd:string}
      * @param jsonpath a RDF Literal with datatype {@code xsd:string}
      * @return a RDF Literal with datatype being the type of the object
      * extracted from the JSON document

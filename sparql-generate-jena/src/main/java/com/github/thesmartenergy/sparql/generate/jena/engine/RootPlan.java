@@ -62,7 +62,7 @@ import org.apache.jena.rdf.model.Model;
  * Then the RDF literal to bind to <code>?msg</code>:
  * <ul>
  *  <li>has lexical form <code>"mymessage"</code></li>
- *  <li>has datatype IRI <code>{@code <urn:iana:mime:application/json>}</code>
+ *  <li>has datatype IRI <code>{@code <http://www.iana.org/assignments/media-types/application/json>}</code>
  * </li>
  * </ul>
  * <p>
@@ -73,7 +73,7 @@ import org.apache.jena.rdf.model.Model;
  * <pre>{@code
  * String variable = "msg";
  * String message = "mymessage";
- * String uri = "urn:iana:mime:application/json";
+ * String uri = "http://www.iana.org/assignments/media-types/application/json";
  *
  * Model initialModel = ModelFactory.createDefaultModel();
  * TypeMapper typeMapper = TypeMapper.getInstance();

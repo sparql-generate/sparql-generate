@@ -61,7 +61,7 @@ public class ITE_CustomCSV extends IteratorFunctionBase5 {
     /**
      * The datatype URI of the first parameter and the return literals.
      */
-    private static final String datatypeUri = "urn:iana:mime:text/csv";
+    private static final String datatypeUri = "http://www.iana.org/assignments/media-types/text/csv";
 
     /**
      * This iterator partly implements the CSV dialect description at
@@ -71,7 +71,7 @@ public class ITE_CustomCSV extends IteratorFunctionBase5 {
      * Dialect Descriptions</a>
      *
      * @param csv a RDF Literal with datatype URI
-     * {@code <urn:iana:mime:text/csv>} or {@code xsd:string} representing the source CSV document
+     * {@code <http://www.iana.org/assignments/media-types/text/csv>} or {@code xsd:string} representing the source CSV document
      * @param quoteChar a RDF Literal with datatype {@code xsd:string} for the
      * quote character
      * @param delimiterChar a RDF Literal with datatype {@code xsd:string} for
@@ -81,7 +81,7 @@ public class ITE_CustomCSV extends IteratorFunctionBase5 {
      * @param header a RDF Literal with datatype {@code xsd:boolean} where true
      * represents the presence of a header in the CSV document
      * @return a list of RDF Literal with datatype URI
-     * {@code <urn:iana:mime:text/csv>}.
+     * {@code <http://www.iana.org/assignments/media-types/text/csv>}.
      */
     @Override
     public List<NodeValue> exec(NodeValue csv, NodeValue quoteChar, NodeValue delimiterChar, NodeValue endOfLineSymbols, NodeValue header) {

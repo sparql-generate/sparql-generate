@@ -46,12 +46,6 @@ See the License for the specific language governing permissions and
             <item name="Web API" href="language-api.html"/>
         </menu>
             
-        <menu name="The protocol">
-            <item name="Specification" href="protocol.html"/>
-            <item name="Test it online" href="protocol-form.html"/>
-            <item name="Web API" href="protocol-api.html"/>
-        </menu>
-            
         <menu name="Implementation Over Jena">
             <item name="Executable JAR" href="language-cli.html" />  
             <item name="Java library" href="get-started.html"/>

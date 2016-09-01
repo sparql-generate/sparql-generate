@@ -62,14 +62,14 @@ public class ITE_CSV extends IteratorFunctionBase1 {
     /**
      * The datatype URI of the first parameter and the return literals.
      */
-    private static final String datatypeUri = "urn:iana:mime:text/csv";
+    private static final String datatypeUri = "http://www.iana.org/assignments/media-types/text/csv";
 
     /**
      *
      * @param csv the source CSV document which is a RDF Literal with datatype
-     * URI {@code <urn:iana:mime:text/csv>} or {@code xsd:string}
+     * URI {@code <http://www.iana.org/assignments/media-types/text/csv>} or {@code xsd:string}
      * @return a list of RDF Literal with datatype URI
-     * {@code <urn:iana:mime:text/csv>} for each row of the CSV document.
+     * {@code <http://www.iana.org/assignments/media-types/text/csv>} for each row of the CSV document.
      */
     @Override
     public List<NodeValue> exec(NodeValue csv) {

@@ -30,7 +30,7 @@ import org.jsoup.select.Elements;
  * It takes two parameters as input:
  * <ul>
  * <li>{@param html} a RDF Literal with datatype URI
- * {@code <urn:iana:mime:text/html>} representing the source HTML document</li>
+ * {@code <http://www.iana.org/assignments/media-types/text/html>} representing the source HTML document</li>
  * <li>{@param elementName} a RDF Literal with datatype {@code xsd:string} representing 
  * name of the HTML element from which text is to be extracted
  * </li>
@@ -55,7 +55,7 @@ public class FN_HTMLTagElement extends FunctionBase2{
     /**
      * The datatype URI of the first parameter and the return literals.
      */
-    private static final String datatypeUri = "urn:iana:mime:text/html";
+    private static final String datatypeUri = "http://www.iana.org/assignments/media-types/text/html";
 
    /**
      * {@inheritDoc }

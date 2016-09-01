@@ -61,12 +61,12 @@ public class ITE_CSVWrapped extends IteratorFunctionBase1 {
     /**
      * The datatype URI of the first parameter and the return literals.
      */
-    private static final String datatypeUri = "urn:iana:mime:text/csv";
+    private static final String datatypeUri = "http://www.iana.org/assignments/media-types/text/csv";
 
     /**
      *
      * @param csv the source CSV document which is a RDF Literal with datatype
-     * URI {@code <urn:iana:mime:text/csv>} or {@code xsd:string}
+     * URI {@code <http://www.iana.org/assignments/media-types/text/csv>} or {@code xsd:string}
      * @return a list of string literals representing the headers of the CSV
      * document.
      */
@@ -84,7 +84,7 @@ public class ITE_CSVWrapped extends IteratorFunctionBase1 {
                     + csv.getDatatypeURI() + ">. Returning null.");
         }
         RDFDatatype dt = TypeMapper.getInstance()
-                .getSafeTypeByName("urn:iana:mime:application/json");
+                .getSafeTypeByName("http://www.iana.org/assignments/media-types/application/json");
         try {
 
             String sourceCSV = String.valueOf(csv.asNode().getLiteralLexicalForm());

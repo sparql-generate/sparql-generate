@@ -46,12 +46,12 @@ public class FN_HTMLTag extends FunctionBase2 {
     /**
      * The datatype URI of the first parameter and the return literals.
      */
-    private static final String datatypeUri = "urn:iana:mime:text/html";
+    private static final String datatypeUri = "http://www.iana.org/assignments/media-types/text/html";
 
     /**
      *
      * @param html a RDF Literal with datatype URI
-     * {@code <urn:iana:mime:text/html>} or {@code xsd:string} representing the
+     * {@code <http://www.iana.org/assignments/media-types/text/html>} or {@code xsd:string} representing the
      * source HTML document
      * @param v2 a RDF Literal with datatype {@code xsd:string} representing
      * name of the HTML element from which text is to be extracted

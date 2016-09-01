@@ -56,7 +56,7 @@ import javax.xml.transform.stream.StreamResult;
  * A SPARQL Iterator function that extracts a list of sub-XML elements of a XML
  * root element, according to a XPath expression. The Iterator function URI is
  * {@code <http://w3id.org/sparql-generate/iter/XPath>}.
- * {@code <urn:iana:mime:application/xml>}.
+ * {@code <http://www.iana.org/assignments/media-types/application/xml>}.
  *
  * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */
@@ -75,7 +75,7 @@ public class ITE_XPath extends IteratorFunctionBase2 {
     /**
      * The datatype URI of the first parameter and the return literals.
      */
-    private static final String datatypeUri = "urn:iana:mime:application/xml";
+    private static final String datatypeUri = "http://www.iana.org/assignments/media-types/application/xml";
 
     /**
      *
@@ -83,7 +83,7 @@ public class ITE_XPath extends IteratorFunctionBase2 {
      * @param v2 a RDF Literal with datatype {@code xsd:string} representing the
      * XPath
      * @return a list of RDF Literal with datatype URI
-     * {@code <urn:iana:mime:application/xml>}.
+     * {@code <http://www.iana.org/assignments/media-types/application/xml>}.
      */
     @Override
     public List<NodeValue> exec(NodeValue xml, NodeValue v2) {

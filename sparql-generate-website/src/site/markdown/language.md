@@ -1,6 +1,6 @@
-# The SPARQL RDF Generation Language
+# The SPARQL-Generate Language
 
-The SPARQL RDF Generation Language part of SPARQL-Generate extends the SPARQL 1.1 Query language, and offers a simple template-based RDF Graph generation from RDF literals. 
+The SPARQL-Generate Language extends the SPARQL 1.1 Query language, and offers a simple template-based RDF Graph generation from RDF literals. 
 
 Other languages enable to describe mapping from documents to RDF. By design, SPARQL-Generate extends SPARQL and hence offers an alternative that presents the following advantages:
 
@@ -62,7 +62,7 @@ with initial binding of variable ?doc to the following RDF literal,
             "lastname" : "Lefrancois" ,
             "birthday" : "04-26" ,
             "country" : "FR"
-          }"""^^<urn:iana:mime:sparql-generate>
+          }"""^^<http://www.iana.org/assignments/media-types/application/vnd.sparql-generate>
 ```
 will generate the following RDF Graph:
 
@@ -85,12 +85,12 @@ SOURCE <source> ACCEPT <iana urn> AS ?var
 
 If `<source>` is a HTTP IRI, then the engine will operate a HTTP GET to that IRI (or use a local cache), then bind variable `?var` to the RDF Literal representation of the retrieved document. 
 
-`ACCEPT <iana urn>` is optional. If set, it must be a IANA MIME URN. For instance: `<urn:iana:mime:application/json>`. It tells the engine which Accept Header field to use when operating the GET.
+`ACCEPT <iana urn>` is optional. If set, it must be a IANA MIME URN. For instance: `<http://www.iana.org/assignments/media-types/application/json>`. It tells the engine which Accept Header field to use when operating the GET.
 
 The RDF Literal representation of the retrieved document is as follows:
 
 - its lexical form is a Unicode representation of the payload;
-- its datatype IRI is a IANA MIME URN, based on the internet media type of the retrieved document. For instance, if the mime type is "application/vcard+json". Then the datatype IRI will be `<urn:iana:mime:application:vcard+json>`. If the Content-Type is not defined in the response, then the datatype IRI is `xsd:string`.
+- its datatype IRI is a IANA MIME URN, based on the internet media type of the retrieved document. For instance, if the mime type is "application/vcard+json". Then the datatype IRI will be `<http://www.iana.org/assignments/media-types/application:vcard+json>`. If the Content-Type is not defined in the response, then the datatype IRI is `xsd:string`.
 
 For example, the following SPARQL-Generate query retrieves the document at IRI <http://country.io/capital.json>, then generates a little RDF description of the country code and the capital name of the two first countries whose code starts with an 'F'.
 
@@ -156,3 +156,58 @@ The EBNF extends the [SPARQL 1.1 EBNF](https://www.w3.org/TR/sparql11-query/#spa
 [180] SourceClause ::= 'SOURCE' VarOrIri ( 'ACCEPT' VarOrIri )? 'AS' Var()
 [181] SubGenerateQuery ::= 'GENERATE' ( SourceSelector | GenerateTemplate ) ( IteratorOrSourceClause* SolutionModifier '.' )?
 ```
+
+## IANA considerations.
+
+Type name:
+   application
+
+Subtype name:
+   vnd.sparql-generate
+
+Required parameters:
+   None
+
+Optional parameters:
+   None
+
+Encoding considerations:
+   The syntax of the SPARQL-Generate Language is expressed over code points in Unicode [UNICODE]. The encoding is always UTF-8 [RFC3629].
+   Unicode code points may also be expressed using an \uXXXX (U+0 to U+FFFF) or \UXXXXXXXX syntax (for U+10000 onwards) where X is a hexadecimal digit [0-9A-F]
+
+Security considerations:
+   See SPARQL Query appendix C, Security Considerations as well as RFC 3629 [RFC3629] section 7, Security Considerations.
+
+Interoperability considerations:
+   There are no known interoperability issues.
+
+Published specification:
+   https://w3id.org/sparql-generate/language
+
+Fragment identifier considerations:
+   None
+
+Additional information:
+
+Magic number(s):
+   A SPARQL-Generate query may have the string 'PREFIX' (case independent) near the beginning of the document.
+
+File extension(s): 
+   ".rqg"
+
+Macintosh file type code(s): 
+   TEXT
+
+Person & email address to contact for further information:
+   Maxime Lefrançois <maxime.lefrancois.86@gmail.com>
+
+Intended usage:
+   COMMON
+
+Restrictions on usage:
+   None
+
+Author/Change controller:
+   Maxime Lefrançois <maxime.lefrancois.86@gmail.com>
+
+The Internet Media type of a SPARQL-Generate query is `application/vnd.sparql-generate`, with file extension `*.rqg`.

@@ -2,59 +2,27 @@
 
 `sparql-generate-jena` provides a set of SPARQL binding functions and SPARQL-Generate iterator functions that enable to generate RDF from JSON, XML, HTML, CSV, and plain text.
 
-Custom SPARQL binding functions all take a set of RDF terms as input, and output zero or one RDF term. They all have namespace `http://w3id.org/sparql-generate/fn/` with preferred prefix `fn`.
+Custom SPARQL binding functions all take a set of RDF terms as input, and output zero or one RDF term. They all have namespace `http://w3id.org/sparql-generate/fn/` with preferred prefix `sgfn`.
 
-Iterator functions are used in the `ITERATOR` clause. They all take a set of RDF terms as input, and output zero or more RDF terms. They all have namespace `http://w3id.org/sparql-generate/iter/` with preferred prefix `iter`.
-
-```
-PREFIX fn: <http://w3id.org/sparql-generate/fn/>
-PREFIX iter: <http://w3id.org/sparql-generate/iter/>
-```
-
-This document overviews these functions, and gives an example for each. The javadoc also contains documentation for [iterator functions](apidocs/com/github/thesmartenergy/sparql/generate/jena/iterator/library/package-summary.html) and [custom SPARQL functions](apidocs/com/github/thesmartenergy/sparql/generate/jena/function/library/package-summary.html).
-
-## Generating RDF from XML
-
-### Iterator function http://w3id.org/sparql-generate/iter/XPath
+Iterator functions are used in the `ITERATOR` clause. They all take a set of RDF terms as input, and output zero or more RDF terms. They all have namespace `http://w3id.org/sparql-generate/iter/` with preferred prefix `sgiter`.
 
 ```
-set of literals http://w3id.org/sparql-generate/iter/XPath( xsd:string message, xsd:string xpath )
+PREFIX sgfn: <http://w3id.org/sparql-generate/fn/>
+PREFIX sgiter: <http://w3id.org/sparql-generate/iter/>
 ```
 
-Lists XML entities that are result of the execution of XPath `xpath` over document `message`.
+In this document, we solely describe one iterator function, and one custom binding function. All the other functions are described in the javadoc:
 
-For example, let be the following partial solution binding:
+* documentation for the [iterator functions](apidocs/com/github/thesmartenergy/sparql/generate/jena/iterator/library/package-summary.html)
+* documentation for the [custom SPARQL functions](apidocs/com/github/thesmartenergy/sparql/generate/jena/function/library/package-summary.html).
 
-```
-?message => "<reading sensor='s12' unit='mmHg'><value time='12:00'>768</value><value time='13:00'>756</value></reading>"
-```
+## Example 1: iterator function http://w3id.org/sparql-generate/iter/JSONPath
 
-Then iterator clause `ITERATOR iter:XPath( ?message, "/reading/value" ) AS ?value` leads to the following set of partial solution bindings:
-
-```
-?message => "<reading sensor='s12' unit='mmHg'><value time='12:00'>768</value><value time='13:00'>756</value></reading>" , ?value => "<value time='12:00'>768</value>"
-?message => "<reading sensor='s12' unit='mmHg'><value time='12:00'>768</value><value time='13:00'>756</value></reading>" , ?value => "<value time='13:00'>756</value>"
-```
-
-This iterator function uses the standard Java library `javax.xml.xpath`.
-
-### Custom SPARQL function http://w3id.org/sparql-generate/fn/XPath
-
-```
-xsd:string http://w3id.org/sparql-generate/fn/XPath( xsd:string message, xsd:string xpath )
-```
-
-This iterator uses the standard Java library 'javax.xml.xpath'.
-
-## Generating RDF from JSON
-
-### Iterator function http://w3id.org/sparql-generate/iter/JSONPath
+A SPARQL Iterator function that extracts a list of sub-JSON documents of a JSON document, according to a JSONPath expression.
 
 ```
 set of literals http://w3id.org/sparql-generate/iter/JSONPath( xsd:string message, xsd:string json_path_jayway )
 ```
-
-Lists JSON documents that are result of the execution of JSON Path `json_path_jayway` over document `message`.
 
 For example, let be the following partial solution binding:
 
@@ -73,177 +41,16 @@ Then iterator clause `ITERATOR iter:JSONPath( ?message, "$.x[1:4]" ) AS ?value` 
 
 This iterator function uses library [JsonPath from GitHub user jayway](https://github.com/jayway/JsonPath).
 
-### Iterator function  http://w3id.org/sparql-generate/iter/JSONListKeys
+
+## Example 2: custom binding function http://w3id.org/sparql-generate/fn/HTMLTagElement
+
+A SPARQL function that extracts the text from an HTML element. It takes two parameters as input:
+
+* a RDF Literal with datatype URI http://www.iana.org/assignments/media-types/text/html or `xsd:string` representing the source HTML document;
+* a RDF Literal with datatype `xsd:string` representing name of the HTML element from which text is to be extracted.
+
+It returns a RDF Literal with datatype URI `xsd:string` for the text of the element .
 
 ```
-set of xsd:string http://w3id.org/sparql-generate/iter/JSONListKeys( xsd:string message )
+xsd:string http://w3id.org/sparql-generate/fn/JSONPath( xsd:string message, xsd:string tagname )
 ```
-
-Lists the keys of JSON object encoded in `message`.
-
-For example, let be the following partial solution binding:
-
-```
-?message => "{ 'a' : 1 , 'b' : 2 , 'c' : 3 }"
-```
-
-Then iterator clause `ITERATOR iter:JSONPath( ?message ) AS ?value` leads to the following set of partial solution bindings:
-
-```
-?message => "{ 'a' : 1 , 'b' : 2 , 'c' : 3 }" , ?value => "a"
-?message => "{ 'a' : 1 , 'b' : 2 , 'c' : 3 }" , ?value => "b"
-?message => "{ 'a' : 1 , 'b' : 2 , 'c' : 3 }" , ?value => "c"
-```
-
-
-### Iterator function  http://w3id.org/sparql-generate/iter/JSONListElement
-
-```
-set of xsd:string http://w3id.org/sparql-generate/iter/JSONListElement( xsd:string message , xsd:string json_path_jayway )
-```
-
-Like `rqg:iter:JSONPath`, but embeds each solution in a JSON object to ease the generation of RDF lists from the result set.
-
-For example, let be the following partial solution binding:
-
-```
-?message => "{ 'a' : 'aaa' , 'b' : 'bbb' , 'c' : 'ccc' }"
-```
-
-Then iterator clause `ITERATOR iter:JSONPath( ?message , '$.[*]' ) AS ?value` leads to the following set of partial solution bindings:
-
-```
-?message => "{ 'a' : 1 , 'b' : 2 , 'c' : 3 }" , ?value => "{ 'element' : 'aaa' , 'position' : 1 , 'hasNext' : true }"
-?message => "{ 'a' : 1 , 'b' : 2 , 'c' : 3 }" , ?value => "{ 'element' : 'bbb' , 'position' : 2 , 'hasNext' : true }"
-?message => "{ 'a' : 1 , 'b' : 2 , 'c' : 3 }" , ?value => "{ 'element' : 'ccc' , 'position' : 3 , 'hasNext' : false }"
-```
-
-This iterator uses library [JsonPath from GitHub user jayway](https://github.com/jayway/JsonPath).
-
-### Custom SPARQL function http://w3id.org/sparql-generate/fn/JSONPath
-
-```
-xsd:string http://w3id.org/sparql-generate/fn/JSONPath( xsd:string message, xsd:string json_path_jayway )
-```
-
-## Generating RDF from CSV
-
-### Iterator function http://w3id.org/sparql-generate/iter/CSV
-
-```
-set of xsd:string http://w3id.org/sparql-generate/iter/CSV( xsd:string message, xsd:string column )
-```
-
-Queries CSV conformant to [RFC 4180](https://tools.ietf.org/html/rfc4180).
-
-This iterator function generates a set of CSV documents from a CSV document.
-See also [the javadoc](apidocs/com/github/thesmartenergy/sparql/generate/jena/iterator/library/ITE_CSV.html).
-
-Use is `iter:CSV( literal message, literal colum)`, where `message` is the CSV document, and `columns` is the name of a colum.
-
-For example, let be the following partial solution binding (`?message` is bound to a multi-line literal in Turtle):
-
-```
-?message => """x,y
-1,2
-3,4"""
-```
-
-Then iterator clause 'ITERATOR iter:CSV( ?message, "x" ) AS ?x' leads to the following set of partial solution bindings:
-
-```
-?x => 2 , ?message => """x,y
-1,2
-3,4"""
-
-?x => 4 , ?message => """x,y
-1,2
-3,4"""
-```
-
-This iterator function uses library [SuperCSV](http://super-csv.github.io/super-csv/) 
-
-### Custom SPARQL function http://w3id.org/sparql-generate/fn/CSV
-
-Queries CSV conformant to [RFC 4180](https://tools.ietf.org/html/rfc4180).
-
-```
-xsd:string http://w3id.org/sparql-generate/fn/CSV( xsd:string message, xsd:string column )
-```
-
-### Iterator function http://w3id.org/sparql-generate/iter/CustomCSV
-
-
-```
-set of xsd:string http://w3id.org/sparql-generate/iter/CustomCSV( xsd:string message, xsd:string query )
-```
-
-Queries other forms of CSV.
-
-This iterator function uses library [SuperCSV](http://super-csv.github.io/super-csv/) 
-
-### Custom SPARQL function http://w3id.org/sparql-generate/fn/CustomCSV
-
-```
-xsd:string http://w3id.org/sparql-generate/fn/CustomCSV( xsd:string message, xsd:string column )
-```
-
-## Generating RDF from HTML
-
-### Iterator function http://w3id.org/sparql-generate/iter/CSSPath
-
-
-```
-set of xsd:string http://w3id.org/sparql-generate/iter/CSSPath( xsd:string message, xsd:string css3selector )
-```
-
-Queries a HTML document with CSS3 selectors.
-
-This iterator function uses the [JSOUP](https://jsoup.org/) Java HTML parser.
-
-### Custom SPARQL function http://w3id.org/sparql-generate/fn/HTMLTag
-
-```
-xsd:string http://w3id.org/sparql-generate/fn/HTMLTag( xsd:string message, xsd:string tag_name )
-```
-
-### Custom SPARQL function http://w3id.org/sparql-generate/fn/HTMLAttribute
-
-```
-xsd:string http://w3id.org/sparql-generate/fn/HTMLAttribute( xsd:string message, xsd:string attribute_name )
-```
-
-
-## Generating RDF from plain text
-
-### Iterator function http://w3id.org/sparql-generate/iter/Split
-
-
-```
-set of xsd:string http://w3id.org/sparql-generate/iter/Split( xsd:string message, xsd:string separator )
-```
-
-Splits string 'message' with respect to 'separator'
-
-
-For example, let be the following partial solution binding:
-
-```
-?message => "a,b,c"
-```
-
-Then iterator clause 'ITERATOR iter:Split( ?message, "," ) AS ?x' leads to the following set of partial solution bindings:
-
-```
-?message => "a,b,c" , ?x => "a"
-?message => "a,b,c" , ?x => "b"
-?message => "a,b,c" , ?x => "c"
-```
-
-### Custom SPARQL function http://w3id.org/sparql-generate/fn/SplitAtPosition
-
-```
-xsd:string http://w3id.org/sparql-generate/fn/XPath( xsd:string message, xsd:string regex , xsd:integer position )
-```
-
-

@@ -66,9 +66,9 @@ import org.supercsv.prefs.CsvPreference;
  * A SPARQL Iterator function that return a row of a CSV document, together with the header. The Iterator function URI is
  * {@code <http://w3id.org/sparql-generate/ite/CSV>}.
  * It takes one parameter as input which is the source CSV document which is a RDF Literal with datatype URI
- * {@code <urn:iana:mime:text/csv>} 
+ * {@code <http://www.iana.org/assignments/media-types/text/csv>} 
  * and returns a list of RDF Literal with datatype URI
- * {@code <urn:iana:mime:text/csv>} for each row of the CSV document.
+ * {@code <http://www.iana.org/assignments/media-types/text/csv>} for each row of the CSV document.
  * @see com.github.thesmartenergy.sparql.generate.jena.function.library.FN_CustomCSV for CSV document with different dialects
  * @author Noorani Bakerally
  */
@@ -87,7 +87,7 @@ public class ITE_CSVHeaders extends IteratorFunctionBase1 {
     /**
      * The datatype URI of the first parameter and the return literals.
      */
-    private static final String datatypeUri = "urn:iana:mime:text/csv";
+    private static final String datatypeUri = "http://www.iana.org/assignments/media-types/text/csv";
 
     /**
      * {@inheritDoc }

@@ -67,7 +67,7 @@ public class Take  extends HttpServlet {
         String dturi = "http://www.w3.org/2001/XMLSchema#string";
         String ct = request.getContentType();
         if(ct != null) {
-            dturi = "urn:iana:mime:"+ct;
+            dturi = "http://www.iana.org/assignments/media-types/"+ct;
         }
         
         String queryuri = request.getHeader("SPARGL-Query");

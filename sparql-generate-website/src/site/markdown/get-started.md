@@ -6,7 +6,7 @@
 <dependency>
     <groupId>com.github.thesmartenergy</groupId>
     <artifactId>sparql-generate-jena</artifactId>
-    <version>1.0</version>
+    <version>${sparql-generate-jena.version}</version>
 </dependency>
 ```
 
@@ -18,8 +18,7 @@ The [javadoc](http://w3id.org/sparql-generate/apidocs/index.html) contains compr
 
 ```java
  String queryString = "PREFIX ... GENERATE {...} FROM ... SOURCE ... ITERATOR ... WHERE {...}";
- Syntax syntax = SPARQLGenerate.SYNTAX;
- SPARQLGenerateQuery query = (SPARQLGenerateQuery) QueryFactory.create(queryString, syntax);
+ SPARQLGenerateQuery query = (SPARQLGenerateQuery) QueryFactory.create(queryString, SPARQLGenerate.SYNTAX);
 ```
 
 ### Classes `PlanFactory` and `RootPlan`
@@ -72,26 +71,26 @@ Note:
 
 Finally, one may execute the query with initial bindings. This is useful when one wants to apply the same plan to generate RDF from multiple messages regularly received from a lightweight sensor for instance. 
 
-Suppose one needs to execute a plan with a variable `?msg` bound to a message with textual representation `"mymessage"`and internet media-type _application/json_. Then the RDF literal to bind to `?msg`:
+Suppose one needs to execute a plan with a variable `?msg` bound to a message with textual representation `"mymessage"` and internet media-type _application/json_. Then the RDF literal to bind to `?msg`:
 
 - has lexical form `"mymessage"`,
-- has datatype IRI `<urn:iana:mime:application/json>` (this is optional).
+- has datatype IRI `<http://www.iana.org/assignments/media-types/application/json>` (this is optional).
 
 In SPARQL Generate over Apache Jena, one calls an `exec` method with parameter `initialBindings`. The following code shows how this can be done with the plan instantiated above:
 
 ```java
 String variable = "msg";
 String message = "mymessage";
-String uri = "urn:iana:mime:application/json";
+String uri = "http://www.iana.org/assignments/media-types/application/json";
 
-QuerySolutionMap initialBinding = new QuerySolutionMap();
-Model initialModel = ModelFactory.createDefaultModel();
-
-TypeMapper typeMapper = TypeMapper.getInstance();
-RDFDatatype dt = typeMapper.getSafeTypeByName(uri);
+RDFDatatype dt = TypeMapper.getInstance().typeMapper.getSafeTypeByName(uri);
 Node arqLiteral = NodeFactory.createLiteral(message, dt);
 RDFNode jenaLiteral = initialModel.asRDFNode(arqLiteral);
+
+QuerySolutionMap initialBinding = new QuerySolutionMap();
 initialBinding.add(variable, jenaLiteral);
+
+Model initialModel = ModelFactory.createDefaultModel();
 
 plan.exec(initialBinding, initialModel);
 ```

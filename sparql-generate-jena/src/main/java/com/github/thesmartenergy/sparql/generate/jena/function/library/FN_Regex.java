@@ -30,11 +30,11 @@ import java.util.regex.Pattern;
  * It takes two parameters as input:
  * <ul>
  * <li> {@param  cbor} a RDF Literal with datatype URI
- * {@code <urn:iana:mime:application/cbor>}</li>
+ * {@code <http://www.iana.org/assignments/media-types/application/cbor>}</li>
  * <li>{@param jsonpath} a RDF Literal with datatype {@code xsd:string}</li>
  * </ul>
  * and returns a RDF Literal with datatype URI
- * {@code <urn:iana:mime:application/json>}.
+ * {@code <http://www.iana.org/assignments/media-types/application/json>}.
  *
  * @author Noorani Bakerally
  */
@@ -54,7 +54,7 @@ public final class FN_Regex extends FunctionBase3 {
     /**
      * The datatype URI of the first parameter and the return literals.
      */
-    private static final String datatypeUri = "urn:iana:mime:application/cbor";
+    private static final String datatypeUri = "http://www.iana.org/assignments/media-types/application/cbor";
 
     /**
     * A SPARQL function that takes as an input a CBOR document, decodes it and return a sub-JSON document 
@@ -63,11 +63,11 @@ public final class FN_Regex extends FunctionBase3 {
     * It takes two parameters as input:
     * <ul>
     * <li> {@param  cbor} a RDF Literal with datatype URI
-    * {@code <urn:iana:mime:application/cbor>}</li>
+    * {@code <http://www.iana.org/assignments/media-types/application/cbor>}</li>
     * <li>{@param jsonpath} a RDF Literal with datatype {@code xsd:string}</li>
     * </ul>
     * and returns a RDF Literal with datatype URI
-    * {@code <urn:iana:mime:application/json>}.
+    * {@code <http://www.iana.org/assignments/media-types/application/json>}.
     *
     * @author Noorani Bakerally
     */

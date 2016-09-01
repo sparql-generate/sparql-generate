@@ -59,12 +59,12 @@ public class FN_CustomCSV extends FunctionBase6 {
     /**
      * The datatype URI of the first parameter and the return literals.
      */
-    private static final String datatypeUri = "urn:iana:mime:text/csv";
+    private static final String datatypeUri = "http://www.iana.org/assignments/media-types/text/csv";
 
     /**
      *
      * @param csv a RDF Literal with datatype URI
-     * {@code <urn:iana:mime:text/csv>} or {@code xsd:string} representing the
+     * {@code <http://www.iana.org/assignments/media-types/text/csv>} or {@code xsd:string} representing the
      * source CSV document
      * @param column denotes the column to be selected for the CSV document. If
      * the value for the header is true, the path will be an RDF Literal of
@@ -79,7 +79,7 @@ public class FN_CustomCSV extends FunctionBase6 {
      * for the end of line symbol
      * @param header a RDF Literal with datatype {@code xsd:boolean} where true
      * represents the presence of a header in the source CSV document
-     * @return a RDF Literal with datatype URI {@code <urn:iana:mime:text/csv>}
+     * @return a RDF Literal with datatype URI {@code <http://www.iana.org/assignments/media-types/text/csv>}
      */
     @Override
     public NodeValue exec(NodeValue csv, NodeValue column, NodeValue quoteChar, NodeValue delimiterChar, NodeValue endOfLineSymbols, NodeValue header) {

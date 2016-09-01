@@ -84,15 +84,15 @@ public class ITE_JSONListElement extends IteratorFunctionBase2 {
     /**
      * The datatype URI of the first parameter and the return literals.
      */
-    private static final String datatypeUri = "urn:iana:mime:application/json";
+    private static final String datatypeUri = "http://www.iana.org/assignments/media-types/application/json";
 
     /**
      *
      * @param json a RDF Literal with datatype URI
-     * {@code <urn:iana:mime:application/json>} or {@code xsd:string}
+     * {@code <http://www.iana.org/assignments/media-types/application/json>} or {@code xsd:string}
      * @param jsonquery a RDF Literal with datatype {@code xsd:string}
      * @return a list of RDF Literal with datatype URI
-     * {@code <urn:iana:mime:application/json>}. For this iterator function, the
+     * {@code <http://www.iana.org/assignments/media-types/application/json>}. For this iterator function, the
      * returned RDF literal has a specific JSON Structure. The structure is
      * {@code {"element":elementValue,"position":position,"hasNext":hasNextValue}}
      * where:

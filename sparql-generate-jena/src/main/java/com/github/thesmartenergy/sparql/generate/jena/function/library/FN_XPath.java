@@ -62,12 +62,12 @@ public class FN_XPath extends FunctionBase2 {
     /**
      * The datatype URI of the first parameter and the return literals.
      */
-    private static final String datatypeUri = "urn:iana:mime:application/xml";
+    private static final String datatypeUri = "http://www.iana.org/assignments/media-types/application/xml";
 
     /**
      *
      * @param xml a RDF Literal with datatype URI
-     * {@code <urn:iana:mime:application/xml>} pr {@code xsd:string}
+     * {@code <http://www.iana.org/assignments/media-types/application/xml>} pr {@code xsd:string}
      * representing the source XML document
      * @param xpath a RDF Literal with datatype {@code xsd:string} representing
      * the XPath expression to be evaluated on the XML document
