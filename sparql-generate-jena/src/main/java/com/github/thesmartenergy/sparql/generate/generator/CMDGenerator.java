@@ -52,7 +52,7 @@ public class CMDGenerator {
             String query = "";
             String outputFormat = "TTL";
             
-            if (cl.getArgList().size() == 0){
+            if (cl.getOptions().length == 0){
                 CMDConfigurations.displayHelp();
                 return;
             }
