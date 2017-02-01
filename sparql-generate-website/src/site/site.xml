@@ -1,5 +1,5 @@
 <!--
-Copyright 2016 ITEA 12004 SEAS Project.
+Copyright 2016 Ecole des Mines de Saint-Etienne.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -23,7 +23,16 @@ See the License for the specific language governing permissions and
     
     <body>
         <head>
-      <![CDATA[<script>
+      <![CDATA[
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+      <link href='yasqe.min.css' rel='stylesheet' type='text/css'/>
+
+      <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+      <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+      <script src='yasqe.bundled.min.js'></script>
+      <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
   m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
@@ -37,21 +46,17 @@ See the License for the specific language governing permissions and
         
         <menu name="Overview">
             <item name="Introduction" href="index.html"/>
-            <!--<item name="Specification" href="spec.html"/>-->
-        </menu>
-
-        <menu name="The Language">
-            <item name="Specification" href="language.html"/>
-            <item name="Test it online" href="language-form.html"/>
-            <item name="Web API" href="language-api.html"/>
+            <item name="The language" href="language.html"/>
+            <item name="Try it online" href="language-form.html"/>
         </menu>
             
-        <menu name="Implementation Over Jena">
+        <menu name="Implementation">
             <item name="Executable JAR" href="language-cli.html" />  
             <item name="Java library" href="get-started.html"/>
-            <item name="Available functions" href="functions.html"/>
-            <item name="Tests Reports" href="tests-reports.html" />      
-            <item name="Documentation" href="apidocs/index.html"/>        
+            <item name="Web API" href="language-api.html"/>
+            <item name="Functions implemented" href="functions.html"/>
+            <item name="Tests reports" href="tests-reports.html" />      
+            <item name="Evaluation" href="evaluation.html" />      
         </menu>
 
         <menu ref="reports" inherit="top"/>

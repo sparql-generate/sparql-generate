@@ -24,17 +24,17 @@ import org.junit.Test;
 
 /**
  *
- * @author maxime.lefrancois
+ * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */
-public class Xmltest1 extends TestBase {
+public class Csvmultiline extends TestBase {
 
-    public Xmltest1() {
+    public Csvmultiline() {
 
     }
 
     @BeforeClass
     public static void setUpClass() throws Exception {
-        TestBase.setUpClass(Xmltest1.class);
+        TestBase.setUpClass(Csvmultiline.class);
     }
 
     @AfterClass

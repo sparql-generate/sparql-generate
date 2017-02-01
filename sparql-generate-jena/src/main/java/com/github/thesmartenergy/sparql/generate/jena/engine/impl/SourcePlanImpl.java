@@ -17,7 +17,6 @@ package com.github.thesmartenergy.sparql.generate.jena.engine.impl;
 
 import com.github.thesmartenergy.sparql.generate.jena.LocatorURLAccept;
 import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerateException;
-import static com.github.thesmartenergy.sparql.generate.jena.engine.impl.SourcePlanImpl.localCache;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -72,7 +71,7 @@ public class SourcePlanImpl extends PlanBase implements IteratorOrSourcePlan {
     private final FileManager fileManager;
 
     /** map uri --> node. */
-    final static Map<String, Node> localCache = new HashMap<>();
+//    final static Map<String, Node> localCache = new HashMap<>();
     /** map uri --> accept uri --> node. */
     final static Map<String, Map<String, Node>> distantCache = new HashMap<>();
     /** type mapper. */
@@ -212,18 +211,18 @@ public class SourcePlanImpl extends PlanBase implements IteratorOrSourcePlan {
             }
 
             // check local
-            if (localCache.containsKey(sourceUri)) {
-                Node n = localCache.get(sourceUri);
-                LOG.debug("Found in local cache: " + var + "=" + n);
-                return new BindingHashMapOverwrite(value, var, n);
-            }
+//            if (localCache.containsKey(sourceUri)) {
+//                Node n = localCache.get(sourceUri);
+//                LOG.debug("Found in local cache: " + var + "=" + n);
+//                return new BindingHashMapOverwrite(value, var, n);
+//            }
             try {
                 literal = IOUtils.toString(fileManager.open(sourceUri));
                 datatypeURI = "http://www.w3.org/2001/XMLSchema#string";
                 RDFDatatype dt = tm.getSafeTypeByName(datatypeURI);
                 final Node n = NodeFactory.createLiteral(literal, dt);
                 LOG.debug("Found local: " + var + "=" + n);
-                localCache.put(sourceUri, n);
+//                localCache.put(sourceUri, n);
                 return new BindingHashMapOverwrite(value, var, n);
             } catch (Exception ex) {
                 LOG.debug("Not found locally: " + node);

@@ -1,5 +1,5 @@
  /*
- * Copyright 2016 ITEA 12004 SEAS Project.
+ * Copyright 2016 Ecole des Mines de Saint-Etienne.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,14 +41,10 @@ public class CMDGenerator {
     
     public static void main(String [] args){
         
-        
-       
         List<String> formats = Arrays.asList("TTL","TURTLE","NTRIPLES","TRIG","RDFXML","JSONLD");
-        
        
         try {
             CommandLine cl = CMDConfigurations.parseArguments(args);
-           
             String query = "";
             String outputFormat = "TTL";
             
@@ -80,8 +76,10 @@ public class CMDGenerator {
                 if(f.exists() && !f.isDirectory()) { 
                     FileInputStream fisTargetFile = new FileInputStream(f);
                     query = IOUtils.toString(fisTargetFile, "UTF-8");    
+                    System.out.println("\n\nRead SPARQL-Generate Query ..\n"+query+"\n\n");
                     LOG.debug("\n\nRead SPARQL-Generate Query ..\n"+query+"\n\n");
                 } else {
+                    System.out.println("File "+file_path+" not found.");
                     LOG.error("File "+file_path+" not found.");
                 }   
             }
@@ -98,6 +96,7 @@ public class CMDGenerator {
                 if (formats.contains(format)){
                     outputFormat = format;
                 } else {
+                    System.out.println("Invalid output format,"+cl.getOptionProperties("f").getProperty("description"));
                     LOG.error("Invalid output format,"+cl.getOptionProperties("f").getProperty("description"));
                     return;
                 }
@@ -117,10 +116,13 @@ public class CMDGenerator {
             
             
         } catch (org.apache.commons.cli.ParseException ex) {
+            System.out.println(ex);
             LOG.error(ex);
         } catch (FileNotFoundException ex) {
+            System.out.println(ex);
             LOG.error(ex);
         } catch (IOException ex) {
+            System.out.println(ex);
             LOG.error(ex);
         }
         

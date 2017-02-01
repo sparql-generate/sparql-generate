@@ -8,10 +8,14 @@
        
     <name>SPARQL Generate</name>
     <description>The parent project for SPARQL-Generate over Apache Jena, and its demonstration website</description>
-    <url>http://${repository.domain}/${repository.user}/${repository.name}</url>
+    <url>https://w3id.org/sparql-generate/</url>
     <inceptionYear>2016</inceptionYear>
 
-    <!-- command to deploy to maven: mvn clean deploy -DperformRelease=true-->
+    <!-- command to deploy on the server: -->
+    <!-- ./make.sh sparql-generate-website sparql-generate -->
+
+    <!-- command to deploy to maven: -->
+    <!--mvn clean scm:checkin release:prepare release:perform -Dmessage=""-->
 
     <modules>
         <module>sparql-generate-jena</module>
@@ -59,8 +63,8 @@
     </contributors>
 
     <organization>
-        <name>ITEA 12004 SEAS Project</name>
-        <url>https://itea3.org/project/seas.html</url>
+        <name>Ecole des Mines de Saint-Etienne</name>
+        <url>http://www.mines-stetienne.fr/</url>
     </organization>
 
     <scm>
@@ -103,28 +107,13 @@
 
     <properties>
         <websiteName>sparql-generate</websiteName>
-        
-        <!-- ========================  -->
-        <!--    GitHub PROPERTIES      -->
-        <!-- ========================  -->
-
-        <github.global.server>github.com</github.global.server>
-
-        <!-- ========================  -->
-        <!--    PROJECT PROPERTIES     -->
-        <!-- ========================  -->
-        
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.build.timestamp.format>yyyy-MM-dd'T'HH:mm:ssZ</maven.build.timestamp.format>
         <jdk.version>1.8</jdk.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>        
         <project.scm.id>git</project.scm.id>
-        <maven.build.timestamp.format>yyyy-MM-dd'T'HH:mm:ssZ</maven.build.timestamp.format>
-
-        <!-- ========================  -->
-        <!--    SITE DOC PROPERTIES    -->
-        <!-- ========================  -->
 
         <repository.domain>github.com</repository.domain>
         <repository.user>thesmartenergy</repository.user>
@@ -178,6 +167,11 @@
                     <configuration>
                         <excludeSubProjects>true</excludeSubProjects>
                         <excludes>
+                            <exclude>**/*.sh</exclude>
+                            <exclude>**/pom.xml</exclude>
+                            <exclude>**/beans.xml</exclude>
+                            <exclude>**/glassfish-web.xml</exclude>
+                            <exclude>**/web.xml</exclude>
                             <exclude>**/src/site/**/*.*</exclude>
                             <exclude>**/src/main/resources/**/*.json</exclude>
                             <exclude>**/*.js</exclude>
@@ -195,6 +189,8 @@
                             <exclude>**/*.classpath</exclude>
                             <exclude>**/target/**/*</exclude>
                             <exclude>**/dependency-reduced-pom.xml</exclude>
+                            <exclude>**/*.csv</exclude>
+                            <exclude>**/*.rqg</exclude>
                         </excludes>
                     </configuration>
                 </plugin>
@@ -213,52 +209,97 @@
                 <!-- ========================  -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-scm-plugin</artifactId>
+                    <version>1.9.5</version>
+                    <configuration>
+                        <connectionType>developerConnection</connectionType>
+                    </configuration>
+                </plugin>
+
+                <!-- ========================  -->
+                <!--   ADDITIONNAL PLUGINS     -->
+                <!-- ========================  -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-scm-plugin</artifactId>
+                    <version>1.9.5</version>
+                    <configuration>
+                        <connectionType>developerConnection</connectionType>
+                    </configuration>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-release-plugin</artifactId>
                     <version>2.5.3</version>
-                    <inherited>true</inherited>
+                    <executions>
+                        <execution>
+                            <id>clean-release</id>
+                            <phase>clean</phase>
+                            <goals>
+                                <goal>clean</goal>
+                            </goals>
+                        </execution>
+                    </executions>
                     <configuration>
-                        <releaseProfiles>gpg</releaseProfiles>
+                        <resume>false</resume>
                         <tagNameFormat>@{project.version}</tagNameFormat>
+                        <releaseProfiles>release</releaseProfiles>
                     </configuration>
                 </plugin>
             </plugins>
         </pluginManagement>
-
-        <!-- actual enabled plugins -->
         <plugins>
-            <!-- validate -->
             <plugin>
                 <groupId>org.apache.rat</groupId>
                 <artifactId>apache-rat-plugin</artifactId>
             </plugin>
-
-            <!-- ========================  -->
-            <!-- CUSTOM RELEASE LIFECYCLE  -->
-            <!-- ========================  -->
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
             </plugin>
-            
         </plugins>
     </build>
     
-    <!-- ========================  -->
-    <!--        GnuPG PLUGIN       -->
-    <!-- ========================  -->
 
-    <profiles>
+<profiles>
+        <!-- ========================  -->
+        <!--  ENABLED DURING RELEASE   -->
+        <!-- ========================  -->
         <profile>
-            <id>release-sign-artifacts</id>
-            <activation>
-                <property>
-                    <name>performRelease</name>
-                    <value>true</value>
-                </property>
-            </activation>
+            <id>release</id>
             <build>
                 <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>3.0.0</version>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                    <goal>jar-no-fork</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>2.10.3</version>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <failOnError>false</failOnError>
+                        </configuration>
+                    </plugin>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
@@ -275,6 +316,44 @@
                                 </configuration>
                             </execution>
                         </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        
+        <profile>
+            <id>docs</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>3.0.0</version>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                    <goal>jar-no-fork</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>2.10.3</version>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <failOnError>false</failOnError>
+                        </configuration>
                     </plugin>
                 </plugins>
             </build>

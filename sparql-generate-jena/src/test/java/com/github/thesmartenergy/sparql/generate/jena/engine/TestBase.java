@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ITEA 12004 SEAS Project.
+ * Copyright 2016 Ecole des Mines de Saint-Etienne.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 package com.github.thesmartenergy.sparql.generate.jena.engine;
 
 import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
-import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerateException;
 import com.github.thesmartenergy.sparql.generate.jena.query.SPARQLGenerateQuery;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -57,7 +56,7 @@ public class TestBase {
         dir = Character.toLowerCase(dir.charAt(0))
                 + (dir.length() > 1 ? dir.substring(1) : "");
         examplePath = clazz.getResource("/" + dir);
-       
+
         exampleDir = new File(examplePath.toURI());
 
         // read location-mapping
@@ -93,7 +92,12 @@ public class TestBase {
     void testPlanExecution() throws Exception {
         String query = IOUtils.toString(fileManager.open("query.rqg"), "UTF-8");
         System.out.println("query is: \n" + query);
+        long start0 = System.currentTimeMillis();
+        long start = start0;
         SPARQLGenerateQuery q = (SPARQLGenerateQuery) QueryFactory.create(query, SPARQLGenerate.SYNTAX);
+        long now = System.currentTimeMillis();
+        System.out.println("needed " + (now - start) + " to parse query");
+        start = now;
 
         // create generation plan
         PlanFactory factory = new PlanFactory(fileManager);
@@ -101,37 +105,42 @@ public class TestBase {
         Model output = ModelFactory.createDefaultModel();
         QuerySolutionMap initialBinding = null;
 
+        now = System.currentTimeMillis();
+        System.out.println("needed " + (now - start) + " to get ready");
+        start = now;
+
         // execute plan
-        plan.exec(initialBinding, output);
+        plan.exec(initialBinding, output); 
+
+        now = System.currentTimeMillis();
+        System.out.println("executed plan in " + (now - start));
+        start = now;
+        System.out.println("total needed " + (now - start0));
 
         // write output
-       
-        String fileName = exampleDir.toString()+"/output.ttl";
-        FileWriter out = new FileWriter( fileName );
+        String fileName = exampleDir.toString() + "/output.ttl";
+        FileWriter out = new FileWriter(fileName);
         try {
-            output.write( out, "TTL" );
-        }
-        finally {
-           try {
-               out.close();
-           }
-           catch (IOException closeException) {
-              LOG.debug("Error while writing to file");
-           }
+            output.write(out, "TTL");
+            output.write(System.out, "TTL");
+        } finally {
+            try {
+                out.close();
+            } catch (IOException closeException) {
+                LOG.debug("Error while writing to file");
+            }
         }
 
-        fileName = exampleDir.toString()+"/output.ttl";
-        out = new FileWriter( fileName );
+        fileName = exampleDir.toString() + "/output.ttl";
+        out = new FileWriter(fileName);
         try {
-            output.write( out, "TTL" );
-        }
-        finally {
-           try {
-               out.close();
-           }
-           catch (IOException closeException) {
-              LOG.debug("Error while writing to file");
-           }
+            output.write(out, "TTL");
+        } finally {
+            try {
+                out.close();
+            } catch (IOException closeException) {
+                LOG.debug("Error while writing to file");
+            }
         }
 
         URI expectedOutputUri = exampleDir.toURI().resolve("expected_output.ttl");
@@ -139,6 +148,6 @@ public class TestBase {
         StringWriter sw = new StringWriter();
         LOG.debug(expectedOutput.write(sw, "TTL"));
 
-        assertTrue(output.isIsomorphicWith(expectedOutput));       
+        assertTrue(output.isIsomorphicWith(expectedOutput));
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ITEA 12004 SEAS Project.
+ * Copyright 2016 Ecole des Mines de Saint-Etienne.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -73,7 +73,7 @@ public class ITE_CSV extends IteratorFunctionBase1 {
      */
     @Override
     public List<NodeValue> exec(NodeValue csv) {
-
+        
         if (csv.getDatatypeURI() == null
                 && datatypeUri == null
                 || csv.getDatatypeURI() != null

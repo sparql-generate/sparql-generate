@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ITEA 12004 SEAS Project.
+ * Copyright 2016 Ecole des Mines de Saint-Etienne.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -106,11 +106,11 @@ public class FN_CustomCSV extends FunctionBase6 {
             BufferedReader br = new BufferedReader(new InputStreamReader(is));
 
             String headers_str = "";
-            System.out.println("test=================header" + header.getBoolean());
+//            System.out.println("test=================header" + header.getBoolean());
             if (header.getBoolean()) {
                 headers_str = br.readLine().split(endOfLineSymbols.asString())[0];
             }
-            System.out.println("test=================header" + headers_str);
+//            System.out.println("test=================header" + headers_str);
 
             CsvPreference prefs = new CsvPreference.Builder(quoteChar.asString().charAt(0), delimiterChar.asString().charAt(0), endOfLineSymbols.asString()).build();
 
@@ -127,7 +127,11 @@ public class FN_CustomCSV extends FunctionBase6 {
                 List<String> values = new CsvListReader(br, prefs).read();
                 nodeVal = values.get(Integer.valueOf(column.asString()));
             }
-            return new NodeValueString(nodeVal);
+            if(nodeVal != null) {
+                return new NodeValueString(nodeVal);
+            } else {
+                return new NodeValueString("");
+            }
 
         } catch (Exception e) {
             LOG.debug("Error:XPATJ " + e.getMessage());

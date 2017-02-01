@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ITEA 12004 SEAS Project.
+ * Copyright 2016 Ecole des Mines de Saint-Etienne.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -98,7 +98,6 @@ public class ITE_CustomCSV extends IteratorFunctionBase5 {
         }
 
         try {
-
             String sourceCSV = String.valueOf(csv.asNode().getLiteralLexicalForm());
 
             ICsvListReader listReader = null;
@@ -107,13 +106,10 @@ public class ITE_CustomCSV extends IteratorFunctionBase5 {
             BufferedReader br = new BufferedReader(reader);
 
             String headerRow = "";
-            System.out.println("test=================header" + header.getBoolean());
             if (header.getBoolean()) {
                 headerRow = br.readLine().split(endOfLineSymbols.asString())[0];
             }
-            System.out.println("test=================header" + headerRow);
 
-            //new CsvPreference.Builder('"', '\u0001', "\r\n").build()
             CsvPreference prefs = new CsvPreference.Builder(quoteChar.asString().charAt(0), delimiterChar.asString().charAt(0),
                     endOfLineSymbols.asString()).build();
 
@@ -121,16 +117,16 @@ public class ITE_CustomCSV extends IteratorFunctionBase5 {
 
             List<NodeValue> nodeValues = new ArrayList<>(listReader.length());
 
-            while (listReader.read() != null) {
+            while ( listReader.read() != null) {
                 StringWriter sw = new StringWriter();
-
-                CsvListWriter listWriter = new CsvListWriter(sw, CsvPreference.TAB_PREFERENCE);
+               
                 if (header.getBoolean()){
-                     listWriter.writeHeader(headerRow);
+                    sw.write(headerRow);
                 }
-
-                listWriter.write(listReader.getUntokenizedRow());
-                listWriter.close();
+                sw.write("\n");
+                String row = listReader.getUntokenizedRow();
+                sw.write(row);
+                System.out.println(row);
 
                 NodeValue nodeValue = new NodeValueString(sw.toString());
                 nodeValues.add(nodeValue);

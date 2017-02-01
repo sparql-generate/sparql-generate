@@ -12,49 +12,10 @@
        
     <name>SPARQL Generate over Apache Jena</name>
     <description>An implementation of SPARQL-Generate over Apache Jena</description>
-    <url>http://w3id.org/sparql-generate/</url>
-    <inceptionYear>2016</inceptionYear>
-
-    <organization>
-        <name>ITEA 12004 SEAS Project</name>
-        <url>https://itea3.org/project/seas.html</url>
-    </organization>
-
-    <scm>
-        <connection>scm:git:https://${repository.domain}/${repository.user}/sparql-generate.git</connection>
-        <url>https://${repository.domain}/${repository.user}/sparql-generate</url>
-        <developerConnection>scm:git:ssh://${repository.domain}/${repository.user}/sparql-generate.git
-        </developerConnection>
-  </scm>
-
-    <issueManagement>
-        <url>http://${repository.domain}/${repository.user}/sparql-generate/issues</url>
-        <system>GitHub Issues</system>
-    </issueManagement>
-        
-    <mailingLists>
-        <mailingList>
-            <name>Mailing list</name>
-            <post>sparql-generate-jena@googlegroups.com</post>
-            <archive>https://groups.google.com/d/forum/sparql-generate-jena</archive>
-        </mailingList>
-    </mailingLists>
-
-    <licenses>
-        <license>
-            <name>The Apache Software License, Version 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-        </license>
-    </licenses>
+    <url>https://w3id.org/sparql-generate/</url>
 
     <properties>
-        <!-- ==========================  -->
-        <!--    CHANGE LOG PROPERTIES    -->
-        <!-- ==========================  -->
-        <changelog.github.fileUri>${project.scm.url}/tree/master/%FILE%</changelog.github.fileUri>
-        <changelog.revision.github.fileUri>${project.scm.url}/commit</changelog.revision.github.fileUri>
-        <changelog.fileUri>${changelog.github.fileUri}</changelog.fileUri>
-        <changelog.revision.fileUri>${changelog.revision.github.fileUri}</changelog.revision.fileUri>
+        <jena.version>3.0.1</jena.version>
     </properties>
     
     <dependencies>
@@ -278,38 +239,9 @@
                     </executions>
                 </plugin>
 
-
-                <!-- ========================  -->
-                <!--    PACKAGE LIFECYCLE      -->
-                <!-- ========================  -->
-
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-source-plugin</artifactId>
-                    <version>3.0.0</version>
-                    <executions>
-                        <execution>
-                            <id>attach-sources</id>
-                            <goals>
-                                <goal>jar</goal>
-                                <goal>jar-no-fork</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
-                
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-javadoc-plugin</artifactId>
-                    <version>2.10.3</version>
-                    <executions>
-                        <execution>
-                            <id>attach-javadocs</id>
-                            <goals>
-                                <goal>jar</goal>
-                            </goals>
-                        </execution>
-                    </executions>
                     <configuration>
                         <failOnError>false</failOnError>
                         <links>
@@ -385,7 +317,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jxr-plugin</artifactId>
-    
             </plugin>
 
             <!-- package -->
@@ -397,14 +328,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
-            </plugin>
-                
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <configuration>
-                    <skip>false</skip>
-                </configuration>
             </plugin>
 
             <!-- verify -->
@@ -419,6 +342,14 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
+                <configuration>
+                    <skip>false</skip>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <skip>false</skip>
                 </configuration>

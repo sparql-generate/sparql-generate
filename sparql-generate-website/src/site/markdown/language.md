@@ -2,13 +2,11 @@
 
 The SPARQL-Generate Language extends the SPARQL 1.1 Query language, and offers a simple template-based RDF Graph generation from RDF literals. 
 
-Other languages enable to describe mapping from documents to RDF. By design, SPARQL-Generate extends SPARQL and hence offers an alternative that presents the following advantages:
+Other languages enable to describe mappings from documents to RDF. By design, SPARQL-Generate extends SPARQL and hence offers an alternative that presents the following advantages:
 
 - anyone familiar with SPARQL can easily learn SPARQL-Generate;
 - implementing over existing SPARQL engines is simple;
 - SPARQL-Generate leverages the expressivity of SPARQL 1.1: Aggregates, Solution Sequences and Modifiers, SPARQL functions and their extension mechanism.
-
-SPARQL-Generate `GENERATE` extends the SPARQL 1.1 recommendation with the following keywords:
 
 ## General form of a SPARQL Generate Query
 
@@ -77,17 +75,17 @@ will generate the following RDF Graph:
 
 ## `SOURCE` clause
 
-The `SOURCE` clause enables to fetch a web document, and to bind it as a RDF Literal to a variable. Its syntax is as follows:
+The `SOURCE` clause enables to bind a named document to a variable. Its syntax is as follows:
 
 ```
-SOURCE <source> ACCEPT <iana urn> AS ?var
+SOURCE <source> ACCEPT <type_uri> AS ?var
 ``` 
 
 If `<source>` is a HTTP IRI, then the engine will operate a HTTP GET to that IRI (or use a local cache), then bind variable `?var` to the RDF Literal representation of the retrieved document. 
 
-`ACCEPT <iana urn>` is optional. If set, it must be a IANA MIME URN. For instance: `<http://www.iana.org/assignments/media-types/application/json>`. It tells the engine which Accept Header field to use when operating the GET.
+`ACCEPT <type_uri>` is optional. It gives a hint to the engine about how to negociate a representation of the resource identified by `<source>` with the server.
 
-The RDF Literal representation of the retrieved document is as follows:
+For now, the RDF Literal that models the resource representation is as follows:
 
 - its lexical form is a Unicode representation of the payload;
 - its datatype IRI is a IANA MIME URN, based on the internet media type of the retrieved document. For instance, if the mime type is "application/vcard+json". Then the datatype IRI will be `<http://www.iana.org/assignments/media-types/application:vcard+json>`. If the Content-Type is not defined in the response, then the datatype IRI is `xsd:string`.
@@ -127,9 +125,9 @@ It generates the following RDF Graph:
    <code>     "FI" .
 ```
 
-## sub-`GENERATE` queries
+## GENERATE` clause
 
-One may embed other GENERATE queries in the `GENERATE` template. The `GENERATE` part of the embedded query may be a template as above, or just a URI that indicates the engine that it must fetch and execute an existing query on the web, with the current binding solutions.
+The `GENERATE` clause replaces and extends the SPARQL 1.1 `CONSTRUCT` clause: one may embed other GENERATE queries in the `GENERATE` template. The `GENERATE` part of the embedded query may be a template as above, or just a URI that indicates the engine that it must fetch and execute an existing query on the web, with the current binding solutions.
 
 ## How it works
 
@@ -154,7 +152,7 @@ The EBNF extends the [SPARQL 1.1 EBNF](https://www.w3.org/TR/sparql11-query/#spa
 [178] IteratorOrSourceClause ::= IteratorClause | SourceClause
 [179] IteratorClause ::= 'ITERATOR' FunctionCall 'AS' Var
 [180] SourceClause ::= 'SOURCE' VarOrIri ( 'ACCEPT' VarOrIri )? 'AS' Var()
-[181] SubGenerateQuery ::= 'GENERATE' ( SourceSelector | GenerateTemplate ) ( IteratorOrSourceClause* SolutionModifier '.' )?
+[181] SubGenerateQuery ::= 'GENERATE' ( SourceSelector | GenerateTemplate ) ( IteratorOrSourceClause* WhereClause? SolutionModifier '.' )?
 ```
 
 ## IANA considerations.

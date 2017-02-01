@@ -12,38 +12,11 @@
 
     <name>SPARQL-Generate Website</name>
     <description>The source of the website that exposes the SPARQL-Generate demonstration website - http://w3id.org/sparql-generate/</description>
-    <url>http://w3id.org/sparql-generate/</url>
-    <inceptionYear>2016</inceptionYear>    
-
-    <organization>
-        <name>ITEA 12004 SEAS Project</name>
-        <url>https://itea3.org/project/seas.html</url>
-    </organization>
-
-    <issueManagement>
-        <url>http://${repository.domain}/${repository.user}/sparql-generate/issues</url>
-        <system>GitHub Issues</system>
-    </issueManagement>
-
-    <mailingLists>
-        <mailingList>
-            <name>Mailing list</name>
-            <post>sparql-generate-jena@googlegroups.com</post>
-            <archive>https://groups.google.com/d/forum/sparql-generate-jena</archive>
-        </mailingList>
-    </mailingLists>
-
-    <licenses>
-        <license>
-            <name>The Apache Software License, Version 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-        </license>
-    </licenses>
+    <url>https://w3id.org/sparql-generate/</url>
 
     <properties>
         <endorsed.dir>${project.build.directory}/endorsed</endorsed.dir>
         <jersey.version>2.22.2</jersey.version>
-                
     </properties>
     
     <dependencyManagement>
@@ -60,18 +33,11 @@
     
     <dependencies>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>sparql-generate-jena</artifactId>    
-            <version>${project.version}</version>
-        </dependency>
-        
-        <dependency>
             <groupId>javax</groupId>
             <artifactId>javaee-web-api</artifactId>
-            <version>6.0</version>
+            <version>7.0</version>
             <scope>provided</scope>
-        </dependency>
-        
+        </dependency>        
         <dependency>
             <groupId>javax.ws.rs</groupId>
             <artifactId>javax.ws.rs-api</artifactId>
@@ -105,15 +71,11 @@
             <artifactId>jersey-server</artifactId>
             <scope>provided</scope>
         </dependency>
+
         <dependency>
-            <groupId>org.glassfish.jersey.ext.cdi</groupId>
-            <artifactId>jersey-weld2-se</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.glassfish.jersey.ext.cdi</groupId>
-            <artifactId>jersey-cdi1x</artifactId>
-            <scope>provided</scope>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>sparql-generate-jena</artifactId>    
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 
@@ -121,11 +83,6 @@
         <finalName>${websiteName}</finalName>
         <pluginManagement>
             <plugins>
-                <!-- ========================  -->
-                <!--    SITE LIFECYCLE         -->
-                <!-- ========================  -->
-
-                <!-- configure attach-descriptor  -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-site-plugin</artifactId>
@@ -133,7 +90,7 @@
                     <inherited>true</inherited>
                     <executions>
                         <execution>
-                            <phase>generate-resources</phase>
+                            <phase>process-resources</phase>
                             <goals>
                                 <goal>site</goal>
                             </goals>
@@ -163,6 +120,7 @@
                     </configuration>        
                 </plugin>
                 <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-resources-plugin</artifactId>
                     <version>3.0.0</version>
                     <executions>
@@ -173,10 +131,26 @@
                                 <goal>copy-resources</goal>
                             </goals>
                             <configuration>
-                                <outputDirectory>${basedir}/target/sparql-generate/apidocs</outputDirectory>
+                                <outputDirectory>${basedir}/target/${project.build.finalName}/apidocs</outputDirectory>
                                 <resources>          
                                     <resource>
                                         <directory>../sparql-generate-jena/target/apidocs</directory>
+                                        <filtering>true</filtering>
+                                    </resource>
+                                </resources>              
+                            </configuration>            
+                        </execution>
+                        <execution>
+                            <id>copy-tests</id>
+                            <phase>generate-resources</phase>
+                            <goals>
+                                <goal>copy-resources</goal>
+                            </goals>
+                            <configuration>
+                                <outputDirectory>${basedir}/target/${project.build.finalName}/WEB-INF/classes/tests</outputDirectory>
+                                <resources>          
+                                    <resource>
+                                        <directory>../sparql-generate-jena/src/test/resources</directory>
                                         <filtering>true</filtering>
                                     </resource>
                                 </resources>              
@@ -227,54 +201,18 @@
             </plugins>
         </pluginManagement>
         <plugins>
-            <!-- Run the RAT Plugin -->
             <plugin>
-                <groupId>org.apache.rat</groupId>
-                <artifactId>apache-rat-plugin</artifactId>
-                <configuration>
-                    <excludes>
-                        <!--
-                        Javadoc add-ons files are required to be simple and our javadoc configuration
-                        will ensure appropriate license and copyright statements are inserted
-                        into generated documentation anyway so no need to put license statements in these
-                        files
-                        -->
-                        <exclude>nbactions.xml</exclude>
-                        <exclude>**/*.html</exclude>
-                        <exclude>**/*.ttl</exclude>
-                        <exclude>**/*.js</exclude>
-                        <exclude>**/*.md</exclude>
-                        <exclude>**/*.xml</exclude>
-                        <exclude>**/*.properties</exclude>
-                        <exclude>**/*.wsdl</exclude>
-                        <exclude>**/*.jsp</exclude>
-                        <exclude>**/*.xhtml</exclude>
-                        <exclude>**/*.rqg</exclude>
-                        <!--
-                        Text and Markdown files are typically used only for documentation purposes
-                        and license declarations are usually spurious in these files since often they
-                        will refer to the LICENSE/NOTICE for users to find the actual licenses
-                        -->
-                        <exclude>**/*.txt</exclude>
-                        <exclude>**/*.md</exclude>
-                        <exclude>**/nbproject/*</exclude>
-                        <exclude>**/log4j.properties</exclude>
-                        <exclude>**/log4j-testing.properties</exclude>
-                        <!-- Cached classpath for commands - autogenerated -->
-                        <exclude>**/*.classpath</exclude>
-                        <!-- Exclude anything created during the build (plugin generated files) ->-->
-                        <exclude>**/target/**/*</exclude>
-                        <!-- MSHADE-124 -->
-                        <exclude>**/dependency-reduced-pom.xml</exclude>
-                    </excludes>
-                </configuration>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-site-plugin</artifactId>
             </plugin>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
-                <version>3.0.0</version>
             </plugin>
-            
-
+            <plugin>
+                <groupId>com.coderplus.maven.plugins</groupId>
+                <artifactId>copy-rename-maven-plugin</artifactId>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
@@ -282,58 +220,6 @@
                     <skip>true</skip>
                 </configuration>
             </plugin>
-
-            <plugin>
-                <groupId>com.coderplus.maven.plugins</groupId>
-                <artifactId>copy-rename-maven-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.3.2</version>
-                <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
-                    <compilerArguments>
-                        <endorseddirs>${endorsed.dir}</endorseddirs>
-                    </compilerArguments>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-war-plugin</artifactId>
-                <version>2.1.1</version>
-                <configuration>
-                    <failOnMissingWebXml>false</failOnMissingWebXml>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <version>2.1</version>
-                <executions>
-                    <execution>
-                        <phase>validate</phase>
-                        <goals>
-                            <goal>copy</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${endorsed.dir}</outputDirectory>
-                            <silent>true</silent>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>javax</groupId>
-                                    <artifactId>javaee-endorsed-api</artifactId>
-                                    <version>6.0</version>
-                                    <type>jar</type>
-                                </artifactItem>
-                            </artifactItems>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            
-            <!-- deploy  -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-deploy-plugin</artifactId>
@@ -342,17 +228,6 @@
                     <skip>true</skip>
                 </configuration>
             </plugin>
-            
-            <!-- ========================  -->
-            <!--    SITE LIFECYCLE         -->
-            <!-- ========================  -->
-
-            <!-- attach-descriptor  -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-site-plugin</artifactId>
-            </plugin>
-            
         </plugins>
         
         

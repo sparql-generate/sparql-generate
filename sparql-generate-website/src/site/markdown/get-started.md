@@ -83,7 +83,7 @@ String variable = "msg";
 String message = "mymessage";
 String uri = "http://www.iana.org/assignments/media-types/application/json";
 
-RDFDatatype dt = TypeMapper.getInstance().typeMapper.getSafeTypeByName(uri);
+RDFDatatype dt = TypeMapper.getInstance().getSafeTypeByName(uri);
 Node arqLiteral = NodeFactory.createLiteral(message, dt);
 RDFNode jenaLiteral = initialModel.asRDFNode(arqLiteral);
 

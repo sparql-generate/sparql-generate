@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ITEA 12004 SEAS Project.
+ * Copyright 2016 Ecole des Mines de Saint-Etienne.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -80,7 +80,7 @@ public class FN_CSV extends FunctionBase2 {
         }
 
         
-        LOG.debug("===========> "+column);
+//        LOG.debug("===========> "+column);
         DocumentBuilderFactory builderFactory
                 = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = null;
