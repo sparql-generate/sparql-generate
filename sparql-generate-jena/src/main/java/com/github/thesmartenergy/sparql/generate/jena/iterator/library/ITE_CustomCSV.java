@@ -122,6 +122,7 @@ public class ITE_CustomCSV extends IteratorFunctionBase5 {
                
                 if (header.getBoolean()){
                     sw.write(headerRow);
+                    System.out.println("header row: " + headerRow);
                 }
                 sw.write("\n");
                 String row = listReader.getUntokenizedRow();
