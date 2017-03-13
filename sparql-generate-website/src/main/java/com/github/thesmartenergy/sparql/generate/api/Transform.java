@@ -28,9 +28,12 @@ import com.jayway.jsonpath.spi.json.JsonProvider;
 import com.jayway.jsonpath.spi.mapper.JacksonMappingProvider;
 import com.jayway.jsonpath.spi.mapper.MappingProvider;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
+import java.net.URL;
 import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
@@ -40,8 +43,10 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.FormParam;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
@@ -84,59 +89,79 @@ public class Transform extends HttpServlet {
             }
         });
     }
-    
+
+    @GET
+    public Response doGet(
+            @Context Request r,
+            @Context HttpServletRequest request,
+            @DefaultValue("") @QueryParam("query") String query,
+            @DefaultValue("") @QueryParam("queryurl") String queryurl,
+            @DefaultValue("") @QueryParam("documentset") String documentset) throws IOException {
+        return doTransform(r, request, query, queryurl, documentset);
+    }
+
     @POST
     public Response doPost(
             @Context Request r,
             @Context HttpServletRequest request,
             @DefaultValue("") @FormParam("query") String query,
             @DefaultValue("") @FormParam("queryurl") String queryurl,
-            @DefaultValue("") @FormParam("documentset") String documentset)  throws IOException {
+            @DefaultValue("") @FormParam("documentset") String documentset) throws IOException {
+        return doTransform(r, request, query, queryurl, documentset);
+    }
 
+    private Response doTransform(Request r, HttpServletRequest request, String query, String queryurl, String documentset) {
         FileManager fileManager = new FileManager();
-        
-        if(query.equals("") && queryurl.equals("")) {
+
+        if (query.equals("") && queryurl.equals("")) {
             return Response.status(Response.Status.BAD_REQUEST).entity("At least one of query or queryurl query parameters must be set.").build();
         }
-        if(!queryurl.equals("")) {
-            if(!query.equals("")) {
-                return Response.status(Response.Status.BAD_REQUEST).entity("At most one of query or queryurl query parameters must be set.").build();
-            }
-            InputStream in = fileManager.open(queryurl);
-            query = IOUtils.toString(in);
+        if (!queryurl.equals("") && !query.equals("")) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("At most one of query or queryurl query parameters must be set.").build();
         }
 
         try {
-            
-            Iterator<Locator> locators = fileManager.locators(); 
-            int j=0;
-            while(locators.hasNext()) {
+            if (!queryurl.equals("")) {
+
+                System.out.println("queryurl = " + queryurl);
+
+                URL url = new URL(queryurl);
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("GET");
+                query = IOUtils.toString(conn.getInputStream());
+            }
+
+            Iterator<Locator> locators = fileManager.locators();
+            int j = 0;
+            while (locators.hasNext()) {
                 j++;
                 Locator locator = locators.next();
                 System.out.println(locator.getName() + " " + locator.getClass().getName());
             }
-            System.out.println("there was " +j + " locators");
-                                
+            System.out.println("there was " + j + " locators");
+
             Gson gson = new Gson();
             List<Object> documents = gson.fromJson(documentset, List.class);
-            String dturi = "http://www.w3.org/2001/XMLSchema#string";
-            for(int i = 0; i<documents.size();i++) {
-                StringMap document = (StringMap)documents.get(i);
-                String uri = (String) document.get("uri");
-                String doc = (String) document.get("document");
-                fileManager.addLocator(new UniqueLocator(uri, doc, dturi));
+            if(documents != null) {
+                String dturi = "http://www.w3.org/2001/XMLSchema#string"; 
+                for (int i = 0; i < documents.size(); i++) {
+                    StringMap document = (StringMap) documents.get(i);
+                    String uri = (String) document.get("uri");
+                    String doc = (String) document.get("document");
+                    fileManager.addLocator(new UniqueLocator(uri, doc, dturi));
+                }
             }
-            
+
             // parse the SPARQL-Generate query and create plan
             PlanFactory factory = new PlanFactory(fileManager);
-            
+
             Syntax syntax = SPARQLGenerate.SYNTAX;
             SPARQLGenerateQuery q = (SPARQLGenerateQuery) QueryFactory.create(query, syntax);
-            if( q.getBaseURI() == null) {
+            if (q.getBaseURI() == null) {
                 q.setBaseURI("http://example.org/");
             }
             RootPlan plan = factory.create(q);
-            
+
             Model model = plan.exec();
 
             StringWriter sw = new StringWriter();
@@ -152,6 +177,5 @@ public class Transform extends HttpServlet {
             return Response.serverError().entity(sw.toString()).build();
         }
     }
-
 
 }
