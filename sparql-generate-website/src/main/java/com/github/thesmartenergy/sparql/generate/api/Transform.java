@@ -28,6 +28,7 @@ import com.jayway.jsonpath.spi.json.JsonProvider;
 import com.jayway.jsonpath.spi.mapper.JacksonMappingProvider;
 import com.jayway.jsonpath.spi.mapper.MappingProvider;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.EnumSet;
@@ -44,6 +45,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
+import org.apache.commons.io.IOUtils;
 import org.apache.jena.query.QueryFactory;
 import org.apache.jena.query.Syntax;
 import org.apache.jena.rdf.model.Model;
@@ -88,11 +90,24 @@ public class Transform extends HttpServlet {
             @Context Request r,
             @Context HttpServletRequest request,
             @DefaultValue("") @FormParam("query") String query,
+            @DefaultValue("") @FormParam("queryurl") String queryurl,
             @DefaultValue("") @FormParam("documentset") String documentset)  throws IOException {
+
+        FileManager fileManager = new FileManager();
+        
+        if(query.equals("") && queryurl.equals("")) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("At least one of query or queryurl query parameters must be set.").build();
+        }
+        if(!queryurl.equals("")) {
+            if(!query.equals("")) {
+                return Response.status(Response.Status.BAD_REQUEST).entity("At most one of query or queryurl query parameters must be set.").build();
+            }
+            InputStream in = fileManager.open(queryurl);
+            query = IOUtils.toString(in);
+        }
 
         try {
             
-            FileManager fileManager = new FileManager();
             Iterator<Locator> locators = fileManager.locators(); 
             int j=0;
             while(locators.hasNext()) {
