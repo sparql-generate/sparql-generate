@@ -36,6 +36,8 @@ $("#bodyColumn").append(`
   </div>
   <div id="tabs-3">
      <pre id="result"></pre>
+     <button id="copy" type="button" data-clipboard-target="#result">Copy to clipboard</button> 
+     <button id="save" type="button" value="save">Download result as file</button>
   </div>
    </div>
 	<div>
@@ -267,7 +269,43 @@ WHERE {
             load_test(test);
         }
     });
+    
+    new Clipboard(document.getElementById('copy'), {
+        text: function(trigger) {
+            return document.getElementById('result').innerHTML;
+        }
+    });
+    
+    
+    function saveTextAsFile() {
+        var textToWrite = document.getElementById('result').innerHTML;
+        var textFileAsBlob = new Blob([ textToWrite ], { type: 'text/turtle' });
+        var fileNameToSaveAs = "result.ttl";
 
+        var downloadLink = document.createElement("a");
+        downloadLink.download = fileNameToSaveAs;
+        downloadLink.innerHTML = "Download File";
+        if (window.URL != null) {
+          // Chrome allows the link to be clicked without actually adding it to the DOM.
+          downloadLink.href = window.webkitURL.createObjectURL(textFileAsBlob);
+        } else {
+          // Firefox requires the link to be added to the DOM before it can be clicked.
+          downloadLink.href = window.URL.createObjectURL(textFileAsBlob);
+          downloadLink.onclick = destroyClickedElement;
+          downloadLink.style.display = "none";
+          document.body.appendChild(downloadLink);
+        }
+
+        downloadLink.click();
+      }
+
+      var button = document.getElementById('save');
+      button.addEventListener('click', saveTextAsFile);
+
+      function destroyClickedElement(event) {
+        // remove the link from the DOM
+        document.body.removeChild(event.target);
+      }
     
     load_tests();
     show_query();
