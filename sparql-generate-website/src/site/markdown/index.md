@@ -8,6 +8,8 @@ SPARQL-Generate has a first reference implementation on top of Apache Jena, whic
 
 **To cite our work:**
 
+> Maxime Lefrançois, Antoine Zimmermann, Noorani Bakerally _A SPARQL extension for generating RDF from heterogeneous formats_, In Proc. Extended Semantic Web Conference, ESWC, May 2017, Portoroz, Slovenia (long paper - [PDF](http://www.maxime-lefrancois.info/docs/LefrancoisZimmermannBakerally-ESWC2017-Generate.pdf) - [BibTeX](LefrancoisZimmermannBakerally-ESWC2017-SPARQL.bib))
+
 > Maxime Lefrançois, Antoine Zimmermann, Noorani Bakerally _Flexible RDF generation from RDF and heterogeneous data sources with SPARQL-Generate_, In Proc. the 20th International Conference on Knowledge Engineering and Knowledge Management, EKAW, Nov 2016, Bologna, Italy (demo track - [PDF](http://www.maxime-lefrancois.info/docs/LefrancoisZimmermannBakerally-EKAW2016-Flexible.pdf) - [BibTeX](LefrancoisZimmermannBakerally-EKAW2016-Flexible.bib))
 
 > Maxime Lefrançois, Antoine Zimmermann, Noorani Bakerally _Génération de RDF à partir de sources de données aux formats hétérogènes_, Actes de la 17ème conférence Extraction et Gestion des Connaissances, EGC, Jan 2017, Grenoble, France - ([PDF](http://www.maxime-lefrancois.info/docs/LefrancoisZimmermannBakerally-EGC2017-Generation.pdf) - [BibTeX](LefrancoisZimmermannBakerally-EGC2017-Generation.bib))
