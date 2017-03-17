@@ -230,12 +230,12 @@ public class SourcePlanImpl extends PlanBase implements IteratorOrSourcePlan {
 
             // check distant
             String acceptHeader = getAcceptHeader(value);
-            if (distantCache.containsKey(sourceUri)
-                    && distantCache.get(sourceUri).containsKey(acceptHeader)) {
-                Node n = distantCache.get(sourceUri).get(acceptHeader);
-                LOG.debug("Found in distant cache: " + var + "=" + n);
-                return new BindingHashMapOverwrite(value, var, n);
-            }
+//            if (distantCache.containsKey(sourceUri)
+//                    && distantCache.get(sourceUri).containsKey(acceptHeader)) {
+//                Node n = distantCache.get(sourceUri).get(acceptHeader);
+//                LOG.debug("Found in distant cache: " + var + "=" + n);
+//                return new BindingHashMapOverwrite(value, var, n);
+//            }
             try {
                 Locator loc = new LocatorURLAccept(acceptHeader);
                 TypedStream stream = loc.open(sourceUri);
@@ -244,18 +244,18 @@ public class SourcePlanImpl extends PlanBase implements IteratorOrSourcePlan {
                 datatypeURI = "http://www.iana.org/assignments/media-types/" + stream.getMimeType();
                 RDFDatatype dt = tm.getSafeTypeByName(datatypeURI);
                 final Node n = NodeFactory.createLiteral(literal, dt);
-                if (!distantCache.containsKey(sourceUri)) {
-                    distantCache.put(sourceUri, new HashMap<String, Node>());
-                }
-                distantCache.get(sourceUri).put(acceptHeader, n);
+//                if (!distantCache.containsKey(sourceUri)) {
+//                    distantCache.put(sourceUri, new HashMap<String, Node>());
+//                }
+//                distantCache.get(sourceUri).put(acceptHeader, n);
                 LOG.debug("Found distant: " + var + "=" + n);
                 return new BindingHashMapOverwrite(value, var, n);
             } catch (Exception ex) {
                 LOG.debug("Not found distant file." + node);
-                if (!distantCache.containsKey(sourceUri)) {
-                    distantCache.put(sourceUri, new HashMap<String, Node>());
-                }
-                distantCache.get(sourceUri).put(acceptHeader, null);
+//                if (!distantCache.containsKey(sourceUri)) {
+//                    distantCache.put(sourceUri, new HashMap<String, Node>());
+//                }
+//                distantCache.get(sourceUri).put(acceptHeader, null);
                 return new BindingHashMapOverwrite(value, var, null);
             }
         }

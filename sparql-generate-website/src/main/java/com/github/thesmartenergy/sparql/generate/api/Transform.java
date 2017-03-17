@@ -46,6 +46,7 @@ import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Request;
@@ -91,26 +92,72 @@ public class Transform extends HttpServlet {
     }
 
     @GET
-    public Response doGet(
+    @Produces("text/turtle")
+    public Response doGetTurtle(
             @Context Request r,
             @Context HttpServletRequest request,
             @DefaultValue("") @QueryParam("query") String query,
             @DefaultValue("") @QueryParam("queryurl") String queryurl,
             @DefaultValue("") @QueryParam("documentset") String documentset) throws IOException {
-        return doTransform(r, request, query, queryurl, documentset);
+        return doTransform(r, request, query, queryurl, documentset, "TTL");
     }
 
     @POST
+    @Produces("text/turtle")
     public Response doPost(
             @Context Request r,
             @Context HttpServletRequest request,
             @DefaultValue("") @FormParam("query") String query,
             @DefaultValue("") @FormParam("queryurl") String queryurl,
             @DefaultValue("") @FormParam("documentset") String documentset) throws IOException {
-        return doTransform(r, request, query, queryurl, documentset);
+        return doTransform(r, request, query, queryurl, documentset, "TTL");
     }
 
-    private Response doTransform(Request r, HttpServletRequest request, String query, String queryurl, String documentset) {
+    @GET
+    @Produces("application/rdf+xml;q=0.9")
+    public Response doGetTurtleRDFXML(
+            @Context Request r,
+            @Context HttpServletRequest request,
+            @DefaultValue("") @QueryParam("query") String query,
+            @DefaultValue("") @QueryParam("queryurl") String queryurl,
+            @DefaultValue("") @QueryParam("documentset") String documentset) throws IOException {
+        return doTransform(r, request, query, queryurl, documentset, "RDFXML");
+    }
+
+    @POST
+    @Produces("application/rdf+xml;q=0.9")
+    public Response doPostRDFXML(
+            @Context Request r,
+            @Context HttpServletRequest request,
+            @DefaultValue("") @FormParam("query") String query,
+            @DefaultValue("") @FormParam("queryurl") String queryurl,
+            @DefaultValue("") @FormParam("documentset") String documentset) throws IOException {
+        return doTransform(r, request, query, queryurl, documentset, "RDFXML");
+    }
+
+    @GET
+    @Produces("application/ld+json;q=0.8")
+    public Response doGetTurtleJSONLD(
+            @Context Request r,
+            @Context HttpServletRequest request,
+            @DefaultValue("") @QueryParam("query") String query,
+            @DefaultValue("") @QueryParam("queryurl") String queryurl,
+            @DefaultValue("") @QueryParam("documentset") String documentset) throws IOException {
+        return doTransform(r, request, query, queryurl, documentset, "JSON-LD");
+    }
+
+    @POST
+    @Produces("application/ld+json;q=0.8")
+    public Response doPostJSONLD(
+            @Context Request r,
+            @Context HttpServletRequest request,
+            @DefaultValue("") @FormParam("query") String query,
+            @DefaultValue("") @FormParam("queryurl") String queryurl,
+            @DefaultValue("") @FormParam("documentset") String documentset) throws IOException {
+        return doTransform(r, request, query, queryurl, documentset, "JSON-LD");
+    }
+
+    private Response doTransform(Request r, HttpServletRequest request, String query, String queryurl, String documentset, String lang) {
         FileManager fileManager = new FileManager();
 
         if (query.equals("") && queryurl.equals("")) {
@@ -166,7 +213,7 @@ public class Transform extends HttpServlet {
 
             StringWriter sw = new StringWriter();
             Response.ResponseBuilder res;
-            model.write(sw, "TTL", "http://example.org/");
+            model.write(sw, lang, "http://example.org/");
             res = Response.ok(sw.toString(), "text/turtle");
             res.header("Content-Disposition", "filename= message.ttl;");
             return res.build();

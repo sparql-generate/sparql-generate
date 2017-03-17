@@ -16,30 +16,16 @@
 package com.github.thesmartenergy.sparql.generate.jena.function.library;
 
 import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
-import java.math.BigDecimal;
-import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.NodeValue;
-import org.apache.jena.sparql.expr.nodevalue.NodeValueBoolean;
-import org.apache.jena.sparql.expr.nodevalue.NodeValueDecimal;
-import org.apache.jena.sparql.expr.nodevalue.NodeValueDouble;
-import org.apache.jena.sparql.expr.nodevalue.NodeValueFloat;
-import org.apache.jena.sparql.expr.nodevalue.NodeValueInteger;
-import org.apache.jena.sparql.expr.nodevalue.NodeValueString;
 import org.apache.log4j.Logger;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
 import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import static javax.management.Query.value;
 import org.apache.jena.datatypes.xsd.XSDDatatype;
-import org.apache.jena.datatypes.xsd.XSDDateTime;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
-import org.apache.jena.sparql.expr.nodevalue.NodeValueDT;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueNode;
 import org.apache.jena.sparql.function.FunctionBase1;
 

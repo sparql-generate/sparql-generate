@@ -72,11 +72,6 @@ See the License for the specific language governing permissions and
             <googleSearch>
                 <sitesearch>${project.url}</sitesearch>
             </googleSearch>
-            <gitHub>
-                <projectId>thesmartenergy/sparql-generate</projectId>
-                <ribbonOrientation>right</ribbonOrientation>
-                <ribbonColor>green</ribbonColor>
-            </gitHub>
         </fluidoSkin>
     </custom>
 
