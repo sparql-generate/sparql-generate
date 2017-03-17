@@ -99,7 +99,7 @@ public class Transform extends HttpServlet {
             @DefaultValue("") @QueryParam("query") String query,
             @DefaultValue("") @QueryParam("queryurl") String queryurl,
             @DefaultValue("") @QueryParam("documentset") String documentset) throws IOException {
-        return doTransform(r, request, query, queryurl, documentset, "TTL");
+        return doTransform(r, request, query, queryurl, documentset, "TTL", "ttl");
     }
 
     @POST
@@ -110,7 +110,7 @@ public class Transform extends HttpServlet {
             @DefaultValue("") @FormParam("query") String query,
             @DefaultValue("") @FormParam("queryurl") String queryurl,
             @DefaultValue("") @FormParam("documentset") String documentset) throws IOException {
-        return doTransform(r, request, query, queryurl, documentset, "TTL");
+        return doTransform(r, request, query, queryurl, documentset, "TTL", "ttl");
     }
 
     @GET
@@ -121,7 +121,7 @@ public class Transform extends HttpServlet {
             @DefaultValue("") @QueryParam("query") String query,
             @DefaultValue("") @QueryParam("queryurl") String queryurl,
             @DefaultValue("") @QueryParam("documentset") String documentset) throws IOException {
-        return doTransform(r, request, query, queryurl, documentset, "RDFXML");
+        return doTransform(r, request, query, queryurl, documentset, "RDFXML", "rdf");
     }
 
     @POST
@@ -132,32 +132,32 @@ public class Transform extends HttpServlet {
             @DefaultValue("") @FormParam("query") String query,
             @DefaultValue("") @FormParam("queryurl") String queryurl,
             @DefaultValue("") @FormParam("documentset") String documentset) throws IOException {
-        return doTransform(r, request, query, queryurl, documentset, "RDFXML");
+        return doTransform(r, request, query, queryurl, documentset, "RDFXML", "rdf");
     }
 
     @GET
-    @Produces("application/ld+json;q=0.8")
+    @Produces("application/ld+json;q=0.8,*/*;q=0.1")
     public Response doGetTurtleJSONLD(
             @Context Request r,
             @Context HttpServletRequest request,
             @DefaultValue("") @QueryParam("query") String query,
             @DefaultValue("") @QueryParam("queryurl") String queryurl,
             @DefaultValue("") @QueryParam("documentset") String documentset) throws IOException {
-        return doTransform(r, request, query, queryurl, documentset, "JSON-LD");
+        return doTransform(r, request, query, queryurl, documentset, "JSON-LD", "jsonld");
     }
 
     @POST
-    @Produces("application/ld+json;q=0.8")
+    @Produces("application/ld+json;q=0.8,*/*;q=0.1")
     public Response doPostJSONLD(
             @Context Request r,
             @Context HttpServletRequest request,
             @DefaultValue("") @FormParam("query") String query,
             @DefaultValue("") @FormParam("queryurl") String queryurl,
             @DefaultValue("") @FormParam("documentset") String documentset) throws IOException {
-        return doTransform(r, request, query, queryurl, documentset, "JSON-LD");
+        return doTransform(r, request, query, queryurl, documentset, "JSON-LD", "jsonld");
     }
 
-    private Response doTransform(Request r, HttpServletRequest request, String query, String queryurl, String documentset, String lang) {
+    private Response doTransform(Request r, HttpServletRequest request, String query, String queryurl, String documentset, String lang, String ext) {
         FileManager fileManager = new FileManager();
 
         if (query.equals("") && queryurl.equals("")) {
@@ -189,8 +189,8 @@ public class Transform extends HttpServlet {
 
             Gson gson = new Gson();
             List<Object> documents = gson.fromJson(documentset, List.class);
-            if(documents != null) {
-                String dturi = "http://www.w3.org/2001/XMLSchema#string"; 
+            if (documents != null) {
+                String dturi = "http://www.w3.org/2001/XMLSchema#string";
                 for (int i = 0; i < documents.size(); i++) {
                     StringMap document = (StringMap) documents.get(i);
                     String uri = (String) document.get("uri");
@@ -215,7 +215,7 @@ public class Transform extends HttpServlet {
             Response.ResponseBuilder res;
             model.write(sw, lang, "http://example.org/");
             res = Response.ok(sw.toString(), "text/turtle");
-            res.header("Content-Disposition", "filename= message.ttl;");
+            res.header("Content-Disposition", "filename= message." + ext + ";");
             return res.build();
         } catch (Exception e) {
             StringWriter sw = new StringWriter();
