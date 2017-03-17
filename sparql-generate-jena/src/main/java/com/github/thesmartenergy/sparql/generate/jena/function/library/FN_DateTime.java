@@ -37,7 +37,7 @@ import org.apache.jena.sparql.function.FunctionBase1;
  */
 public final class FN_DateTime extends FunctionBase1 {
 
-    static DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+    static DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 
     /**
      * The logger.
