@@ -22,6 +22,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Locale;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.jena.util.Locator;
 import org.apache.jena.util.TypedStream;
 import org.slf4j.Logger;
@@ -57,6 +58,11 @@ public class LocatorURLAccept implements Locator {
         try {
             URL url = new URL(filenameOrURI);
             URLConnection conn = url.openConnection();
+            String  userInfo = url.getUserInfo();
+            if( userInfo!=null && !userInfo.isEmpty()) {
+                String encodedUserInfo = new String(Base64.encodeBase64(userInfo.getBytes()));
+                conn.setRequestProperty("Authorization","Basic " + encodedUserInfo);
+            }
             conn.setRequestProperty("Accept", acceptHeader);
             conn.setRequestProperty("Accept-Charset", "utf-8,*");
             conn.setDoInput(true);
