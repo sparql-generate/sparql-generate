@@ -75,9 +75,9 @@ void GenerateTemplate() : { }
 ElementGroup GenerateTemplateSub() : {  ElementGroup elg = new ElementGroup();}
 {
   (
-    { TripleCollectorBGP acc = new TripleCollectorBGP(); }
-    ConstructTriples(acc) 
-    { elg.addElement(new ElementGenerateTriplesBlock(acc.getBGP())); }
+    { XTripleCollectorBGP acc = new XTripleCollectorBGP(); }
+    XConstructTriples(acc) 
+    { elg.addElement(new XElementGenerateTriplesBlock(acc.getBGP())); }
   )?
   ( 
     { startSubGenerate() ; Token t = null;}
@@ -86,9 +86,9 @@ ElementGroup GenerateTemplateSub() : {  ElementGroup elg = new ElementGroup();}
       { SPARQLGenerateQuery q = endSubGenerate(beginLine, beginColumn) ; } 
       { elg.addElement( new ElementSubGenerate(q) ) ; }
     ( 
-      { TripleCollectorBGP acc = new TripleCollectorBGP(); }
-      ConstructTriples(acc) 
-      { elg.addElement(new ElementGenerateTriplesBlock(acc.getBGP())); }
+      { XTripleCollectorBGP acc = new XTripleCollectorBGP(); }
+      XConstructTriples(acc) 
+      { elg.addElement(new XElementGenerateTriplesBlock(acc.getBGP())); }
     )? 
   )*
   { return elg ; }
@@ -847,6 +847,11 @@ void ConstructTriples(TripleCollector acc) : { }
     TriplesSameSubject(acc)
     (<DOT> (ConstructTriples(acc))? )?
 }
+void XConstructTriples(XTripleCollector acc) : { }
+{
+    XTriplesSameSubject(acc)
+    (<DOT> (XConstructTriples(acc))? )?
+}
 void TriplesSameSubject(TripleCollector acc) : { Node s ; }
 {
   s = VarOrTerm()
@@ -857,12 +862,21 @@ void TriplesSameSubject(TripleCollector acc) : { Node s ; }
   PropertyList(s, tempAcc)
   { insert(acc, tempAcc) ; }
 }
+void XTriplesSameSubject(XTripleCollector acc) : { XNode s ; }
+{
+  s = XVarOrTerm()
+  XPropertyListNotEmpty(s, acc)
+|
+  { XElementPathBlock tempAcc = new XElementPathBlock() ; }
+  s = XTriplesNode(tempAcc)
+  XPropertyList(s, tempAcc)
+  { insert(acc, tempAcc) ; }
+}
 void PropertyList(Node s, TripleCollector acc) : { }
 {
   ( PropertyListNotEmpty(s, acc) ) ?
 }
-void PropertyListNotEmpty(Node s, TripleCollector acc) :
-    { Node p = null ; }
+void PropertyListNotEmpty(Node s, TripleCollector acc) : { Node p = null ; }
 {
     p = Verb()
     ObjectList(s, p, null, acc)
@@ -873,9 +887,25 @@ void PropertyListNotEmpty(Node s, TripleCollector acc) :
     )?
   )*
 }
+void XPropertyListNotEmpty(XNode s, XTripleCollector acc) : { XNode p = null ; }
+{
+    p = XVerb()
+    XObjectList(s, p, null, acc)
+  ( <SEMICOLON>
+    (
+       p = XVerb()
+       XObjectList(s, p, null, acc)
+    )?
+  )*
+}
 Node Verb() : { Node p ;}
 {
   ( p = VarOrIri() | <KW_A> { p = nRDFtype ; } )
+  { return p ; }
+}
+Node XVerb() : { XNode p ;}
+{
+  ( p = XVarOrIri() | <KW_A> { p = new XNode( nRDFtype ) ; } )
   { return p ; }
 }
 void ObjectList(Node s, Node p, Path path, TripleCollector acc): { Node o ; }
@@ -883,10 +913,21 @@ void ObjectList(Node s, Node p, Path path, TripleCollector acc): { Node o ; }
   Object(s, p, path, acc)
   ( <COMMA> Object(s, p, path, acc) )*
 }
+void XObjectList(XNode s, XNode p, XPath path, XTripleCollector acc): { XNode o ; }
+{
+  Object(s, p, path, acc)
+  ( <COMMA> XObject(s, p, path, acc) )*
+}
 void Object(Node s, Node p, Path path, TripleCollector acc): { Node o ; }
 {
   { ElementPathBlock tempAcc = new ElementPathBlock() ; int mark = tempAcc.mark() ; }
   o = GraphNode(tempAcc)
+  { insert(tempAcc, mark, s, p, path, o) ; insert(acc, tempAcc) ; }
+}
+void XObject(XNode s, XNode p, XPath path, XTripleCollector acc): { XNode o ; }
+{
+  { XElementPathBlock tempAcc = new XElementPathBlock() ; int mark = tempAcc.mark() ; }
+  o = XGraphNode(tempAcc)
   { insert(tempAcc, mark, s, p, path, o) ; insert(acc, tempAcc) ; }
 }
 void TriplesSameSubjectPath(TripleCollector acc) : { Node s ; }
@@ -1116,6 +1157,11 @@ Node VarOrTerm() : {Node n = null ; }
   ( n = Var() | n = GraphTerm() )
   { return n ; }
 }
+Node XVarOrTerm() : {XNode n = null ; }
+{
+  ( n = VarOrTerm() | n = FunctionCall() | n = XGraphTerm() )
+  { return n ; }
+}
 Node VarOrIri() : {Node n = null ; String iri ; }
 {
   ( n = Var() | iri = iri() { n = createNode(iri) ; } )
@@ -1135,6 +1181,15 @@ Node GraphTerm() : { Node n ; String iri ; }
 {
   iri = iri() { return createNode(iri) ; }
 | n = RDFLiteral() { return n ; }
+| n = NumericLiteral() { return n ; }
+| n = BooleanLiteral() { return n ; }
+| n = BlankNode() { return n ; }
+| <NIL> { return nRDFnil ; }
+}
+Node XGraphTerm() : { XNode n ; String iri ; }
+{
+  xiri = Xiri() { return createXNode(iri) ; }
+| n = XRDFLiteral() { return n ; }
 | n = NumericLiteral() { return n ; }
 | n = BooleanLiteral() { return n ; }
 | n = BlankNode() { return n ; }
@@ -1471,6 +1526,17 @@ Node RDFLiteral() : { Token t ; String lex = null ; }
   )?
     { return createLiteral(lex, lang, uri) ; }
 }
+XNode XRDFLiteral() : { Token t ; XString lex = null ; }
+{
+  lex = XString()
+  { String lang = null ; XURI uri = null ; }
+  (
+    ( t = <LANGTAG> { lang = stripChars(t.image, 1) ; } )
+  |
+    ( <DATATYPE> uri = Xiri() )
+  )?
+    { return createXLiteral(xlex, lang, xuri) ; }
+}
 Node NumericLiteral() : { Node n ; }
 {
   (
@@ -1516,11 +1582,94 @@ String String() : { Token t ; String lex ; }
       return lex ;
     }
 }
+XString XString() : { XString x = new XString(); }
+{
+  ( "'" x = XString1S( x ) "'" {return x;}
+  | "\"" XString1D( x ) "\""
+  | <QUOTE_3S> XString3S( x ) <QUOTE_3S> 
+  | <QUOTE_3D> XString3D( x ) <QUOTE_3D>
+  )
+}
+XString XString1S( XString x ) : {Token t;}
+{
+  ( 
+    (
+      t = <STRING_LITERAL1_SUB>
+      {
+        String lex = stripQuotes(t.image);
+        lex = unescapeXStr(lex, t.beginLine, t.beginColumn) ;
+        x.add( lex ); 
+      }
+    )?
+    { Node n; } 
+    n = XParam( x ) 
+    { xiri.add( n ); }
+    XString1S ( x )
+  )?
+  { return x; }
+}
+String XString1D( XString x ) : {Token t;}
+{
+  ( 
+    (
+      t = <STRING_LITERAL2_SUB>
+      {
+        String lex = stripQuotes(t.image);
+        lex = unescapeXStr(lex, t.beginLine, t.beginColumn) ;
+        x.add( lex ); 
+      }
+    )?
+    { Node n; } 
+    n = XParam( x ) 
+    { xiri.add( n ); }
+    XString1D ( x )
+  )?
+}
+String XString3S( XString x ) : {Token t;}
+{
+  ( 
+    (
+      t = <STRING_LITERAL_LONG1_SUB>
+      {
+        String lex = stripQuotes3(t.image);
+        lex = unescapeXStr(lex, t.beginLine, t.beginColumn) ;
+        x.add( lex ); 
+      }
+    )?
+    { Node n; } 
+    n = XParam( x ) 
+    { xiri.add( n ); }
+    XString1D ( x )
+  )?
+}
+String XString3D( XString x ) : {Token t;}
+{
+  ( 
+    (
+      t = <STRING_LITERAL_LONG2_SUB>
+      {
+        String lex = stripQuotes3(t.image);
+        lex = unescapeXStr(lex, t.beginLine, t.beginColumn) ;
+        x.add( lex ); 
+      }
+    )?
+    { Node n; } 
+    n = XParam( x ) 
+    { xiri.add( n ); }
+    XString1D ( x )
+  )?
+}
 String iri() : { String iri ; }
 {
   iri = IRIREF() { return iri ; }
 |
   iri = PrefixedName() { return iri ; }
+}
+String Xiri() : { String iri ; }
+{
+  iri = iri()
+|
+  iri = XIRIREF() { return iri ; }
 }
 String PrefixedName() : { Token t ; }
 {
@@ -1542,6 +1691,36 @@ String IRIREF() : { Token t ; }
 {
   t = <IRIref>
   { return resolveQuotedIRI(t.image, t.beginLine, t.beginColumn) ; }
+}
+XIRIRef XIRIREF() : { XIRIRef xiri = new XIRIRef(); }
+{
+  <LT> 
+  XIRIREF2( xiri ) 
+  <GT> 
+  { return xiri ; }
+}
+void XIRIREF2( XIRIRef xiri ) : {Token t;}
+{
+  ( 
+    (
+      t = <IRI_SUB> { xiri.add( t.image ); }
+    )?
+    { Node n; }
+    n = XParam( xiri )
+    { xiri.add( n ); }
+    XIRIREF2 ( xiri )
+  )?
+  { return xiri ; }
+}
+Node XParam( XIRIRef xiri ) : { Node n;}
+{
+  <LBRACE>
+  (
+    n = FunctionCall() {return n;}
+  |
+    n = Var() {return n;}
+  )
+  <RBRACE>
 }
 SKIP : { " " | "\t" | "\n" | "\r" | "\f" }
 SPECIAL_TOKEN :
@@ -1718,8 +1897,8 @@ TOKEN :
 | < DECIMAL_NEGATIVE: <MINUS> <DECIMAL> >
 | < DOUBLE_NEGATIVE: <MINUS> <DOUBLE> >
 | < #EXPONENT: ["e","E"] (["+","-"])? (["0"-"9"])+ >
-| < #QUOTE_3D: "\"\"\"">
-| < #QUOTE_3S: "'''">
+| < QUOTE_3D: "\"\"\"">
+| < QUOTE_3S: "'''">
 | <ECHAR: "\\" ( "t"|"b"|"n"|"r"|"f"|"\\"|"\""|"'") >
 | < STRING_LITERAL1:
       "'" ( (~["'","\\","\n","\r"]) | <ECHAR> )* "'" >
@@ -1810,4 +1989,17 @@ TOKEN:
 TOKEN:
 {
   <#UNKNOWN: (~[" ","\t","\n","\r","\f" ])+ >
+}
+TOKEN:
+{
+  <IRI_SUB: (~[ ">","<", "\"", "^", "\\", "|", "`", "\u0000"-"\u0020"])+ >
+| < STRING_LITERAL1_SUB:
+      ( (~["'","\\","\n","\r","{","}"]) | <XECHAR> )+ >
+| < STRING_LITERAL2_SUB:
+      ( (~["\"","\\","\n","\r","{","}"]) | <XECHAR> )+ >
+| < STRING_LITERAL_LONG1_SUB:
+      ( ("'" | "''")? (~["'","\\","{","}"] | <XECHAR> ))+ >
+| < STRING_LITERAL_LONG2_SUB:
+      ( ("\"" | "\"\"")? (~["\"","\\","{","}"] | <XECHAR> ))+ >
+| <XECHAR: "\\" ( "t"|"b"|"n"|"r"|"f"|"\\"|"\""|"'"|"{"|"}") >
 }
