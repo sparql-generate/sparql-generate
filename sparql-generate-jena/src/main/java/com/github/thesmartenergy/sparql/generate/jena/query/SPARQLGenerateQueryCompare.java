@@ -21,7 +21,6 @@ import org.apache.jena.query.Query;
 import org.apache.jena.sparql.core.ComparisonException;
 import org.apache.jena.sparql.core.Prologue;
 import org.apache.jena.sparql.core.QueryCompare;
-import org.apache.jena.sparql.util.NodeIsomorphismMap;
 
 /**
  *

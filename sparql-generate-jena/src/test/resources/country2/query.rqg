@@ -1,0 +1,32 @@
+BASE <http://example.com/> 
+PREFIX iter: <http://w3id.org/sparql-generate/iter/>
+PREFIX fn: <http://w3id.org/sparql-generate/fn/>
+
+GENERATE { 
+
+  _:country a <Country> .
+
+    # deliberately use a trivial join
+    # this will be a new blank node
+    GENERATE {
+      _:country <capital> ?{fn:JSONPath(?source2, '$.{ ?key2 }' )}.
+    }
+    SOURCE <http://country.io/capital.json> AS ?source2
+    ITERATOR iter:JSONListKeys(?source) AS ?key2
+     WHERE {
+      FILTER (?key=?key2)
+    } .
+
+  # this must be the same blank node
+  _:country a <Country> ;
+    <name> ?{ fn:JSONPath(?source, '$.{ ?key }' ) }.
+
+}
+SOURCE <http://country.io/names.json> AS ?source
+ITERATOR iter:JSONListKeys(?source) AS ?key
+WHERE {
+   FILTER(STRSTARTS(?key,"F"))
+}
+ORDER BY ?key
+LIMIT 10
+OFFSET 1

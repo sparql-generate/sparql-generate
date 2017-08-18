@@ -7,7 +7,7 @@ GENERATE {
   _:country a <Country> ;
     <key> ?key .
 
-    # deliberately use a stupid join
+    # deliberately use a trivial join
     # this will be a new blank node
     GENERATE {
       _:country <capital> ?capital.

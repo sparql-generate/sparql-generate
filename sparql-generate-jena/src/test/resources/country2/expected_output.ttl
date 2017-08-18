@@ -1,0 +1,15 @@
+@base <http://example.com/> .
+
+[] <source> """[
+	{ "firstname" : "Maxime" ,
+	  "lastname" : "Lefrancois" ,
+	  "birthday" : "04-26" ,
+          "country" : "FR" ,
+	  "interests" : [ "RDF" ,"SPARQL" , "Climbing" ] 
+	},
+	{ "firstname" : "Antoine" ,
+	  "lastname" : "Zimmermann" ,
+          "country" : "GB" ,
+	  "interests" : [ "W3C" , "RDF" , "April Fools Day" ] 
+	}
+]"""^^<http://www.iana.org/assignments/media-types/application/json> .

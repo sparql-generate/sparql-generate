@@ -50,13 +50,10 @@ import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITE_JSONP
 import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITE_Regex;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITE_Split;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITE_XPath;
-import com.github.thesmartenergy.sparql.generate.jena.serializer.SPARQLGenerateFormatterElement;
 import com.github.thesmartenergy.sparql.generate.jena.serializer.SPARQLGenerateQuerySerializer;
 import org.apache.jena.atlas.io.IndentedWriter;
 import org.apache.jena.query.QueryVisitor;
 import org.apache.jena.sparql.core.Prologue;
-import org.apache.jena.sparql.serializer.FmtExprSPARQL;
-import org.apache.jena.sparql.serializer.FmtTemplate;
 import org.apache.jena.sparql.serializer.QuerySerializerFactory;
 import org.apache.jena.sparql.serializer.SerializationContext;
 import org.apache.jena.sparql.serializer.SerializerRegistry;
@@ -131,7 +128,7 @@ public final class SPARQLGenerate {
         fnreg.put(FN_HTMLTag.URI, FN_HTMLTag.class);
         fnreg.put(FN_HTMLAttribute.URI, FN_HTMLAttribute.class);
         fnreg.put(FN_CBOR.URI, FN_CBOR.class);
-         fnreg.put(FN_Regex.URI, FN_Regex.class);
+        fnreg.put(FN_Regex.URI, FN_Regex.class);
         fnreg.put(FN_BNode2.URI, FN_BNode2.class);
         fnreg.put(FN_HTMLTagElement.URI, FN_HTMLTagElement.class);
         fnreg.put(FN_DateTime.URI, FN_DateTime.class);
@@ -179,18 +176,13 @@ public final class SPARQLGenerate {
 
             @Override
             public QueryVisitor create(Syntax syntax, Prologue prologue, IndentedWriter writer) {
-                QueryVisitor serializer = SerializerRegistry.get().getQuerySerializerFactory(Syntax.syntaxSPARQL_11).create(syntax, prologue, writer);
-                // For the generate pattern
-                SerializationContext cxt = new SerializationContext(prologue, new NodeToLabelMapBNode("g", false));
-                return new SPARQLGenerateQuerySerializer(serializer, writer, new SPARQLGenerateFormatterElement(writer, cxt), new FmtExprSPARQL(writer, cxt),
-                        new FmtTemplate(writer, cxt));
+                SerializationContext context = new SerializationContext(prologue, new NodeToLabelMapBNode("g", false));
+                return new SPARQLGenerateQuerySerializer(writer, context);
             }
 
             @Override
             public QueryVisitor create(Syntax syntax, SerializationContext context, IndentedWriter writer) {
-                QueryVisitor serializer = SerializerRegistry.get().getQuerySerializerFactory(Syntax.syntaxSPARQL_11).create(syntax, context, writer);
-                return new SPARQLGenerateQuerySerializer(serializer, writer, new SPARQLGenerateFormatterElement(writer, context), new FmtExprSPARQL(writer,
-                        context), new FmtTemplate(writer, context));
+                return new SPARQLGenerateQuerySerializer(writer, context);
             }
         };
 

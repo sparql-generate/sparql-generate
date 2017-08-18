@@ -20,9 +20,9 @@ import org.apache.jena.query.QueryVisitor;
 import org.apache.jena.sparql.core.Prologue;
 import org.apache.jena.sparql.syntax.ElementGroup;
 import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
-import com.github.thesmartenergy.sparql.generate.jena.syntax.ElementIteratorOrSource;
+import com.github.thesmartenergy.sparql.generate.jena.normalizer.QueryNormalizer;
 import java.util.List;
-import org.apache.jena.sparql.core.QueryCompare;
+import org.apache.jena.sparql.syntax.Element;
 
 /**
  *
@@ -33,6 +33,28 @@ public class SPARQLGenerateQuery extends Query {
     static {
         SPARQLGenerate.init();
         /* Ensure everything has started properly */ }
+
+    private boolean hasEmbeddedExpressions;
+    
+    /**
+     * Sets if the query contains expressions in literals, URIs, or in place of
+     * variables.
+     * 
+     * @param hasEmbeddedExpressions 
+     */
+    public void hasEmbeddedExpressions(boolean hasEmbeddedExpressions) {
+        this.hasEmbeddedExpressions = hasEmbeddedExpressions;
+    }
+    
+    /**
+     * Returns if the query contains expressions in literals, URIs, or in place
+     * of variables.
+     * 
+     * @param hasEmbeddedExpressions 
+     */
+    public boolean hasEmbeddedExpressions() {
+        return hasEmbeddedExpressions;
+    }
 
     /**
      * Creates a new empty query.
@@ -80,7 +102,7 @@ public class SPARQLGenerateQuery extends Query {
     private ElementGroup generateTemplate = null;
 
     /** the deque of {@code SOURCE} and {@code ITERATOR} clauses. */
-    private List<ElementIteratorOrSource> iteratorsAndSources = null;
+    private List<Element> iteratorsAndSources = null;
 
     /**
      * Gets if the {@code GENERATE} clause is a URI.
@@ -145,7 +167,7 @@ public class SPARQLGenerateQuery extends Query {
      * @param list -
      */
     public final void setIteratorsAndSources(
-            final List<ElementIteratorOrSource> list) {
+            final List<Element> list) {
         this.iteratorsAndSources = list;
     }
 
@@ -154,9 +176,26 @@ public class SPARQLGenerateQuery extends Query {
      * clauses.
      * @return -
      */
-    public final List<ElementIteratorOrSource> getIteratorsAndSources() {
+    public final List<Element> getIteratorsAndSources() {
         return this.iteratorsAndSources;
     }
+    
+    /**
+     * Return a new query semantically equivalent to this one, but with no
+     * embedded expressions.
+     * 
+     * @return 
+     */
+    public SPARQLGenerateQuery normalize() {
+        if(!hasEmbeddedExpressions) {
+            return this;
+        }
+        SPARQLGenerateQuery query = (SPARQLGenerateQuery) cloneQuery();
+        QueryNormalizer normalizer = new QueryNormalizer();
+        query.visit(normalizer);
+        return query;
+    }
+    
 
     /**
      * Visits the query by a SPARQL Generate Query visitor, or throw an
@@ -214,6 +253,5 @@ public class SPARQLGenerateQuery extends Query {
         if ( this == other ) return true ;
         return SPARQLGenerateQueryCompare.equals(this, (SPARQLGenerateQuery)other) ;
     }
-    
 
 }

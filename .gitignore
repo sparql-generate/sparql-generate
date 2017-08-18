@@ -29,3 +29,4 @@ buildNumber.properties
 # deploy website
 .sh
 .bat
+/sparql-generate-jena/nbproject/

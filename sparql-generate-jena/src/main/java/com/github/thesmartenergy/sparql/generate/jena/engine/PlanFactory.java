@@ -19,10 +19,8 @@ import com.github.thesmartenergy.sparql.generate.jena.engine.impl.GenerateTriple
 import com.github.thesmartenergy.sparql.generate.jena.engine.impl.GenerateTemplatePlanImpl;
 import com.github.thesmartenergy.sparql.generate.jena.engine.impl.SelectPlanImpl;
 import com.github.thesmartenergy.sparql.generate.jena.engine.impl.RootPlanImpl;
-import com.github.thesmartenergy.sparql.generate.jena.engine.impl.SourcePlanImpl;
 import com.github.thesmartenergy.sparql.generate.jena.engine.impl.IteratorPlanImpl;
 import org.apache.commons.io.IOUtils;
-import org.apache.jena.graph.Node;
 import org.apache.jena.query.QueryFactory;
 import org.apache.jena.query.SortCondition;
 import org.apache.jena.sparql.core.Var;
@@ -34,12 +32,12 @@ import org.apache.jena.sparql.syntax.Element;
 import org.apache.jena.util.FileManager;
 import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
 import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerateException;
+import com.github.thesmartenergy.sparql.generate.jena.engine.impl.BindPlanImpl;
+import com.github.thesmartenergy.sparql.generate.jena.engine.impl.SourcePlanImpl;
 import com.github.thesmartenergy.sparql.generate.jena.query.SPARQLGenerateQuery;
 import com.github.thesmartenergy.sparql.generate.jena.query.SPARQLGenerateQueryVisitor;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.IteratorFunctionRegistry;
-import com.github.thesmartenergy.sparql.generate.jena.syntax.ElementGenerateTriplesBlock;
 import com.github.thesmartenergy.sparql.generate.jena.syntax.ElementIterator;
-import com.github.thesmartenergy.sparql.generate.jena.syntax.ElementIteratorOrSource;
 import com.github.thesmartenergy.sparql.generate.jena.syntax.ElementSource;
 import com.github.thesmartenergy.sparql.generate.jena.syntax.ElementSubGenerate;
 import java.io.IOException;
@@ -53,6 +51,9 @@ import org.apache.jena.sparql.engine.binding.Binding;
 import org.apache.log4j.Logger;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.IteratorFunction;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.IteratorFunctionFactory;
+import com.github.thesmartenergy.sparql.generate.jena.syntax.ElementGenerateTriplesBlock;
+import org.apache.jena.graph.Node;
+import org.apache.jena.sparql.syntax.ElementBind;
 
 /**
  * A factory that creates a {@link RootPlan} from a SPARQL Generate query.
@@ -80,7 +81,7 @@ public class PlanFactory {
     /**
      * The registry of {@link IteratorFunction}s.
      */
-    private final IteratorFunctionRegistry sr;
+    private final IteratorFunctionRegistry sr = IteratorFunctionRegistry.get();
 
     /**
      * Enables to use local files instead of attempling an HTTP call.
@@ -93,56 +94,7 @@ public class PlanFactory {
      * {@link FileManager}.
      */
     public PlanFactory() {
-        this(IteratorFunctionRegistry.get(), FileManager.get());
-    }
-
-    /**
-     * A factory that creates a {@link RootPlan} from a SPARQL Generate
-     * query. Use the default {@link FileManager}.
-     * <p>
-     * See static methods of class {@link IteratorFunctionRegistry#get} to use
-     * an existing IteratorFunction registry, or instantiate your own.
-     *
-     * @param iteratorRegistry the iterator registry to use.
-     */
-    public PlanFactory(final IteratorFunctionRegistry iteratorRegistry) {
-        this(iteratorRegistry, FileManager.get());
-    }
-
-    /**
-     * A factory that creates a {@link RootPlan} from a SPARQL Generate
-     * query.
-     * <p>
-     * The {@link FileManager} uses a configuration file to load files from disk
-     * instead of attempting HTTP GET calls. See
-     * <a href="https://jena.apache.org/documentation/notes/file-manager.html">
-     * The Jena FileManager and LocationMapper</a>. The following code
-     * illustrates the instantiation of a {@code FileManager}:
-     * <pre>{@code
-     *
-     * Model conf = RDFDataMgr.loadModel("file:/path/to/configuration.ttl");
-     * LocationMapper mapper = new LocationMapper(conf);
-     * FileManager fm = new FileManager();
-     *
-     * fm.setLocationMapper(mapper);
-     *
-     * Locator loc = new LocatorFile("file:/path/to/directory1");
-     * Locator loc = new LocatorFile("file:/path/to/directory2");
-     * fileManager.addLocator(loc);
-     * }</pre>
-     *
-     * <p>
-     * See static methods of class {@link IteratorFunctionRegistry#get} to use
-     * an existing IteratorFunction registry, or instantiate your own.
-     *
-     * @param iteratorRegistry the iterator registry to use.
-     * @param fileManager the file manager to use.
-     */
-    public PlanFactory(
-            final IteratorFunctionRegistry iteratorRegistry,
-            final FileManager fileManager) {
-        this.sr = iteratorRegistry;
-        this.fm = fileManager;
+        this(FileManager.get());
     }
 
     /**
@@ -171,7 +123,7 @@ public class PlanFactory {
      * @param fileManager the file manager to use.
      */
     public PlanFactory(final FileManager fileManager) {
-        this(IteratorFunctionRegistry.get(), fileManager);
+        this.fm = fileManager;
     }
 
     /**
@@ -193,7 +145,12 @@ public class PlanFactory {
      */
     public final RootPlan create(final SPARQLGenerateQuery query) {
         checkNotNull(query, "Query must not be null");
-        return make(query);
+        if(!query.hasEmbeddedExpressions()) {
+            return make(query);
+        } else {
+            SPARQLGenerateQuery q = query.normalize();
+            return make(q);
+        }
     }
 
     /**
@@ -243,14 +200,17 @@ public class PlanFactory {
         GeneratePlan generatePlan = null;
 
         if (query.hasIteratorsAndSources()) {
-            for(ElementIteratorOrSource el : query.getIteratorsAndSources()) {
+            for(Element el : query.getIteratorsAndSources()) {
                 IteratorOrSourcePlan iteratorOrSourcePlan;
                 if (el instanceof ElementIterator) {
                     ElementIterator elementIterator = (ElementIterator) el;
                     iteratorOrSourcePlan = makeIteratorPlan(elementIterator);
-                } else if (el instanceof ElementSource) {
+                } else if (el instanceof ElementSource) { 
                     ElementSource elementSource = (ElementSource) el;
                     iteratorOrSourcePlan = makeSourcePlan(elementSource);
+                } else if (el instanceof ElementBind) { 
+                    ElementBind elementBind = (ElementBind) el;
+                    iteratorOrSourcePlan = makeBindPlan(elementBind);
                 } else {
                     throw new UnsupportedOperationException("should not reach"
                             + " this point");
@@ -330,6 +290,25 @@ public class PlanFactory {
         checkNotNull(var, "The variable must not be null.");
 
         return new SourcePlanImpl(node, accept, var, fm);
+    }
+
+    /**
+     * Makes the plan for a SPARQL BIND clause.
+     *
+     * @param elementBind the SPARQL BIND
+     * @return -
+     */
+    private IteratorOrSourcePlan makeBindPlan (
+            final ElementBind elementBind) throws SPARQLGenerateException {
+        checkNotNull(elementBind, "The Bind element must not be null");
+       
+        Var var = elementBind.getVar();
+        Expr expr = elementBind.getExpr();
+
+        checkNotNull(var, "The source must not be null");
+        checkNotNull(expr, "The expression must not be null.");
+
+        return new BindPlanImpl(expr, var);
     }
 
     /**

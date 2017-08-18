@@ -16,7 +16,6 @@
 package com.github.thesmartenergy.sparql.generate.jena.function.library;
 
 import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
-import com.github.thesmartenergy.sparql.generate.jena.function.FunctionBase6;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -25,10 +24,15 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.util.List;
 import java.util.Map;
+import org.apache.jena.atlas.lib.Lib;
+import org.apache.jena.query.QueryBuildException;
+import org.apache.jena.sparql.ARQInternalErrorException;
 import org.apache.jena.sparql.expr.ExprEvalException;
+import org.apache.jena.sparql.expr.ExprList;
 import org.apache.jena.sparql.expr.NodeValue;
 import org.apache.log4j.Logger;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueString;
+import org.apache.jena.sparql.function.FunctionBase;
 import org.supercsv.io.CsvListReader;
 import org.supercsv.io.CsvMapReader;
 import org.supercsv.prefs.CsvPreference;
@@ -43,7 +47,7 @@ import org.supercsv.prefs.CsvPreference;
  * Dialect Descriptions</a>
  * @author Noorani Bakerally <noorani.bakerally at emse.fr>
  */
-public class FN_CustomCSV extends FunctionBase6 {
+public class FN_CustomCSV extends FunctionBase {
     //TODO write multiple unit tests for this class.
 
     /**
@@ -62,27 +66,58 @@ public class FN_CustomCSV extends FunctionBase6 {
     private static final String datatypeUri = "http://www.iana.org/assignments/media-types/text/csv";
 
     /**
+     * Six parameters as follows:
+     * <ul>
+     * <li>csv a RDF Literal with datatype URI
+     * {@code <http://www.iana.org/assignments/media-types/text/csv>} or
+     * {@code xsd:string} representing the source CSV document</li>
+     * <li>column denotes the column to be selected for the CSV document. If the
+     * value for the header is true, the path will be an RDF Literal of datatype
+     * {@code xsd:string} to represent the column name. Else, it is going to be
+     * an integer of datatype {@code xsd:int} to denote the index of the column
+     * starting at 0 for the first column on the far left.</li>
+     * <li>quoteChar a RDF Literal with datatype {@code xsd:string} for the
+     * quote character</li>
+     * <li>delimiterChar a RDF Literal with datatype {@code xsd:string} for the
+     * delimiter character</li>
+     * <li>endOfLineSymbols a RDF Literal with datatype {@code xsd:string} for
+     * the end of line symbol</li>
+     * <li>header a RDF Literal with datatype {@code xsd:boolean} where true
+     * represents the presence of a header in the source CSV document</li>
+     * </ul>
      *
-     * @param csv a RDF Literal with datatype URI
-     * {@code <http://www.iana.org/assignments/media-types/text/csv>} or {@code xsd:string} representing the
-     * source CSV document
-     * @param column denotes the column to be selected for the CSV document. If
-     * the value for the header is true, the path will be an RDF Literal of
-     * datatype {@code xsd:string} to represent the column name. Else, it is
-     * going to be an integer of datatype {@code xsd:int} to denote the index of
-     * the column starting at 0 for the first column on the far left.
-     * @param quoteChar a RDF Literal with datatype {@code xsd:string} for the
-     * quote character
-     * @param delimiterChar a RDF Literal with datatype {@code xsd:string} for
-     * the delimiter character
-     * @param endOfLineSymbols a RDF Literal with datatype {@code xsd:string}
-     * for the end of line symbol
-     * @param header a RDF Literal with datatype {@code xsd:boolean} where true
-     * represents the presence of a header in the source CSV document
-     * @return a RDF Literal with datatype URI {@code <http://www.iana.org/assignments/media-types/text/csv>}
+     * @return a RDF Literal with datatype URI
+     * {@code <http://www.iana.org/assignments/media-types/text/csv>}
      */
     @Override
-    public NodeValue exec(NodeValue csv, NodeValue column, NodeValue quoteChar, NodeValue delimiterChar, NodeValue endOfLineSymbols, NodeValue header) {
+    public NodeValue exec(List<NodeValue> args) {
+        if (args == null) {
+            // The contract on the function interface is that this should not happen.
+            throw new ARQInternalErrorException(Lib.className(this) + ": Null args list");
+        }
+
+        if (args.size() != 6) {
+            throw new ExprEvalException(Lib.className(this) + ": Wrong number of arguments: Wanted 2, got " + args.size());
+        }
+
+        NodeValue v1 = args.get(0);
+        NodeValue v2 = args.get(1);
+        NodeValue v3 = args.get(2);
+        NodeValue v4 = args.get(3);
+        NodeValue v5 = args.get(4);
+        NodeValue v6 = args.get(5);
+
+        return exec(v1, v2, v3, v4, v5, v6);
+    }
+
+    @Override
+    public void checkBuild(String uri, ExprList args) {
+        if (args.size() != 6) {
+            throw new QueryBuildException("Function '" + Lib.className(this) + "' takes two arguments");
+        }
+    }
+
+    private NodeValue exec(NodeValue csv, NodeValue column, NodeValue quoteChar, NodeValue delimiterChar, NodeValue endOfLineSymbols, NodeValue header) {
 
         if (csv.getDatatypeURI() == null
                 && datatypeUri == null
@@ -127,7 +162,7 @@ public class FN_CustomCSV extends FunctionBase6 {
                 List<String> values = new CsvListReader(br, prefs).read();
                 nodeVal = values.get(Integer.valueOf(column.asString()));
             }
-            if(nodeVal != null) {
+            if (nodeVal != null) {
                 return new NodeValueString(nodeVal);
             } else {
                 return new NodeValueString("");

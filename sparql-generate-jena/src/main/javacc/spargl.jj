@@ -15,7 +15,6 @@
  */
 options
 {
-    //DEBUG_PARSER=true;
     JAVA_UNICODE_ESCAPE = true ;
     UNICODE_INPUT = false ;
     STATIC = false ;
@@ -30,14 +29,60 @@ import org.apache.jena.sparql.syntax.*;
 import org.apache.jena.sparql.expr.*;
 import org.apache.jena.sparql.path.*;
 import org.apache.jena.sparql.expr.aggregate.*;
-import org.apache.jena.update.*;
-import org.apache.jena.sparql.modify.request.*;
 import com.github.thesmartenergy.sparql.generate.jena.query.SPARQLGenerateQuery;
 import com.github.thesmartenergy.sparql.generate.jena.syntax.*;
+import com.github.thesmartenergy.sparql.generate.jena.graph.*;
 import java.util.ArrayList;
 import java.util.List;
 public class SPARQLGenerateParser extends SPARQLGenerateParserBase
-{ boolean allowAggregatesInExpressions = false ;  }
+{
+
+boolean allowAggregatesInExpressions = false ; 
+
+// JavaCC hack for doing lexical state transitions syntactically
+
+private void SetState(int state) {
+  if (state != token_source.curLexState) {
+    Token root = new Token(), last=root;
+    root.next = null;
+
+    // First, we build a list of tokens to push back, in backwards order
+    while (token.next != null) {
+      Token t = token;
+      // Find the token whose token.next is the last in the chain
+      while (t.next != null && t.next.next != null)
+        t = t.next;
+
+      // put it at the end of the new chain
+      last.next = t.next;
+      last = t.next;
+
+      // If there are special tokens, these go before the regular tokens,
+      // so we want to push them back onto the input stream in the order
+      // we find them along the specialToken chain.
+
+      if (t.next.specialToken != null) {
+        Token tt=t.next.specialToken;
+        while (tt != null) {
+          last.next = tt;
+          last = tt;
+          tt.next = null;
+          tt = tt.specialToken;
+        }
+      }
+      t.next = null;
+    };
+
+    while (root.next != null) {
+      token_source.backup(root.next.image.length());
+      root.next = root.next.next;
+    }
+    jj_ntk = -1;
+    token_source.SwitchTo(state);
+  }
+}
+
+}
 PARSER_END(SPARQLGenerateParser)
 void GenerateUnit(): { }
 {
@@ -49,19 +94,32 @@ void GenerateUnit(): { }
 void Generate() : { }
 {
   Prologue()
-  GenerateQuery()
+  ( GenerateQuery1() 
+  | GenerateQuery2() )
 }
-void GenerateQuery() : { }
+void GenerateQuery1() : { }
 {
   <GENERATE>
     { asSPARQLGenerateQuery().setQueryGenerateType() ; }
   GenerateTemplate()
   ( DatasetClause() )*
-  {  List<ElementIteratorOrSource> list = new ArrayList<ElementIteratorOrSource> ();}
+  {  List<Element> list = new ArrayList<Element> ();}
   ( IteratorOrSourceClause(list) )*
   {  asSPARQLGenerateQuery().setIteratorsAndSources(list);}
   ( WhereClause() )?
   SolutionModifier()
+}
+void GenerateQuery2() : { }
+{
+  ( DatasetClause() )*
+  {  List<Element> list = new ArrayList<Element> ();}
+  ( IteratorOrSourceClause(list) )*
+  {  asSPARQLGenerateQuery().setIteratorsAndSources(list);}
+  ( WhereClause() )?
+  SolutionModifier()
+  <CONSTRUCT>
+    { asSPARQLGenerateQuery().setQueryGenerateType() ; }
+  GenerateTemplate()
 }
 void GenerateTemplate() : { }
 {
@@ -72,35 +130,37 @@ void GenerateTemplate() : { }
 ElementGroup GenerateTemplateSub() : {  ElementGroup elg = new ElementGroup();}
 {
   (
-    { XTripleCollectorBGP acc = new XTripleCollectorBGP(); }
+    { TripleCollectorBGP acc = new TripleCollectorBGP(); }
     ConstructTriples(acc) 
-    { elg.addElement(new XElementGenerateTriplesBlock(acc.getBGP())); }
+    { elg.addElement(new ElementGenerateTriplesBlock(acc.getBGP())); }
   )?
   ( 
     { startSubGenerate() ; Token t = null;}
-    t = SubGenerateQuery()
+    ( t = SubGenerateQuery1()
+    | t = SubGenerateQuery2() )
       { int beginLine = t.beginLine; int beginColumn = t.beginColumn; t = null; }
       { SPARQLGenerateQuery q = endSubGenerate(beginLine, beginColumn) ; } 
       { elg.addElement( new ElementSubGenerate(q) ) ; }
     ( 
-      { XTripleCollectorBGP acc = new XTripleCollectorBGP(); }
+      { TripleCollectorBGP acc = new TripleCollectorBGP(); }
       ConstructTriples(acc) 
-      { elg.addElement(new XElementGenerateTriplesBlock(acc.getBGP())); }
+      { elg.addElement(new ElementGenerateTriplesBlock(acc.getBGP())); }
     )? 
   )*
   { return elg ; }
 }
-void IteratorOrSourceClause(List<ElementIteratorOrSource> list) : {}
+void IteratorOrSourceClause(List<Element> list) : {}
 {
-    {ElementIteratorOrSource elem = null;}
+    {Element elem = null;}
   ( elem = IteratorClause()
-  | elem = SourceClause() )
+  | elem = SourceClause() 
+  | elem = Bind() )
     { list.add(elem); }
 }
 ElementIterator IteratorClause() : {}
 {
-  { XExpr expr ; Var var;}
-  <ITERATOR> 
+  { Expr expr ; Var var;}
+  <ITERATOR>
     expr = FunctionCall() 
   <AS> 
     var = Var() 
@@ -108,18 +168,18 @@ ElementIterator IteratorClause() : {}
 }
 ElementSource SourceClause() : {}
 {
-  { XExpr source = null; XExpr accept = null; Var var = null ; }
+  { Node source = null; Node accept = null; Var var = null ; }
   <SOURCE> 
-    source = XVarOrIri() 
+    source = VarOrXIri() 
     ( 
       <ACCEPT> 
-      accept = XVarOrIri() 
+      accept = VarOrXIri() 
     )?
     <AS>
     var = Var()
     { return new ElementSource(source, accept, var);} 
 }
-Token SubGenerateQuery( ) : { Token t;}
+Token SubGenerateQuery1( ) : { Token t;}
 {
   t = <GENERATE>
     { asSPARQLGenerateQuery().setQueryGenerateType() ; }
@@ -128,14 +188,29 @@ Token SubGenerateQuery( ) : { Token t;}
   | 
     GenerateTemplate() 
   )
+  {  List<Element> list = new LinkedList<Element> ();}
+  ( IteratorOrSourceClause(list) )*
+  {  asSPARQLGenerateQuery().setIteratorsAndSources(list);}
+  ( WhereClause() )?
+  SolutionModifier()
+  <DOT>
+  { return t; }
+}
+Token SubGenerateQuery2( ) : { Token t;}
+{
+  {  List<Element> list = new LinkedList<Element> ();}
+  ( IteratorOrSourceClause(list) )*
+  {  asSPARQLGenerateQuery().setIteratorsAndSources(list);}
+  ( WhereClause() )?
+  SolutionModifier()
+  t = <CONSTRUCT>
+    { asSPARQLGenerateQuery().setQueryGenerateType() ; }
   ( 
-    {  List<ElementIteratorOrSource> list = new LinkedList<ElementIteratorOrSource> ();}
-    ( IteratorOrSourceClause(list) )*
-    {  asSPARQLGenerateQuery().setIteratorsAndSources(list);}
-    ( WhereClause() )?
-    SolutionModifier()
-    <DOT>
-  )?
+    { String generateUri; } generateUri = SourceSelector() { asSPARQLGenerateQuery().setGenerateURI(generateUri); }
+  | 
+    GenerateTemplate() 
+  )
+  <DOT>
   { return t; }
 }
 void ByteOrderMark() : {}
@@ -164,7 +239,7 @@ void SubSelect() :{ }
   SolutionModifier()
   ValuesClause()
 }
-void SelectClause() : { Var v ; XExpr expr ; Node n ; }
+void SelectClause() : { Var v ; Expr expr ; Node n ; }
 {
   <SELECT>
     { getQuery().setQuerySelectType() ; }
@@ -233,7 +308,7 @@ void GroupClause() : { }
 {
   <GROUP> <BY> ( GroupCondition() )+
 }
-void GroupCondition() : { Var v = null ; XExpr expr = null ; }
+void GroupCondition() : { Var v = null ; Expr expr = null ; }
 {
   ( expr = BuiltInCall() { getQuery().addGroupBy((Var)null, expr) ; }
   | expr = FunctionCall() { getQuery().addGroupBy((Var)null, expr) ; }
@@ -253,7 +328,7 @@ void HavingClause() : { }
     <HAVING> (HavingCondition())+
     { allowAggregatesInExpressions = false ; }
 }
-void HavingCondition() : { XExpr c ; }
+void HavingCondition() : { Expr c ; }
 {
   c = Constraint()
   { getQuery().addHavingCondition(c) ; }
@@ -265,7 +340,7 @@ void OrderClause() : { }
   { allowAggregatesInExpressions = false ; }
 }
 void OrderCondition() :
-{ int direction = 0 ; XExpr expr = null ; Node v = null ; }
+{ int direction = 0 ; Expr expr = null ; Node v = null ; }
 {
   { direction = Query.ORDER_DEFAULT ; }
   (
@@ -311,7 +386,7 @@ void ValuesClause() : { Token t ; }
     { finishValuesClause(t.beginLine, t.beginColumn) ; }
   )?
 }
-void TriplesTemplate(XTripleCollector acc) : { }
+void TriplesTemplate(TripleCollector acc) : { }
 {
     TriplesSameSubject(acc)
     (<DOT> (TriplesTemplate(acc))?)?
@@ -321,11 +396,11 @@ Element GroupGraphPattern() : { Element el = null ; Token t ; }
   t = <LBRACE>
   { int beginLine = t.beginLine; int beginColumn = t.beginColumn; t = null; }
   (
-    { startXSubSelect(beginLine, beginColumn) ; }
+    { startSubSelect(beginLine, beginColumn) ; }
     SubSelect()
     {
-      XQuery q = endXSubSelect(beginLine, beginColumn) ;
-      el = new XElementSubQuery(q) ;
+      Query q = endSubSelect(beginLine, beginColumn) ;
+      el = new ElementSubQuery(q) ;
     }
   | el = GroupGraphPatternSub()
   )
@@ -356,10 +431,10 @@ Element GroupGraphPatternSub() : { Element el = null ; }
       { endGroup(elg) ; }
       { return elg ; }
 }
-Element TriplesBlock(XElementPathBlock acc) : { }
+Element TriplesBlock(ElementPathBlock acc) : { }
 {
   { if ( acc == null )
-        acc = new XElementPathBlock() ;
+        acc = new ElementPathBlock() ;
   }
   TriplesSameSubjectPath(acc)
   ( <DOT> (TriplesBlock(acc))? )?
@@ -390,22 +465,22 @@ Element OptionalGraphPattern() : { Element el ; }
 { <OPTIONAL> el = GroupGraphPattern()
     { return new ElementOptional(el) ; }
 }
-Element GraphGraphPattern() : { Element el ; XExpr n ;}
+Element GraphGraphPattern() : { Element el ; Node n ;}
 {
-  <GRAPH> n = XVarOrIri() el = GroupGraphPattern()
-    { return new XElementNamedGraph(n, el) ; }
+  <GRAPH> n = VarOrXIri() el = GroupGraphPattern()
+    { return new ElementNamedGraph(n, el) ; }
 }
-Element ServiceGraphPattern() : { Element el ; XExpr expr ; boolean silent = false ; }
+Element ServiceGraphPattern() : { Element el ; Node n ; boolean silent = false ; }
 {
   <SERVICE>
   (<SILENT>
    { silent=true; }
   )?
-  expr = XVarOrIri()
+  n = VarOrXIri()
   el = GroupGraphPattern()
-    { return new XElementService(expr, el, silent) ; }
+    { return new ElementService(n, el, silent) ; }
 }
-Element Bind() : { Var v ; XExpr expr ; }
+Element Bind() : { Var v ; Expr expr ; }
 {
   <BIND>
   <LPAREN>
@@ -501,12 +576,12 @@ Element GroupOrUnionGraphPattern() :
   )*
     { return (el2==null)? el : el2 ; }
 }
-Element Filter() : { XExpr c ; }
+Element Filter() : { Expr c ; }
 {
   <FILTER> c = Constraint()
-  { return new XElementFilter(c) ; }
+  { return new ElementFilter(c) ; }
 }
-XExpr Constraint() : { XExpr c ; }
+Expr Constraint() : { Expr c ; }
 {
   ( c = BrackettedExpression()
   | c = BuiltInCall()
@@ -514,7 +589,7 @@ XExpr Constraint() : { XExpr c ; }
   )
   { return c ; }
 }
-XExpr FunctionCall() : { String fname ; XExprList a ; }
+Expr FunctionCall() : { String fname ; ExprList a ; }
 {
   fname = iri()
   a = ArgList()
@@ -522,17 +597,15 @@ XExpr FunctionCall() : { String fname ; XExprList a ; }
      if ( AggregateRegistry.isRegistered(fname) ) {
          if ( ! allowAggregatesInExpressions )
             throwParseException("Aggregate expression not legal at this point : "+fname, -1, -1) ;
-         if( !a.isExprList() )
-            throwParseException("Custom expressions not legal as argument of aggregate expressions: "+fname, -1, -1) ;
-         Aggregator agg = AggregatorFactory.createCustom(true, false, fname, a.asExprList()) ;
+         Aggregator agg = AggregatorFactory.createCustom(true, false, fname, a) ;
          Expr exprAgg = getQuery().allocAggregate(agg) ;
-         return new XExpr(exprAgg) ;
+         return exprAgg ;
      }
-     return new XE_Function(fname, a) ;
+     return new E_Function(fname, a) ;
   }
 }
-XExprList ArgList() : { XExpr expr ; boolean distinct = false ;
-                      XExprList args = new XExprList() ; Token t ; }
+ExprList ArgList() : { Expr expr ; boolean distinct = false ;
+                      ExprList args = new ExprList() ; Token t ; }
 {
   (
     <NIL>
@@ -552,7 +625,7 @@ XExprList ArgList() : { XExpr expr ; boolean distinct = false ;
    )
     { return args ; }
 }
-XExprList ExpressionList() : { XExpr expr = null ; XExprList args = new XExprList() ;}
+ExprList ExpressionList() : { Expr expr = null ; ExprList args = new ExprList() ;}
 {
   (
     <NIL>
@@ -564,27 +637,27 @@ XExprList ExpressionList() : { XExpr expr = null ; XExprList args = new XExprLis
   )
   { return args ; }
 }
-void ConstructTriples(XTripleCollector acc) : { }
+void ConstructTriples(TripleCollector acc) : { }
 {
     TriplesSameSubject(acc)
     (<DOT> (ConstructTriples(acc))? )?
 }
-void TriplesSameSubject(XTripleCollector acc) : { XExpr s ; }
+void TriplesSameSubject(TripleCollector acc) : { Node s ; }
 {
-  s = XVarOrTerm()
+  s = VarOrXTerm()
   PropertyListNotEmpty(s, acc)
 |
-  { XElementPathBlock tempAcc = new XElementPathBlock() ; }
+  { ElementPathBlock tempAcc = new ElementPathBlock() ; }
   s = TriplesNode(tempAcc)
   PropertyList(s, tempAcc)
   { insert(acc, tempAcc) ; }
 }
-void PropertyList(XExpr s, XTripleCollector acc) : { }
+void PropertyList(Node s, TripleCollector acc) : { }
 {
   ( PropertyListNotEmpty(s, acc) ) ?
 }
-void PropertyListNotEmpty(XExpr s, XTripleCollector acc) :
-    { XExpr p = null ; }
+void PropertyListNotEmpty(Node s, TripleCollector acc) :
+    { Node p = null ; }
 {
     p = Verb()
     ObjectList(s, p, null, acc)
@@ -595,38 +668,38 @@ void PropertyListNotEmpty(XExpr s, XTripleCollector acc) :
     )?
   )*
 }
-XExpr Verb() : { XExpr p ;}
+Node Verb() : { Node p ;}
 {
-  ( p = XVarOrIri() | <KW_A> { p = XnRDFtype ; } )
+  ( p = VarOrXTerm() | <KW_A> { p = nRDFtype ; } )
   { return p ; }
 }
-void ObjectList(XExpr s, XExpr p, XPath path, XTripleCollector acc): { XExpr o ; }
+void ObjectList(Node s, Node p, Path path, TripleCollector acc): { Node o ; }
 {
   Object(s, p, path, acc)
   ( <COMMA> Object(s, p, path, acc) )*
 }
-void Object(XExpr s, XExpr p, XPath path, XTripleCollector acc): { XExpr o ; }
+void Object(Node s, Node p, Path path, TripleCollector acc): { Node o ; }
 {
-  { XElementPathBlock tempAcc = new XElementPathBlock() ; int mark = tempAcc.mark() ; }
+  { ElementPathBlock tempAcc = new ElementPathBlock() ; int mark = tempAcc.mark() ; }
   o = GraphNode(tempAcc)
   { insert(tempAcc, mark, s, p, path, o) ; insert(acc, tempAcc) ; }
 }
-void TriplesSameSubjectPath(XTripleCollector acc) : { XExpr s ; }
+void TriplesSameSubjectPath(TripleCollector acc) : { Node s ; }
 {
-  s = XVarOrTerm()
+  s = VarOrXTerm()
   PropertyListPathNotEmpty(s, acc)
 |
-  { XElementPathBlock tempAcc = new XElementPathBlock() ; }
+  { ElementPathBlock tempAcc = new ElementPathBlock() ; }
   s = TriplesNodePath(tempAcc)
   PropertyListPath(s, tempAcc)
   { insert(acc, tempAcc) ; }
 }
-void PropertyListPath(XExpr s, XTripleCollector acc) : { }
+void PropertyListPath(Node s, TripleCollector acc) : { }
 {
   ( PropertyListPathNotEmpty(s, acc) ) ?
 }
-void PropertyListPathNotEmpty(XExpr s, XTripleCollector acc) :
-    { XPath path = null ; XExpr p = null ; }
+void PropertyListPathNotEmpty(Node s, TripleCollector acc) :
+    { Path path = null ; Node p = null ; }
 {
   ( path = VerbPath()
   | p = VerbSimple()
@@ -642,84 +715,84 @@ void PropertyListPathNotEmpty(XExpr s, XTripleCollector acc) :
     )?
   )*
 }
-XPath VerbPath() : {XExpr p ; XPath path ; }
+Path VerbPath() : {Node p ; Path path ; }
 {
   path = Path() { return path ; }
 }
-XExpr VerbSimple() : { XExpr p ; }
+Node VerbSimple() : { Node p ; }
 {
-  p = XVar()
-  { return new XExpr( p ) ; }
+  p = VarOrXExpr()
+  { return p ; }
 }
-void ObjectListPath(XExpr s, XExpr p, XPath path, XTripleCollector acc): { XExpr o ; }
+void ObjectListPath(Node s, Node p, Path path, TripleCollector acc): { Node o ; }
 {
   ObjectPath(s, p, path, acc)
   ( <COMMA> ObjectPath(s, p, path, acc) )*
 }
-void ObjectPath(XExpr s, XExpr p, XPath path, XTripleCollector acc): { XExpr o ; }
+void ObjectPath(Node s, Node p, Path path, TripleCollector acc): { Node o ; }
 {
-  { XElementPathBlock tempAcc = new XElementPathBlock() ; int mark = tempAcc.mark() ; }
+  { ElementPathBlock tempAcc = new ElementPathBlock() ; int mark = tempAcc.mark() ; }
   o = GraphNodePath(tempAcc)
   { insert(tempAcc, mark, s, p, path, o) ; insert(acc, tempAcc) ; }
 }
-XPath Path() : { XPath p ; }
+Path Path() : { Path p ; }
 {
   p = PathAlternative() { return p ; }
 }
-XPath PathAlternative() : { XPath p1 , p2 ; }
+Path PathAlternative() : { Path p1 , p2 ; }
 {
    p1 = PathSequence()
    (
       <VBAR> p2 = PathSequence()
-      { p1 = new XP_Alt(p1, p2); }
+      { p1 = new P_Alt(p1, p2); }
    )*
    { return p1 ; }
 }
-XPath PathSequence() : { XPath p1 , p2 ; }
+Path PathSequence() : { Path p1 , p2 ; }
 {
     p1 = PathEltOrInverse()
     ( <SLASH> p2 = PathEltOrInverse()
-      { p1 = new XP_Seq(p1, p2) ; }
+      { p1 = new P_Seq(p1, p2) ; }
     )*
    { return p1; }
 }
-XPath PathElt() : { XPath p ; }
+Path PathElt() : { Path p ; }
 {
    p = PathPrimary()
    ( p = PathMod(p) )?
    { return p ; }
 }
-XPath PathEltOrInverse() : { XPath p ; }
+Path PathEltOrInverse() : { Path p ; }
 {
    ( p = PathElt()
    | <CARAT>
      p = PathElt()
-     { p = new XP_Inverse(p) ; }
+     { p = PathFactory.pathInverse(p) ; }
    )
    { return p ; }
 }
-XPath PathMod(XPath p) : { long i1 ; long i2 ; }
+Path PathMod(Path p) : { }
 {
-   ( <QMARK> { return new XP_ZeroOrOne(p) ; }
-   | <STAR> { return new XP_ZeroOrMore1(p) ; }
-   | <PLUS> { return new XP_OneOrMore1(p) ; }
+   ( <QMARK> { return PathFactory.pathZeroOrOne(p) ; }
+   | <STAR> { return PathFactory.pathZeroOrMore1(p) ; }
+   | <PLUS> { return PathFactory.pathOneOrMore1(p) ; }
    )
 }
-XPath PathPrimary() : { XExpr expr ; XPath p ; }
+Path PathPrimary() : { String str ; Path p ; Node n ; }
 {
   (
-    expr = Xiri()
-     { p = new XP_Link(expr) ; }
+    n = Xiri()
+     { p = PathFactory.pathLink(n) ; }
   | <KW_A>
-     { p = new XP_Link(XnRDFtype) ; }
+     { p = PathFactory.pathLink(nRDFtype) ; }
   | <BANG> p = PathNegatedPropertySet()
   | <LPAREN> p = Path() <RPAREN>
   )
  { return p ; }
 }
-Path PathNegatedPropertySet() : { XP_Path0 p ; XP_NegPropSet pNegSet ; }
+Path PathNegatedPropertySet() : { P_Path0 p ; P_NegPropSet pNegSet ; }
 {
-  { pNegSet = new XP_NegPropSet() ; }
+  { pNegSet = new P_NegPropSet() ; }
   ( p = PathOneInPropertySet()
     { pNegSet.add(p) ; }
   | <LPAREN>
@@ -730,13 +803,13 @@ Path PathNegatedPropertySet() : { XP_Path0 p ; XP_NegPropSet pNegSet ; }
   )
   { return pNegSet ; }
 }
-XP_Path0 PathOneInPropertySet() : { XExpr expr ; }
+P_Path0 PathOneInPropertySet() : { Node n ; }
 {
-  ( expr = Xiri() { return new XP_Link(expr) ; }
-  | <KW_A> { return new XP_Link(XnRDFtype) ; }
+  ( n = Xiri() { return new P_Link(n) ; }
+  | <KW_A> { return new P_Link(nRDFtype) ; }
   | <CARAT>
-    ( expr = Xiri() { return new XP_ReverseLink(expr) ; }
-    | <KW_A> { return new XP_ReverseLink(XnRDFtype) ; }
+    ( n = Xiri() { return new P_ReverseLink(n) ; }
+    | <KW_A> { return new P_ReverseLink(nRDFtype) ; }
     )
   )
 }
@@ -745,358 +818,362 @@ long Integer() : {Token t ;}
     t = <INTEGER>
     { return integerValue(t.image) ; }
 }
-XExpr TriplesNode(XTripleCollectorMark acc) : { XExpr expr; }
+Node TriplesNode(TripleCollectorMark acc) : { Node n; }
 {
-  expr = Collection(acc) { return expr ; }
+  n = Collection(acc) { return n ; }
  |
-  expr = BlankNodePropertyList(acc) { return expr ; }
+  n = BlankNodePropertyList(acc) { return n ; }
 }
-XExpr BlankNodePropertyList(XTripleCollector acc) : { Token t ; }
+Node BlankNodePropertyList(TripleCollector acc) : { Token t ; }
 {
   t = <LBRACKET>
-    { XExpr expr = new XExpr( createBNode( t.beginLine, t.beginColumn) ) ; }
-  PropertyListNotEmpty(expr, acc)
+    { Node n = createBNode( t.beginLine, t.beginColumn) ; }
+  PropertyListNotEmpty(n, acc)
   <RBRACKET>
-    { return expr ; }
+    { return n; }
 }
-XExpr TriplesNodePath(TripleCollectorMark acc) : { XExpr expr ; }
+Node TriplesNodePath(TripleCollectorMark acc) : { Node n; }
 {
-  expr = CollectionPath(acc) { return expr ; }
+  n = CollectionPath(acc) { return n; }
  |
-  expr = BlankNodePropertyListPath(acc) { return expr ; }
+  n = BlankNodePropertyListPath(acc) { return n ; }
 }
-XExpr BlankNodePropertyListPath(XTripleCollector acc) : { Token t ; }
+Node BlankNodePropertyListPath(TripleCollector acc) : { Token t ; }
 {
   t = <LBRACKET>
-    { XExpr expr = createBNode( t.beginLine, t.beginColumn) ; }
-  PropertyListPathNotEmpty(expr, acc)
+    { Node n = createBNode( t.beginLine, t.beginColumn) ; }
+  PropertyListPathNotEmpty(n, acc)
   <RBRACKET>
-    { return expr ; }
+    { return n ; }
 }
-XExpr Collection(XTripleCollectorMark acc) :
-    { XExpr listHead = XnRDFnil ; XExpr lastCell = null ; int mark ; XExpr expr ; Token t ; }
+Node Collection(TripleCollectorMark acc) :
+    { Node listHead = nRDFnil ; Node lastCell = null ; int mark ; Node n ; Token t ; }
 {
   t = <LPAREN>
   { int beginLine = t.beginLine; int beginColumn = t.beginColumn; t = null; }
   (
-    { XExpr cell = new XExpr( createListNode( beginLine, beginColumn) );
-      if ( listHead == XnRDFnil )
+    { Node cell = createListNode( beginLine, beginColumn);
+      if ( listHead == nRDFnil )
          listHead = cell ;
       if ( lastCell != null )
-        insert(acc, lastCell, XnRDFrest, cell) ;
+        insert(acc, lastCell, nRDFrest, cell) ;
       mark = acc.mark() ;
     }
-    expr = GraphNode(acc)
+    n = GraphNode(acc)
     {
-      insert(acc, mark, cell, XnRDFfirst, expr) ;
+      insert(acc, mark, cell, nRDFfirst, n) ;
       lastCell = cell ;
     }
   ) +
   <RPAREN>
    { if ( lastCell != null )
-       insert(acc, lastCell, XnRDFrest, XnRDFnil) ;
+       insert(acc, lastCell, nRDFrest, nRDFnil) ;
      return listHead ; }
 }
-XExpr CollectionPath(XTripleCollectorMark acc) :
-    { XExpr listHead = XnRDFnil ; XExpr lastCell = null ; int mark ; XExpr expr ; Token t ; }
+Node CollectionPath(TripleCollectorMark acc) :
+    { Node listHead = nRDFnil ; Node lastCell = null ; int mark ; Node n ; Token t ; }
 {
   t = <LPAREN>
   { int beginLine = t.beginLine; int beginColumn = t.beginColumn; t = null; }
   (
-    { XExpr cell = new XExpr( createListNode( beginLine, beginColumn) );
-      if ( listHead == XnRDFnil )
+    { Node cell = createListNode( beginLine, beginColumn);
+      if ( listHead == nRDFnil )
          listHead = cell ;
       if ( lastCell != null )
-        insert(acc, lastCell, XnRDFrest, cell) ;
+        insert(acc, lastCell, nRDFrest, cell) ;
       mark = acc.mark() ;
     }
-    expr = GraphNodePath(acc)
+    n = GraphNodePath(acc)
     {
-      insert(acc, mark, cell, XnRDFfirst, expr) ;
+      insert(acc, mark, cell, nRDFfirst, n) ;
       lastCell = cell ;
     }
   ) +
   <RPAREN>
    { if ( lastCell != null )
-       insert(acc, lastCell, XnRDFrest, XnRDFnil) ;
+       insert(acc, lastCell, nRDFrest, nRDFnil) ;
      return listHead ; }
 }
-XExpr GraphNode(XTripleCollectorMark acc) : { XExpr expr ; }
+Node GraphNode(TripleCollectorMark acc) : { Node n; }
 {
-  expr = XVarOrTerm() { return expr ; }
+  n = VarOrXTerm() { return n ; }
  |
-  expr = TriplesNode(acc) { return expr ; }
+  n = TriplesNode(acc) { return n ; }
 }
-XExpr GraphNodePath(XTripleCollectorMark acc) : { XExpr expr ; }
+Node GraphNodePath(TripleCollectorMark acc) : { Node n; }
 {
-  expr = XVarOrTerm() { return expr ; }
+  n = VarOrXTerm() { return n ; }
  |
-  expr = TriplesNodePath(acc) { return expr ; }
+  n = TriplesNodePath(acc) { return n ; }
 }
-XExpr XVarOrTerm() : { XExpr expr ; }
+Node VarOrXTerm() : { Node n; }
 {
-  ( expr = XVar()
-  | expr = GraphTerm()
+  ( n = Var()
+  | n = XTerm()
   )
-  { return expr ; }
+  { return n ; }
 }
-XExpr XVarOrIri() : { XExpr expr ; }
+Node VarOrXIri() : { Node n; }
 {
-  ( expr = XVar()
-  | expr = Xiri()
+  ( n = VarOrXExpr()
+  | n = Xiri()
   )
-  { return expr ; }
-}
-XExpr XVarOrBlankNodeOrIri() : { XExpr expr ; }
-{
-  ( expr = XVar()  { return expr ; }
-  | expr = Xiri()  { return expr ; }
-  | { Node n; } n = BlankNode() { return new XExpr( n ) ; }
-  )
+  { return n ; }
 }
 Var Var() : { Token t ;}
 {
   ( t = <VAR1> | t = <VAR2> )
   { return createVariable(t.image, t.beginLine, t.beginColumn) ; }
 }
-XExpr XVar() : { Token t ;}
+Node VarOrXExpr() : { Node n;}
 {
- ( { Var v; } v = Var() { return new XExpr( v ); }
- | { XExpr expr; } expr = XExpression() { return expr; }
+ ( n = Var() 
+ | n = XExpr() 
  )
+ { return n ; }
 }
-XExpr GraphTerm() : { XExpr expr ; Node n ; }
+Node XNode() : { Node n; }
 {
-  expr = Xiri() { return expr ; }
-| expr = XRDFLiteral() { return expr ; }
-| n = NumericLiteral() { return new XExpr( n ) ; }
-| n = BooleanLiteral() { return new XExpr( n ) ; }
-| n = BlankNode() { return new XExpr( n ) ; }
-| <NIL> { return XnRDFnil ; }
+  ( n = XExpr() 
+  | n = XRDFLiteral()
+  | n = Xiri()
+  )
+  { return n; }
 }
-XExpr XExpression() : { XExpr expr ; }
+Node XExpr() : { Expr expr; }
 {
   <START_XEXPR>
   expr = Expression()
   <RBRACE>
-  { return expr ; }
+  {asSPARQLGenerateQuery().hasEmbeddedExpressions(true);}
+  { return new Node_XExpr(expr); }
 }
-XExpr Expression() : { XExpr expr ; }
+Node XTerm() : { Node n ; }
+{
+( n = XNode() 
+| n = NumericLiteral()
+| n = BooleanLiteral()
+| n = BlankNode() 
+| <NIL> { n = nRDFnil ; }
+)
+{ return n ; }
+}
+Expr Expression() : { Expr expr ; }
 {
   expr = ConditionalOrExpression()
   { return expr ; }
 }
-XExpr ConditionalOrExpression() : { XExpr expr1, expr2 ; }
+Expr ConditionalOrExpression() : { Expr expr1, expr2 ; }
 {
   expr1 = ConditionalAndExpression()
   ( <SC_OR> expr2 = ConditionalAndExpression()
-    { expr1 = new XE_LogicalOr(expr1, expr2) ; }
+    { expr1 = new E_LogicalOr(expr1, expr2) ; }
   )*
     { return expr1 ; }
 }
-XExpr ConditionalAndExpression() : { XExpr expr1, expr2 ;}
+Expr ConditionalAndExpression() : { Expr expr1, expr2 ;}
 {
   expr1 = ValueLogical()
   ( <SC_AND> expr2 = ValueLogical()
-    { expr1 = new XE_LogicalAnd(expr1, expr2) ; }
+    { expr1 = new E_LogicalAnd(expr1, expr2) ; }
   )*
     { return expr1 ; }
 }
-XExpr ValueLogical() : { XExpr expr ; }
+Expr ValueLogical() : { Expr expr ; }
 {
   expr = RelationalExpression()
     { return expr ; }
 }
-XExpr RelationalExpression() : { XExpr expr1, expr2 ; XExprList a ; }
+Expr RelationalExpression() : { Expr expr1, expr2 ; ExprList a ; }
 {
   expr1 = NumericExpression()
   (
     <EQ> expr2 = NumericExpression()
-      { expr1 = new XE_Equals(expr1, expr2) ; }
+      { expr1 = new E_Equals(expr1, expr2) ; }
   | <NE> expr2 = NumericExpression()
-      { expr1 = new XE_NotEquals(expr1, expr2) ; }
+      { expr1 = new E_NotEquals(expr1, expr2) ; }
   | <LT> expr2 = NumericExpression()
-      { expr1 = new XE_LessThan(expr1, expr2) ; }
+      { expr1 = new E_LessThan(expr1, expr2) ; }
   | <GT> expr2 = NumericExpression()
-      { expr1 = new XE_GreaterThan(expr1, expr2) ; }
+      { expr1 = new E_GreaterThan(expr1, expr2) ; }
   | <LE> expr2 = NumericExpression()
-      { expr1 = new XE_LessThanOrEqual(expr1, expr2) ; }
+      { expr1 = new E_LessThanOrEqual(expr1, expr2) ; }
   | <GE> expr2 = NumericExpression()
-      { expr1 = new XE_GreaterThanOrEqual(expr1, expr2) ; }
+      { expr1 = new E_GreaterThanOrEqual(expr1, expr2) ; }
   | <IN> a = ExpressionList()
-      { expr1 = new XE_OneOf(expr1, a) ; }
+      { expr1 = new E_OneOf(expr1, a) ; }
   | <NOT> <IN> a = ExpressionList()
-      { expr1 = new XE_NotOneOf(expr1, a) ; }
+      { expr1 = new E_NotOneOf(expr1, a) ; }
   )?
     { return expr1 ; }
 }
-XExpr NumericExpression () : { XExpr expr ; }
+Expr NumericExpression () : { Expr expr ; }
 {
   expr = AdditiveExpression()
     { return expr ; }
 }
-XExpr AdditiveExpression() : { XExpr expr1, expr2, expr3 ; boolean addition ; Node n ; }
+Expr AdditiveExpression() : { Expr expr1, expr2, expr3 ; boolean addition ; Node n ; }
 {
   expr1 = MultiplicativeExpression()
   ( <PLUS> expr2 = MultiplicativeExpression()
-    { expr1 = new XE_Add(expr1, expr2) ; }
+    { expr1 = new E_Add(expr1, expr2) ; }
   | <MINUS> expr2 = MultiplicativeExpression()
-    { expr1 = new XE_Subtract(expr1, expr2) ; }
+    { expr1 = new E_Subtract(expr1, expr2) ; }
   |
     (
       n = NumericLiteralPositive()
       {
          n = stripSign(n) ;
-         expr2 = new XExpr( asExpr(n) );
+         expr2 = asExpr(n);
          addition = true ;
       }
     |
       n = NumericLiteralNegative()
      {
          n = stripSign(n) ;
-         expr2 = new XExpr( asExpr(n) );
+         expr2 = asExpr(n);
          addition = false ;
      }
      )
     (
-      ( <STAR> expr3 = UnaryExpression() { expr2 = new XE_Multiply(expr2, expr3) ; } )
+      ( <STAR> expr3 = UnaryExpression() { expr2 = new E_Multiply(expr2, expr3) ; } )
     |
-      ( <SLASH> expr3 = UnaryExpression() { expr2 = new XE_Divide(expr2, expr3) ; } )
+      ( <SLASH> expr3 = UnaryExpression() { expr2 = new E_Divide(expr2, expr3) ; } )
     )*
     { if ( addition )
-         expr1 = new XE_Add(expr1, expr2) ;
+         expr1 = new E_Add(expr1, expr2) ;
       else
-         expr1 = new XE_Subtract(expr1, expr2) ;
+         expr1 = new E_Subtract(expr1, expr2) ;
     }
   )*
   { return expr1 ; }
 }
-XExpr MultiplicativeExpression() : { XExpr expr1, expr2 ; }
+Expr MultiplicativeExpression() : { Expr expr1, expr2 ; }
 {
   expr1 = UnaryExpression()
   ( <STAR> expr2 = UnaryExpression()
-    { expr1 = new XE_Multiply(expr1, expr2) ; }
+    { expr1 = new E_Multiply(expr1, expr2) ; }
   | <SLASH> expr2 = UnaryExpression()
-    { expr1 = new XE_Divide(expr1, expr2) ; }
+    { expr1 = new E_Divide(expr1, expr2) ; }
   )*
     { return expr1 ; }
 }
-XExpr UnaryExpression() : { XExpr expr ; }
+Expr UnaryExpression() : { Expr expr ; }
 {
   <BANG> expr = PrimaryExpression()
-    { return new XE_LogicalNot(expr) ; }
-  | <PLUS> expr = PrimaryExpression() { return new XE_UnaryPlus(expr) ; }
-  | <MINUS> expr = PrimaryExpression() { return new XE_UnaryMinus(expr) ; }
+    { return new E_LogicalNot(expr) ; }
+  | <PLUS> expr = PrimaryExpression() { return new E_UnaryPlus(expr) ; }
+  | <MINUS> expr = PrimaryExpression() { return new E_UnaryMinus(expr) ; }
   | expr = PrimaryExpression() { return expr ; }
 }
-XExpr PrimaryExpression() : { XExpr expr ; Node gn ; }
+Expr PrimaryExpression() : { Expr expr ; Node gn ; }
 {
   ( expr = BrackettedExpression() { return expr ; }
   | expr = BuiltInCall() { return expr ; }
   | expr = XiriOrFunction() { return expr ; }
-  | expr = XRDFLiteral() { return expr ; }
+  | gn = XRDFLiteral() { return asExpr(gn) ; }
   | gn = NumericLiteral() { return asExpr(gn) ; }
   | gn = BooleanLiteral() { return asExpr(gn) ; }
-  | expr = XVar() { return expr ; }
+  | gn = Var() { return asExpr(gn) ; }
   )
 }
-XExpr BrackettedExpression() : { XExpr expr ; }
+Expr BrackettedExpression() : { Expr expr ; }
 {
     <LPAREN> expr = Expression() <RPAREN> { return expr ; }
 }
-XExpr BuiltInCall() : { XExpr expr ; XExpr expr1 = null ; XExpr expr2 = null ;
-                       Node gn ; XExprList a ; }
+Expr BuiltInCall() : { Expr expr ; Expr expr1 = null ; Expr expr2 = null ;
+                       Node gn ; ExprList a ; }
 {
     expr = Aggregate() { return expr ; }
   |
     <STR> <LPAREN> expr = Expression() <RPAREN>
-    { return new XE_Str(expr) ; }
+    { return new E_Str(expr) ; }
   | <LANG> <LPAREN> expr = Expression() <RPAREN>
-    { return new XE_Lang(expr) ; }
+    { return new E_Lang(expr) ; }
   | <LANGMATCHES>
        <LPAREN> expr1 = Expression() <COMMA> expr2 = Expression() <RPAREN>
-    { return new XE_LangMatches(expr1, expr2) ; }
+    { return new E_LangMatches(expr1, expr2) ; }
   | <DTYPE> <LPAREN> expr = Expression() <RPAREN>
-    { return new XE_Datatype(expr) ; }
+    { return new E_Datatype(expr) ; }
   | <BOUND> <LPAREN> gn = Var() <RPAREN>
-    { return new XE_Bound(new ExprVar(gn)) ; }
+    { return new E_Bound(new ExprVar(gn)) ; }
   | <IRI> <LPAREN> expr = Expression() <RPAREN>
-    { return new XE_IRI(expr) ; }
+    { return new E_IRI(expr) ; }
   | <URI> <LPAREN> expr = Expression() <RPAREN>
-    { return new XE_URI(expr) ; }
+    { return new E_URI(expr) ; }
   | <BNODE>
     ( <LPAREN> expr1 = Expression() <RPAREN>
-      { return new XE_BNode(expr1) ; }
+      { return new E_BNode(expr1) ; }
     |
-      <NIL> { return new XE_BNode() ; }
+      <NIL> { return new E_BNode() ; }
     )
-  | <RAND> <NIL> { return new XE_Random() ; }
-  | <ABS> <LPAREN> expr1 = Expression() <RPAREN> { return new XE_NumAbs(expr1) ; }
-  | <CEIL> <LPAREN> expr1 = Expression() <RPAREN> { return new XE_NumCeiling(expr1) ; }
-  | <FLOOR> <LPAREN> expr1 = Expression() <RPAREN> { return new XE_NumFloor(expr1) ; }
-  | <ROUND> <LPAREN> expr1 = Expression() <RPAREN> { return new XE_NumRound(expr1) ; }
-  | <CONCAT> a = ExpressionList() { return new XE_StrConcat(a) ; }
+  | <RAND> <NIL> { return new E_Random() ; }
+  | <ABS> <LPAREN> expr1 = Expression() <RPAREN> { return new E_NumAbs(expr1) ; }
+  | <CEIL> <LPAREN> expr1 = Expression() <RPAREN> { return new E_NumCeiling(expr1) ; }
+  | <FLOOR> <LPAREN> expr1 = Expression() <RPAREN> { return new E_NumFloor(expr1) ; }
+  | <ROUND> <LPAREN> expr1 = Expression() <RPAREN> { return new E_NumRound(expr1) ; }
+  | <CONCAT> a = ExpressionList() { return new E_StrConcat(a) ; }
   | expr = SubstringExpression() { return expr ; }
-  | <STRLEN> <LPAREN> expr1 = Expression() <RPAREN> { return new XE_StrLength(expr1) ; }
+  | <STRLEN> <LPAREN> expr1 = Expression() <RPAREN> { return new E_StrLength(expr1) ; }
   | expr = StrReplaceExpression() { return expr ; }
-  | <UCASE> <LPAREN> expr1 = Expression() <RPAREN> { return new XE_StrUpperCase(expr1) ; }
-  | <LCASE> <LPAREN> expr1 = Expression() <RPAREN> { return new XE_StrLowerCase(expr1) ; }
-  | <ENCODE_FOR_URI> <LPAREN> expr1 = Expression() <RPAREN> { return new XE_StrEncodeForURI(expr1) ; }
+  | <UCASE> <LPAREN> expr1 = Expression() <RPAREN> { return new E_StrUpperCase(expr1) ; }
+  | <LCASE> <LPAREN> expr1 = Expression() <RPAREN> { return new E_StrLowerCase(expr1) ; }
+  | <ENCODE_FOR_URI> <LPAREN> expr1 = Expression() <RPAREN> { return new E_StrEncodeForURI(expr1) ; }
   | <CONTAINS> <LPAREN> expr1 = Expression() <COMMA> expr2 = Expression() <RPAREN>
-    { return new XE_StrContains(expr1, expr2) ; }
+    { return new E_StrContains(expr1, expr2) ; }
   | <STRSTARTS> <LPAREN> expr1 = Expression() <COMMA> expr2 = Expression() <RPAREN>
-    { return new XE_StrStartsWith(expr1, expr2) ; }
+    { return new E_StrStartsWith(expr1, expr2) ; }
   | <STRENDS> <LPAREN> expr1 = Expression() <COMMA> expr2 = Expression() <RPAREN>
-    { return new XE_StrEndsWith(expr1, expr2) ; }
+    { return new E_StrEndsWith(expr1, expr2) ; }
   | <STRBEFORE> <LPAREN> expr1 = Expression() <COMMA> expr2 = Expression() <RPAREN>
-    { return new XE_StrBefore(expr1, expr2) ; }
+    { return new E_StrBefore(expr1, expr2) ; }
   | <STRAFTER> <LPAREN> expr1 = Expression() <COMMA> expr2 = Expression() <RPAREN>
-    { return new XE_StrAfter(expr1, expr2) ; }
-  | <YEAR> <LPAREN> expr1 = Expression() <RPAREN> { return new XE_DateTimeYear(expr1) ; }
-  | <MONTH> <LPAREN> expr1 = Expression() <RPAREN> { return new XE_DateTimeMonth(expr1) ; }
-  | <DAY> <LPAREN> expr1 = Expression() <RPAREN> { return new XE_DateTimeDay(expr1) ; }
-  | <HOURS> <LPAREN> expr1 = Expression() <RPAREN> { return new XE_DateTimeHours(expr1) ; }
-  | <MINUTES> <LPAREN> expr1 = Expression() <RPAREN> { return new XE_DateTimeMinutes(expr1) ; }
-  | <SECONDS> <LPAREN> expr1 = Expression() <RPAREN> { return new XE_DateTimeSeconds(expr1) ; }
-  | <TIMEZONE> <LPAREN> expr1 = Expression() <RPAREN> { return new XE_DateTimeTimezone(expr1) ; }
-  | <TZ> <LPAREN> expr1 = Expression() <RPAREN> { return new XE_DateTimeTZ(expr1) ; }
-  | <NOW> <NIL> { return new XE_Now() ; }
-  | <UUID> <NIL> { return new XE_UUID() ; }
-  | <STRUUID> <NIL> { return new XE_StrUUID() ; }
-  | <MD5> <LPAREN> expr1 = Expression() <RPAREN> { return new XE_MD5(expr1) ; }
-  | <SHA1> <LPAREN> expr1 = Expression() <RPAREN> { return new XE_SHA1(expr1) ; }
-  | <SHA256> <LPAREN> expr1 = Expression() <RPAREN> { return new XE_SHA256(expr1) ; }
-  | <SHA384> <LPAREN> expr1 = Expression() <RPAREN> { return new XE_SHA384(expr1) ; }
-  | <SHA512> <LPAREN> expr1 = Expression() <RPAREN> { return new XE_SHA512(expr1) ; }
+    { return new E_StrAfter(expr1, expr2) ; }
+  | <YEAR> <LPAREN> expr1 = Expression() <RPAREN> { return new E_DateTimeYear(expr1) ; }
+  | <MONTH> <LPAREN> expr1 = Expression() <RPAREN> { return new E_DateTimeMonth(expr1) ; }
+  | <DAY> <LPAREN> expr1 = Expression() <RPAREN> { return new E_DateTimeDay(expr1) ; }
+  | <HOURS> <LPAREN> expr1 = Expression() <RPAREN> { return new E_DateTimeHours(expr1) ; }
+  | <MINUTES> <LPAREN> expr1 = Expression() <RPAREN> { return new E_DateTimeMinutes(expr1) ; }
+  | <SECONDS> <LPAREN> expr1 = Expression() <RPAREN> { return new E_DateTimeSeconds(expr1) ; }
+  | <TIMEZONE> <LPAREN> expr1 = Expression() <RPAREN> { return new E_DateTimeTimezone(expr1) ; }
+  | <TZ> <LPAREN> expr1 = Expression() <RPAREN> { return new E_DateTimeTZ(expr1) ; }
+  | <NOW> <NIL> { return new E_Now() ; }
+  | <UUID> <NIL> { return new E_UUID() ; }
+  | <STRUUID> <NIL> { return new E_StrUUID() ; }
+  | <MD5> <LPAREN> expr1 = Expression() <RPAREN> { return new E_MD5(expr1) ; }
+  | <SHA1> <LPAREN> expr1 = Expression() <RPAREN> { return new E_SHA1(expr1) ; }
+  | <SHA256> <LPAREN> expr1 = Expression() <RPAREN> { return new E_SHA256(expr1) ; }
+  | <SHA384> <LPAREN> expr1 = Expression() <RPAREN> { return new E_SHA384(expr1) ; }
+  | <SHA512> <LPAREN> expr1 = Expression() <RPAREN> { return new E_SHA512(expr1) ; }
   | <COALESCE> a = ExpressionList()
-    { return new XE_Coalesce(a) ; }
+    { return new E_Coalesce(a) ; }
   | <IF> <LPAREN> expr = Expression() <COMMA>
                   expr1 = Expression() <COMMA>
                   expr2 = Expression() <RPAREN>
-    { return new XE_Conditional(expr, expr1, expr2) ; }
+    { return new E_Conditional(expr, expr1, expr2) ; }
   | <STRLANG> <LPAREN> expr1 = Expression() <COMMA> expr2 = Expression() <RPAREN>
-    { return new XE_StrLang(expr1, expr2) ; }
+    { return new E_StrLang(expr1, expr2) ; }
   | <STRDT> <LPAREN> expr1 = Expression() <COMMA> expr2 = Expression() <RPAREN>
-    { return new XE_StrDatatype(expr1, expr2) ; }
+    { return new E_StrDatatype(expr1, expr2) ; }
   | <SAME_TERM> <LPAREN> expr1 = Expression() <COMMA> expr2 = Expression() <RPAREN>
-    { return new XE_SameTerm(expr1, expr2) ; }
+    { return new E_SameTerm(expr1, expr2) ; }
   | <IS_IRI> <LPAREN> expr = Expression() <RPAREN>
-    { return new XE_IsIRI(expr) ; }
+    { return new E_IsIRI(expr) ; }
   | <IS_URI> <LPAREN> expr = Expression() <RPAREN>
-    { return new XE_IsURI(expr) ; }
+    { return new E_IsURI(expr) ; }
   | <IS_BLANK> <LPAREN> expr = Expression() <RPAREN>
-    { return new XE_IsBlank(expr) ; }
+    { return new E_IsBlank(expr) ; }
   | <IS_LITERAL> <LPAREN> expr = Expression() <RPAREN>
-    { return new XE_IsLiteral(expr) ; }
+    { return new E_IsLiteral(expr) ; }
   | <IS_NUMERIC> <LPAREN> expr = Expression() <RPAREN>
-    { return new XE_IsNumeric(expr) ; }
+    { return new E_IsNumeric(expr) ; }
   |
     expr = RegexExpression() { return expr ; }
   | expr = ExistsFunc() { return expr ; }
   | expr = NotExistsFunc() { return expr ; }
 }
-XExpr RegexExpression() :
-{ XExpr expr ; XExpr patExpr = null ; XExpr flagsExpr = null ; }
+Expr RegexExpression() :
+{ Expr expr ; Expr patExpr = null ; Expr flagsExpr = null ; }
 {
     <REGEX>
     <LPAREN>
@@ -1105,10 +1182,10 @@ XExpr RegexExpression() :
       patExpr = Expression()
       ( <COMMA> flagsExpr = Expression() ) ?
     <RPAREN>
-      { return new XE_Regex(expr, patExpr, flagsExpr) ; }
+      { return new E_Regex(expr, patExpr, flagsExpr) ; }
 }
-XExpr SubstringExpression() :
-{ XExpr expr1 ; XExpr expr2 = null ; XExpr expr3 = null ; }
+Expr SubstringExpression() :
+{ Expr expr1 ; Expr expr2 = null ; Expr expr3 = null ; }
 {
     <SUBSTR>
     <LPAREN>
@@ -1117,10 +1194,10 @@ XExpr SubstringExpression() :
       expr2 = Expression()
       ( <COMMA> expr3 = Expression() ) ?
     <RPAREN>
-      { return new XE_StrSubstring(expr1, expr2, expr3) ; }
+      { return new E_StrSubstring(expr1, expr2, expr3) ; }
 }
-XExpr StrReplaceExpression() :
-{ XExpr expr1 ; XExpr expr2 = null ; XExpr expr3 = null ; XExpr expr4 = null ;}
+Expr StrReplaceExpression() :
+{ Expr expr1 ; Expr expr2 = null ; Expr expr3 = null ; Expr expr4 = null ;}
 {
   <REPLACE>
   <LPAREN>
@@ -1129,81 +1206,82 @@ XExpr StrReplaceExpression() :
   <COMMA> expr3 = Expression()
   ( <COMMA> expr4 = Expression() ) ?
   <RPAREN>
-  { return new XE_StrReplace(expr1,expr2,expr3,expr4) ; }
+  { return new E_StrReplace(expr1,expr2,expr3,expr4) ; }
 }
-XExpr ExistsFunc() : { Element el ; }
+Expr ExistsFunc() : { Element el ; }
 {
    <EXISTS>
    el = GroupGraphPattern()
-   { return new XE_Exists(el) ; }
+   { return createExprExists(el) ; }
 }
-XExpr NotExistsFunc() : { Element el ; }
+Expr NotExistsFunc() : { Element el ; }
 {
    <NOT> <EXISTS>
    el = GroupGraphPattern()
-   { return new E_NotExists(el) ; }
+   { return createExprNotExists(el) ; }
 }
-XExpr Aggregate() : { XAggregator agg = null ; XString sep = null ;
+Expr Aggregate() : { Aggregator agg = null ; String sep = null ;
                      boolean distinct = false ;
-                     XExpr expr = null ; XExpr expr2 = null ;
-                     XExprList a = new XExprList() ;
-                     XExprList ordered = new XExprList() ;
+                     Expr expr = null ; Expr expr2 = null ;
+                     ExprList a = new ExprList() ;
+                     ExprList ordered = new ExprList() ;
                      Token t ; }
 {
   ( t = <COUNT> <LPAREN>
     ( <DISTINCT> { distinct = true ; } )?
     ( <STAR> | expr = Expression() )
     <RPAREN>
-    { if ( expr == null ) { agg = XAggregatorFactory.createCount(distinct) ; }
-      if ( expr != null ) { agg = XAggregatorFactory.createCountExpr(distinct, expr) ; }
+    { if ( expr == null ) { agg = AggregatorFactory.createCount(distinct) ; }
+      if ( expr != null ) { agg = AggregatorFactory.createCountExpr(distinct, expr) ; }
     }
   | t = <SUM> <LPAREN> ( <DISTINCT> { distinct = true ; } )? expr = Expression() <RPAREN>
-    { agg = XAggregatorFactory.createSum(distinct, expr) ; }
+    { agg = AggregatorFactory.createSum(distinct, expr) ; }
   | t = <MIN> <LPAREN> ( <DISTINCT> { distinct = true ; } )? expr = Expression() <RPAREN>
-    { agg = XAggregatorFactory.createMin(distinct, expr) ; }
+    { agg = AggregatorFactory.createMin(distinct, expr) ; }
   | t = <MAX> <LPAREN> ( <DISTINCT> { distinct = true ; } )? expr = Expression() <RPAREN>
-    { agg = XAggregatorFactory.createMax(distinct, expr) ; }
+    { agg = AggregatorFactory.createMax(distinct, expr) ; }
   | t = <AVG> <LPAREN> ( <DISTINCT> { distinct = true ; } )? expr = Expression() <RPAREN>
-    { agg = XAggregatorFactory.createAvg(distinct, expr) ;
+    { agg = AggregatorFactory.createAvg(distinct, expr) ;
     }
   | t = <SAMPLE> <LPAREN> ( <DISTINCT> { distinct = true ; } )? expr = Expression() <RPAREN>
-    { agg = XAggregatorFactory.createSample(distinct, expr) ;}
+    { agg = AggregatorFactory.createSample(distinct, expr) ;}
   | t = <GROUP_CONCAT>
     <LPAREN>
     (t = <DISTINCT> { distinct = true ; })?
     expr = Expression() { a.add(expr) ; }
-    (<SEMICOLON> <SEPARATOR> <EQ> sep=XString())?
+    (<SEMICOLON> <SEPARATOR> <EQ> sep= String())?
     <RPAREN>
-    { agg = XAggregatorFactory.createGroupConcat(distinct, expr, sep, ordered) ; }
+    { agg = AggregatorFactory.createGroupConcat(distinct, expr, sep, ordered) ; }
    )
    {
      if ( ! allowAggregatesInExpressions )
             throwParseException("Aggregate expression not legal at this point",
                                  t.beginLine, t.beginColumn) ;
    }
-   { XExpr exprAgg = getQuery().allocXAggregate(agg) ;
+   { Expr exprAgg = getQuery().allocAggregate(agg) ;
      return exprAgg ; }
 }
-XExpr XiriOrFunction() : { XIRIref iri ; XExprList a = null ;
-                         XExprList params = null ;
+Expr XiriOrFunction() : { Node iri ; ExprList a = null ;
+                         ExprList params = null ;
                          boolean distinct = false ; }
 {
   iri = Xiri()
   (a = ArgList())?
-  { if ( a == null )
-       return iri ;
-    
-    if ( !iri.isString() ) {
-      throwParseException("Custom expression not legal in place of a function IRI : "+iri, -1, -1) ;
+  { if ( a == null ) {
+        return asExpr(iri) ;
     }
-    if ( AggregateRegistry.isRegistered(iri.asString()) ) {
+    String i = ((Node_URI) iri).getURI();
+    if ( AggregateRegistry.isRegistered(i) ) {
+        if ( iri instanceof Node_XURI ) {
+          throwParseException("Custom expressions not legal at this point :   "+iri, -1, -1) ;
+        }
          if ( ! allowAggregatesInExpressions )
-            throwParseException("Aggregate expression not legal at this point : "+iri, -1, -1) ;
-         XAggregator agg = XAggregatorFactory.createCustom(true, false, iri, a) ;
-         XExpr exprAgg = getQuery().allocXAggregate(agg) ;
+            throwParseException("Aggregate expression not legal at this point : "+i, -1, -1) ;
+         Aggregator agg = AggregatorFactory.createCustom(true, false, i, a) ;
+         Expr exprAgg = getQuery().allocAggregate(agg) ;
          return exprAgg ;
       }
-    return new XE_Function(iri, a) ;
+    return new E_Function(i, a) ;
   }
 }
 Node RDFLiteral() : { Token t ; String lex = null ; }
@@ -1217,16 +1295,15 @@ Node RDFLiteral() : { Token t ; String lex = null ; }
   )?
     { return createLiteral(lex, lang, uri) ; }
 }
-XRDFLiteral XRDFLiteral() : { Token t ; XString xstring; }
+Node XRDFLiteral() : { Token t ; Node_XLiteral.Builder n = new Node_XLiteral.Builder(); }
 {
-  xstring = XString()
-  { String lang = null ; XIRIref xiri = null ; }
-  (
-    ( t = <LANGTAG> { lang = stripChars(t.image, 1) ; } )
-  |
-    ( <DATATYPE> xiri = XIRIREF() )
+  XString(n)
+  { String lang = null ; Node xiri = null ; }
+  ( t = <LANGTAG> { n.setLang( stripChars(t.image, 1) ); }
+  | <DATATYPE> xiri = Xiri()  { n.setDatatype( xiri ); } 
   )?
-    { return new XRDFLiteral(xstring, lang, xiri) ; }
+  {asSPARQLGenerateQuery().hasEmbeddedExpressions(true);}
+  { return n.build(); }
 }
 Node NumericLiteral() : { Node n ; }
 {
@@ -1273,183 +1350,132 @@ String String() : { Token t ; String lex ; }
       return lex ;
     }
 }
-XString XString() : { XString xstring ; }
+void XString( Node_XLiteral.Builder n ) : { }
 {
-  ( 
-    xstring = XString_Literal1()
-  | xstring = XString_Literal2()
-  | xstring = XString_Literal_Long1()
-  | xstring = XString_Literal_Long2()
+  ( XString_Literal1( n )
+  | XString_Literal2( n )
+  | XString_Literal_Long1( n )
+  | XString_Literal_Long2( n )
   )
-    {
-      return xstring;
-    }
 }
-XString XString_Literal1() : { XString xstring = new XString(); Token t; }
+void XString_Literal1( Node_XLiteral.Builder n ) : { Token t; }
 {
   ( t = <STRING_LITERAL1> 
     { String lex = stripQuotes(t.image) ;
-      xstring.add( unescapeStr(lex, t.beginLine, t.beginColumn) ) ; }
+      n.add( unescapeStr(lex, t.beginLine, t.beginColumn) ) ; }
   |
     t = <STRING_LITERAL1_START>
-    { String lex = stripQuotes(t.image,1,2) ;
-      xstring.add( unescapeStr(lex, t.beginLine, t.beginColumn) ) ; }
-    XString_Literal1_Sub( xstring )
+    { String lex = stripQuotes(t.image) ;
+      n.add( unescapeStr(lex, t.beginLine, t.beginColumn) ) ; }
+    XString_Literal1_Sub( n )
   )
-  { return xstring; }
 }
-XString XString_Literal1_Sub(XString xstring) : { Token t; XExpr e; }
+void XString_Literal1_Sub( Node_XLiteral.Builder n ) : { Token t; Expr e; }
 { 
-  e = Expression() { xstring.add( e ); }
-  ( 
-   ( t = <SUB_000000>
-   | t = <SUB_100000>
-   | t = <SUB_000100>
-   | t = <SUB_000001>
-   | t = <SUB_100001>
-   | t = <SUB_000101>
-   ) 
-   { String lex = stripQuotes(t.image,1,2) ;
-    xstring.add( unescapeStr(lex, t.beginLine, t.beginColumn) ) ; }
-    XString_Literal1_Sub( xstring )
-  | 
-     t = <STRING_LITERAL1_END> 
+  {SetState(DEFAULT);}
+  e = Expression() { n.add( e );}
+  {SetState(PARSING_XS1);}
+  (
+     t = <S1> 
      { String lex = stripQuotes(t.image) ;
-       xstring.add( unescapeStr(lex, t.beginLine, t.beginColumn) ) ; }
+     n.add( unescapeStr(lex, t.beginLine, t.beginColumn) ) ; }
+     XString_Literal1_Sub( n )
+  | 
+    t = <STRING_LITERAL1_END>
+     { String lex = stripQuotes(t.image) ;
+       n.add( unescapeStr(lex, t.beginLine, t.beginColumn) ) ; }
   )
-  { return xstring; }
+  {SetState(DEFAULT);}
 }
-XString XString_Literal2() : { XString xstring = new XString(); Token t; }
+void XString_Literal2(Node_XLiteral.Builder n) : { Token t; }
 {
   ( t = <STRING_LITERAL2> 
     { String lex = stripQuotes(t.image) ;
-      xstring.add( unescapeStr(lex, t.beginLine, t.beginColumn) ) ; }
+      n.add( unescapeStr(lex, t.beginLine, t.beginColumn) ) ; }
   |
     t = <STRING_LITERAL2_START>
-    { String lex = stripQuotes(t.image,1,2) ;
-      xstring.add( unescapeStr(lex, t.beginLine, t.beginColumn) ) ; }
-    XString_Literal2_Sub( xstring )
+    { String lex = stripQuotes(t.image) ;
+      n.add( unescapeStr(lex, t.beginLine, t.beginColumn) ) ; }
+    XString_Literal2_Sub( n )
   )
-  { return xstring; }
 }
-XString XString_Literal2_Sub(XString xstring) : { Token t; XExpr e; }
+void XString_Literal2_Sub(Node_XLiteral.Builder n) : { Token t; Expr e; }
 { 
-  e = Expression() { xstring.add( e ); }
+  {SetState(DEFAULT);}
+  e = Expression() { n.add( e ); }
+  {SetState(PARSING_XS2);}
   (
-   ( t = <SUB_000000>
-   | t = <SUB_010000>
-   | t = <SUB_001000>
-   | t = <SUB_000001>
-   | t = <SUB_010001>
-   | t = <SUB_001001>
-   ) { xstring.add( stripQuotes(t.image,1,2) ); }
-    XString_Literal2_Sub( xstring )
+   ( t = <S2>
+   ) { n.add( stripQuotes(t.image) ); }
+    XString_Literal2_Sub( n )
   | 
-     t = <STRING_LITERAL2_END> { xstring.add( stripQuotes(t.image) ); }
+     t = <STRING_LITERAL2_END> {n.add( stripQuotes(t.image) ); }
   )
-  { return xstring; }
+  {SetState(DEFAULT);}
 }
-XString XString_Literal_Long1() : { XString xstring = new XString(); Token t; }
+void XString_Literal_Long1( Node_XLiteral.Builder n ) : { Token t; }
 {
   ( t = <STRING_LITERAL_LONG1> 
     { String lex = stripQuotes3(t.image) ;
-      xstring.add( unescapeStr(lex, t.beginLine, t.beginColumn) ) ; }
+      n.add( unescapeStr(lex, t.beginLine, t.beginColumn) ) ; }
   |
     t = <STRING_LITERAL_LONG1_START> 
-    { String lex = stripQuotes(t.image,3,2) ;
-      xstring.add( unescapeStr(lex, t.beginLine, t.beginColumn) ) ; }
-    XString_Literal_Long1_Sub( xstring )
+    { String lex = stripQuotes(t.image,3,1) ;
+      n.add( unescapeStr(lex, t.beginLine, t.beginColumn) ) ; }
+    XString_Literal_Long1_Sub( n )
   )
-  { return xstring; }
 }
-XString XString_Literal_Long1_Sub(XString xstring) : { Token t; XExpr e; }
+void XString_Literal_Long1_Sub(Node_XLiteral.Builder n) : { Token t; Expr e; }
 { 
-  e = Expression() { xstring.add( e ); }
+  {SetState(DEFAULT);}
+  e = Expression() { n.add( e ); }
+  {SetState(PARSING_XL1);}
   ( 
-   ( t = <SUB_000000>
-   | t = <SUB_100000>
-   | t = <SUB_010000>
-   | t = <SUB_000100>
-   | t = <SUB_000010>
-   | t = <SUB_000001>
-   | t = <SUB_100010>
-   | t = <SUB_100001>
-   | t = <SUB_010100>
-   | t = <SUB_010010>
-   | t = <SUB_010001>
-   | t = <SUB_000110>
-   | t = <SUB_000101>
-   | t = <SUB_000011>
-   | t = <SUB_010110>
-   | t = <SUB_010101>
-   | t = <SUB_000111>
-   | t = <SUB_010111>
-   )
-    { String lex = stripQuotes(t.image,1,2) ;
-      xstring.add( unescapeStr(lex, t.beginLine, t.beginColumn) ) ; }
-    XString_Literal_Long1_Sub( xstring )
+    t = <L1> 
+    { String lex = stripQuotes(t.image) ;
+      n.add( unescapeStr(lex, t.beginLine, t.beginColumn) ) ; }
+    XString_Literal_Long1_Sub( n )
   | 
      t = <STRING_LITERAL_LONG1_END>
      { String lex = stripQuotes(t.image,1,3) ;
-       xstring.add( unescapeStr(lex, t.beginLine, t.beginColumn) ) ; }
+       n.add( unescapeStr(lex, t.beginLine, t.beginColumn) ) ; }
   )
-  { return xstring; }
+  {SetState(DEFAULT);}
 }
-XString XString_Literal_Long2() : { XString xstring = new XString(); Token t; }
+void XString_Literal_Long2( Node_XLiteral.Builder n ) : { Token t; }
 {
   ( t = <STRING_LITERAL_LONG2> 
     { String lex = stripQuotes3(t.image) ;
-      xstring.add( unescapeStr(lex, t.beginLine, t.beginColumn) ) ; }
+      n.add( unescapeStr(lex, t.beginLine, t.beginColumn) ) ; }
   |
     t = <STRING_LITERAL_LONG2_START> 
-    { String lex = stripQuotes(t.image,3,2) ;
-      xstring.add( unescapeStr(lex, t.beginLine, t.beginColumn) ) ; }
-    XString_Literal_Long2_Sub( xstring )
+    { String lex = stripQuotes(t.image,3,1) ;
+      n.add( unescapeStr(lex, t.beginLine, t.beginColumn) ) ; }
+    XString_Literal_Long2_Sub( n )
   )
-  { return xstring; }
 }
-XString XString_Literal_Long2_Sub(XString xstring) : { Token t; Expr e; }
+void XString_Literal_Long2_Sub(Node_XLiteral.Builder n) : { Token t; Expr e; }
 {  
-  e = Expression() { xstring.add( e ); }
+  {SetState(DEFAULT);}
+  e = Expression() { n.add( e ); }
+  {SetState(PARSING_XL2);}
   (
-   ( t = <SUB_000000>
-   | t = <SUB_100000>
-   | t = <SUB_010000>
-   | t = <SUB_001000>
-   | t = <SUB_000010>
-   | t = <SUB_000001>
-   | t = <SUB_101000>
-   | t = <SUB_100010>
-   | t = <SUB_100001>
-   | t = <SUB_010010>
-   | t = <SUB_010001>
-   | t = <SUB_001010>
-   | t = <SUB_001001>
-   | t = <SUB_000011>
-   | t = <SUB_101010>
-   | t = <SUB_101001>
-   | t = <SUB_001011>
-   | t = <SUB_101011>
-   ) { xstring.add( stripQuotes(t.image,1,2) ); }
-    XString_Literal_Long2_Sub( xstring )
+    t = <L2> 
+   { n.add( stripQuotes(t.image) ); }
+    XString_Literal_Long2_Sub( n )
   | 
-     t = <STRING_LITERAL_LONG2_END>
+    t = <STRING_LITERAL_LONG2_END>
      { String lex = stripQuotes(t.image,1,3) ;
-       xstring.add( unescapeStr(lex, t.beginLine, t.beginColumn) ) ; }
+       n.add( unescapeStr(lex, t.beginLine, t.beginColumn) ) ; }
   )
-  { return xstring; }
+  {SetState(DEFAULT);}
 }
 String iri() : { String iri ; }
 {
-  iri = IRIREF() { return iri ; }
-|
-  iri = PrefixedName() { return iri ; }
-}
-XIRIref Xiri() : { XIRIref iri ; }
-{
-  iri = XIRIREF() { return iri ; }
-|
-  iri = XPrefixedName() { return iri ; }
+  ( iri = IRIREF() 
+  | iri = PrefixedName() 
+  )
+  { return iri ; }
 }
 String PrefixedName() : { Token t ; }
 {
@@ -1459,33 +1485,6 @@ String PrefixedName() : { Token t ; }
     t = <PNAME_NS>
     { return resolvePName(t.image, t.beginLine, t.beginColumn) ; }
   )
-}
-XIRIref XPrefixedName() : { Token t ; XIRIref ref = new XIRIref(); }
-{
-  ( t = <PNAME_LN> 
-    { ref.add( resolvePName(t.image, t.beginLine, t.beginColumn) ) ; return ref ; }
-  |
-    t = <PNAME_NS> 
-    { ref.add( resolvePName(t.image, t.beginLine, t.beginColumn) ) ; return ref ; }
-  |
-    t = <PNAME_LN_START>
-    { String lex = resolvePName( stripQuotes(t.image,0,2) , t.beginLine, t.beginColumn) ;
-      ref.add( lex ) ; }
-    XPrefixedName_Sub( ref )
-  )
-  { return ref; }
-}
-XIRIref XPrefixedName_Sub(IRIref ref) : { Token t; XExpr e; }
-{ 
-  e = Expression() { ref.add( e ); }
-  (
-    t = <PNAME_LN_SUB>
-    { ref.add( stripQuotes(t.image,1,2) ); }
-    XPrefixedName_Sub( ref )
-  | 
-     t = <PNAME_LN_END> { ref.add( stripQuotes(t.image,1,0) ); }
-  )
-  { return ref; }
 }
 Node BlankNode() : { Token t = null ; }
 {
@@ -1499,34 +1498,39 @@ String IRIREF() : { Token t ; }
   t = <IRIref>
   { return resolveQuotedIRI(t.image, t.beginLine, t.beginColumn) ; }
 }
-XIRIref XIRIREF() : { XIRIref ref = new XIRIref(); Token t;}
+Node Xiri() : { String s; Token t;}
 {
  (
-  t = <IRIref>
-  { ref.add( resolveQuotedIRI(t.image, t.beginLine, t.beginColumn) ); }
+  s = iri()
+  { return createNode( s ); }
  |
-  t = <XIRIref_START> { ref.add( stripQuotes(t.image,1,2) ); }
-  ref = XIRIREF_Sub( ref )
+  { Node_XURI.Builder iri = new Node_XURI.Builder(); }
+  t = <XIRIref_START>
+  { iri.add( stripQuotes(t.image) ); }
+  XIRIREF_Sub( iri )
+  {asSPARQLGenerateQuery().hasEmbeddedExpressions(true);}
+  { return iri.build() ; }
  )
-  { return ref; }
 }
-XIRIref XIRIREF_Sub(XIRIref ref) : {Token t; XExpr e;}
+void XIRIREF_Sub(Node_XURI.Builder iri) : {Token t; Expr e;}
 {
-  e = Expression() { ref.add( e ); }
+  {SetState(DEFAULT);} 
+  e = Expression() { iri.add( e ); }
+  {SetState(PARSING_XIRI);}
   ( 
-   ( t = <SUB_000000>
-   | t = <SUB_010000>
-   | t = <SUB_001000>
-   | t = <SUB_000001>
-   | t = <SUB_010001>
-   | t = <SUB_001001>
-   ) { ref.add( stripQuotes(t.image,1,2) ); }
-    ref = XIRIREF_Sub( ref )
+    t = <RI> 
+   { iri.add( stripQuotes(t.image) ); }
+    XIRIREF_Sub( iri )
   | 
-     t = <XIRIref_END> { ref.add( stripQuotes(t.image) ); }
+    t = <XIRIref_END> {iri.add( stripQuotes(t.image) ); }
   )
-  { return ref; }
+  {SetState(DEFAULT);} 
 }
+TOKEN_MGR_DECLS : {
+// Required by SetState
+void backup(int n) { input_stream.backup(n); }
+}
+
 SKIP : { " " | "\t" | "\n" | "\r" | "\f" }
 SPECIAL_TOKEN :
 { <SINGLE_LINE_COMMENT: "#" (~["\n","\r"])* ("\n"|"\r"|"\r\n")? > }
@@ -1539,21 +1543,10 @@ TOKEN: {
 }
 TOKEN:
 {
-   <IRIref: "<" (~[ ">","<", "\"", "{", "}", "$", "^", "\\", "|", "`",
-                      "\u0000"-"\u0020"])* ">" >
-|  <XIRIref_START: "<" (~[ ">","<", "\"", "{", "}", "$", "^", "\\", "|", "`", "\u0000"-"\u0020"])* "${" >
-|  <XIRIref_END: "}" (~[ ">","<", "\"", "{", "}", "$", "^", "\\", "|", "`", "\u0000"-"\u0020"])* ">" >
-| <PNAME_NS: (<PN_PREFIX>)? ":" >
-| <PNAME_LN: <PNAME_NS> <PN_LOCAL> >
-| <PNAME_LN_START: <PNAME_NS> ( (<PN_CHARS_U> | ":" | ["0"-"9"] | <PLX> )
-                                   (<PN_CHARS> | "." |":" | <PLX> )* 
-                                 )? "${" >
-| <PNAME_LN_SUB: "}" ( <PN_CHARS> | "." |":" | <PLX> )* "${" >
-| <PNAME_LN_END: "}" ( (<PN_CHARS> | "." |":" | <PLX> )*
-                          (<PN_CHARS> | ":" | <PLX>) )? >
-| <BLANK_NODE_LABEL: "_:" (<PN_CHARS_U> | ["0"-"9"]) ((<PN_CHARS>|".")* <PN_CHARS>)? >
+  <BLANK_NODE_LABEL: "_:" (<PN_CHARS_U> | ["0"-"9"]) ((<PN_CHARS>|".")* <PN_CHARS>)? >
 | <VAR1: "?" <VARNAME> >
 | <VAR2: "$" <VARNAME> >
+| <START_XEXPR: ( "$" | "?" ) "{" >
 | <LANGTAG: <AT> (<A2Z>)+("-" (<A2ZN>)+)* >
 | <#A2Z: ["a"-"z","A"-"Z"]>
 | <#A2ZN: ["a"-"z","A"-"Z","0"-"9"]>
@@ -1562,9 +1555,9 @@ TOKEN : { <KW_A: "a" > }
 TOKEN [IGNORE_CASE] :
 {
    < GENERATE: "generate" >
-|  < SOURCE: "source" >
+|  < SOURCE: "source" | "look up" >
 |  < ACCEPT: "accept" >
-|  < ITERATOR: "iterator" >
+|  < ITERATOR: "iterator" | "iterate">
 }
 TOKEN [IGNORE_CASE] :
 {
@@ -1586,7 +1579,7 @@ TOKEN [IGNORE_CASE] :
 | < DESC: "desc" >
 | < NAMED: "named" >
 | < FROM: "from" >
-| < WHERE: "where" >
+| < WHERE: "where" | "wherever" >
 | < AND: "and" >
 | < GRAPH: "graph" >
 | < OPTIONAL: "optional" >
@@ -1712,66 +1705,59 @@ TOKEN :
 | < #EXPONENT: ["e","E"] (["+","-"])? (["0"-"9"])+ >
 | < #QUOTE_3D: "\"\"\"">
 | < #QUOTE_3S: "'''">
-| <ECHAR: "\\" ( "t"|"b"|"n"|"r"|"f"|"\\"|"\""|"'"|"$") >
-| <STRING_LITERAL1: "'" ( (~["'","\\","\n","\r","$"]) | <ECHAR> )* "'" >
-| <STRING_LITERAL1_START: "'" ( (~["'","\\","\n","\r","$"]) | <ECHAR> )* "${" >
-| <STRING_LITERAL1_END: "}" ( (~["'","\\","\n","\r","$"]) | <ECHAR> )* "'" >
-| <STRING_LITERAL2: "\"" ( (~["\"","\\","\n","\r","$"]) | <ECHAR> )* "\"" >
-| <STRING_LITERAL2_START: "\"" ( (~["\"","\\","\n","\r","$"]) | <ECHAR> )* "${" >
-| <STRING_LITERAL2_END: "}" ( (~["\"","\\","\n","\r","$"]) | <ECHAR> )* "\"" >
+| <ECHAR: "\\" ( "t"|"b"|"n"|"r"|"f"|"\\"|"\""|"'"|"{"|"}") >
+| <STRING_LITERAL1: "'" ( (~["'","\\","\n","\r","{"]) | <ECHAR> )* "'" >
+| <STRING_LITERAL1_START: "'" ( (~["'","\\","\n","\r","{"]) | <ECHAR> )* "{"  >
+| <STRING_LITERAL2: "\"" ( (~["\"","\\","\n","\r","{"]) | <ECHAR> )* "\"" >
+| <STRING_LITERAL2_START: "\"" ( (~["\"","\\","\n","\r","{"]) | <ECHAR> )* "{" >
 | <STRING_LITERAL_LONG1:
      <QUOTE_3S>
-      ( ("'" | "''")? (~["'","\\","$"] | <ECHAR> ))*
+      ( ("'" | "''")? (~["'","\\","{"] | <ECHAR> ))*
      <QUOTE_3S> >
 | <STRING_LITERAL_LONG1_START:
      <QUOTE_3S>
-      ( ("'" | "''")? (~["'","\\","$"] | <ECHAR> ))*
+      ( ("'" | "''")? (~["'","\\","{"] | <ECHAR> ))*
      "${" >
-| <STRING_LITERAL_LONG1_END:
-     "}"
-      ( ("'" | "''")? (~["'","\\","$"] | <ECHAR> ))*
-     <QUOTE_3S> >
 | <STRING_LITERAL_LONG2:
      <QUOTE_3D>
-      ( ("\"" | "\"\"")? (~["\"","\\","$"] | <ECHAR> ))*
+      ( ("\"" | "\"\"")? (~["\"","\\","{"] | <ECHAR> ))*
      <QUOTE_3D> >
 | < STRING_LITERAL_LONG2_START:
      <QUOTE_3D>
-      ( ("\"" | "\"\"")? (~["\"","\\","$"] | <ECHAR> ))*
+      ( ("\"" | "\"\"")? (~["\"","\\","{"] | <ECHAR> ))*
      "${" >
+|  <IRIref: "<" (~[ ">","<", "\"", "{", "}", "{", "^", "\\", "|", "`",
+                      "\u0000"-"\u0020"])* ">" >
+|  <XIRIref_START: "<" (~[ ">","<", "\"", "{", "}", "{", "^", "\\", "|", "`", "\u0000"-"\u0020"])* "{" >
+| <PNAME_NS: (<PN_PREFIX>)? ":" >
+| <PNAME_LN: <PNAME_NS> <PN_LOCAL> >
+}
+<PARSING_XS1> TOKEN : {
+  <S1: "}" ( (~["'","\\","\n","\r","{"]) | <ECHAR> )* "{" >
+| <STRING_LITERAL1_END: "}" ( (~["'","\\","\n","\r","{"]) | <ECHAR> )* "'" >
+} 
+<PARSING_XS2> TOKEN : {
+  <S2: "}" ( (~["\"","\\","\n","\r","{"]) | <ECHAR> )* "{" >
+| <STRING_LITERAL2_END: "}" ( (~["\"","\\","\n","\r","{"]) | <ECHAR> )* "\"" >
+} 
+<PARSING_XL1> TOKEN : {
+  <L1: "}" ( ("'" | "''")? (~["'","\\","{"]) | <ECHAR> )* "{" >
+| <STRING_LITERAL_LONG1_END:
+     "}"
+      ( ("'" | "''")? (~["'","\\","{"] | <ECHAR> ))*
+     <QUOTE_3S> >
+} 
+<PARSING_XL2> TOKEN : {
+  <L2: "}" ( ("\"" | "\"\"")? (~["\"","\\","{"] | <ECHAR> ))* "{" >
 | < STRING_LITERAL_LONG2_END:
      "}"
-      ( ("\"" | "\"\"")? (~["\"","\\","$"] | <ECHAR> ))*
+      ( ("\"" | "\"\"")? (~["\"","\\","{"] | <ECHAR> ))*
      <QUOTE_3D> >
-}
-TOKEN : {
-  <SUB_000000: "}" ( ~[">", "<", "'", "\"", "{", "}", "$", "^", "\\", "|", "`", "\u0000"-"\u0020","\n","\r"] )* "${" >
-| <SUB_100000: "}" ( ("\"" | "\"\"")? ~[">", "<", "'", "\"", "{", "}", "$", "^", "\\", "|", "`", "\u0000"-"\u0020","\n","\r"] )* "${" >
-| <SUB_010000: "}" ( ("'" | "''")?    ~[">", "<", "'", "\"", "{", "}", "$", "^", "\\", "|", "`", "\u0000"-"\u0020","\n","\r"] )* "${" >
-| <SUB_001000: "}" ( ~[">", "<", "\"", "{", "}", "$", "^", "\\", "|", "`", "\u0000"-"\u0020","\n","\r"] )* "${" >
-| <SUB_000100: "}" ( ~[">", "<", "'", "{", "}", "$", "^", "\\", "|", "`", "\u0000"-"\u0020","\n","\r"] )* "${" >
-| <SUB_000010: "}" ( ~[">", "<", "'", "\"", "{", "}", "$", "^", "\\", "|", "`", "\u0000"-"\u0020"] )* "${" >
-| <SUB_000001: "}" ( ~["'", "\"", "$", "\\", "\n","\r"] | <ECHAR> )* "${" >
-| <SUB_101000: "}" ( ("\"" | "\"\"")? ~[">", "<", "\"", "{", "}", "$", "^", "\\", "|", "`", "\u0000"-"\u0020","\n","\r"] )* "${" >
-| <SUB_100010: "}" ( ("\"" | "\"\"")? ~[">", "<", "'", "\"", "{", "}", "$", "^", "\\", "|", "`", "\u0000"-"\u0020"] )* "${" >
-| <SUB_100001: "}" ( ("\"" | "\"\"")? ~["'", "\"", "$", "\\", "\n","\r"] | <ECHAR> )* "${" >
-| <SUB_010100: "}" ( ("'" | "''")?    ~[">", "<", "'", "{", "}", "$", "^", "\\", "|", "`", "\u0000"-"\u0020","\n","\r"] )* "${" >
-| <SUB_010010: "}" ( ("'" | "''")?    ~[">", "<", "'", "\"", "{", "}", "$", "^", "\\", "|", "`", "\u0000"-"\u0020"] )* "${" >
-| <SUB_010001: "}" ( ("'" | "''")?    ~["'", "\"", "$", "\\", "\n","\r"] | <ECHAR> )* "${" >
-| <SUB_001010: "}" ( ~[">", "<", "\"", "{", "}", "$", "^", "\\", "|", "`", "\u0000"-"\u0020"] )* "${" >
-| <SUB_001001: "}" ( ~["\"", "$", "\\", "\n","\r"] | <ECHAR> )* "${" >
-| <SUB_000110: "}" ( ~[">", "<", "'", "{", "}", "$", "^", "\\", "|", "`", "\u0000"-"\u0020"] )* "${" >
-| <SUB_000101: "}" ( ~["'", "$", "\\", "\n","\r"] | <ECHAR> )* "${" >
-| <SUB_000011: "}" ( ~["'", "\"", "$", "\\"] | <ECHAR> )* "${" >
-| <SUB_101010: "}" ( ("\"" | "\"\"")? ~[">", "<", "\"", "{", "}", "$", "^", "\\", "|", "`", "\u0000"-"\u0020"] )* "${" >
-| <SUB_101001: "}" ( ("\"" | "\"\"")? ~["\"", "$", "\\", "\n","\r"] | <ECHAR> )* "${" >
-| <SUB_010110: "}" ( ("'" | "''")?    ~[">", "<", "'", "{", "}", "$", "^", "\\", "|", "`", "\u0000"-"\u0020"] )* "${" >
-| <SUB_010101: "}" ( ("'" | "''")?    ~["'", "$", "\\", "\n","\r"] | <ECHAR> )* "${" >
-| <SUB_001011: "}" ( ~["\"", "$", "\\"] | <ECHAR> )* "${" >
-| <SUB_000111: "}" ( ~["'", "$", "\\"] | <ECHAR> )* "${" >
-| <SUB_101011: "}" ( ("\"" | "\"\"")? ~["\"", "$", "\\"] | <ECHAR> )* "${" >
-| <SUB_010111: "}" ( ("'" | "''")?    ~["'", "$", "\\"] | <ECHAR> )* "${" >
-}
+} 
+<PARSING_XIRI> TOKEN : {
+  <RI: "}" (~[ ">","<", "\"", "{", "}", "^", "\\", "|", "`","{", "\u0000"-"\u0020"])* "{" >
+| <XIRIref_END: "}" (~[ ">","<", "\"", "{", "}", "{", "^", "\\", "|", "`", "\u0000"-"\u0020"])* ">" >
+} 
 TOKEN :
 {
   < LPAREN: "(" >
@@ -1807,7 +1793,6 @@ TOKEN :
 | < FPATH: "->" >
 | < RPATH: "<-" >
 | < QMARK: "?" >
-| < START_XEXPR: "${" >
 }
 TOKEN:
 {

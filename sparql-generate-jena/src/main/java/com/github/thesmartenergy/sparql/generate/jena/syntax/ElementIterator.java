@@ -26,15 +26,21 @@ import org.apache.jena.sparql.util.NodeIsomorphismMap;
  * 
  * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */
-public class ElementIterator extends ElementIteratorOrSource {
+public class ElementIterator extends Element {
     
+    private Var var;
+
     private Expr expr;
 
     public ElementIterator(Expr expr, Var var) {
-        super(var);
+        this.var = var;
         this.expr = expr;
     }
 
+    public Var getVar() {
+        return var;
+    }
+    
     public Expr getExpr() {
         return expr;
     }

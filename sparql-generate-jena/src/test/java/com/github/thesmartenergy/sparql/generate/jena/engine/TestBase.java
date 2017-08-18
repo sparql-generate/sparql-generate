@@ -31,6 +31,7 @@ import org.apache.jena.query.QuerySolutionMap;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.riot.RDFDataMgr;
+import org.apache.jena.sparql.util.FmtUtils;
 import org.apache.jena.util.FileManager;
 import org.apache.jena.util.LocationMapper;
 import org.apache.jena.util.Locator;
@@ -87,6 +88,23 @@ public class TestBase {
         SPARQLGenerateQuery q2 = (SPARQLGenerateQuery) QueryFactory.create(q.toString(), SPARQLGenerate.SYNTAX);
         LOG.debug(q2);
         assertTrue(q.equals(q2));
+    }
+
+    void testQueryNormalization() throws Exception {
+        String qstring = IOUtils.toString(fileManager.open("query.rqg"), "UTF-8");
+        SPARQLGenerateQuery q = (SPARQLGenerateQuery) QueryFactory.create(qstring, SPARQLGenerate.SYNTAX);
+        LOG.debug(qstring);
+
+        // normalize query 
+        URI queryOutputUri = exampleDir.toURI().resolve("query_normalized.rqg");
+        File queryOutputFile = new File(queryOutputUri);
+        
+        SPARQLGenerateQuery q2 = q.normalize();
+                
+        try (OutputStream queryOutputStream = new FileOutputStream(queryOutputFile)) {
+            queryOutputStream.write(q2.toString().getBytes());
+        }
+        LOG.debug(q2);
     }
 
     void testPlanExecution() throws Exception {

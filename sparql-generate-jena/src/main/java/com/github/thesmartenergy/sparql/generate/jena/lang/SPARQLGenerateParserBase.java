@@ -17,7 +17,9 @@ package com.github.thesmartenergy.sparql.generate.jena.lang;
 
 import org.apache.jena.sparql.lang.SPARQLParserBase;
 import com.github.thesmartenergy.sparql.generate.jena.query.SPARQLGenerateQuery;
+import org.apache.jena.query.Query;
 import org.apache.jena.shared.PrefixMapping;
+import org.apache.jena.sparql.core.Prologue;
 
 /**
  * Class that extends the ARQ SPARQL Parser class with the operations for SPARQL
@@ -26,12 +28,20 @@ import org.apache.jena.shared.PrefixMapping;
  */
 public class SPARQLGenerateParserBase extends SPARQLParserBase {
 
+    public static String unescapeStr(String s, int line, int column) {
+        s = s.replace("\\{", "{");
+        s = s.replace("\\}", "}");
+        return unescape(s, '\\', false, line, column);
+    }
+
     /**
      * Constructor.
      */
     @Override
-    protected final void startQuery() { }
-
+    protected final void startQuery() {
+        ((SPARQLGenerateQuery) query).hasEmbeddedExpressions(false);
+    }
+    
     /**
      * Starts parsing a sub GENERATE query.
      */
@@ -45,7 +55,22 @@ public class SPARQLGenerateParserBase extends SPARQLParserBase {
     }
 
     /**
+     * Starts parsing a sub SELECT query.
+     */
+    @Override
+    protected void startSubSelect(int line, int col) {
+        pushQuery();
+        query = newSubQuery(getPrologue());
+    }
+
+    @Override
+    protected Query newSubQuery(Prologue progloue) {
+        return new SPARQLGenerateQuery(getPrologue());
+    }
+
+    /**
      * Finishes the parsing of a sub GENERATE query.
+     *
      * @param line -
      * @param column -
      * @return the sub-generate query.
@@ -64,6 +89,7 @@ public class SPARQLGenerateParserBase extends SPARQLParserBase {
     /**
      * If possible, cast the query to a SPARQL Generate Query. Else, returns
      * null.
+     *
      * @return -
      */
     public final SPARQLGenerateQuery asSPARQLGenerateQuery() {
@@ -71,6 +97,16 @@ public class SPARQLGenerateParserBase extends SPARQLParserBase {
             return (SPARQLGenerateQuery) query;
         }
         return null;
+    }
+
+    /**
+     * Remove first i and last j characters (e.g. ''' or "{") from a string
+     *
+     * @param string
+     * @return
+     */
+    public final String stripQuotes(String string, int i, int j) {
+        return string.substring(i, string.length() - j);
     }
 
 }

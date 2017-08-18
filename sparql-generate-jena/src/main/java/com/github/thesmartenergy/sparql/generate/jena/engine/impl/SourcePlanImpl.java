@@ -70,10 +70,6 @@ public class SourcePlanImpl extends PlanBase implements IteratorOrSourcePlan {
      */
     private final FileManager fileManager;
 
-    /** map uri --> node. */
-//    final static Map<String, Node> localCache = new HashMap<>();
-    /** map uri --> accept uri --> node. */
-    final static Map<String, Map<String, Node>> distantCache = new HashMap<>();
     /** type mapper. */
     final static TypeMapper tm = TypeMapper.getInstance();
 
@@ -211,18 +207,12 @@ public class SourcePlanImpl extends PlanBase implements IteratorOrSourcePlan {
             }
 
             // check local
-//            if (localCache.containsKey(sourceUri)) {
-//                Node n = localCache.get(sourceUri);
-//                LOG.debug("Found in local cache: " + var + "=" + n);
-//                return new BindingHashMapOverwrite(value, var, n);
-//            }
             try {
                 literal = IOUtils.toString(fileManager.open(sourceUri));
                 datatypeURI = "http://www.w3.org/2001/XMLSchema#string";
                 RDFDatatype dt = tm.getSafeTypeByName(datatypeURI);
                 final Node n = NodeFactory.createLiteral(literal, dt);
                 LOG.debug("Found local: " + var + "=" + n);
-//                localCache.put(sourceUri, n);
                 return new BindingHashMapOverwrite(value, var, n);
             } catch (Exception ex) {
                 LOG.debug("Not found locally: " + node);
@@ -230,12 +220,6 @@ public class SourcePlanImpl extends PlanBase implements IteratorOrSourcePlan {
 
             // check distant
             String acceptHeader = getAcceptHeader(value);
-//            if (distantCache.containsKey(sourceUri)
-//                    && distantCache.get(sourceUri).containsKey(acceptHeader)) {
-//                Node n = distantCache.get(sourceUri).get(acceptHeader);
-//                LOG.debug("Found in distant cache: " + var + "=" + n);
-//                return new BindingHashMapOverwrite(value, var, n);
-//            }
             try {
                 Locator loc = new LocatorURLAccept(acceptHeader);
                 TypedStream stream = loc.open(sourceUri);
@@ -244,18 +228,10 @@ public class SourcePlanImpl extends PlanBase implements IteratorOrSourcePlan {
                 datatypeURI = "http://www.iana.org/assignments/media-types/" + stream.getMimeType();
                 RDFDatatype dt = tm.getSafeTypeByName(datatypeURI);
                 final Node n = NodeFactory.createLiteral(literal, dt);
-//                if (!distantCache.containsKey(sourceUri)) {
-//                    distantCache.put(sourceUri, new HashMap<String, Node>());
-//                }
-//                distantCache.get(sourceUri).put(acceptHeader, n);
                 LOG.debug("Found distant: " + var + "=" + n);
                 return new BindingHashMapOverwrite(value, var, n);
             } catch (Exception ex) {
                 LOG.debug("Not found distant file." + node);
-//                if (!distantCache.containsKey(sourceUri)) {
-//                    distantCache.put(sourceUri, new HashMap<String, Node>());
-//                }
-//                distantCache.get(sourceUri).put(acceptHeader, null);
                 return new BindingHashMapOverwrite(value, var, null);
             }
         }

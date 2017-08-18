@@ -1,0 +1,17 @@
+@prefix fn:    <http://w3id.org/sparql-generate/fn/> .
+@prefix iter:  <http://w3id.org/sparql-generate/iter/> .
+
+[ a                             <http://example.com/Country> ;
+  <http://example.com/capital>  "Helsinki" ;
+  <http://example.com/code>     "FI"
+] .
+
+[ a                             <http://example.com/Country> ;
+  <http://example.com/capital>  "Suva" ;
+  <http://example.com/code>     "FJ"
+] .
+
+[ a                             <http://example.com/Country> ;
+  <http://example.com/capital>  "Stanley" ;
+  <http://example.com/code>     "FK"
+] .

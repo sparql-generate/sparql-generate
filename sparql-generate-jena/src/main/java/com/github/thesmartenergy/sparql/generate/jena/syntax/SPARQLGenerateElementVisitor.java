@@ -31,5 +31,5 @@ public interface SPARQLGenerateElementVisitor extends ElementVisitor {
     public void visit(ElementIterator el) ;
     
     public void visit(ElementSource el) ;
-    
+
 }
