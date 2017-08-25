@@ -22,22 +22,41 @@ import org.apache.jena.sparql.expr.Expr;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueString;
 
 /**
- *
+ * Abstract class for expression nodes where the expression depends on a list of 
+ * expressions.
+ * 
  * @author maxime.lefrancois
  */
 public abstract class Node_XExprList extends Node_X {
     
+    /**
+     * Some list of expressions
+     */
     protected final List<Expr> components;
 
+    /**
+     * Constructor
+     * 
+     * @param label
+     * @param components 
+     */
     public Node_XExprList(String label, List<Expr> components) {
         super(label);
         this.components = components;
     }   
     
+    /**
+     * Get the list of expressions
+     * 
+     * @return 
+     */
     public List<Expr> getComponents() {
         return components;
     }
 
+    /**
+     * Abstract builder.
+     */
     public static abstract class Builder {
 
         protected List<Expr> components = new ArrayList<>();

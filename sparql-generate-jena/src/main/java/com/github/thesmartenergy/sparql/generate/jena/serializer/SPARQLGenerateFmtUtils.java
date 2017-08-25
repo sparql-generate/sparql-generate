@@ -24,7 +24,6 @@ import org.apache.jena.graph.Triple;
 import org.apache.jena.sparql.core.BasicPattern;
 import org.apache.jena.sparql.expr.Expr;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueString;
-import org.apache.jena.sparql.serializer.FmtExprSPARQL;
 import org.apache.jena.sparql.serializer.SerializationContext;
 import org.apache.jena.sparql.util.FmtUtils;
 

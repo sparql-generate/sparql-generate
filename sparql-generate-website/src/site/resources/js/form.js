@@ -3,12 +3,21 @@ var winH = $(window).height() * .9;
 
 
 $("#bodyColumn").append(`
-<form action="api/transform" method="post" id="form" onsubmit="submit()">
-    <h1>Test SPARQL-Generate online</h1>
 
-    <p>Edit the SPARQL-Generate query and the DocumentSet over which it will be evaluated, then click on Result to generate the RDF.</p>
-    
-    <label for="test">Load unit test:</label> <select name="test" id="tests"><option value="---">---</value></select>
+            <h1>SPARQL-Generate Overview</h1>
+            <h2>Generate RDF from heterogeneous formats</h2>
+  <p><b>Query and transform web documents in XML, JSON, CSV, HTML, CBOR, and plain text with regular expressions.</b> </p>
+  <p>SPARQL-Generate is <a href="language.html">an extension of SPARQL 1.1</a> for querying not only RDF datasets but also documents in arbitrary formats. It offers a simple template-based option to generate RDF Graphs from documents, and presents the following advantages:</p>
+
+<ul>
+<li>Anyone familiar with SPARQL can easily learn SPARQL-Generate;</li>
+<li>SPARQL-Generate leverages the expressivity of SPARQL 1.1: Aggregates, Solution Sequences and Modifiers, SPARQL functions and their extension mechanism.</li>  
+<li>It integrates seamlessly with existing standards for consuming Semantic Web data, such as SPARQL or Semantic Web programming frameworks.</li>
+</ul>
+
+<form action="api/transform" method="post" id="form" onsubmit="submit()">
+    <p><b>Try it out:</b> Edit the SPARQL-Generate query and the DocumentSet over which it will be evaluated, then click on Result to generate the RDF. You can also <label for="test">Load one of the unit tests:</label> <select name="test" id="tests"><option value="---">---</value></select>
+    </p>
 
    <div id="tabs">
   <ul>
@@ -40,9 +49,41 @@ $("#bodyColumn").append(`
      <button id="save" type="button" value="save">Download result as file</button>
   </div>
    </div>
-	<div>
-	</div>
+  <div>
+  </div>
 </form>
+
+
+<div class="section">
+<h2><a name="Implementation"></a>Implementation</h2>
+<p><b>Use SPARQL-Generate as:</b></p>
+
+<ul>  
+<li><a href="language-cli.html">an executable JAR</a>;</li>
+<li><a href="get-started.html">a Java library</a> with its <a href="apidocs/index.html">reference Java documentation</a>;</li>
+<li><a href="language-api.html">a Web API</a>.</li>
+</ul>
+
+<p>See <a href="functions.html">our predefined SPARQL binding functions and SPARQL-Generate iterator functions</a>. You can also leverage the SPARQL 1.1 extension mechanism and implement your own functions to support any other format.</p>
+
+<p><b>Test, evaluate, contribute</b></p>
+<p>Our <a href="tests-reports.html">tests report</a> contains tests from related work and more. You can request a new unit test, a new binding function or iterator function, via the <a href="mail-lists.html">mailing list</a> or the <a href="issue-tracking.html">issue tracker</a>. We also led <a href="evaluation.html">a comparative evaluation with the RML reference implementation</a>.</p></div>
+
+
+
+<div class="section">
+<h2><a name="Publications"></a>Publications</h2>
+
+<blockquote>
+<p>Maxime Lefran&#xe7;ois, Antoine Zimmermann, Noorani Bakerally <i>A SPARQL extension for generating RDF from heterogeneous formats</i>, In Proc. Extended Semantic Web Conference, ESWC, May 2017, Portoroz, Slovenia (long paper - <a class="externalLink" href="http://www.maxime-lefrancois.info/docs/LefrancoisZimmermannBakerally-ESWC2017-Generate.pdf">PDF</a> - <a href="LefrancoisZimmermannBakerally-ESWC2017-SPARQL.bib">BibTeX</a>)</p>
+<p>Maxime Lefran&#xe7;ois, Antoine Zimmermann, Noorani Bakerally <i>Flexible RDF generation from RDF and heterogeneous data sources with SPARQL-Generate</i>, In Proc. the 20th International Conference on Knowledge Engineering and Knowledge Management, EKAW, Nov 2016, Bologna, Italy (demo track - <a class="externalLink" href="http://www.maxime-lefrancois.info/docs/LefrancoisZimmermannBakerally-EKAW2016-Flexible.pdf">PDF</a> - <a href="LefrancoisZimmermannBakerally-EKAW2016-Flexible.bib">BibTeX</a>)</p>
+<p>Maxime Lefran&#xe7;ois, Antoine Zimmermann, Noorani Bakerally <i>G&#xe9;n&#xe9;ration de RDF &#xe0; partir de sources de donn&#xe9;es aux formats h&#xe9;t&#xe9;rog&#xe8;nes</i>, Actes de la 17&#xe8;me conf&#xe9;rence Extraction et Gestion des Connaissances, EGC, Jan 2017, Grenoble, France - (<a class="externalLink" href="http://www.maxime-lefrancois.info/docs/LefrancoisZimmermannBakerally-EGC2017-Generation.pdf">PDF</a> - <a href="LefrancoisZimmermannBakerally-EGC2017-Generation.bib">BibTeX</a>)</p>
+</blockquote></div><div class="section">
+
+
+<h2><a name="Acknowledgments"></a>Acknowledgments</h2>
+<p>This work has been partly funded by the ITEA2 12004 SEAS (Smart Energy Aware Systems) project, the ANR 14-CE24-0029 OpenSensingCity project, and a bilateral research convention with ENGIE R&amp;D.</p></div>
+
 `);
 
 
@@ -148,26 +189,21 @@ $(document).ready(function() {
              yasqe.setValue(query_str);
         }
         if(yasqe.getValue() === "") {    
-            yasqe.setValue(`PREFIX sgfn: <http://w3id.org/sparql-generate/fn/>
-PREFIX sgiter: <http://w3id.org/sparql-generate/iter/>
+            yasqe.setValue(`PREFIX sgiter: <http://w3id.org/sparql-generate/iter/>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
-GENERATE {
-    ...
-    GENERATE {
-        ...
-    }
-    SOURCE <http://ex.org/message> AS ?message
-    ITERATOR iter:JSONListKeys( ?message ) AS ?key 
-    WHERE {
-        ...
-    }    
+PREFIX sgfn: <http://w3id.org/sparql-generate/fn/> 
+LOOK UP <http://ci.emse.fr/sparql-generate/cities.json> AS ?message
+ITERATE sgiter:JSONListKeys( ?message ) AS ?cityName 
+WHEREVER { 
+  FILTER( STRSTARTS( ?cityName , "New" ) ) 
+  BIND( sgfn:JSONPath( ?message, "$.['{ ?cityName }']" ) AS  ?city )
 } 
-SOURCE <http://ex.org/message> AS ?message
-ITERATOR iter:JSONListKeys( ?message ) AS ?key 
-WHERE {
-    ...
-}
-`);
+CONSTRUCT {
+  ITERATE sgiter:JSONListKeys( ?city ) AS ?key  
+  CONSTRUCT {
+    <city/{ ?cityName }> <{ ?key }> "{ sgfn:JSONPath( ?message , "$.['{ ?cityName }']['{ ?key }']" )  }"@en . 
+  } .
+}`);
         }
     };
 

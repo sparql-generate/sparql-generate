@@ -46,13 +46,21 @@ import org.apache.jena.sparql.syntax.ElementUnion;
 import org.apache.jena.sparql.syntax.ElementVisitor;
 
 /**
- *
+ * Class used to visit an element and normalize it (i.e., replace all expression
+ * nodes with the associated expression)
+ * 
  * @author maxime.lefrancois
  */
 public class ElementNormalizer implements ElementVisitor {
 
+    /**
+     * 
+     */
     private Element result;
 
+    /**
+     * The latest result of an element normalization.
+     */
     public Element getResult() {
         return result;
     }

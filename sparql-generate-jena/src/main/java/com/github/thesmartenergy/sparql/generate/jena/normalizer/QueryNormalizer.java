@@ -37,7 +37,12 @@ import org.apache.jena.sparql.syntax.ElementBind;
 import org.apache.jena.sparql.syntax.ElementGroup;
 
 /**
- * Extends the ARQ Query Serializer with SPARQL Generate specificities.
+ * Class used to normalize SPARQL-Generate queries, i.e. output an equivalent 
+ * query with no expression nodes.
+ * 
+ * This class is instantiated by calls to the method 
+ * 
+ * {@code SPARQLGenerateQuery.normalize()}
  *
  * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */

@@ -18,7 +18,8 @@ package com.github.thesmartenergy.sparql.generate.jena.graph;
 import org.apache.jena.graph.NodeVisitor;
 
 /**
- *
+ * Extension of NodeVisitor to account for the three new types of nodes.
+ * 
  * @author maxime.lefrancois
  */
 public interface SPARQLGenerateNodeVisitor extends NodeVisitor {

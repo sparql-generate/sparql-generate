@@ -16,6 +16,7 @@
 package com.github.thesmartenergy.sparql.generate.jena.engine.impl;
 
 import java.util.List;
+import java.util.Objects;
 import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.engine.binding.Binding;
 import org.apache.jena.sparql.engine.binding.BindingHashMap;
@@ -26,32 +27,6 @@ import org.apache.jena.sparql.engine.binding.BindingHashMap;
  * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */
 abstract class PlanBase {
-
-    
-    /**
-     * Checks that the object is not null.
-     *
-     * @param obj object to check.
-     * @param msg message used to throw the exception if the object is null.
-     * @throws IllegalArgumentException Thrown if the object is null.
-     */
-    protected final void checkNotNull(final Object obj, final String msg) {
-        if (null == obj) {
-            throw new IllegalArgumentException(msg);
-        }
-    }
-
-    /**
-     * Checks that the object is not null.
-     *
-     * @param obj object to check.
-     * @throws IllegalArgumentException Thrown if the object is null.
-     */
-    protected final void checkNotNull(final Object obj) {
-        if (null == obj) {
-            throw new IllegalArgumentException("Must not be null.");
-        }
-    }
 
     /**
      * Utility function. ensures there is at least a row of null values in a
@@ -64,8 +39,8 @@ abstract class PlanBase {
     protected final <T extends Binding>  void ensureNotEmpty(
             final List<Var> variables,
             final List<T> values) {
-        checkNotNull(variables);
-        checkNotNull(values);
+        Objects.requireNonNull(variables);
+        Objects.requireNonNull(values);
         if (values.isEmpty()) {
             final BindingHashMap map = new BindingHashMap();
             values.add((T) new BindingHashMapOverwrite(map, null, null));

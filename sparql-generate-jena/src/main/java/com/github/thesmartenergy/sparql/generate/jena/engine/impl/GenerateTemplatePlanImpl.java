@@ -90,22 +90,25 @@ public class GenerateTemplatePlanImpl extends PlanBase implements GeneratePlan {
                     for (Var v : binding.varsList()) {
                         Node n = binding.get(v);
                         if (bNodeMap.contains(n)) {
-                            b.add(v.getVarName(), initialModel.asRDFNode(bNodeMap.get(n)));
+                            b.add(v.getVarName(), 
+                                    initialModel.asRDFNode(bNodeMap.get(n)));
                         } else {
                             b.add(v.getVarName(), initialModel.asRDFNode(n));
                         }
                     }
                     rootPlan.exec(inputDataset, b, initialModel, bNodeMap2);
                 } else {
-                    throw new SPARQLGenerateException("should not reach this point");
+                    throw new SPARQLGenerateException("should not reach this"
+                            + " point");
                 }
             }
         }
     }
 
     @Override
-    public void exec(Dataset inputDataset, QuerySolution initialBindings, Model initialModel, BNodeMap bNodeMap) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void exec(Dataset inputDataset, QuerySolution initialBindings,
+            Model initialModel, BNodeMap bNodeMap) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
 }

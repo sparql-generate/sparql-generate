@@ -1,4 +1,4 @@
-# Get Started
+# SPARQL-Generate Java API
 
 `sparql-generate-jena` is an implementation of SPARQL-Generate over Apache Jena. Its binaries, sources and documentation are available for download at [Maven Central](http://search.maven.org/#search%7Cga%7C1%7Csparql-generate-jena%22). To use it in your Maven project, add the following dependency declaration to your Maven project file ( `*.pom` file):
  

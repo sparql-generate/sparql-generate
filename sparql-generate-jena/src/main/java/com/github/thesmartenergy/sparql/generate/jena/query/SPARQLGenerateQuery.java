@@ -246,6 +246,9 @@ public class SPARQLGenerateQuery extends Query {
         visitor.finishVisit(this);
     }
 
+    /**
+     * {@inheritDoc }
+     */
     @Override
     public boolean equals(Object other) {
         if ( ! ( other instanceof SPARQLGenerateQuery ) )

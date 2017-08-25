@@ -28,7 +28,11 @@ import org.apache.jena.sparql.expr.Expr;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueString;
 
 /**
- *
+ * The class of expression nodes of type {@code "text{<expr>}" }, or any other
+ * RDF literal with embedded expressions (including RDF literals with language
+ * tags, RDF datatypes. 
+ * The RDF datatype itself can be an expression node of type {@code <uri{<expr>}>}
+ * 
  * @author maxime.lefrancois
  */
 public class Node_XLiteral extends Node_XExprList {
@@ -37,12 +41,21 @@ public class Node_XLiteral extends Node_XExprList {
 
     private final Node datatype;
 
+    /**
+     * 
+     * @param components list of NodeValueString or Expressions
+     * @param lang optional language tag
+     * @param datatype  optional URI or Node_XURI
+     */
     private Node_XLiteral(List<Expr> components, String lang, Node datatype) {
         super(UUID.randomUUID().toString().substring(0, 8), components);
         this.lang = lang;
         this.datatype = datatype;
     }
 
+    /**
+     * Builder for immutable Node_XLiteral
+     */
     public static class Builder extends Node_XExprList.Builder {
 
         private String lang = null;
@@ -87,6 +100,9 @@ public class Node_XLiteral extends Node_XExprList {
         return datatype;
     }
 
+    /**
+     * {@inheritDoc }
+     */
     @Override
     public Object visitWith(NodeVisitor v) {
         if (v instanceof SPARQLGenerateNodeVisitor) {
@@ -95,6 +111,9 @@ public class Node_XLiteral extends Node_XExprList {
         return null;
     }
 
+    /**
+     * {@inheritDoc }
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) {

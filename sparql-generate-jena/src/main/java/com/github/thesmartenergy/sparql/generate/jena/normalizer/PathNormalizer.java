@@ -36,18 +36,33 @@ import org.apache.jena.sparql.path.Path;
 import org.apache.jena.sparql.path.PathVisitor;
 
 /**
- *
+ * Class used to normalize path expressions. 
+ * 
  * @author maxime.lefrancois
  */
 public class PathNormalizer implements PathVisitor {
     
+    /**
+     * node expression normalizer.
+     */
     private final NodeExprNormalizer nzer;
+    
+    /**
+     * latest normalized path
+     */
     private Path result;    
 
+    /**
+     * Constructor
+     * @param nzer 
+     */
     public PathNormalizer(NodeExprNormalizer nzer) {
         this.nzer = nzer;
     }
 
+    /**
+     * @return latest normalized path
+     */
     public Path getResult() {
         return result;
     }

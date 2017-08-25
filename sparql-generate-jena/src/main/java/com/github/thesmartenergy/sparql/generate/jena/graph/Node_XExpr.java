@@ -20,22 +20,41 @@ import org.apache.jena.graph.NodeVisitor;
 import org.apache.jena.sparql.expr.Expr;
 
 /**
- *
+ * The class of expression nodes of type  {@code ?{ <expr> }}, or 
+ * {@code ${ <expr> }}. They can be used anywhere variables are
+ * legal, and they bind a (implicit) variable to the given SPARQL expression.
+ * 
  * @author maxime.lefrancois
  */
 public class Node_XExpr extends Node_X {
     
+    /**
+     * The SPARQL expression specified in this node.
+     */
     private final Expr expr;
 
+    /**
+     * Constructor 
+     *
+     * @param expr The SPARQL expression specified in this node.
+     */
     public Node_XExpr(Expr expr) {
         super(UUID.randomUUID().toString().substring(0,8));
         this.expr = expr;
     }
 
+    /**
+     * The SPARQL expression specified in this node.
+     * 
+     * @return 
+     */
     public Expr getExpr() {
         return expr;
     }
     
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Object visitWith(NodeVisitor v) {
         if (v instanceof SPARQLGenerateNodeVisitor) {
@@ -44,6 +63,9 @@ public class Node_XExpr extends Node_X {
         return null;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) {

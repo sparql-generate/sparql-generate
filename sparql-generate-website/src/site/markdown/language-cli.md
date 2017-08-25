@@ -1,4 +1,4 @@
-# Use SPARQL-Generate as an executable JAR
+# SPARQL-Generate Executable JAR
 
  
 [Download it here](sparql-generate-jena.jar)

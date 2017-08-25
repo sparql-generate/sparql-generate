@@ -38,11 +38,20 @@ import org.apache.jena.sparql.expr.nodevalue.NodeValueNode;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueString;
 
 /**
- *
+ * Class used to normalize expressions and nodes, and output an expression
+ * that is equivalent
+ * 
  * @author maxime.lefrancois
  */
 public class ExprNormalizer {
 
+    /**
+     * normalizes an expression, substituting every instance of NodeValueNode
+     * whose node is a Node_X with the associated expression of that Node_X.
+     *
+     * @param expr expression to normalize
+     * @return 
+     */
     public Expr normalize(Expr expr) {
         if (expr instanceof ExprFunction1) {
             return normalize((ExprFunction1) expr);
@@ -101,6 +110,14 @@ public class ExprNormalizer {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    /**
+     * get a normalized expression for the node given as input, returns either
+     * the expression of a expression node (Node_X), or a NodeValueNode whose
+     * node is the input node.
+     *
+     * @param n node (potentially expression node) to get an expression from
+     * @return 
+     */
     public Expr normalize(Node n) {
         if (n instanceof Node_X) {
             return normalize((Node_X) n);

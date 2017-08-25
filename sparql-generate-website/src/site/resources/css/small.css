@@ -1,0 +1,9 @@
+
+body > a > img {
+    display: none;
+}
+
+.row-fluid [class*="span"] {
+    float: none;
+    width:100%;
+}

@@ -1,0 +1,32 @@
+#bodyColumn {
+    max-width: 800px;
+    margin-left: 20px;
+}
+
+#poweredBy {
+    display: none;
+}
+
+
+a.externalLink[href^="https"] {
+    background: none;
+    padding-right: 0px;
+}
+
+a.externalLink[href^="http"] {
+    background: none;
+    padding-right: 0px;
+}
+
+blockquote {
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    line-height: 20px;
+    color: #333;
+}
+
+blockquote p {
+    margin: 0 0 10px;
+    margin-right: 7px;
+    margin-left: 7px;  
+    font-size: 14.5px;
+}

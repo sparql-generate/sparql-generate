@@ -35,7 +35,8 @@ public class GenerateTriplesPlanImpl
     /**
      * The logger.
      */
-    private static final Logger LOG = Logger.getLogger(GenerateTriplesPlanImpl.class);
+    private static final Logger LOG = 
+            Logger.getLogger(GenerateTriplesPlanImpl.class);
 
     /**
      * The basic pattern.

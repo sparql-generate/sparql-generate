@@ -39,6 +39,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
+import javax.naming.spi.Resolver;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.DefaultValue;
@@ -55,6 +56,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.jena.query.QueryFactory;
 import org.apache.jena.query.Syntax;
 import org.apache.jena.rdf.model.Model;
+import org.apache.jena.riot.system.IRIResolver;
 import org.apache.jena.util.FileManager;
 import org.apache.jena.util.Locator;
 
@@ -204,8 +206,10 @@ public class Transform extends HttpServlet {
 
             Syntax syntax = SPARQLGenerate.SYNTAX;
             SPARQLGenerateQuery q = (SPARQLGenerateQuery) QueryFactory.create(query, syntax);
-            if (q.getBaseURI() == null) {
+            if (q.getBaseURI().startsWith("file://")) {
+                System.out.println("in");
                 q.setBaseURI("http://example.org/");
+                q = (SPARQLGenerateQuery) q.cloneQuery();
             }
             RootPlan plan = factory.create(q);
 

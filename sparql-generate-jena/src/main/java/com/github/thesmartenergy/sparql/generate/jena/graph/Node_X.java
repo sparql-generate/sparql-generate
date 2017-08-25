@@ -21,19 +21,35 @@ import org.apache.jena.graph.Node_Fluid;
 import org.apache.jena.sparql.serializer.SerializationContext;
 
 /**
- *
+ * The class of expression nodes: a node that can be used anywhere variables are
+ * legal, and that bind a (implicit) variable to a SPARQL expression.
+ * 
  * @author maxime.lefrancois
  */
 public abstract class Node_X extends Node_Fluid {
     
-    public Node_X(String label) {
+    /**
+     * Constructor
+     * 
+     * @param label identifier of the node
+     */
+    Node_X(String label) {
         super(label);
     }
     
+    /**
+     * Identifier for the node, should be a unique random string.
+     * Should be legal for SPARQL variable naming.
+     * 
+     * @return 
+     */
     public String getLabel() {
         return (String) label;
     }
     
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String toString() {
         IndentedLineBuffer buff = new IndentedLineBuffer() ;

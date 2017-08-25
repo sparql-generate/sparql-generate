@@ -21,15 +21,24 @@ import org.apache.jena.graph.NodeVisitor;
 import org.apache.jena.sparql.expr.Expr;
 
 /**
+ * The class of expression nodes of type {@code <text{<expr>}> }, or any other
+ * IRI with embedded expressions.
  *
  * @author maxime.lefrancois
  */
 public class Node_XURI extends Node_XExprList {
 
+    /**
+     * 
+     * @param components list of NodeValueString or Expressions
+     */
     private Node_XURI(List<Expr> components) {
         super(UUID.randomUUID().toString().substring(0,8), components);
     }
     
+    /**
+     * Builder of immutable Node_XURI
+     */
     public static class Builder extends Node_XExprList.Builder {
         @Override
         public Node_XURI build() {
@@ -37,6 +46,9 @@ public class Node_XURI extends Node_XExprList {
         }
     }
 
+    /**
+     * {@inheritDoc }
+     */
     @Override
     public Object visitWith(NodeVisitor v) {
         if (v instanceof SPARQLGenerateNodeVisitor) {
@@ -45,6 +57,9 @@ public class Node_XURI extends Node_XExprList {
         return null;
     }
 
+    /**
+     * {@inheritDoc }
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) {

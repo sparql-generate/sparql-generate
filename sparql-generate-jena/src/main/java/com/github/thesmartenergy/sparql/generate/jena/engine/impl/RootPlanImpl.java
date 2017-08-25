@@ -31,6 +31,7 @@ import org.apache.jena.sparql.core.Var;
 import org.apache.log4j.Logger;
 import com.github.thesmartenergy.sparql.generate.jena.engine.IteratorOrSourcePlan;
 import com.github.thesmartenergy.sparql.generate.jena.engine.SelectPlan;
+import java.util.Objects;
 import org.apache.jena.query.QuerySolutionMap;
 
 /**
@@ -38,7 +39,8 @@ import org.apache.jena.query.QuerySolutionMap;
  *
  * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */
-public final class RootPlanImpl extends PlanBase implements RootPlan, GeneratePlan, GenerateTemplateElementPlan {
+public final class RootPlanImpl extends PlanBase implements RootPlan, 
+        GeneratePlan, GenerateTemplateElementPlan {
 
     /**
      * The logger.
@@ -121,8 +123,8 @@ public final class RootPlanImpl extends PlanBase implements RootPlan, GeneratePl
             final GeneratePlan generatePlan,
             final PrefixMapping prefixMapping,
             final boolean distant) {
-        checkNotNull(iteratorAndSourcePlans, "iterator and source plans may be"
-                + " empty, but not null.");
+        Objects.requireNonNull(iteratorAndSourcePlans, "iterator and source"
+                + " plans may be empty, but not null.");
         this.iteratorAndSourcePlans = iteratorAndSourcePlans;
         this.selectPlan = selectPlan;
         this.generatePlan = generatePlan;
@@ -147,7 +149,7 @@ public final class RootPlanImpl extends PlanBase implements RootPlan, GeneratePl
      */
     @Override
     public final Model exec(final Model inputModel) {
-        checkNotNull(inputModel, "inputModel must not be null.");
+        Objects.requireNonNull(inputModel, "inputModel must not be null.");
         Dataset inputDataset = DatasetFactory.create(inputModel);
         QuerySolution initialBindings = new QuerySolutionMap();
         Model initialModel = ModelFactory.createDefaultModel();
@@ -160,7 +162,7 @@ public final class RootPlanImpl extends PlanBase implements RootPlan, GeneratePl
      */
     @Override
     public final Model exec(final Dataset inputDataset) {
-        checkNotNull(inputDataset, "inputDataset must not be null.");
+        Objects.requireNonNull(inputDataset, "inputDataset must not be null.");
         QuerySolution initialBindings = new QuerySolutionMap();
         Model initialModel = ModelFactory.createDefaultModel();
         exec(inputDataset, initialBindings, initialModel);
@@ -174,7 +176,7 @@ public final class RootPlanImpl extends PlanBase implements RootPlan, GeneratePl
     public final void exec(
             final QuerySolution initialBindings,
             final Model initialModel) {
-        checkNotNull(initialModel, "initialModel must not be null.");
+        Objects.requireNonNull(initialModel, "initialModel must not be null.");
         Dataset inputDataset = DatasetFactory.create();
         exec(inputDataset, initialBindings, initialModel);
     }
@@ -186,8 +188,8 @@ public final class RootPlanImpl extends PlanBase implements RootPlan, GeneratePl
     public final void exec(
             final Model inputModel,
             final Model initialModel) {
-        checkNotNull(inputModel, "inputModel must not be null.");
-        checkNotNull(initialModel, "initialModel must not be null.");
+        Objects.requireNonNull(inputModel, "inputModel must not be null.");
+        Objects.requireNonNull(initialModel, "initialModel must not be null.");
         Dataset inputDataset = DatasetFactory.create(inputModel);
         QuerySolution initialBindings = new QuerySolutionMap();
         exec(inputDataset, initialBindings, initialModel);
@@ -200,8 +202,8 @@ public final class RootPlanImpl extends PlanBase implements RootPlan, GeneratePl
     public final void exec(
             final Dataset inputDataset,
             final Model initialModel) {
-        checkNotNull(inputDataset, "inputDataset must not be null.");
-        checkNotNull(initialModel, "initialModel must not be null.");
+        Objects.requireNonNull(inputDataset, "inputDataset must not be null.");
+        Objects.requireNonNull(initialModel, "initialModel must not be null.");
         QuerySolution initialBindings = new QuerySolutionMap();
         exec(inputDataset, initialBindings, initialModel);
     }
@@ -214,8 +216,8 @@ public final class RootPlanImpl extends PlanBase implements RootPlan, GeneratePl
             final Model inputModel,
             final QuerySolution initialBindings,
             final Model initialModel) {
-        checkNotNull(inputModel, "inputModel must not be null.");
-        checkNotNull(initialModel, "initialModel must not be null.");
+        Objects.requireNonNull(inputModel, "inputModel must not be null.");
+        Objects.requireNonNull(initialModel, "initialModel must not be null.");
         Dataset inputDataset = DatasetFactory.create(inputModel);
         exec(inputDataset, initialBindings, initialModel);
     }
@@ -241,9 +243,9 @@ public final class RootPlanImpl extends PlanBase implements RootPlan, GeneratePl
             final QuerySolution initialBindings,
             final Model initialModel,
             final BNodeMap bNodeMap) {
-        checkNotNull(inputDataset, "inputDataset must not be null.");
-        checkNotNull(initialModel, "initialModel must not be null.");
-        checkNotNull(bNodeMap, "bNodeMap must not be null.");
+        Objects.requireNonNull(inputDataset, "inputDataset must not be null.");
+        Objects.requireNonNull(initialModel, "initialModel must not be null.");
+        Objects.requireNonNull(bNodeMap, "bNodeMap must not be null.");
         final List<BindingHashMapOverwrite> values;
         final List<Var> variables;
         if (initialBindings == null) {
@@ -284,9 +286,11 @@ public final class RootPlanImpl extends PlanBase implements RootPlan, GeneratePl
         if (generatePlan != null) {
             if (distant) {
                 BNodeMap bNodeMap2 = new BNodeMap();
-                generatePlan.exec(inputDataset, initialModel, variables, values, bNodeMap2);
+                generatePlan.exec(inputDataset, initialModel, variables, values,
+                        bNodeMap2);
             } else {
-                generatePlan.exec(inputDataset, initialModel, variables, values, bNodeMap);
+                generatePlan.exec(inputDataset, initialModel, variables, values,
+                        bNodeMap);
             }
         }
     }

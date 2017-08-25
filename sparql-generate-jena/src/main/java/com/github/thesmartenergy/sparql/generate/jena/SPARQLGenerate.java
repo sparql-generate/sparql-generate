@@ -141,7 +141,6 @@ public final class SPARQLGenerate {
         itereg.put(ITE_JSONListKeys.URI, ITE_JSONListKeys.class);
         itereg.put(ITE_JSONListElement.URI, ITE_JSONListElement.class);
         itereg.put(ITE_Regex.URI, ITE_Regex.class);
-        
         itereg.put(ITE_XPath.URI, ITE_XPath.class);
         itereg.put(ITE_Split.URI, ITE_Split.class);
         itereg.put(ITE_CSV.URI, ITE_CSV.class);
@@ -152,6 +151,8 @@ public final class SPARQLGenerate {
         itereg.put(ITE_CBOR.URI, ITE_CBOR.class);
         itereg.put(ITE_CSVHeaders.URI, ITE_CSVHeaders.class);
 
+        
+        
         SPARQLParserRegistry.get()
                 .add(SYNTAX, new SPARQLParserFactory() {
                     @Override

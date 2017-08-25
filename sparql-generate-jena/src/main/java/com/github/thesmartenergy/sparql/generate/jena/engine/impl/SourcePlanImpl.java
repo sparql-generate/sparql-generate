@@ -17,11 +17,9 @@ package com.github.thesmartenergy.sparql.generate.jena.engine.impl;
 
 import com.github.thesmartenergy.sparql.generate.jena.LocatorURLAccept;
 import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerateException;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.function.UnaryOperator;
 import org.apache.commons.io.IOUtils;
@@ -36,6 +34,9 @@ import org.apache.jena.util.LocatorURL;
 import org.apache.jena.util.TypedStream;
 import org.apache.log4j.Logger;
 import com.github.thesmartenergy.sparql.generate.jena.engine.IteratorOrSourcePlan;
+import java.io.IOException;
+import java.util.Objects;
+import org.apache.jena.datatypes.DatatypeFormatException;
 
 /**
  * Executes a <code>{@code SOURCE <node> ACCEPT <mime> AS <var>}</code> clause.
@@ -90,9 +91,9 @@ public class SourcePlanImpl extends PlanBase implements IteratorOrSourcePlan {
             final Node accept0,
             final Var var0,
             final FileManager fileManager0) {
-        checkNotNull(node0, "Node must not be null");
-        checkNotNull(var0, "Var must not be null");
-        checkNotNull(fileManager0, "FileManager must not be null");
+        Objects.requireNonNull(node0, "Node must not be null");
+        Objects.requireNonNull(var0, "Var must not be null");
+        Objects.requireNonNull(fileManager0, "FileManager must not be null");
         if (!node0.isURI() && !node0.isVariable()) {
             throw new IllegalArgumentException("Source node must be a IRI or a"
                     + " Variable. got " + node0);
@@ -126,7 +127,46 @@ public class SourcePlanImpl extends PlanBase implements IteratorOrSourcePlan {
             fileManager.remove(loc);
         }
         ensureNotEmpty(variables, values);
-        values.replaceAll(new Replacer());
+        values.replaceAll((BindingHashMapOverwrite value) -> {
+            String literal = null;
+            String datatypeURI = null;
+
+            // generate the source URI.
+            final String sourceUri = getActualSource(value);
+            if (sourceUri == null) {
+                LOG.debug("No source for " + node);
+                return new BindingHashMapOverwrite(value, var, null);
+            }
+
+            // check local
+            try {
+                literal = IOUtils.toString(fileManager.open(sourceUri));
+                datatypeURI = "http://www.w3.org/2001/XMLSchema#string";
+                RDFDatatype dt = tm.getSafeTypeByName(datatypeURI);
+                final Node n = NodeFactory.createLiteral(literal, dt);
+                LOG.debug("Found local: " + var + "=" + n);
+                return new BindingHashMapOverwrite(value, var, n);
+            } catch (IOException | DatatypeFormatException ex) {
+                LOG.debug("Not found locally: " + node);
+            }
+
+            // check distant
+            String acceptHeader = getAcceptHeader(value);
+            try {
+                Locator loc = new LocatorURLAccept(acceptHeader);
+                TypedStream stream = loc.open(sourceUri);
+                //TODO check charset --> UTF-8 ok. else, base64
+                literal = IOUtils.toString(stream.getInput());
+                datatypeURI = "http://www.iana.org/assignments/media-types/" + stream.getMimeType();
+                RDFDatatype dt = tm.getSafeTypeByName(datatypeURI);
+                final Node n = NodeFactory.createLiteral(literal, dt);
+                LOG.debug("Found distant: " + var + "=" + n);
+                return new BindingHashMapOverwrite(value, var, n);
+            } catch (IOException | DatatypeFormatException ex) {
+                LOG.debug("Not found distant file." + node);
+                return new BindingHashMapOverwrite(value, var, null);
+            }
+        });
     }
 
     /**
@@ -190,51 +230,6 @@ public class SourcePlanImpl extends PlanBase implements IteratorOrSourcePlan {
         }
         return actualAccept.getURI();
 
-    }
-
-    private class Replacer implements UnaryOperator<BindingHashMapOverwrite> {
-
-        @Override
-        public BindingHashMapOverwrite apply(BindingHashMapOverwrite value) {
-            String literal = null;
-            String datatypeURI = null;
-
-            // generate the source URI.
-            final String sourceUri = getActualSource(value);
-            if (sourceUri == null) {
-                LOG.debug("No source for " + node);
-                return new BindingHashMapOverwrite(value, var, null);
-            }
-
-            // check local
-            try {
-                literal = IOUtils.toString(fileManager.open(sourceUri));
-                datatypeURI = "http://www.w3.org/2001/XMLSchema#string";
-                RDFDatatype dt = tm.getSafeTypeByName(datatypeURI);
-                final Node n = NodeFactory.createLiteral(literal, dt);
-                LOG.debug("Found local: " + var + "=" + n);
-                return new BindingHashMapOverwrite(value, var, n);
-            } catch (Exception ex) {
-                LOG.debug("Not found locally: " + node);
-            }
-
-            // check distant
-            String acceptHeader = getAcceptHeader(value);
-            try {
-                Locator loc = new LocatorURLAccept(acceptHeader);
-                TypedStream stream = loc.open(sourceUri);
-                //TODO check charset --> UTF-8 ok. else, base64
-                literal = IOUtils.toString(stream.getInput());
-                datatypeURI = "http://www.iana.org/assignments/media-types/" + stream.getMimeType();
-                RDFDatatype dt = tm.getSafeTypeByName(datatypeURI);
-                final Node n = NodeFactory.createLiteral(literal, dt);
-                LOG.debug("Found distant: " + var + "=" + n);
-                return new BindingHashMapOverwrite(value, var, n);
-            } catch (Exception ex) {
-                LOG.debug("Not found distant file." + node);
-                return new BindingHashMapOverwrite(value, var, null);
-            }
-        }
     }
 
 }

@@ -46,31 +46,62 @@ import org.apache.jena.sparql.syntax.ElementBind;
 import org.apache.jena.sparql.syntax.ElementGroup;
 
 /**
- *
+ * Class used to normalize nodes, i.e., take as input a node (potentially an 
+ * expression node), and output a normalized node and potentially a binding
+ * clause.
+ * 
  * @author maxime.lefrancois
  */
 public class NodeExprNormalizer implements SPARQLGenerateNodeVisitor {
 
+    /**
+     * List of bindings to augment with clauses equivalent to expression nodes
+     */
     private final List<Element> bindings;
 
+    /**
+     * Already normalized nodes (useful when normalizing Basic Graph Patterns)
+     */
     private final Map<Node_X, Var> cache = new HashMap<>();
 
+    /**
+     * Expression normalizer
+     */
     private final ExprNormalizer nzer = new ExprNormalizer();
 
+    /**
+     * Latest normalized node
+     */
     private Node result;
 
+    /**
+     * Constructor
+     * 
+     * @param bindings initial bindings
+     */
     public NodeExprNormalizer(final List<Element> bindings) {
         this.bindings = bindings;
     }
 
+    /**
+     * Constructor, with empty initial bindings.
+     */
     public NodeExprNormalizer() {
         this(new ArrayList<>());
     }
 
+    /**
+     * 
+     * @return true if the list of bindings is not empty.
+     */
     public boolean hasBindings() {
         return !bindings.isEmpty();
     }
-
+    
+    /**
+     * 
+     * @return an ElementGroup with the list of binding elements.
+     */
     public ElementGroup getBindingsAsGroup() {
         ElementGroup group = new ElementGroup();
         bindings.forEach((el) -> {
@@ -79,14 +110,25 @@ public class NodeExprNormalizer implements SPARQLGenerateNodeVisitor {
         return group;
     }
 
+    /**
+     * 
+     * @return the latest normalized node
+     */
     public Node getResult() {
         return result;
     }
 
+    /**
+     * 
+     * @return the list of bindings
+     */
     public List<Element> getBindings() {
         return bindings;
     }
 
+    /**
+     * {@inheritDoc 
+     */
     @Override
     public Object visit(Node_XExpr node) {
         if (cache.containsKey(node)) {
@@ -101,6 +143,9 @@ public class NodeExprNormalizer implements SPARQLGenerateNodeVisitor {
         return null;
     }
 
+    /**
+     * {@inheritDoc 
+     */
     @Override
     public Object visit(Node_XLiteral node) {
         if (cache.containsKey(node)) {
@@ -129,6 +174,9 @@ public class NodeExprNormalizer implements SPARQLGenerateNodeVisitor {
         return null;
     }
 
+    /**
+     * {@inheritDoc 
+     */
     @Override
     public Object visit(Node_XURI node) {
         if (cache.containsKey(node)) {
@@ -149,30 +197,45 @@ public class NodeExprNormalizer implements SPARQLGenerateNodeVisitor {
         return null;
     }
 
+    /**
+     * {@inheritDoc 
+     */
     @Override
     public Object visitAny(Node_ANY it) {
         result = it;
         return null;
     }
 
+    /**
+     * {@inheritDoc 
+     */
     @Override
     public Object visitBlank(Node_Blank it, BlankNodeId id) {
         result = it;
         return null;
     }
 
+    /**
+     * {@inheritDoc 
+     */
     @Override
     public Object visitLiteral(Node_Literal it, LiteralLabel lit) {
         result = it;
         return null;
     }
 
+    /**
+     * {@inheritDoc 
+     */
     @Override
     public Object visitURI(Node_URI it, String uri) {
         result = it;
         return null;
     }
 
+    /**
+     * {@inheritDoc 
+     */
     @Override
     public Object visitVariable(Node_Variable it, String name) {
         result = it;

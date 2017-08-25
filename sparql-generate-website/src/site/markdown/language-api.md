@@ -1,4 +1,4 @@
-# SPARQL RDF Generation Language Web API
+# SPARQL-Generate Web API
 
 This website exposes a Web API at URL [http://w3id.org/sparql-generate/api/transform](http://w3id.org/sparql-generate/api/transform).
 

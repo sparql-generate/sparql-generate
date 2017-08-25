@@ -18,8 +18,6 @@ package com.github.thesmartenergy.sparql.generate.jena.engine;
 import com.github.thesmartenergy.sparql.generate.jena.engine.impl.BNodeMap;
 import com.github.thesmartenergy.sparql.generate.jena.engine.impl.BindingHashMapOverwrite;
 import java.util.List;
-import java.util.Map;
-import org.apache.jena.graph.Node;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.rdf.model.Model;

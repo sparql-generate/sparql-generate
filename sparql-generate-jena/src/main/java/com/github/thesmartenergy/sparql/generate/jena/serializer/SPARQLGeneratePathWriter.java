@@ -16,11 +16,9 @@
 package com.github.thesmartenergy.sparql.generate.jena.serializer;
 
 import java.util.List;
-import org.apache.jena.atlas.io.IndentedLineBuffer;
 import org.apache.jena.atlas.io.IndentedWriter;
 import org.apache.jena.graph.Node;
 import org.apache.jena.sparql.ARQException;
-import org.apache.jena.sparql.core.Prologue;
 import org.apache.jena.sparql.path.P_Alt;
 import org.apache.jena.sparql.path.P_Distinct;
 import org.apache.jena.sparql.path.P_FixedLength;
@@ -43,7 +41,6 @@ import org.apache.jena.sparql.path.P_ZeroOrOne;
 import org.apache.jena.sparql.path.Path;
 import org.apache.jena.sparql.path.PathVisitor;
 import org.apache.jena.sparql.serializer.SerializationContext;
-import org.apache.jena.sparql.util.FmtUtils;
 
 /**
  *

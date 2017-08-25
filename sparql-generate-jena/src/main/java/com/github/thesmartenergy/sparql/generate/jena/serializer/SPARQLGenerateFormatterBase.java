@@ -16,7 +16,6 @@
 package com.github.thesmartenergy.sparql.generate.jena.serializer;
 
 import java.io.ByteArrayOutputStream;
-import java.io.OutputStream;
 import java.nio.charset.Charset;
 import org.apache.jena.atlas.io.IndentedWriter;
 import org.apache.jena.graph.Node;

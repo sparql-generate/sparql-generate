@@ -18,7 +18,7 @@ package com.github.thesmartenergy.sparql.generate.jena.engine.impl;
 import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerateException;
 import com.github.thesmartenergy.sparql.generate.jena.engine.IteratorOrSourcePlan;
 import java.util.List;
-import java.util.function.UnaryOperator;
+import java.util.Objects;
 import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.expr.Expr;
 import org.apache.jena.sparql.expr.NodeValue;
@@ -26,6 +26,7 @@ import org.apache.jena.sparql.util.ExprUtils;
 import org.apache.log4j.Logger;
 
 /**
+ * Executes a {@code BIND( <expr> AS <var>)} clause.
  *
  * @author maxime.lefrancois
  */
@@ -48,7 +49,7 @@ public class BindPlanImpl extends PlanBase implements IteratorOrSourcePlan {
     private final Var var;
 
     /**
-     * The generation plan of a <code>{@code BIND <expr> AS <var>}</code> 
+     * The generation plan of a <code>{@code (BIND <expr> AS <var>)}</code> 
      * clause.
      *
      * @param expr The expression. Must not be null.
@@ -58,8 +59,8 @@ public class BindPlanImpl extends PlanBase implements IteratorOrSourcePlan {
     public BindPlanImpl(
             final Expr expr,
             final Var var) {
-        checkNotNull(expr, "Expression must not be null");
-        checkNotNull(var, "Var must not be null");
+        Objects.requireNonNull(expr, "Expression must not be null");
+        Objects.requireNonNull(var, "Var must not be null");
         this.expr = expr;
         this.var = var;
     }
@@ -75,15 +76,10 @@ public class BindPlanImpl extends PlanBase implements IteratorOrSourcePlan {
             throw new SPARQLGenerateException("Variable " + var + " is already"
                     + " bound !");
         }
-        values.replaceAll(new Replacer());
-    }
-
-    private class Replacer implements UnaryOperator<BindingHashMapOverwrite> {
-
-        @Override
-        public BindingHashMapOverwrite apply(BindingHashMapOverwrite binding) {
+        values.replaceAll((BindingHashMapOverwrite binding) -> {
             NodeValue n = ExprUtils.eval(expr, binding);
-            return new BindingHashMapOverwrite(binding, var, n.asNode());
-        }
+            return new BindingHashMapOverwrite(binding, var, n.asNode());            
+        });
     }
+
 }
