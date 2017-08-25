@@ -22,7 +22,7 @@ scp ${websitepath} "root@ci.emse.fr:/var/www/glassfish-apps/sparql-generate.war"
 
 echo ""
 echo "deploy sparql-generate.war on the server"
-ssh ci.emse.fr "/opt/glassfish4/glassfish/bin/asadmin undeploy sparql-generate && /opt/glassfish4/glassfish/bin/asadmin deploy /var/www/glassfish-apps/sparql-generate.war"
+ssh ci.emse.fr "/opt/glassfish4/glassfish/bin/asadmin login && /opt/glassfish4/glassfish/bin/asadmin deploy --force /var/www/glassfish-apps/sparql-generate.war"
 
 echo "ok"
 echo
