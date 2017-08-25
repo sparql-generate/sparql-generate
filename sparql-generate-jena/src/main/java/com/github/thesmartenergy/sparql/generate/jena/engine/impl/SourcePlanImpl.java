@@ -146,7 +146,7 @@ public class SourcePlanImpl extends PlanBase implements IteratorOrSourcePlan {
                 final Node n = NodeFactory.createLiteral(literal, dt);
                 LOG.debug("Found local: " + var + "=" + n);
                 return new BindingHashMapOverwrite(value, var, n);
-            } catch (IOException | DatatypeFormatException ex) {
+            } catch (Exception ex) {
                 LOG.debug("Not found locally: " + node);
             }
 
@@ -162,7 +162,7 @@ public class SourcePlanImpl extends PlanBase implements IteratorOrSourcePlan {
                 final Node n = NodeFactory.createLiteral(literal, dt);
                 LOG.debug("Found distant: " + var + "=" + n);
                 return new BindingHashMapOverwrite(value, var, n);
-            } catch (IOException | DatatypeFormatException ex) {
+            } catch (Exception ex) {
                 LOG.debug("Not found distant file." + node);
                 return new BindingHashMapOverwrite(value, var, null);
             }
