@@ -1,6 +1,12 @@
+
+#leftColumn {
+    max-width: 250px;
+}
+
 #bodyColumn {
+    display: block;
+    margin-left:20px;
     max-width: 800px;
-    margin-left: 20px;
 }
 
 #poweredBy {

@@ -196,7 +196,7 @@ LOOK UP <http://ci.emse.fr/sparql-generate/cities.json> AS ?message
 ITERATE sgiter:JSONListKeys( ?message ) AS ?cityName 
 WHEREVER { 
   FILTER( STRSTARTS( ?cityName , "New" ) ) 
-  BIND( sgfn:JSONPath( ?message, "$.['{ ?cityName }']" ) AS  ?city )
+  BIND( sgfn:JSONPath( ?message, """$.["{ ?cityName }"]""" ) AS  ?city )
 } 
 CONSTRUCT {
   ITERATE sgiter:JSONListKeys( ?city ) AS ?key  
