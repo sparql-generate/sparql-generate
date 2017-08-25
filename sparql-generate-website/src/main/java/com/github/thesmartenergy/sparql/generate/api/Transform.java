@@ -206,6 +206,8 @@ public class Transform extends HttpServlet {
 
             Syntax syntax = SPARQLGenerate.SYNTAX;
             SPARQLGenerateQuery q = (SPARQLGenerateQuery) QueryFactory.create(query, syntax);
+            System.out.println(q.getBaseURI());
+            System.out.println(q.getBaseURI().startsWith("file://"));
             if (q.getBaseURI().startsWith("file://")) {
                 System.out.println("in");
                 q.setBaseURI("http://example.org/");
