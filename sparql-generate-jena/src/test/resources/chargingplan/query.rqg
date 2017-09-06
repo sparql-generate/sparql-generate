@@ -27,7 +27,6 @@ GENERATE {
 
     <> a foaf:Document ;
         rdfs:comment """This document demonstrates the generation of RDF from the CNR charging plan. The schema used by this RDF is still to be validated !"""@en ;
-        dc:created ?date ;
         foaf:primaryTopic <Execution> .
 
     <execution> a seas:AlgorithmExecution .
@@ -60,7 +59,4 @@ GENERATE {
 
 } 
 SOURCE <http://cnr-seas.cloudapp.net/scp/rest/ChargingPlan/1fc4ltccsrsun9mdijrgaruhe5> AS ?message
-WHERE {
-    BIND( now() AS ?date )
-}
 	

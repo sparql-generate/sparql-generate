@@ -25,7 +25,8 @@ import org.jsoup.Jsoup;
 import org.jsoup.select.Elements;
 
 /**
- * A SPARQL function that extracts the text from an HTML element The function
+ * A SPARQL function that extracts the inner text of HTML elements that match
+ * the given selector. The function 
  * URI is {@code <http://w3id.org/sparql-generate/fn/HTMLTag>}.
  *
  * @author Noorani Bakerally <noorani.bakerally at emse.fr>
@@ -56,7 +57,7 @@ public class FN_HTMLTag extends FunctionBase2 {
      * @param v2 a RDF Literal with datatype {@code xsd:string} representing
      * name of the HTML element from which text is to be extracted
      * @return a RDF Literal with datatype URI {@code xsd:string} for the text
-     * of the element
+     * in the element
      */
     @Override
     public NodeValue exec(NodeValue html, NodeValue v2) {
@@ -74,7 +75,7 @@ public class FN_HTMLTag extends FunctionBase2 {
             String sourceHtml = String.valueOf(html.asNode().getLiteralLexicalForm());
             org.jsoup.nodes.Document htmldoc = Jsoup.parse(sourceHtml);
 
-            String selectPath = String.valueOf(v2.asNode().getLiteralValue());
+            String selectPath = String.valueOf(v2.asNode().getLiteralLexicalForm());
             Elements elements = htmldoc.select(selectPath);
             return new NodeValueString(elements.text());
         } catch (Exception e) {

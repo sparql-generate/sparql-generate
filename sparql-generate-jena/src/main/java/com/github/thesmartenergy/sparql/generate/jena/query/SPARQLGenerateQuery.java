@@ -193,7 +193,6 @@ public class SPARQLGenerateQuery extends Query {
             return this;
         }
         String qs = this.toString();
-        Logger.getLogger(SPARQLGenerateQuery.class).info("cloning: " + qs);
         SPARQLGenerateQuery query = (SPARQLGenerateQuery) QueryFactory.create(qs, getSyntax()) ;
         QueryNormalizer normalizer = new QueryNormalizer();
         query.visit(normalizer);

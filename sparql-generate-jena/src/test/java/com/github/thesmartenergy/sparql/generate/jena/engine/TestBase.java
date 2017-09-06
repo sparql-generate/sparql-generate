@@ -133,19 +133,11 @@ public class TestBase {
         FileWriter out = new FileWriter(fileName);
         try {
             output.write(out, "TTL");
-//            output.write(System.out, "TTL");
-        } finally {
-            try {
-                out.close();
-            } catch (IOException closeException) {
-                LOG.debug("Error while writing to file");
-            }
-        }
-
-        fileName = exampleDir.toString() + "/output.ttl";
-        out = new FileWriter(fileName);
-        try {
-            output.write(out, "TTL");
+            System.out.println("\n\nout: \n");
+            output.write(System.out, "TTL");
+            StringWriter sw = new StringWriter();
+            output.write(sw, "TTL");
+            LOG.debug("\n\nlog: \n"+sw.toString());
         } finally {
             try {
                 out.close();
@@ -157,7 +149,8 @@ public class TestBase {
         URI expectedOutputUri = exampleDir.toURI().resolve("expected_output.ttl");
         Model expectedOutput = RDFDataMgr.loadModel(expectedOutputUri.toString());
         StringWriter sw = new StringWriter();
-//        LOG.debug(expectedOutput.writec(sw, "TTL"));
+        expectedOutput.write(sw, "TTL");
+        LOG.debug("\n\nexpectedt: \n"+sw.toString());
 
         assertTrue(output.isIsomorphicWith(expectedOutput));
     }

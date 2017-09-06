@@ -15,6 +15,7 @@
  */
 package com.github.thesmartenergy.sparql.generate.jena.graph;
 
+import com.github.thesmartenergy.sparql.generate.jena.expr.E_URIParam;
 import java.util.List;
 import java.util.UUID;
 import org.apache.jena.graph.NodeVisitor;
@@ -43,6 +44,11 @@ public class Node_XURI extends Node_XExprList {
         @Override
         public Node_XURI build() {
             return new Node_XURI(components);
+        }
+        
+        @Override
+        public void add(Expr e){
+            components.add(new E_URIParam(e));
         }
     }
 

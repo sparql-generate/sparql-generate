@@ -1,13 +1,9 @@
-@prefix spc:   <http://semweb.mmlab.be/ns/spc/> .
-@prefix dcterms: <http://purl.org/dc/terms/> .
-@prefix bibo:  <http://purl.org/ontology/bibo/> .
+@prefix ex:    <http://example.com/> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
 
-<http://ceur-ws.org/Vol-1128>
-        a                   bibo:Volume ;
-        rdfs:label          "15th International Configuration Workshop" , "Proceedings of the 15th International Configuration Workshop" ;
-        dcterms:identifier  "urn:nbn:de:0074-1128-8" ;
-        bibo:shortTitle     "ConfWS-2013" ;
-        spc:fullTitle       "Proceedings of the 15th International Configuration Workshop" ;
-        spc:volTitle        "15th International Configuration Workshop" .
-
+[ a           ex:HTMLPage ;
+  ex:infobox  "SPARQL Paradigm Query language Developer W3C First appeared 2008; 9 years ago (2008) Stable release 1.1 / March 21, 2013; 4 years ago (2013-03-21) Website www.w3.org/TR/sparql11-query/ Major implementations Jena,[1] OpenLink Virtuoso[1]"^^rdf:HTML ;
+  ex:title    "SPARQL" ;
+  ex:url      "https://web.archive.org/web/20170718195443/https://en.wikipedia.org/wiki/SPARQL"
+] .

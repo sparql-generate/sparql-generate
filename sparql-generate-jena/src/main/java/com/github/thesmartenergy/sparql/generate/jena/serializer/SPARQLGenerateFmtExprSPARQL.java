@@ -15,6 +15,7 @@
  */
 package com.github.thesmartenergy.sparql.generate.jena.serializer;
 
+import com.github.thesmartenergy.sparql.generate.jena.expr.E_URIParam;
 import org.apache.jena.atlas.io.IndentedWriter;
 import org.apache.jena.sparql.ARQInternalErrorException;
 import org.apache.jena.sparql.algebra.OpAsQuery;
@@ -87,6 +88,10 @@ public class SPARQLGenerateFmtExprSPARQL extends FmtExprSPARQL {
 
         @Override
         public void visit(ExprFunction1 expr) {
+            if(expr instanceof E_URIParam) {
+                expr.getArg().visit(this);
+                return;
+            }
             if (expr.getOpName() == null) {
                 printInFunctionForm(expr);
                 return;

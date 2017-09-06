@@ -30,6 +30,7 @@ import java.util.logging.Level;
 import java.util.logging.LogManager;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.input.BOMInputStream;
 import org.apache.jena.rdf.model.Model;
 import org.apache.log4j.Logger;
 
@@ -71,7 +72,7 @@ public class CMDGenerator {
                 File f = new File(file_path);
                 if(f.exists() && !f.isDirectory()) { 
                     FileInputStream fisTargetFile = new FileInputStream(f);
-                    query = IOUtils.toString(fisTargetFile, "UTF-8");    
+                    query = IOUtils.toString(new BOMInputStream(fisTargetFile), "UTF-8");    
                     System.out.println("\n\nRead SPARQL-Generate Query ..\n"+query+"\n\n");
                     LOG.debug("\n\nRead SPARQL-Generate Query ..\n"+query+"\n\n");
                 } else {

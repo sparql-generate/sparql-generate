@@ -1,16 +1,12 @@
 @prefix seas:  <https://w3id.org/seas/> .
 @prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
-@prefix rqgiter: <http://w3id.org/sparql-generate/iter/> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
-@prefix rqgfn: <http://w3id.org/sparql-generate/fn/> .
 
-<http://example.com/smartmeter/00001708/activity/timeseries/1453508109000/listvalue/e_1>
-        a          rdf:List ;
-        rdf:first  "5361.533196533648"^^xsd:double ;
-        rdf:rest   <http://example.com/smartmeter/00001708/activity/timeseries/1453508109000/listvalue/e_2> .
+<http://example.com/smartmeter/00001708/activity>
+        a       seas:ElectricConsumptionMeasuringActivity .
 
 [ a                      seas:Evaluation ;
-  seas:generatedAt       "2016-01-23T01:15:13+0100"^^xsd:dateTime ;
+  seas:generatedAt       "2016-01-23T01:15:13Z"^^xsd:dateTime ;
   seas:generatedBy       <http://example.com/smartmeter/00001708/activity> ;
   seas:quantity          [ a  seas:ElectricConsumption ] ;
   seas:systemOfInterest  <http://example.com/smartmeter/00001708> ;
@@ -21,33 +17,34 @@
 <http://example.com/smartmeter/00001708/timeseries>
         a              seas:TimeSeries ;
         seas:list      <http://example.com/smartmeter/00001708/activity/timeseries/1453508109000/listvalue/> ;
-        seas:start     "2016-01-23T01:15:09+0100"^^xsd:dateTime ;
         seas:timeStep  "PT1M"^^xsd:duration .
-
-<http://example.com/smartmeter/00001708/activity/timeseries/1453508109000/listvalue/e_4>
-        a          rdf:List ;
-        rdf:first  "1919.3175467935216"^^xsd:double ;
-        rdf:rest   <http://example.com/smartmeter/00001708/activity/timeseries/1453508109000/listvalue/e_5> .
 
 <http://example.com/smartmeter/00001708/activity/timeseries/1453508109000/listvalue/>
         a          rdf:List ;
         rdf:first  "1919.3175467935325"^^xsd:double ;
         rdf:rest   <http://example.com/smartmeter/00001708/activity/timeseries/1453508109000/listvalue/e_1> .
 
-<http://example.com/smartmeter/00001708/activity/timeseries/1453508109000/listvalue/e_2>
+<http://example.com/smartmeter/00001708/activity/timeseries/1453508109000/listvalue/e_1>
         a          rdf:List ;
-        rdf:first  "6238.729721928914"^^xsd:double ;
-        rdf:rest   <http://example.com/smartmeter/00001708/activity/timeseries/1453508109000/listvalue/e_3> .
-
-<http://example.com/smartmeter/00001708/activity>
-        a       seas:ElectricConsumptionMeasuringActivity .
-
-<http://example.com/smartmeter/00001708/activity/timeseries/1453508109000/listvalue/e_5>
-        a          rdf:List ;
-        rdf:first  "5361.533196533637"^^xsd:double ;
-        rdf:rest   () .
+        rdf:first  "5361.533196533648"^^xsd:double ;
+        rdf:rest   <http://example.com/smartmeter/00001708/activity/timeseries/1453508109000/listvalue/e_2> .
 
 <http://example.com/smartmeter/00001708/activity/timeseries/1453508109000/listvalue/e_3>
         a          rdf:List ;
         rdf:first  "3002.707369296608"^^xsd:double ;
         rdf:rest   <http://example.com/smartmeter/00001708/activity/timeseries/1453508109000/listvalue/e_4> .
+
+<http://example.com/smartmeter/00001708/activity/timeseries/1453508109000/listvalue/e_2>
+        a          rdf:List ;
+        rdf:first  "6238.729721928914"^^xsd:double ;
+        rdf:rest   <http://example.com/smartmeter/00001708/activity/timeseries/1453508109000/listvalue/e_3> .
+
+<http://example.com/smartmeter/00001708/activity/timeseries/1453508109000/listvalue/e_4>
+        a          rdf:List ;
+        rdf:first  "1919.3175467935216"^^xsd:double ;
+        rdf:rest   <http://example.com/smartmeter/00001708/activity/timeseries/1453508109000/listvalue/e_5> .
+
+<http://example.com/smartmeter/00001708/activity/timeseries/1453508109000/listvalue/e_5>
+        a          rdf:List ;
+        rdf:first  "5361.533196533637"^^xsd:double ;
+        rdf:rest   () .

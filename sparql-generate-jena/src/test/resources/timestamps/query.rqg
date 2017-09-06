@@ -8,7 +8,6 @@ PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 
 GENERATE{
     GENERATE {
-
          [] a seas:Evaluation;
               seas:generatedAt   ?horodate;
               seas:generatedBy   ?ActivityURI;
@@ -48,7 +47,7 @@ GENERATE{
        BIND (URI(CONCAT("http://example.com/smartmeter/",?id, "/activity")) AS ?ActivityURI)
        BIND (URI(CONCAT("http://example.com/smartmeter/",?id,"/timeseries")) AS ?timeSeriesURI)
        BIND ( rqgfn:JSONPath( ?dataSensor , "$.PXm[0]" ) AS ?msgtime)
-       BIND ( rqgfn:JSONPath( ?msgtime, "$.[0]" ) AS ?firstTime)
+       BIND ( rqgfn:JSONPath( ?msgtime, "$[0]" ) AS ?firstTime)
        BIND ( rqgfn:dateTime( ?firstTime ) AS ?firstTimeDT)
        BIND (URI(CONCAT("http://example.com/smartmeter/", ?id, "/activity/timeseries/", STR( ?firstTime ) , "/listvalue/") ) AS ?consumptionTimeSeriesListURI )
     }.

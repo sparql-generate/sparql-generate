@@ -2,16 +2,15 @@ BASE <http://example.com/>
 PREFIX iter: <http://w3id.org/sparql-generate/iter/>
 PREFIX fn: <http://w3id.org/sparql-generate/fn/>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX ex: <http://example.com/>
 GENERATE { 
   [] a ex:HTMLPage;
-    ex:title ?title;
-    ex:url ?URL;
-    ex:developer ?infobox;
+    ex:title ?{ fn:HTMLTag(?source, "h1") };
+    ex:url ?{ fn:HTMLAttribute(?link, "href") };
+    ex:infobox "{ fn:HTMLTag(?source, "table[class*=infobox]") }"^^rdf:HTML;
 }
-SOURCE <https://en.wikipedia.org/wiki/SPARQL> AS ?source
+SOURCE <https://web.archive.org/web/20170718195443/https://en.wikipedia.org/wiki/SPARQL> AS ?source
 WHERE {
-	BIND(fn:HTMLTag(?source, "title") AS ?title )
-        BIND(fn:HTMLTagElement(?source, "link[rel=canonical]") AS ?link )
-        BIND(fn:HTMLAttribute(?link, "href") AS ?URL )
+    BIND(fn:HTMLTagElement(?source, "link[rel=canonical]") AS ?link )
 }

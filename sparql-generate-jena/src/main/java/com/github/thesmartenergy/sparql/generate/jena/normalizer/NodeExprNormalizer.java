@@ -15,6 +15,7 @@
  */
 package com.github.thesmartenergy.sparql.generate.jena.normalizer;
 
+import com.github.thesmartenergy.sparql.generate.jena.expr.E_URIParam;
 import com.github.thesmartenergy.sparql.generate.jena.graph.Node_X;
 import com.github.thesmartenergy.sparql.generate.jena.graph.Node_XExpr;
 import com.github.thesmartenergy.sparql.generate.jena.graph.Node_XLiteral;
@@ -36,6 +37,7 @@ import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.expr.E_IRI;
 import org.apache.jena.sparql.expr.E_StrConcat;
 import org.apache.jena.sparql.expr.E_StrDatatype;
+import org.apache.jena.sparql.expr.E_StrEncodeForURI;
 import org.apache.jena.sparql.expr.E_StrLang;
 import org.apache.jena.sparql.expr.Expr;
 import org.apache.jena.sparql.expr.ExprList;
@@ -187,7 +189,12 @@ public class NodeExprNormalizer implements SPARQLGenerateNodeVisitor {
         ExprList args = new ExprList();
         List<Expr> components = node.getComponents();
         for (Expr e : components) {
-            args.add(nzer.normalize(e));
+            if(e instanceof E_URIParam) {
+                Expr subst = new E_StrEncodeForURI(nzer.normalize(((E_URIParam) e).getArg()));
+                args.add(nzer.normalize(subst));
+            } else {
+                args.add(nzer.normalize(e));
+            }
         }
         Expr str = new E_StrConcat(args);
         Expr expr = new E_IRI(str);
