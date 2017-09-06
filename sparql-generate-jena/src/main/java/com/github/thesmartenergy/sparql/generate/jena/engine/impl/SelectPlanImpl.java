@@ -67,7 +67,6 @@ public class SelectPlanImpl extends PlanBase implements SelectPlan {
             final List<Var> variables,
             final List<BindingHashMapOverwrite> values) {
 
-        LOG.info(select.toString());
         Query q = select.cloneQuery();
         
         // add data block in the where clause.

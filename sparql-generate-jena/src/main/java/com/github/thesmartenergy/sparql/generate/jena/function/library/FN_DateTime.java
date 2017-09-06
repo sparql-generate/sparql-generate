@@ -26,11 +26,13 @@ import java.util.Date;
 import org.apache.jena.datatypes.xsd.XSDDatatype;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
+import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueNode;
 import org.apache.jena.sparql.function.FunctionBase1;
 
 /**
- * A SPARQL Function that converts a timestamp (an xsd:int) to a xsd:dateTime.
+ * A SPARQL Function that converts a timestamp encoded in an xsd:string to a 
+ * xsd:dateTime.
  * The Function URI is {@code <http://w3id.org/sparql-generate/fn/dateTime>}.
  *
  * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
@@ -55,20 +57,21 @@ public final class FN_DateTime extends FunctionBase1 {
     @Override
     public NodeValue exec(NodeValue timeStampValue) {
 
-        BigInteger timeStamp = timeStampValue.getInteger();
-
-        if (timeStamp == null) {
-            LOG.warn("The NodeValue " + timeStampValue + " MUST be an integer."
+        BigInteger timeStamp;
+        if(timeStampValue == null || !timeStampValue.isInteger()) {
+            throw new ExprEvalException("The NodeValue " + timeStampValue + " MUST be an integer."
                     + " Returning null.");
+        } else {
+            timeStamp = timeStampValue.getInteger();
         }
-        if (timeStamp.signum() != 1) {
-            LOG.warn("The NodeValue " + timeStamp + " MUST be positive."
-                    + " Returning null.");
-        }
+        
         if (timeStamp.compareTo(BigInteger.valueOf(Long.MAX_VALUE)) != -1) {
-            LOG.warn("The NodeValue " + timeStamp + " MUST be less than the biggest long value."
+            throw new ExprEvalException("The NodeValue " + timeStamp + " MUST be less than the biggest long value."
                     + " Returning null.");
-        }
+        } else if (timeStamp.signum() != 1) {
+            throw new ExprEvalException("The NodeValue " + timeStamp + " MUST be positive."
+                    + " Returning null.");
+        }         
 
         Timestamp stamp = new Timestamp(timeStamp.longValue());
         Date date = new Date(stamp.getTime());

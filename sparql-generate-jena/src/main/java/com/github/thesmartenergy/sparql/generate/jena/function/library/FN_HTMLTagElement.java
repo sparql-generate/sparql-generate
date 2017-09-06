@@ -25,8 +25,10 @@ import org.jsoup.Jsoup;
 import org.jsoup.select.Elements;
 
 /**
- * A SPARQL function that extracts the text from an HTML element 
- * The function URI is {@code <http://w3id.org/sparql-generate/fn/HTMLTag>}.
+ * A SPARQL function that extracts the text of HTML elements, its attributes, 
+ * and the inner html that match the given selector. 
+ * The function URI is
+ * {@code <http://w3id.org/sparql-generate/fn/HTMLTagElement>}.
  * It takes two parameters as input:
  * <ul>
  * <li>{@param html} a RDF Literal with datatype URI
@@ -73,10 +75,10 @@ public class FN_HTMLTagElement extends FunctionBase2{
         }
       
         try {
-            String sourceHtml = String.valueOf(html.asNode().getLiteralValue());
+            String sourceHtml = String.valueOf(html.asNode().getLiteralLexicalForm());
             org.jsoup.nodes.Document htmldoc = Jsoup.parse(sourceHtml);
             
-            String selectPath = String.valueOf(v2.asNode().getLiteralValue());
+            String selectPath = String.valueOf(v2.asNode().getLiteralLexicalForm());
             Elements elements = htmldoc.select(selectPath);
             
             return new NodeValueString(elements.outerHtml());

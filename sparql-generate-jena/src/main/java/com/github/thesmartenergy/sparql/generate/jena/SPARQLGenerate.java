@@ -33,7 +33,6 @@ import org.apache.jena.sparql.util.TranslationTable;
 import com.github.thesmartenergy.sparql.generate.jena.function.library.FN_JSONPath;
 import com.github.thesmartenergy.sparql.generate.jena.function.library.FN_Regex;
 import com.github.thesmartenergy.sparql.generate.jena.function.library.FN_SplitAtPostion;
-import com.github.thesmartenergy.sparql.generate.jena.function.library.FN_Unzip;
 import com.github.thesmartenergy.sparql.generate.jena.function.library.FN_XPath;
 import com.github.thesmartenergy.sparql.generate.jena.lang.ParserSPARQLGenerate;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.IteratorFunctionRegistry;
@@ -132,7 +131,6 @@ public final class SPARQLGenerate {
         fnreg.put(FN_BNode2.URI, FN_BNode2.class);
         fnreg.put(FN_HTMLTagElement.URI, FN_HTMLTagElement.class);
         fnreg.put(FN_DateTime.URI, FN_DateTime.class);
-        fnreg.put(FN_Unzip.URI, FN_Unzip.class);
         
         
                 

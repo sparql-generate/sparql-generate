@@ -5,14 +5,9 @@ PREFIX sgiter: <http://w3id.org/sparql-generate/iter/>
 PREFIX sgfn: <http://w3id.org/sparql-generate/fn/>
 
 GENERATE { 
-  ?uri dcterms:title ?title ;
-    dcterms:description ?description .
+  <http://ex.org/project/{ sgfn:CustomCSV( ?project, "Ref", '"' , "," , "\n" , true ) }>
+    dcterms:title "{ sgfn:CustomCSV( ?project, "Titre du projet", '"' , "," , "\n" , true ) }"@en ;
+    dcterms:description "{ sgfn:CustomCSV( ?project, "Description du projet", '"' , "," , "\n" , true ) }"@en .
 }
 SOURCE <http://w3id.org/sparql-generate/example/source/design> AS ?source
 ITERATOR sgiter:CustomCSV( ?source , '"' , "," , "\n" , true ) AS ?project
-WHERE {
-    BIND( sgfn:CustomCSV( ?project, "Ref", '"' , "," , "\n" , true ) AS ?ref )
-    BIND( sgfn:CustomCSV( ?project, "Titre du projet", '"' , "," , "\n" , true ) AS ?title )
-    BIND( sgfn:CustomCSV( ?project, "Description du projet", '"' , "," , "\n" , true ) AS ?description )
-    BIND( URI( CONCAT( "http://ex.org/project/" , ?ref ) ) AS ?uri )
-}   

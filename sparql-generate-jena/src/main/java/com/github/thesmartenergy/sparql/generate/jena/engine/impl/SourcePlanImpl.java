@@ -21,7 +21,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.function.UnaryOperator;
 import org.apache.commons.io.IOUtils;
 import org.apache.jena.datatypes.RDFDatatype;
 import org.apache.jena.datatypes.TypeMapper;
@@ -34,9 +33,8 @@ import org.apache.jena.util.LocatorURL;
 import org.apache.jena.util.TypedStream;
 import org.apache.log4j.Logger;
 import com.github.thesmartenergy.sparql.generate.jena.engine.IteratorOrSourcePlan;
-import java.io.IOException;
 import java.util.Objects;
-import org.apache.jena.datatypes.DatatypeFormatException;
+import org.apache.commons.io.input.BOMInputStream;
 
 /**
  * Executes a <code>{@code SOURCE <node> ACCEPT <mime> AS <var>}</code> clause.
@@ -140,7 +138,7 @@ public class SourcePlanImpl extends PlanBase implements IteratorOrSourcePlan {
 
             // check local
             try {
-                literal = IOUtils.toString(fileManager.open(sourceUri));
+                literal = IOUtils.toString(new BOMInputStream(fileManager.open(sourceUri)), "UTF-8"); 
                 datatypeURI = "http://www.w3.org/2001/XMLSchema#string";
                 RDFDatatype dt = tm.getSafeTypeByName(datatypeURI);
                 final Node n = NodeFactory.createLiteral(literal, dt);
@@ -156,7 +154,7 @@ public class SourcePlanImpl extends PlanBase implements IteratorOrSourcePlan {
                 Locator loc = new LocatorURLAccept(acceptHeader);
                 TypedStream stream = loc.open(sourceUri);
                 //TODO check charset --> UTF-8 ok. else, base64
-                literal = IOUtils.toString(stream.getInput());
+                literal = IOUtils.toString(stream.getInput(), stream.getCharset());
                 datatypeURI = "http://www.iana.org/assignments/media-types/" + stream.getMimeType();
                 RDFDatatype dt = tm.getSafeTypeByName(datatypeURI);
                 final Node n = NodeFactory.createLiteral(literal, dt);

@@ -7,18 +7,18 @@ PREFIX note: <http://example.com/note/>
 PREFIX ex: <http://example.com/>
 
 GENERATE { 
-    <http://example.com/note/{ fn:XPath(?note,"/note/@id" }>
+    <http://example.com/note/{ fn:XPath(?note,"/note/@id") }>
             a mail:note;
             mail:from ?{ fn:XPath(?note,"/note/from/text()") };
             mail:to ?{ fn:XPath(?note,"/note/to/text()"  ) };
             mail:heading ?{ fn:XPath(?note,"/note/heading/text()"  ) };
             mail:body ?{ fn:XPath(?note,"/note/body/text()"  ) } ;
-            mail:when <http://example.com/DateTime/{ ?day }/{ ?month }/{ ?year}> .
+            mail:when <http://example.com/DateTime/{ ?year }/{ ?month }/{ ?day }> .
 
-    <http://example.com/DateTime/{ ?day }/{ ?month }/{ ?year}>
+    <http://example.com/DateTime/{ ?year }/{ ?month }/{ ?day }>
             a ex:DateTime;
             ex:day "{ ?day }"^^xsd:gDay ;
-            ex:month "{ ?month) }"^^xsd:gMonth ;
+            ex:month "{ ?month }"^^xsd:gMonth ;
             ex:year "{ ?year }"^^xsd:gYear .  
 
 }
