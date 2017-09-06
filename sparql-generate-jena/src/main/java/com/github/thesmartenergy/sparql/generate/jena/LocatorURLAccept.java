@@ -21,10 +21,9 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.Locale;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.jena.util.Locator;
-import org.apache.jena.util.TypedStream;
+import org.apache.jena.atlas.web.TypedInputStream;
+import org.apache.jena.riot.system.stream.Locator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,77 +34,6 @@ import org.slf4j.LoggerFactory;
 public class LocatorURLAccept implements Locator {
 
     static Logger log = LoggerFactory.getLogger(LocatorURLAccept.class);
-    final String acceptHeader;
-    static final String[] schemeNames = {"http:", "https:"};    // Must be lower case and include the ":"
-
-    public LocatorURLAccept() {
-        this.acceptHeader = "*/*";
-    }
-
-    public LocatorURLAccept(final String acceptHeader) {
-        this.acceptHeader = acceptHeader;
-    }
-    
-    @Override
-    public TypedStream open(String filenameOrURI) {
-        if (!acceptByScheme(filenameOrURI)) {
-            if (log.isTraceEnabled()) {
-                log.trace("Not found : " + filenameOrURI);
-            }
-            return null;
-        }
-
-        try {
-            URL url = new URL(filenameOrURI);
-            URLConnection conn = url.openConnection();
-            String  userInfo = url.getUserInfo();
-            if( userInfo!=null && !userInfo.isEmpty()) {
-                String encodedUserInfo = new String(Base64.encodeBase64(userInfo.getBytes()));
-                conn.setRequestProperty("Authorization","Basic " + encodedUserInfo);
-            }
-            conn.setRequestProperty("Accept", acceptHeader);
-            conn.setRequestProperty("Accept-Charset", "utf-8,*");
-            conn.setDoInput(true);
-            conn.setDoOutput(false);
-            // Default is true.  See javadoc for HttpURLConnection
-            //((HttpURLConnection)conn).setInstanceFollowRedirects(true) ;
-            conn.connect();
-            InputStream in = new BufferedInputStream(conn.getInputStream());
-
-            if (log.isTraceEnabled()) {
-                log.trace("Found: " + filenameOrURI);
-            }
-            return new TypedStream(in, conn.getContentType(), conn.getContentEncoding());
-        } catch (java.io.FileNotFoundException ex) {
-            if (log.isTraceEnabled()) {
-                log.trace("LocatorURLAccept: not found: " + filenameOrURI);
-            }
-            return null;
-        } catch (MalformedURLException ex) {
-            log.warn("Malformed URL: " + filenameOrURI);
-            return null;
-        } // IOExceptions that occur sometimes.
-        catch (java.net.UnknownHostException ex) {
-            if (log.isTraceEnabled()) {
-                log.trace("LocatorURLAccept: not found (UnknownHostException): " + filenameOrURI);
-            }
-            return null;
-        } catch (java.net.ConnectException ex) {
-            if (log.isTraceEnabled()) {
-                log.trace("LocatorURLAccept: not found (ConnectException): " + filenameOrURI);
-            }
-            return null;
-        } catch (java.net.SocketException ex) {
-            if (log.isTraceEnabled()) {
-                log.trace("LocatorURLAccept: not found (SocketException): " + filenameOrURI);
-            }
-            return null;
-        } // And IOExceptions we don't expect
-        catch (IOException ex) {
-            log.warn("I/O Exception opening URL: " + filenameOrURI + "  " + ex.getMessage(), ex);
-            return null;
-        }
-    }
 
     @Override
     public boolean equals(Object other) {
@@ -122,37 +50,76 @@ public class LocatorURLAccept implements Locator {
         return "LocatorURLAccept";
     }
 
-    private boolean acceptByScheme(String filenameOrURI) {
-        String uriSchemeName = getScheme(filenameOrURI);
-        if (uriSchemeName == null) {
-            return false;
-        }
-        uriSchemeName = uriSchemeName.toLowerCase(Locale.ENGLISH);
-        for (String schemeName : schemeNames) {
-            if (uriSchemeName.equals(schemeName)) {
-                return true;
+    @Override
+    public TypedInputStream open(String acceptURI) {
+        if (!acceptURI.substring(0, 7).equals("accept:")) {
+            if (log.isTraceEnabled()) {
+                log.trace("Not found : " + acceptURI);
             }
-        }
-        return false;
-    }
-
-    private boolean hasScheme(String uri, String scheme) {
-        String actualScheme = getScheme(uri);
-        if (actualScheme == null) {
-            return false;
-        }
-        return actualScheme.equalsIgnoreCase(scheme);
-    }
-
-    // Not perfect - but we support Java 1.3 (as of August 2004)
-    private String getScheme(String uri) {
-        int ch = uri.indexOf(':');
-        if (ch < 0) {
             return null;
         }
 
-        // Includes the : 
-        return uri.substring(0, ch + 1);
+        // get accept
+        int index = acceptURI.indexOf(":", 7);
+        if (index == -1) {
+            if (log.isTraceEnabled()) {
+                log.trace("Incorrect accept URI: " + acceptURI);
+            }
+            return null;
+        }
+        String acceptHeader = acceptURI.substring(7, index);
+        String source = acceptURI.substring(index + 1);
+
+        try {
+            URL url = new URL(source);
+            URLConnection conn = url.openConnection();
+            String userInfo = url.getUserInfo();
+            if (userInfo != null && !userInfo.isEmpty()) {
+                String encodedUserInfo = new String(Base64.encodeBase64(userInfo.getBytes()));
+                conn.setRequestProperty("Authorization", "Basic " + encodedUserInfo);
+            }
+            conn.setRequestProperty("Accept", acceptHeader);
+            conn.setRequestProperty("Accept-Charset", "utf-8,*");
+            conn.setDoInput(true);
+            conn.setDoOutput(false);
+            // Default is true.  See javadoc for HttpURLConnection
+            //((HttpURLConnection)conn).setInstanceFollowRedirects(true) ;
+            conn.connect();
+            InputStream in = new BufferedInputStream(conn.getInputStream());
+
+            if (log.isTraceEnabled()) {
+                log.trace("Found: " + acceptURI);
+            }
+            return new TypedInputStream(in, conn.getContentType(), conn.getContentEncoding());
+        } catch (java.io.FileNotFoundException ex) {
+            if (log.isTraceEnabled()) {
+                log.trace("LocatorURLAccept: not found: " + acceptURI);
+            }
+            return null;
+        } catch (MalformedURLException ex) {
+            log.warn("Malformed URL: " + acceptURI);
+            return null;
+        } // IOExceptions that occur sometimes.
+        catch (java.net.UnknownHostException ex) {
+            if (log.isTraceEnabled()) {
+                log.trace("LocatorURLAccept: not found (UnknownHostException): " + acceptURI);
+            }
+            return null;
+        } catch (java.net.ConnectException ex) {
+            if (log.isTraceEnabled()) {
+                log.trace("LocatorURLAccept: not found (ConnectException): " + acceptURI);
+            }
+            return null;
+        } catch (java.net.SocketException ex) {
+            if (log.isTraceEnabled()) {
+                log.trace("LocatorURLAccept: not found (SocketException): " + acceptURI);
+            }
+            return null;
+        } // And IOExceptions we don't expect
+        catch (IOException ex) {
+            log.warn("I/O Exception opening URL: " + acceptURI + "  " + ex.getMessage(), ex);
+            return null;
+        }
     }
 
 }

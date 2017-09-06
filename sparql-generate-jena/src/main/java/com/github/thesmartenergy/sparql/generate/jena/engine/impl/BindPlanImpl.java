@@ -16,7 +16,6 @@
 package com.github.thesmartenergy.sparql.generate.jena.engine.impl;
 
 import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerateException;
-import com.github.thesmartenergy.sparql.generate.jena.engine.IteratorOrSourcePlan;
 import java.util.List;
 import java.util.Objects;
 import org.apache.jena.sparql.core.Var;
@@ -24,13 +23,14 @@ import org.apache.jena.sparql.expr.Expr;
 import org.apache.jena.sparql.expr.NodeValue;
 import org.apache.jena.sparql.util.ExprUtils;
 import org.apache.log4j.Logger;
+import com.github.thesmartenergy.sparql.generate.jena.engine.SourcePlan;
 
 /**
  * Executes a {@code BIND( <expr> AS <var>)} clause.
  *
  * @author maxime.lefrancois
  */
-public class BindPlanImpl extends PlanBase implements IteratorOrSourcePlan {
+public class BindPlanImpl extends PlanBase implements SourcePlan {
 
     /**
      * The logger.

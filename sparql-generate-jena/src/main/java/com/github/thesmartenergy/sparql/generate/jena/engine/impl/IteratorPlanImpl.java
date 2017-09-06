@@ -15,6 +15,7 @@
  */
 package com.github.thesmartenergy.sparql.generate.jena.engine.impl;
 
+import com.github.thesmartenergy.sparql.generate.jena.engine.IteratorPlan;
 import java.util.List;
 import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.expr.ExprEvalException;
@@ -22,14 +23,15 @@ import org.apache.jena.sparql.expr.ExprList;
 import org.apache.jena.sparql.expr.NodeValue;
 import org.apache.log4j.Logger;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.IteratorFunction;
-import com.github.thesmartenergy.sparql.generate.jena.engine.IteratorOrSourcePlan;
+import java.util.ArrayList;
+import java.util.function.Consumer;
 
 /**
  * Executes a {@code ITERATOR <iterator>(<expreList>) AS <var>} clause.
  *
  * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */
-public class IteratorPlanImpl extends PlanBase implements IteratorOrSourcePlan {
+public class IteratorPlanImpl extends PlanBase implements IteratorPlan {
 
     /**
      * The logger.
@@ -77,7 +79,8 @@ public class IteratorPlanImpl extends PlanBase implements IteratorOrSourcePlan {
     @Override
     final public void exec(
             final List<Var> variables,
-            final List<BindingHashMapOverwrite> values) {
+            final List<BindingHashMapOverwrite> values,
+            final Consumer<List<BindingHashMapOverwrite>> bindingStream ) {
 
         boolean added = variables.add(var);
         if (!added) {
@@ -85,27 +88,26 @@ public class IteratorPlanImpl extends PlanBase implements IteratorOrSourcePlan {
         }
 
         ensureNotEmpty(variables, values);
-        int j = values.size();
-        for (int i = 0; i < j; i++) {
-            BindingHashMapOverwrite value = values.remove(0);
-            List<NodeValue> messages = null;
+        for (BindingHashMapOverwrite binding: values) {
+            List<BindingHashMapOverwrite> newValues= new ArrayList();
             try {
-                messages = iterator.exec(value, exprList, null);
+                iterator.exec(binding, exprList, null, (List<NodeValue> nodeValues) -> {
+                    if (nodeValues == null || nodeValues.isEmpty()) {
+                        newValues.add(new BindingHashMapOverwrite(binding, var, null));
+                    } else {
+                        for (NodeValue nodeValue : nodeValues) {
+                            newValues.add(
+                                    new BindingHashMapOverwrite(
+                                            binding, var, nodeValue.asNode()));
+                        }
+                        bindingStream.accept(newValues);
+                    }
+                });
             } catch (ExprEvalException ex) {
                 LOG.warn("Iterator function execution failed: "
                         + iterator.toString()
                         + ". Continue anyways.", ex);
             }
-            if (messages == null || messages.isEmpty()) {
-                values.add(new BindingHashMapOverwrite(value, var, null));
-            } else {
-                for (NodeValue message : messages) {
-                    values.add(
-                            new BindingHashMapOverwrite(
-                                    value, var, message.asNode()));
-                }
-            }
         }
     }
-
 }

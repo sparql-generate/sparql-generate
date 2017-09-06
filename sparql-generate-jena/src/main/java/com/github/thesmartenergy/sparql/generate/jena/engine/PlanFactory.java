@@ -29,7 +29,6 @@ import org.apache.jena.sparql.expr.Expr;
 import org.apache.jena.sparql.expr.ExprFunction;
 import org.apache.jena.sparql.expr.ExprList;
 import org.apache.jena.sparql.syntax.Element;
-import org.apache.jena.util.FileManager;
 import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
 import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerateException;
 import com.github.thesmartenergy.sparql.generate.jena.engine.impl.BindPlanImpl;
@@ -52,7 +51,9 @@ import org.apache.log4j.Logger;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.IteratorFunction;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.IteratorFunctionFactory;
 import com.github.thesmartenergy.sparql.generate.jena.syntax.ElementGenerateTriplesBlock;
+import java.nio.charset.Charset;
 import org.apache.jena.graph.Node;
+import org.apache.jena.riot.system.stream.StreamManager;
 import org.apache.jena.sparql.syntax.ElementBind;
 
 /**
@@ -83,48 +84,6 @@ public class PlanFactory {
      */
     private final IteratorFunctionRegistry sr = IteratorFunctionRegistry.get();
 
-    /**
-     * Enables to use local files instead of attempling an HTTP call.
-     */
-    private final FileManager fm;
-
-    /**
-     * A factory that creates a {@link RootPlan} from a SPARQL Generate
-     * query. Use the default {@link IteratorFunctionRegistry}, and the default
-     * {@link FileManager}.
-     */
-    public PlanFactory() {
-        this(FileManager.get());
-    }
-
-    /**
-     * A factory that creates a {@link RootPlan} from a SPARQL Generate
-     * query.
-     * <p>
-     * The {@link FileManager} uses a configuration file to load files from disk
-     * instead of attempting HTTP GET calls. See
-     * <a href="https://jena.apache.org/documentation/notes/file-manager.html">
-     * The Jena FileManager and LocationMapper</a>. The following code
-     * illustrates the instantiation of a {@code FileManager}:
-     * <pre>{@code
-     *
-     * Model conf = RDFDataMgr.loadModel("file:/path/to/configuration.ttl");
-     * LocationMapper mapper = new LocationMapper(conf);
-     * FileManager fm = new FileManager();
-     *
-     * fm.setLocationMapper(mapper);
-     *
-     * Locator loc = new LocatorFile("file:/path/to/directory1");
-     * Locator loc = new LocatorFile("file:/path/to/directory2");
-     * fileManager.addLocator(loc);
-     * }</pre>
-     *
-     *
-     * @param fileManager the file manager to use.
-     */
-    public PlanFactory(final FileManager fileManager) {
-        this.fm = fileManager;
-    }
 
     /**
      * A factory that creates a {@link RootPlan} from a SPARQL Generate
@@ -239,7 +198,7 @@ public class PlanFactory {
      * @param elementIterator the SPARQL SELECTOR
      * @return -
      */
-    IteratorOrSourcePlan makeIteratorPlan(
+    IteratorPlan makeIteratorPlan(
             final ElementIterator elementIterator) 
                 throws SPARQLGenerateException {
         checkNotNull(elementIterator, "The Iterator must not be null");
@@ -267,13 +226,13 @@ public class PlanFactory {
 
     /**
      * Makes the plan for a SPARQL SOURCE clause. If (1) accept
-     * is not set and (2) the {@code FileManager} finds the file
+     * is not set and (2) the {@code StreamManager} finds the file
      * locally, then the behaviour is not specified (yet).
      *
      * @param elementSource the SPARQL SOURCE
      * @return -
      */
-    private IteratorOrSourcePlan makeSourcePlan (
+    private SourcePlan makeSourcePlan (
             final ElementSource elementSource) throws SPARQLGenerateException {
         checkNotNull(elementSource, "The Source must not be null");
 
@@ -289,7 +248,7 @@ public class PlanFactory {
                 "The accept must be null, a variable or a URI. Got" + accept);
         checkNotNull(var, "The variable must not be null.");
 
-        return new SourcePlanImpl(node, accept, var, fm);
+        return new SourcePlanImpl(node, accept, var);
     }
 
     /**
@@ -298,7 +257,7 @@ public class PlanFactory {
      * @param elementBind the SPARQL BIND
      * @return -
      */
-    private IteratorOrSourcePlan makeBindPlan (
+    private SourcePlan makeBindPlan (
             final ElementBind elementBind) throws SPARQLGenerateException {
         checkNotNull(elementBind, "The Bind element must not be null");
        
@@ -338,8 +297,8 @@ public class PlanFactory {
         checkIsTrue(query.hasGenerateURI(), "Query was expected to be of type"
                 + " GENERATE ?source...");
         try {
-            InputStream in = fm.open(query.getGenerateURI());
-            String qString = IOUtils.toString(in);
+            InputStream in = StreamManager.get().open(query.getGenerateURI());
+            String qString = IOUtils.toString(in, Charset.forName("UTF-8"));
             SPARQLGenerateQuery q
                     = (SPARQLGenerateQuery) QueryFactory.create(qString,
                             SPARQLGenerate.SYNTAX);

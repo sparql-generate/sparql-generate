@@ -15,7 +15,6 @@
  */
 package com.github.thesmartenergy.sparql.generate.generator;
 
-import static com.github.thesmartenergy.sparql.generate.generator.CMDGenerator.LOG;
 import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
 import com.github.thesmartenergy.sparql.generate.jena.engine.PlanFactory;
 import com.github.thesmartenergy.sparql.generate.jena.engine.RootPlan;
@@ -30,8 +29,6 @@ import org.apache.jena.query.QueryFactory;
 import org.apache.jena.query.QuerySolutionMap;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
-import org.apache.jena.util.FileManager;
-import org.apache.jena.util.LocationMapper;
 import org.apache.log4j.Logger;
 
 /**
@@ -40,27 +37,18 @@ import org.apache.log4j.Logger;
  */
 public class ProcessQuery {
     static Logger LOG;
-    static FileManager fileManager;
     public static String process(String query,String conf,String outputFormat){
         Model configurationModel = null;
         LOG = Logger.getLogger(ProcessQuery.class);
-        fileManager = FileManager.makeGlobal(); 
         if (conf.length() > 0){
             configurationModel = generateConfiguration(conf);
-                    
+            SPARQLGenerate.getStreamManager(configurationModel);
         }
         
         LOG.debug("Processing Query");
         SPARQLGenerateQuery q = (SPARQLGenerateQuery) QueryFactory.create(query, SPARQLGenerate.SYNTAX);
 
-        if (configurationModel !=null){
-            LocationMapper mapper = new LocationMapper(configurationModel);
-            fileManager.setLocationMapper(mapper);
-        }
-
-
-
-        PlanFactory factory = new PlanFactory(fileManager);
+        PlanFactory factory = new PlanFactory();
         RootPlan plan = factory.create(q);
         Model output = ModelFactory.createDefaultModel();
 

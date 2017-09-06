@@ -17,10 +17,10 @@ package com.github.thesmartenergy.sparql.generate.jena.engine.impl;
 
 import com.github.thesmartenergy.sparql.generate.jena.engine.GeneratePlan;
 import com.github.thesmartenergy.sparql.generate.jena.engine.GenerateTemplateElementPlan;
+import com.github.thesmartenergy.sparql.generate.jena.engine.IteratorOrSourcePlan;
+import com.github.thesmartenergy.sparql.generate.jena.engine.IteratorPlan;
 import com.github.thesmartenergy.sparql.generate.jena.engine.RootPlan;
-import java.util.ArrayList;
 import java.util.List;
-import org.apache.jena.ext.com.google.common.collect.Lists;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetFactory;
 import org.apache.jena.query.QuerySolution;
@@ -29,17 +29,23 @@ import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.shared.PrefixMapping;
 import org.apache.jena.sparql.core.Var;
 import org.apache.log4j.Logger;
-import com.github.thesmartenergy.sparql.generate.jena.engine.IteratorOrSourcePlan;
 import com.github.thesmartenergy.sparql.generate.jena.engine.SelectPlan;
+import com.github.thesmartenergy.sparql.generate.jena.engine.SourcePlan;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Objects;
+import org.apache.jena.ext.com.google.common.collect.Lists;
+import org.apache.jena.graph.Triple;
 import org.apache.jena.query.QuerySolutionMap;
+import org.apache.jena.riot.system.StreamRDF;
+import org.apache.jena.sparql.core.Quad;
 
 /**
  * Entry point to a SPARQL Generate query execution.
  *
  * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */
-public final class RootPlanImpl extends PlanBase implements RootPlan, 
+public final class RootPlanImpl extends PlanBase implements RootPlan,
         GeneratePlan, GenerateTemplateElementPlan {
 
     /**
@@ -140,7 +146,8 @@ public final class RootPlanImpl extends PlanBase implements RootPlan,
         Dataset inputDataset = DatasetFactory.create();
         QuerySolution initialBindings = new QuerySolutionMap();
         Model initialModel = ModelFactory.createDefaultModel();
-        exec(inputDataset, initialBindings, initialModel);
+        StreamRDF outputStream = new StreamRDFModel(initialModel);
+        exec(inputDataset, initialBindings, outputStream);
         return initialModel;
     }
 
@@ -149,11 +156,11 @@ public final class RootPlanImpl extends PlanBase implements RootPlan,
      */
     @Override
     public final Model exec(final Model inputModel) {
-        Objects.requireNonNull(inputModel, "inputModel must not be null.");
         Dataset inputDataset = DatasetFactory.create(inputModel);
         QuerySolution initialBindings = new QuerySolutionMap();
         Model initialModel = ModelFactory.createDefaultModel();
-        exec(inputDataset, initialBindings, initialModel);
+        StreamRDF outputStream = new StreamRDFModel(initialModel);
+        exec(inputDataset, initialBindings, outputStream);
         return initialModel;
     }
 
@@ -162,10 +169,10 @@ public final class RootPlanImpl extends PlanBase implements RootPlan,
      */
     @Override
     public final Model exec(final Dataset inputDataset) {
-        Objects.requireNonNull(inputDataset, "inputDataset must not be null.");
         QuerySolution initialBindings = new QuerySolutionMap();
         Model initialModel = ModelFactory.createDefaultModel();
-        exec(inputDataset, initialBindings, initialModel);
+        StreamRDF outputStream = new StreamRDFModel(initialModel);
+        exec(inputDataset, initialBindings, outputStream);
         return initialModel;
     }
 
@@ -176,9 +183,9 @@ public final class RootPlanImpl extends PlanBase implements RootPlan,
     public final void exec(
             final QuerySolution initialBindings,
             final Model initialModel) {
-        Objects.requireNonNull(initialModel, "initialModel must not be null.");
         Dataset inputDataset = DatasetFactory.create();
-        exec(inputDataset, initialBindings, initialModel);
+        StreamRDF outputStream = new StreamRDFModel(initialModel);
+        exec(inputDataset, initialBindings, outputStream);
     }
 
     /**
@@ -188,11 +195,10 @@ public final class RootPlanImpl extends PlanBase implements RootPlan,
     public final void exec(
             final Model inputModel,
             final Model initialModel) {
-        Objects.requireNonNull(inputModel, "inputModel must not be null.");
-        Objects.requireNonNull(initialModel, "initialModel must not be null.");
         Dataset inputDataset = DatasetFactory.create(inputModel);
         QuerySolution initialBindings = new QuerySolutionMap();
-        exec(inputDataset, initialBindings, initialModel);
+        StreamRDF outputStream = new StreamRDFModel(initialModel);
+        exec(inputDataset, initialBindings, outputStream);
     }
 
     /**
@@ -202,10 +208,9 @@ public final class RootPlanImpl extends PlanBase implements RootPlan,
     public final void exec(
             final Dataset inputDataset,
             final Model initialModel) {
-        Objects.requireNonNull(inputDataset, "inputDataset must not be null.");
-        Objects.requireNonNull(initialModel, "initialModel must not be null.");
         QuerySolution initialBindings = new QuerySolutionMap();
-        exec(inputDataset, initialBindings, initialModel);
+        StreamRDF outputStream = new StreamRDFModel(initialModel);
+        exec(inputDataset, initialBindings, outputStream);
     }
 
     /**
@@ -216,10 +221,9 @@ public final class RootPlanImpl extends PlanBase implements RootPlan,
             final Model inputModel,
             final QuerySolution initialBindings,
             final Model initialModel) {
-        Objects.requireNonNull(inputModel, "inputModel must not be null.");
-        Objects.requireNonNull(initialModel, "initialModel must not be null.");
         Dataset inputDataset = DatasetFactory.create(inputModel);
-        exec(inputDataset, initialBindings, initialModel);
+        StreamRDF outputStream = new StreamRDFModel(initialModel);
+        exec(inputDataset, initialBindings, outputStream);
     }
 
     /**
@@ -230,22 +234,49 @@ public final class RootPlanImpl extends PlanBase implements RootPlan,
             final Dataset inputDataset,
             final QuerySolution initialBindings,
             final Model initialModel) {
+        StreamRDF outputStream = new StreamRDFModel(initialModel);
+        exec(inputDataset, initialBindings, outputStream);
+    }
+
+    @Override
+    public final void exec(final Model inputModel, final StreamRDF outputStream) {
+        Dataset inputDataset = DatasetFactory.create(inputModel);
+        QuerySolution initialBindings = new QuerySolutionMap();
+        exec(inputDataset, initialBindings, outputStream);
+    }
+
+    @Override
+    public void exec(final StreamRDF outputStream) {
+        Dataset inputDataset = DatasetFactory.create();
+        QuerySolution initialBindings = new QuerySolutionMap();
+        exec(inputDataset, initialBindings, outputStream);
+    }
+
+    @Override
+    public final void exec(final Dataset inputDataset, final StreamRDF outputStream) {
+        QuerySolution initialBindings = new QuerySolutionMap();
+        exec(inputDataset, initialBindings, outputStream);
+    }
+
+    @Override
+    public final void exec(final QuerySolution initialBindings, final StreamRDF outputStream) {
+        Dataset inputDataset = DatasetFactory.create();
+        exec(inputDataset, initialBindings, outputStream);
+    }
+
+    @Override
+    public final void exec(final Model inputModel, final QuerySolution initialBindings, final StreamRDF outputStream) {
+        Dataset inputDataset = DatasetFactory.create(inputModel);
+        exec(inputDataset, initialBindings, outputStream);
+    }
+
+    @Override
+    public final void exec(final Dataset inputDataset, final QuerySolution initialBindings, final StreamRDF outputStream) {
         BNodeMap bNodeMap = new BNodeMap();
-        exec(inputDataset, initialBindings, initialModel, bNodeMap);
+        exec(inputDataset, initialBindings, outputStream, bNodeMap);
     }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public final void exec(
-            final Dataset inputDataset,
-            final QuerySolution initialBindings,
-            final Model initialModel,
-            final BNodeMap bNodeMap) {
-        Objects.requireNonNull(inputDataset, "inputDataset must not be null.");
-        Objects.requireNonNull(initialModel, "initialModel must not be null.");
-        Objects.requireNonNull(bNodeMap, "bNodeMap must not be null.");
+    
+    final void exec(final Dataset inputDataset, final QuerySolution initialBindings, final StreamRDF outputStream, final BNodeMap bNodeMap) {
         final List<BindingHashMapOverwrite> values;
         final List<Var> variables;
         if (initialBindings == null) {
@@ -257,41 +288,101 @@ public final class RootPlanImpl extends PlanBase implements RootPlan,
             values = Lists.newArrayList(binding);
             variables = binding.varsList();
         }
-        exec(inputDataset, initialModel, variables, values, bNodeMap);
+        exec(inputDataset, outputStream, variables, values, bNodeMap);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public void exec(
-            final Dataset inputDataset,
-            final Model initialModel,
-            final List<Var> variables,
-            final List<BindingHashMapOverwrite> values,
-            final BNodeMap bNodeMap) {
+    public final void exec(final Dataset inputDataset, final StreamRDF outputStream, final List<Var> variables, final List<BindingHashMapOverwrite> values, final BNodeMap bNodeMap) {
+        Objects.requireNonNull(inputDataset, "inputDataset must not be null.");
+        Objects.requireNonNull(outputStream, "outputStream must not be null.");
+        Objects.requireNonNull(variables, "variables must not be null.");
+        Objects.requireNonNull(values, "values must not be null.");
+        Objects.requireNonNull(bNodeMap, "bNodeMap must not be null.");
 
         for (String prefix : prefixMapping.getNsPrefixMap().keySet()) {
-            initialModel.setNsPrefix(
-                    prefix, prefixMapping.getNsPrefixURI(prefix));
+            outputStream.prefix(prefix, prefixMapping.getNsPrefixURI(prefix));
         }
 
-        // augments the variables and values.
-        for (IteratorOrSourcePlan plan : iteratorAndSourcePlans) {
-            plan.exec(variables, values);
-        }
-        if (selectPlan != null) {
-            selectPlan.exec(inputDataset, variables, values);
-        }
-        if (generatePlan != null) {
-            if (distant) {
-                BNodeMap bNodeMap2 = new BNodeMap();
-                generatePlan.exec(inputDataset, initialModel, variables, values,
-                        bNodeMap2);
+        Iterator<IteratorOrSourcePlan> it = iteratorAndSourcePlans.iterator();
+        exec(inputDataset, outputStream, variables, values, bNodeMap, it);
+    }
+
+    private void exec(
+            final Dataset inputDataset,
+            final StreamRDF outputStream,
+            final List<Var> variables,
+            final List<BindingHashMapOverwrite> values,
+            final BNodeMap bNodeMap, Iterator<IteratorOrSourcePlan> nextPlans) {
+        LOG.debug("exec with " + variables + " " + values);
+
+
+        if (nextPlans.hasNext()) {
+            IteratorOrSourcePlan plan = nextPlans.next();
+            if (plan instanceof IteratorPlan) {
+                IteratorPlan iteratorPlan = (IteratorPlan) plan;
+                List<IteratorOrSourcePlan> list = new ArrayList<>();
+                nextPlans.forEachRemaining(list::add);
+                iteratorPlan.exec(variables, values, (List<BindingHashMapOverwrite> newValues) -> {
+                    exec(inputDataset, outputStream, variables, newValues, bNodeMap, list.iterator());
+                });
             } else {
-                generatePlan.exec(inputDataset, initialModel, variables, values,
-                        bNodeMap);
+                SourcePlan sourcePlan = (SourcePlan) plan;
+                sourcePlan.exec(variables, values);
+                exec(inputDataset, outputStream, variables, values, bNodeMap, nextPlans);
+            }
+        } else {
+            if (selectPlan != null) {
+                selectPlan.exec(inputDataset, variables, values);
+            }
+            if (generatePlan != null) {
+                if (distant) {
+                    BNodeMap bNodeMap2 = new BNodeMap();
+                    generatePlan.exec(inputDataset, outputStream, variables, values,
+                            bNodeMap2);
+                } else {
+                    generatePlan.exec(inputDataset, outputStream, variables, values,
+                            bNodeMap);
+                }
             }
         }
     }
+
+    private class StreamRDFModel implements StreamRDF {
+
+        private final Model model;
+
+        public StreamRDFModel(final Model model) {
+            this.model = model;
+        }
+
+        @Override
+        public void start() {
+        }
+
+        @Override
+        public void triple(Triple triple) {
+            model.add(model.asStatement(triple));
+        }
+
+        @Override
+        public void quad(Quad quad) {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        @Override
+        public void base(String base) {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        @Override
+        public void prefix(String prefix, String iri) {
+            model.setNsPrefix(prefix, iri);
+        }
+
+        @Override
+        public void finish() {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+    }
+
 }

@@ -21,9 +21,8 @@ import com.github.thesmartenergy.sparql.generate.jena.engine.GenerateTemplateEle
 import java.util.List;
 import org.apache.jena.graph.Node;
 import org.apache.jena.query.Dataset;
-import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.QuerySolutionMap;
-import org.apache.jena.rdf.model.Model;
+import org.apache.jena.riot.system.StreamRDF;
 import org.apache.jena.sparql.core.Var;
 import org.apache.log4j.Logger;
 
@@ -69,9 +68,9 @@ public class GenerateTemplatePlanImpl extends PlanBase implements GeneratePlan {
      * {@inheritDoc}
      */
     @Override
-    public final void exec(
+    public void exec(
             final Dataset inputDataset,
-            final Model initialModel,
+            final StreamRDF outputStream,
             final List<Var> variables,
             final List<BindingHashMapOverwrite> values,
             final BNodeMap bNodeMap) {
@@ -82,7 +81,7 @@ public class GenerateTemplatePlanImpl extends PlanBase implements GeneratePlan {
                     GenerateTriplesPlanImpl subPlanTriples
                             = (GenerateTriplesPlanImpl) el;
                     subPlanTriples.exec(
-                            inputDataset, initialModel,
+                            inputDataset, outputStream,
                             binding, bNodeMap2);
                 } else if (el instanceof RootPlanImpl) {
                     RootPlanImpl rootPlan = (RootPlanImpl) el;
@@ -90,25 +89,22 @@ public class GenerateTemplatePlanImpl extends PlanBase implements GeneratePlan {
                     for (Var v : binding.varsList()) {
                         Node n = binding.get(v);
                         if (bNodeMap.contains(n)) {
-                            b.add(v.getVarName(), 
-                                    initialModel.asRDFNode(bNodeMap.get(n)));
+                            b.add(v.getVarName(), inputDataset
+                                                .getDefaultModel()
+                                                .asRDFNode(bNodeMap.get(n)));
                         } else {
-                            b.add(v.getVarName(), initialModel.asRDFNode(n));
+                            b.add(v.getVarName(), inputDataset
+                                                .getDefaultModel()
+                                                .asRDFNode(n));
                         }
                     }
-                    rootPlan.exec(inputDataset, b, initialModel, bNodeMap2);
+                    rootPlan.exec(inputDataset, b, outputStream, bNodeMap2);
                 } else {
                     throw new SPARQLGenerateException("should not reach this"
                             + " point");
                 }
             }
         }
-    }
-
-    @Override
-    public void exec(Dataset inputDataset, QuerySolution initialBindings,
-            Model initialModel, BNodeMap bNodeMap) {
-        throw new UnsupportedOperationException("Not supported yet.");
     }
 
 }

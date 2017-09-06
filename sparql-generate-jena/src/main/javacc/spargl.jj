@@ -597,7 +597,7 @@ Expr FunctionCall() : { String fname ; ExprList a ; }
      if ( AggregateRegistry.isRegistered(fname) ) {
          if ( ! allowAggregatesInExpressions )
             throwParseException("Aggregate expression not legal at this point : "+fname, -1, -1) ;
-         Aggregator agg = AggregatorFactory.createCustom(true, false, fname, a) ;
+         Aggregator agg = AggregatorFactory.createCustom(fname, false, a) ;
          Expr exprAgg = getQuery().allocAggregate(agg) ;
          return exprAgg ;
      }
@@ -1277,7 +1277,7 @@ Expr XiriOrFunction() : { Node iri ; ExprList a = null ;
         }
          if ( ! allowAggregatesInExpressions )
             throwParseException("Aggregate expression not legal at this point : "+i, -1, -1) ;
-         Aggregator agg = AggregatorFactory.createCustom(true, false, i, a) ;
+         Aggregator agg = AggregatorFactory.createCustom(i, false, a) ;
          Expr exprAgg = getQuery().allocAggregate(agg) ;
          return exprAgg ;
       }

@@ -49,15 +49,15 @@ public class Capital2 extends TestBase {
     public void tearDown() {
     }
 
-//    @Test
-//    public void testQuerySerialization() throws Exception  {
-//        super.testQuerySerialization();
-//    }
-//    
-//    @Test
-//    public void testQueryNormalization() throws Exception  {
-//        super.testQueryNormalization();
-//    }
+    @Test
+    public void testQuerySerialization() throws Exception  {
+        super.testQuerySerialization();
+    }
+    
+    @Test
+    public void testQueryNormalization() throws Exception  {
+        super.testQueryNormalization();
+    }
     
     @Test
     public void testPlanExecution() throws Exception {

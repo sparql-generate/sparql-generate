@@ -149,7 +149,7 @@ public class SPARQLGenerateFormatterElement extends SPARQLGenerateFormatterBase 
         }
 
         QuerySerializerFactory factory = SerializerRegistry.get().getQuerySerializerFactory(SPARQLGenerate.SYNTAX);
-        SPARQLGenerateQueryVisitor visitor = (SPARQLGenerateQueryVisitor) factory.create(SPARQLGenerate.SYNTAX, q.getPrologue(), out);
+        SPARQLGenerateQueryVisitor visitor = (SPARQLGenerateQueryVisitor) factory.create(SPARQLGenerate.SYNTAX, new SerializationContext(q.getPrologue()), out);
 
         visitor.startVisit(q);
         visitor.visitGenerateResultForm(q);
@@ -323,7 +323,7 @@ public class SPARQLGenerateFormatterElement extends SPARQLGenerateFormatterBase 
 
     @Override
     public void visit(ElementData el) {
-        QuerySerializer.outputDataBlock(out, el.getVars(), el.getRows(), context.getPrologue());
+        QuerySerializer.outputDataBlock(out, el.getVars(), el.getRows(), new SerializationContext(context.getPrologue()));
     }
 
     @Override
@@ -519,8 +519,8 @@ public class SPARQLGenerateFormatterElement extends SPARQLGenerateFormatterBase 
         Query q = el.getQuery();
 
         // Serialize with respect to the existing context
-        QuerySerializerFactory factory = SerializerRegistry.get().getQuerySerializerFactory(Syntax.syntaxARQ);
-        QueryVisitor serializer = factory.create(Syntax.syntaxARQ, context, out);
+        QuerySerializerFactory factory = SerializerRegistry.get().getQuerySerializerFactory(Syntax.syntaxSPARQL_11);
+        QueryVisitor serializer = factory.create(Syntax.syntaxSPARQL_11, context, out);
         q.visit(serializer);
 
         out.decIndent(INDENT);

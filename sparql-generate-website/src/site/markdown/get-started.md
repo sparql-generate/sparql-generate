@@ -96,29 +96,20 @@ plan.exec(initialBinding, initialModel);
 ```
 
 
-### Using a File Manager
+### Using a StreamManager and a LocationMapper
 
-The default behaviour of the implementation is to attempt to operate a HTTP GET request to the URI of a source, and to use the retrieved document as the literal for this name. One may choose to use local files instead.
-
-The Jena FileManager is designed just for that. It uses a configuration file to load files from disk instead of attempting HTTP GET calls. See
-[The Jena FileManager and LocationMapper](https://jena.apache.org/documentation/notes/file-manager.html). The following code illustrates how a `FileManager` can be passed to the constructor of a `PlanFactory`, in order to be used during the execution of the plans this `PlanFactory` will create.
+The default behaviour of the implementation is to use the Jena StreamManager to fetch the queriesor sources from their URL. One may map URIs to local files using [the Jena StreamManager and LocationMapper](http://jena.apache.org/documentation/io/rdf-input.html#streammanager-and-locationmapper). The following snippet illustrates how this is achieved:
 
 ```java
-Model conf = RDFDataMgr.loadModel("file:/path/to/configuration.ttl");
-LocationMapper mapper = new LocationMapper(conf);
-FileManager fm = new FileManager();
+// read location-mapping
+URI confUri = exampleDir.toURI().resolve("configuration.ttl");
+Model conf = RDFDataMgr.loadModel(confUri.toString());
 
-fm.setLocationMapper(mapper);
+// initialize file manager
+StreamManager sm = SPARQLGenerate.getStreamManager(conf);
+sm.addLocator(new LocatorFile(exampleDir.toURI().getPath()));
 
-Locator loc;
-
-loc = new LocatorFile("file:/path/to/directory1");
-fm.addLocator(loc);
-
-loc = new LocatorFile("file:/path/to/directory2");
-fm.addLocator(loc);
-
-PlanFactory factory = new PlanFactory(fm);
+PlanFactory factory = new PlanFactory();
 ...
 
 ```

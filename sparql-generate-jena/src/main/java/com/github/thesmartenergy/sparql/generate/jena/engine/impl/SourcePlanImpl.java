@@ -15,35 +15,27 @@
  */
 package com.github.thesmartenergy.sparql.generate.jena.engine.impl;
 
-import com.github.thesmartenergy.sparql.generate.jena.LocatorURLAccept;
 import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerateException;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
-import java.util.function.UnaryOperator;
 import org.apache.commons.io.IOUtils;
 import org.apache.jena.datatypes.RDFDatatype;
 import org.apache.jena.datatypes.TypeMapper;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.sparql.core.Var;
-import org.apache.jena.util.FileManager;
-import org.apache.jena.util.Locator;
-import org.apache.jena.util.LocatorURL;
-import org.apache.jena.util.TypedStream;
 import org.apache.log4j.Logger;
-import com.github.thesmartenergy.sparql.generate.jena.engine.IteratorOrSourcePlan;
-import java.io.IOException;
 import java.util.Objects;
-import org.apache.jena.datatypes.DatatypeFormatException;
+import com.github.thesmartenergy.sparql.generate.jena.engine.SourcePlan;
+import java.io.IOException;
+import org.apache.jena.atlas.web.TypedInputStream;
+import org.apache.jena.riot.system.stream.StreamManager;
 
 /**
  * Executes a <code>{@code SOURCE <node> ACCEPT <mime> AS <var>}</code> clause.
  *
  * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */
-public class SourcePlanImpl extends PlanBase implements IteratorOrSourcePlan {
+public class SourcePlanImpl extends PlanBase implements SourcePlan {
 
     /**
      * The logger.
@@ -67,11 +59,8 @@ public class SourcePlanImpl extends PlanBase implements IteratorOrSourcePlan {
     private final Var var;
 
     /**
-     * The file manager.
+     * type mapper.
      */
-    private final FileManager fileManager;
-
-    /** type mapper. */
     final static TypeMapper tm = TypeMapper.getInstance();
 
     /**
@@ -84,16 +73,13 @@ public class SourcePlanImpl extends PlanBase implements IteratorOrSourcePlan {
      * Internet Media Type. May be null.
      * @param var0 The variable to bound the potentially retrieved document.
      * Must not be null.
-     * @param fileManager0 The file manager to use to fetch a local file.
      */
     public SourcePlanImpl(
             final Node node0,
             final Node accept0,
-            final Var var0,
-            final FileManager fileManager0) {
+            final Var var0) {
         Objects.requireNonNull(node0, "Node must not be null");
         Objects.requireNonNull(var0, "Var must not be null");
-        Objects.requireNonNull(fileManager0, "FileManager must not be null");
         if (!node0.isURI() && !node0.isVariable()) {
             throw new IllegalArgumentException("Source node must be a IRI or a"
                     + " Variable. got " + node0);
@@ -101,7 +87,6 @@ public class SourcePlanImpl extends PlanBase implements IteratorOrSourcePlan {
         this.node = node0;
         this.accept = accept0;
         this.var = var0;
-        this.fileManager = fileManager0;
     }
 
     /**
@@ -115,17 +100,6 @@ public class SourcePlanImpl extends PlanBase implements IteratorOrSourcePlan {
             throw new SPARQLGenerateException("Variable " + var + " is already"
                     + " bound !");
         }
-        // ensure we shunt the LocatorURL
-        Set<Locator> toRemove = new HashSet<>();
-        for (Iterator<Locator> it = fileManager.locators(); it.hasNext();) {
-            Locator loc = it.next();
-            if (loc instanceof LocatorURL) {
-                toRemove.add(loc);
-            }
-        }
-        for (Locator loc : toRemove) {
-            fileManager.remove(loc);
-        }
         ensureNotEmpty(variables, values);
         values.replaceAll((BindingHashMapOverwrite value) -> {
             String literal = null;
@@ -133,39 +107,49 @@ public class SourcePlanImpl extends PlanBase implements IteratorOrSourcePlan {
 
             // generate the source URI.
             final String sourceUri = getActualSource(value);
-            if (sourceUri == null) {
-                LOG.debug("No source for " + node);
-                return new BindingHashMapOverwrite(value, var, null);
-            }
-
-            // check local
-            try {
-                literal = IOUtils.toString(fileManager.open(sourceUri));
-                datatypeURI = "http://www.w3.org/2001/XMLSchema#string";
-                RDFDatatype dt = tm.getSafeTypeByName(datatypeURI);
-                final Node n = NodeFactory.createLiteral(literal, dt);
-                LOG.debug("Found local: " + var + "=" + n);
-                return new BindingHashMapOverwrite(value, var, n);
-            } catch (Exception ex) {
-                LOG.debug("Not found locally: " + node);
-            }
-
-            // check distant
             String acceptHeader = getAcceptHeader(value);
-            try {
-                Locator loc = new LocatorURLAccept(acceptHeader);
-                TypedStream stream = loc.open(sourceUri);
-                //TODO check charset --> UTF-8 ok. else, base64
-                literal = IOUtils.toString(stream.getInput());
-                datatypeURI = "http://www.iana.org/assignments/media-types/" + stream.getMimeType();
-                RDFDatatype dt = tm.getSafeTypeByName(datatypeURI);
-                final Node n = NodeFactory.createLiteral(literal, dt);
-                LOG.debug("Found distant: " + var + "=" + n);
-                return new BindingHashMapOverwrite(value, var, n);
-            } catch (Exception ex) {
-                LOG.debug("Not found distant file." + node);
-                return new BindingHashMapOverwrite(value, var, null);
+
+            // try with accept header.
+            if (acceptHeader != null) {
+                String acceptURI = "accept:" + acceptHeader + ":" + sourceUri;
+                TypedInputStream stream = StreamManager.get().open(acceptURI);
+                if (stream != null) {
+                    try {
+                        literal = IOUtils.toString(stream.getInputStream(), "UTF-8");
+                        if (stream.getMediaType() != null && stream.getMediaType().getContentType() != null) {
+                            datatypeURI = "http://www.iana.org/assignments/media-types/" + stream.getMediaType().getContentType();
+                        } else {
+                            datatypeURI = "http://www.w3.org/2001/XMLSchema#string";
+                        }
+                        RDFDatatype dt = tm.getSafeTypeByName(datatypeURI);
+                        final Node n = NodeFactory.createLiteral(literal, dt);
+                        return new BindingHashMapOverwrite(value, var, n);
+                    } catch (IOException ex) {
+                    }
+                }
+                LOG.warn("not found with streamManager: " + acceptURI);
             }
+
+            // try without.
+            TypedInputStream stream = StreamManager.get().open(sourceUri);
+            if (stream != null) {
+                try {
+                    literal = IOUtils.toString(stream.getInputStream(), "UTF-8");
+                    if (stream.getMediaType() != null && stream.getMediaType().getContentType() != null) {
+                        datatypeURI = "http://www.iana.org/assignments/media-types/" + stream.getMediaType().getContentType();
+                    } else {
+                        datatypeURI = "http://www.w3.org/2001/XMLSchema#string";
+                    }
+                    RDFDatatype dt = tm.getSafeTypeByName(datatypeURI);
+                    final Node n = NodeFactory.createLiteral(literal, dt);
+                    return new BindingHashMapOverwrite(value, var, n);
+                } catch (IOException ex) {
+                }
+                LOG.warn("not found with streamManager: " + sourceUri);
+
+            }
+
+            return new BindingHashMapOverwrite(value, var, null);
         });
     }
 

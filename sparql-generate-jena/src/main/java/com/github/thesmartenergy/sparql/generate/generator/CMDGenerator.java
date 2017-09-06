@@ -31,13 +31,11 @@ import java.util.logging.LogManager;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.io.IOUtils;
 import org.apache.jena.rdf.model.Model;
-import org.apache.jena.util.FileManager;
 import org.apache.log4j.Logger;
 
 public class CMDGenerator {
     
     static Logger LOG;
-    static FileManager fileManager;
     
     public static void main(String [] args){
         
@@ -54,7 +52,6 @@ public class CMDGenerator {
             }
             
             
-            fileManager = FileManager.makeGlobal(); 
             if ( cl.hasOption('l') ) {
                Enumeration<String> loggers = LogManager.getLogManager().getLoggerNames();
                 while (loggers.hasMoreElements()) {
@@ -62,7 +59,6 @@ public class CMDGenerator {
                    element.setLevel(Level.OFF);
                 }
                 Logger.getRootLogger().setLevel(org.apache.log4j.Level.OFF);
-                       
             }
             LOG = Logger.getLogger(CMDGenerator.class);
             

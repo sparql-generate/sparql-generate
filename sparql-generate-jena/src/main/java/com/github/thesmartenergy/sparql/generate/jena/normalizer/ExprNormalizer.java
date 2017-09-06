@@ -153,7 +153,6 @@ public class ExprNormalizer {
     }
 
     private Expr normalize(Node_XLiteral n) {
-        Var var = Var.alloc(n.getLabel());
         ExprList args = new ExprList();
         List<Expr> components = n.getComponents();
         for (Expr e : components) {

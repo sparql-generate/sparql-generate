@@ -22,7 +22,9 @@ import org.apache.jena.sparql.syntax.ElementGroup;
 import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
 import com.github.thesmartenergy.sparql.generate.jena.normalizer.QueryNormalizer;
 import java.util.List;
+import org.apache.jena.query.QueryFactory;
 import org.apache.jena.sparql.syntax.Element;
+import org.apache.log4j.Logger;
 
 /**
  *
@@ -190,7 +192,9 @@ public class SPARQLGenerateQuery extends Query {
         if(!hasEmbeddedExpressions) {
             return this;
         }
-        SPARQLGenerateQuery query = (SPARQLGenerateQuery) cloneQuery();
+        String qs = this.toString();
+        Logger.getLogger(SPARQLGenerateQuery.class).info("cloning: " + qs);
+        SPARQLGenerateQuery query = (SPARQLGenerateQuery) QueryFactory.create(qs, getSyntax()) ;
         QueryNormalizer normalizer = new QueryNormalizer();
         query.visit(normalizer);
         return query;

@@ -18,8 +18,7 @@ package com.github.thesmartenergy.sparql.generate.jena.engine.impl;
 import com.github.thesmartenergy.sparql.generate.jena.engine.GenerateTemplateElementPlan;
 import org.apache.jena.graph.Triple;
 import org.apache.jena.query.Dataset;
-import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.Statement;
+import org.apache.jena.riot.system.StreamRDF;
 import org.apache.jena.sparql.core.BasicPattern;
 import org.apache.jena.sparql.modify.TemplateLib;
 import org.apache.log4j.Logger;
@@ -57,14 +56,13 @@ public class GenerateTriplesPlanImpl
      */
     final void exec(
             final Dataset inputDataset,
-            final Model initialModel,
+            final StreamRDF outputStream,
             final BindingHashMapOverwrite binding,
             final BNodeMap bNodeMap) {
         for (Triple t : bgp.getList()) {
             Triple t2 = TemplateLib.subst(t, binding, bNodeMap.asMap());
             if (t2.isConcrete()) {
-                Statement s = initialModel.asStatement(t2);
-                initialModel.add(s);
+                outputStream.triple(t2);
             }
         }
     }

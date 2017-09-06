@@ -15,77 +15,19 @@
  */
 package com.github.thesmartenergy.sparql.generate.jena.iterator;
 
-import java.util.ArrayList;
 import java.util.List;
-import org.apache.jena.query.QueryBuildException;
-import org.apache.jena.sparql.ARQInternalErrorException;
-import org.apache.jena.sparql.engine.binding.Binding;
-import org.apache.jena.sparql.expr.Expr;
-import org.apache.jena.sparql.expr.ExprList;
+import java.util.function.Consumer;
 import org.apache.jena.sparql.expr.NodeValue;
-import org.apache.jena.sparql.function.FunctionEnv;
-import org.apache.jena.sparql.util.Context;
 
 /**
  * The base implementation of the {@link IteratorFunction} interface.
  */
-public abstract class IteratorFunctionBase implements IteratorFunction {
-
-    /** The list of argument expressions. */
-    protected ExprList arguments = null;
-    /** The function environment. */
-    private FunctionEnv env;
-
-    /**
-     * Build a iterator function execution with the given arguments,
-     * and operate a
-     * check of the build.
-     * @param args -
-     * @throws QueryBuildException if the iterator function cannot be
-     * executed with the
-     * given arguments.
-     */
-    @Override
-    public final void build(ExprList args) {
-        arguments = args;
-        checkBuild(args);
-    }
-
-    /**
-     * Partially checks if the iterator function can be executed with the given
-     * arguments.
-     * @param args -
-     * @throws QueryBuildException if the iterator function cannot be executed with the
-     * given arguments.
-     */
-    public abstract void checkBuild(ExprList args);
+public abstract class IteratorFunctionBase extends IteratorStreamFunctionBase {
 
     @Override
-    public List<NodeValue> exec(
-            Binding binding, ExprList args, FunctionEnv env) {
-        this.env = env;
-        if (args == null) {
-            throw new ARQInternalErrorException("IteratorFunctionBase:"
-                    + " Null args list");
-        }
-
-        List<NodeValue> evalArgs = new ArrayList<>();
-        for (Expr e : args) {
-            NodeValue x = e.eval(binding, env);
-            evalArgs.add(x);
-        }
-
-        List<NodeValue> nv = exec(evalArgs);
-        arguments = null;
-        return nv;
-    }
-
-    /**
-     * Return the Context object for this execution.
-     * @return -
-     */
-    public Context getContext() {
-        return env.getContext();
+    public final void exec(List<NodeValue> args, Consumer<List<NodeValue>> nodeValuesStream) {
+        List<NodeValue> nodeValues = exec(args);
+        nodeValuesStream.accept(nodeValues);
     }
 
     /**

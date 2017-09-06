@@ -51,14 +51,17 @@ import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITE_Regex
 import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITE_Split;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITE_XPath;
 import com.github.thesmartenergy.sparql.generate.jena.serializer.SPARQLGenerateQuerySerializer;
+import java.util.Iterator;
 import org.apache.jena.atlas.io.IndentedWriter;
 import org.apache.jena.query.QueryVisitor;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.riot.system.stream.LocationMapper;
+import org.apache.jena.riot.system.stream.StreamManager;
 import org.apache.jena.sparql.core.Prologue;
 import org.apache.jena.sparql.serializer.QuerySerializerFactory;
 import org.apache.jena.sparql.serializer.SerializationContext;
 import org.apache.jena.sparql.serializer.SerializerRegistry;
 import org.apache.jena.sparql.util.NodeToLabelMapBNode;
-import org.apache.jena.util.FileManager;
 
 /**
  * The configuration entry point of SPARQL-Generate. Method {@link #init()} must
@@ -115,7 +118,6 @@ public final class SPARQLGenerate {
     public static void init() {
     }
 
-
     static {
         SYNTAX = new SPARQLGenerateSyntax(SYNTAX_URI);
 
@@ -133,9 +135,7 @@ public final class SPARQLGenerate {
         fnreg.put(FN_HTMLTagElement.URI, FN_HTMLTagElement.class);
         fnreg.put(FN_DateTime.URI, FN_DateTime.class);
         fnreg.put(FN_Unzip.URI, FN_Unzip.class);
-        
-        
-                
+
         IteratorFunctionRegistry itereg = IteratorFunctionRegistry.get();
         itereg.put(ITE_JSONPath.URI, ITE_JSONPath.class);
         itereg.put(ITE_JSONListKeys.URI, ITE_JSONListKeys.class);
@@ -151,8 +151,6 @@ public final class SPARQLGenerate {
         itereg.put(ITE_CBOR.URI, ITE_CBOR.class);
         itereg.put(ITE_CSVHeaders.URI, ITE_CSVHeaders.class);
 
-        
-        
         SPARQLParserRegistry.get()
                 .add(SYNTAX, new SPARQLParserFactory() {
                     @Override
@@ -190,7 +188,7 @@ public final class SPARQLGenerate {
         SerializerRegistry registry = SerializerRegistry.get();
         registry.addQuerySerializer(SPARQLGenerate.SYNTAX, factory);
         
-        FileManager.setGlobalFileManager(new FileManager());
+        getStreamManager();
     }
 
     /**
@@ -252,4 +250,46 @@ public final class SPARQLGenerate {
         }
 
     }
+
+    public static StreamManager getStreamManager() {
+        return getStreamManager(false);
+    }
+
+    public static StreamManager getStreamManager(boolean fresh) {
+        if (fresh) {
+            StreamManager sm = StreamManager.makeDefaultStreamManager();
+            StreamManager.setGlobal(sm);
+        }
+        StreamManager sm = StreamManager.get();
+        sm.addLocator(new LocatorURLAccept());
+        return sm;
+    }
+
+    public static StreamManager getStreamManager(Model configurationModel) {
+        if (configurationModel == null) {
+            return getStreamManager(true);
+        }
+
+        StreamManager sm = StreamManager.makeDefaultStreamManager();
+        sm.addLocator(new LocatorURLAccept());
+        StreamManager.setGlobal(sm);
+
+        org.apache.jena.util.LocationMapper old = new org.apache.jena.util.LocationMapper(configurationModel);
+        LocationMapper mapper = new LocationMapper();
+        Iterator<String> altEntries = old.listAltEntries();
+        while (altEntries.hasNext()) {
+            String uri = altEntries.next();
+            mapper.addAltEntry(uri, old.getAltEntry(uri));
+        }
+
+        Iterator<String> altPrefixes = old.listAltPrefixes();
+        while (altPrefixes.hasNext()) {
+            String uri = altPrefixes.next();
+            mapper.addAltPrefix(uri, old.getAltPrefix(uri));
+        }
+        StreamManager.get().setLocationMapper(mapper);
+
+        return sm;
+    }
+
 }

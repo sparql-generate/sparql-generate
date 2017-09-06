@@ -15,15 +15,21 @@
     <url>https://w3id.org/sparql-generate/</url>
 
     <properties>
-        <jena.version>3.0.1</jena.version>
+        <jena.version>3.4.0</jena.version>
     </properties>
     
     <dependencies>
         <dependency>
             <groupId>org.apache.jena</groupId>
             <artifactId>jena-arq</artifactId>
-            <version>3.0.1</version>
+            <version>${jena.version}</version>
         </dependency>
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>1.2.17</version>
+        </dependency>
+
         <dependency>
             <groupId>com.jayway.jsonpath</groupId>
             <artifactId>json-path</artifactId>

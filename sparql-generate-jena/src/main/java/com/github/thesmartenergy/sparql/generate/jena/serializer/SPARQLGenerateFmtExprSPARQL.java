@@ -32,6 +32,7 @@ import org.apache.jena.sparql.expr.ExprFunction2;
 import org.apache.jena.sparql.expr.ExprFunction3;
 import org.apache.jena.sparql.expr.ExprFunctionN;
 import org.apache.jena.sparql.expr.ExprFunctionOp;
+import org.apache.jena.sparql.expr.ExprNone;
 import org.apache.jena.sparql.expr.ExprVar;
 import org.apache.jena.sparql.expr.ExprVisitor;
 import org.apache.jena.sparql.expr.NodeValue;
@@ -213,12 +214,10 @@ public class SPARQLGenerateFmtExprSPARQL extends FmtExprSPARQL {
             out.print(eAgg.asSparqlExpr(context));
         }
 
-        @Override
-        public void startVisit() {
-        }
 
         @Override
-        public void finishVisit() {
+        public void visit(ExprNone exprNone) {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
         }
     }
 }

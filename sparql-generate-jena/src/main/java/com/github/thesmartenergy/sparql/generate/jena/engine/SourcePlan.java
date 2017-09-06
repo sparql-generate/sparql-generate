@@ -15,49 +15,23 @@
  */
 package com.github.thesmartenergy.sparql.generate.jena.engine;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import com.github.thesmartenergy.sparql.generate.jena.engine.impl.BindingHashMapOverwrite;
+import java.util.List;
+import org.apache.jena.sparql.core.Var;
 
 /**
- *
+ * Executes a SOURE clause.
  * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */
-
-public class Cborvenueeg1 extends TestBase {
-
-    public Cborvenueeg1() {
-
-    }
-
-    @BeforeClass
-    public static void setUpClass() throws Exception {
-        TestBase.setUpClass(Cborvenueeg1.class);
-    }
-
-    @AfterClass
-    public static void tearDownClass() {
-    }
-
-    @Before
-    public void setUp() {
-    }
-
-    @After
-    public void tearDown() {
-    }
-
-    @Test
-    public void testQuerySerialization() throws Exception  {
-        super.testQuerySerialization();
-    }
+public interface SourcePlan extends IteratorOrSourcePlan {
     
-    @Test
-    public void testPlanExecution() throws Exception {
-        super.testPlanExecution();
-    }
-    
+    /**
+     * Updates the values block.
+     * @param variables the already bound variables.
+     * @param values the existing bindings.
+     */
+    void exec(
+            final List<Var> variables,
+            final List<BindingHashMapOverwrite> values);
     
 }

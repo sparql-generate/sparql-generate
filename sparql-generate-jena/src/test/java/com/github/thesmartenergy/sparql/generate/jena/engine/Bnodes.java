@@ -25,10 +25,8 @@ import org.apache.commons.io.IOUtils;
 import org.apache.jena.query.QueryFactory;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.riot.RDFDataMgr;
-import org.apache.jena.util.FileManager;
-import org.apache.jena.util.LocationMapper;
-import org.apache.jena.util.Locator;
-import org.apache.jena.util.LocatorFile;
+import org.apache.jena.riot.system.stream.LocatorFile;
+import org.apache.jena.riot.system.stream.StreamManager;
 import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -85,24 +83,22 @@ public class Bnodes {
         Model conf = RDFDataMgr.loadModel(confUri.toString());
 
         // initialize file manager
-        FileManager fileManager = FileManager.makeGlobal();
-        Locator loc = new LocatorFile(exampleDir.toURI().getPath());
-        LocationMapper mapper = new LocationMapper(conf);
-        fileManager.addLocator(loc);
-        fileManager.setLocationMapper(mapper);
-
-        String qstring = IOUtils.toString(fileManager.open("query.rqg"), "UTF-8");
+        
+        StreamManager sm = SPARQLGenerate.getStreamManager(conf);
+        sm.addLocator(new LocatorFile(exampleDir.toURI().getPath()));
+                
+        String qstring = IOUtils.toString(sm.open("query.rqg"), "UTF-8");
         SPARQLGenerateQuery q = (SPARQLGenerateQuery) QueryFactory.create(qstring, SPARQLGenerate.SYNTAX);
 
         // create generation plan
-        PlanFactory factory = new PlanFactory(fileManager);
+        PlanFactory factory = new PlanFactory();
         RootPlan plan = factory.create(q);
         Model output = plan.exec();
 
         // write output
         output.write(System.out, "TTL");
 
-        Model expectedOutput = fileManager.loadModel("expected_output.ttl");
+        Model expectedOutput = RDFDataMgr.loadModel("expected_output.ttl");
         StringWriter sw = new StringWriter();
         expectedOutput.write(sw, "TTL");
         LOG.debug("\n"+sw.toString());
