@@ -107,33 +107,32 @@ public class SourcePlanImpl extends PlanBase implements SourcePlan {
 
             // generate the source URI.
             final String sourceUri = getActualSource(value);
-            String acceptHeader = getAcceptHeader(value);
 
             // try with accept header.
+            String acceptHeader = getAcceptHeader(value);
             if (acceptHeader != null) {
                 String acceptURI = "accept:" + acceptHeader + ":" + sourceUri;
-                TypedInputStream stream = StreamManager.get().open(acceptURI);
-                if (stream != null) {
-                    try {
-                        literal = IOUtils.toString(stream.getInputStream(), "UTF-8");
-                        if (stream.getMediaType() != null && stream.getMediaType().getContentType() != null) {
-                            datatypeURI = "http://www.iana.org/assignments/media-types/" + stream.getMediaType().getContentType();
-                        } else {
-                            datatypeURI = "http://www.w3.org/2001/XMLSchema#string";
-                        }
-                        RDFDatatype dt = tm.getSafeTypeByName(datatypeURI);
-                        final Node n = NodeFactory.createLiteral(literal, dt);
-                        return new BindingHashMapOverwrite(value, var, n);
-                    } catch (IOException ex) {
+                try {
+                    TypedInputStream stream = StreamManager.get().open(acceptURI);
+                    if (stream != null) {
+                            literal = IOUtils.toString(stream.getInputStream(), "UTF-8");
+                            if (stream.getMediaType() != null && stream.getMediaType().getContentType() != null) {
+                                datatypeURI = "http://www.iana.org/assignments/media-types/" + stream.getMediaType().getContentType();
+                            } else {
+                                datatypeURI = "http://www.w3.org/2001/XMLSchema#string";
+                            }
+                            RDFDatatype dt = tm.getSafeTypeByName(datatypeURI);
+                            final Node n = NodeFactory.createLiteral(literal, dt);
+                            return new BindingHashMapOverwrite(value, var, n);
                     }
+                } catch (Exception ex) {
                 }
-                LOG.warn("not found with streamManager: " + acceptURI);
             }
 
             // try without.
-            TypedInputStream stream = StreamManager.get().open(sourceUri);
-            if (stream != null) {
-                try {
+            try {
+                TypedInputStream stream = StreamManager.get().open(sourceUri);
+                if (stream != null) {
                     literal = IOUtils.toString(stream.getInputStream(), "UTF-8");
                     if (stream.getMediaType() != null && stream.getMediaType().getContentType() != null) {
                         datatypeURI = "http://www.iana.org/assignments/media-types/" + stream.getMediaType().getContentType();
@@ -143,12 +142,11 @@ public class SourcePlanImpl extends PlanBase implements SourcePlan {
                     RDFDatatype dt = tm.getSafeTypeByName(datatypeURI);
                     final Node n = NodeFactory.createLiteral(literal, dt);
                     return new BindingHashMapOverwrite(value, var, n);
-                } catch (IOException ex) {
-                }
-                LOG.warn("not found with streamManager: " + sourceUri);
-
             }
-
+            } catch (Exception ex) {
+            }
+            
+            LOG.warn("not found with streamManager: " + sourceUri);
             return new BindingHashMapOverwrite(value, var, null);
         });
     }

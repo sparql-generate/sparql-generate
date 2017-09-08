@@ -61,9 +61,7 @@ public class FN_HTMLTag extends FunctionBase2 {
      */
     @Override
     public NodeValue exec(NodeValue html, NodeValue v2) {
-        if (html.getDatatypeURI() == null
-                && datatypeUri == null
-                || html.getDatatypeURI() != null
+        if (html.getDatatypeURI() != null
                 && !html.getDatatypeURI().equals(datatypeUri)
                 && !html.getDatatypeURI().equals("http://www.w3.org/2001/XMLSchema#string")) {
             LOG.warn("The URI of NodeValue1 MUST be <" + datatypeUri + ">"

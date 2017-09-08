@@ -25,6 +25,7 @@ import org.apache.log4j.Logger;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.IteratorFunction;
 import java.util.ArrayList;
 import java.util.function.Consumer;
+import org.apache.jena.sparql.expr.VariableNotBoundException;
 
 /**
  * Executes a {@code ITERATOR <iterator>(<expreList>) AS <var>} clause.
@@ -104,9 +105,11 @@ public class IteratorPlanImpl extends PlanBase implements IteratorPlan {
                     }
                 });
             } catch (ExprEvalException ex) {
-                LOG.warn("Iterator function execution failed: "
-                        + iterator.toString()
-                        + ". Continue anyways.", ex);
+                if(ex instanceof VariableNotBoundException) {
+                    LOG.warn("Iterator execution failed " + ex);
+                } else {
+                    LOG.warn("Unknown function execution error: " + ex);
+                }
             }
         }
     }

@@ -74,7 +74,7 @@ public class TestBase {
 //        URI queryOutputUri = exampleDir.toURI().resolve("query_serialized.rqg");
 //        File queryOutputFile = new File(queryOutputUri);
 //        try (OutputStream queryOutputStream = new FileOutputStream(queryOutputFile)) {
-//            queryOutputStream.write(q.toString().getBytes());
+//            queryOutputStream.write(q.toString().getBytes("UTF-8"));
 //        }
 //        LOG.debug(q);
 //
@@ -95,14 +95,13 @@ public class TestBase {
 //        SPARQLGenerateQuery q2 = q.normalize();
 //                
 //        try (OutputStream queryOutputStream = new FileOutputStream(queryOutputFile)) {
-//            queryOutputStream.write(q2.toString().getBytes());
+//            queryOutputStream.write(q2.toString().getBytes("UTF-8"));
 //        }
 //        LOG.debug(q2);
     }
 
     void testPlanExecution() throws Exception {
         String query = IOUtils.toString(StreamManager.get().open("query.rqg"), "UTF-8");
-        System.out.println("query is: \n" + query);
         long start0 = System.currentTimeMillis();
         long start = start0;
         SPARQLGenerateQuery q = (SPARQLGenerateQuery) QueryFactory.create(query, SPARQLGenerate.SYNTAX);
@@ -133,11 +132,6 @@ public class TestBase {
         FileWriter out = new FileWriter(fileName);
         try {
             output.write(out, "TTL");
-            System.out.println("\n\nout: \n");
-            output.write(System.out, "TTL");
-            StringWriter sw = new StringWriter();
-            output.write(sw, "TTL");
-            LOG.debug("\n\nlog: \n"+sw.toString());
         } finally {
             try {
                 out.close();
@@ -150,8 +144,6 @@ public class TestBase {
         Model expectedOutput = RDFDataMgr.loadModel(expectedOutputUri.toString());
         StringWriter sw = new StringWriter();
         expectedOutput.write(sw, "TTL");
-        LOG.debug("\n\nexpectedt: \n"+sw.toString());
-
         assertTrue(output.isIsomorphicWith(expectedOutput));
     }
 }

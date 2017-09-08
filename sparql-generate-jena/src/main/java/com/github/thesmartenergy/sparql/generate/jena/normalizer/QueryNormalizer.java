@@ -238,6 +238,7 @@ public class QueryNormalizer implements SPARQLGenerateQueryVisitor {
 
     @Override
     public void finishVisit(Query query) {
+        ((SPARQLGenerateQuery) query).hasEmbeddedExpressions(false);
     }
 
     private void appendBindings(Query query, NodeExprNormalizer nenzer) {

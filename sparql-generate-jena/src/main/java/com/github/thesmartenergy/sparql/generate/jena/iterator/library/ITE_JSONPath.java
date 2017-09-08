@@ -96,15 +96,13 @@ public class ITE_JSONPath extends IteratorFunctionBase2 {
      */
     @Override
     public List<NodeValue> exec(NodeValue json, NodeValue jsonquery) {
-        if (json.getDatatypeURI() == null
-                && datatypeUri == null
-                || json.getDatatypeURI() != null
+        if (json.getDatatypeURI() != null
                 && !json.getDatatypeURI().equals(datatypeUri)
                 && !json.getDatatypeURI().equals("http://www.w3.org/2001/XMLSchema#string")) {
             LOG.warn("The URI of NodeValue1 MUST be"
                     + " <" + datatypeUri + "> or"
-                    + " <http://www.w3.org/2001/XMLSchema#string>. Got <"
-                    + json.getDatatypeURI() + ">. Returning null.");
+                    + " <http://www.w3.org/2001/XMLSchema#string>. Got " 
+                    + json.getDatatypeURI() + " Returning null.");
         }
         Configuration conf = Configuration.builder()
                 .options(Option.ALWAYS_RETURN_LIST).build();

@@ -168,6 +168,7 @@
                     <configuration>
                         <excludeSubProjects>true</excludeSubProjects>
                         <excludes>
+                            <exclude>nbproject/**/*.*</exclude>
                             <exclude>**/*.sh</exclude>
                             <exclude>**/pom.xml</exclude>
                             <exclude>**/beans.xml</exclude>

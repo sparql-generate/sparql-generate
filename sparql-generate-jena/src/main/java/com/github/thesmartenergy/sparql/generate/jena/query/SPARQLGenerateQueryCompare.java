@@ -100,14 +100,12 @@ public class SPARQLGenerateQueryCompare implements SPARQLGenerateQueryVisitor {
             try {
                 check("Generate pattern URIs", b1);
             } catch(Exception e) {
-                System.out.println("Exception occured " + result);
             } 
         } else if (query.hasGenerateTemplate()) {
             boolean b2 = query.getGenerateTemplate().equals(query2.getGenerateTemplate());
             try {
                 check("Generate pattern URIs", b2);
             } catch(Exception e) {
-                System.out.println("Exception occured " + result);
             } 
         }
     }
@@ -118,7 +116,6 @@ public class SPARQLGenerateQueryCompare implements SPARQLGenerateQueryVisitor {
         try {
             check("Iterators and sources", b1);
         } catch(Exception e) {
-            System.out.println("Exception occured " + result);
         } 
     }
 

@@ -16,6 +16,7 @@
 
     <properties>
         <jena.version>3.4.0</jena.version>
+        <skip>true</skip>
     </properties>
     
     <dependencies>
@@ -204,7 +205,7 @@
                     <version>2.17</version>
                     <inherited>true</inherited>
                     <configuration>
-                        <skip>${checkstyle.skip}</skip>
+                        <skip>${skip}</skip>
                         <configLocation>${maven-checkstyle-plugin.configLocation}</configLocation>
                         <failsOnError>false</failsOnError>
                         <enableRulesSummary>true</enableRulesSummary>
@@ -227,7 +228,7 @@
                     <version>3.0.3</version>
                     <inherited>true</inherited>
                     <configuration>
-                        <skip>${findbugs.skip}</skip>
+                        <skip>${skip}</skip>
                         <maxHeap>512</maxHeap>
                         <xmlOutput>true</xmlOutput>
                         <includeTests>true</includeTests>
@@ -311,6 +312,9 @@
             <plugin>
                 <groupId>org.apache.rat</groupId>
                 <artifactId>apache-rat-plugin</artifactId>
+                <configuration>
+                    <skip>${skip}</skip>
+                </configuration>
             </plugin>
 
             <!-- generate-source -->
@@ -323,17 +327,34 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jxr-plugin</artifactId>
+                <configuration>
+                    <skip>${skip}</skip>
+                </configuration>
             </plugin>
 
             <!-- package -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
+                <configuration>
+                    <skip>${skip}</skip>
+                </configuration>
             </plugin>
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
+                <configuration>
+                    <skip>${skip}</skip>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-site-plugin</artifactId>
+                <configuration>
+                    <skip>${skip}</skip>
+                </configuration>
             </plugin>
 
             <!-- verify -->
@@ -341,7 +362,7 @@
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>taglist-maven-plugin</artifactId>
                 <configuration>
-                    <skip>false</skip>
+                    <skip>${skip}</skip>
                 </configuration>
             </plugin>
 
@@ -349,23 +370,27 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
                 <configuration>
-                    <skip>false</skip>
+                    <skip>${skip}</skip>
                 </configuration>
             </plugin>
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.20</version>
                 <configuration>
-                    <skip>false</skip>
-                </configuration>
+<!--                    <includes>
+                        <argLine>-Xmx1024m -XX:MaxPermSize=256m -T 8</argLine>
+                        <include>**/*.java</include>
+                    </includes>-->
+                </configuration>            
             </plugin>
 
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>findbugs-maven-plugin</artifactId>
                 <configuration>
-                    <skip>false</skip>
+                    <skip>${skip}</skip>
                 </configuration>
             </plugin>
         </plugins>

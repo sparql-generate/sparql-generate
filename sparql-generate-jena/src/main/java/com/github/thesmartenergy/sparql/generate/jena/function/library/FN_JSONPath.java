@@ -76,14 +76,12 @@ public final class FN_JSONPath extends FunctionBase2 {
      */
     @Override
     public NodeValue exec(NodeValue json, NodeValue jsonpath) {
-        if (json.getDatatypeURI() == null
-                && datatypeUri == null
-                || json.getDatatypeURI() != null
+        if (json.getDatatypeURI() != null
                 && !json.getDatatypeURI().equals(datatypeUri)
                 && !json.getDatatypeURI().equals("http://www.w3.org/2001/XMLSchema#string")) {
             LOG.warn("The URI of NodeValue1 MUST be <" + datatypeUri + ">"
-                    + "or <http://www.w3.org/2001/XMLSchema#string>."
-                    + " Returning null.");
+                    + " or <http://www.w3.org/2001/XMLSchema#string>. Got " 
+                    + json.getDatatypeURI() + " Returning null.");
         }
 
         try {

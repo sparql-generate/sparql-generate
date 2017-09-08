@@ -76,16 +76,13 @@ public class FN_XPath extends FunctionBase2 {
      */
     @Override
     public NodeValue exec(NodeValue xml, NodeValue xpath) {
-        if (xml.getDatatypeURI() == null
-                && datatypeUri == null
-                || xml.getDatatypeURI() != null
+        if (xml.getDatatypeURI() != null
                 && !xml.getDatatypeURI().equals(datatypeUri)
                 && !xml.getDatatypeURI().equals("http://www.w3.org/2001/XMLSchema#string")) {
             LOG.warn("The URI of NodeValue1 MUST be <" + datatypeUri + ">"
-                    + "or <http://www.w3.org/2001/XMLSchema#string>."
-                    + " Returning null.");
+                    + " or <http://www.w3.org/2001/XMLSchema#string>. Got " 
+                    + xml.getDatatypeURI() + " Returning null.");
         }
-        LOG.debug("===========> " + xpath);
         DocumentBuilderFactory builderFactory
                 = DocumentBuilderFactory.newInstance();
         builderFactory.setNamespaceAware(true);
@@ -96,7 +93,7 @@ public class FN_XPath extends FunctionBase2 {
             
             
             builder = builderFactory.newDocumentBuilder();
-            InputStream in = new ByteArrayInputStream(xmlstring.getBytes());
+            InputStream in = new ByteArrayInputStream(xmlstring.getBytes("UTF-8"));
             Document document = builder.parse(in);
 
             XPath xPath = XPathFactory.newInstance().newXPath();
@@ -121,8 +118,7 @@ public class FN_XPath extends FunctionBase2 {
             return new NodeValueString(String.valueOf(value));
 
         } catch (Exception e) {
-            LOG.debug("Error:XPATH " + e.getMessage());
-            throw new ExprEvalException("FunctionBase: no evaluation", e);
+            throw new ExprEvalException(this.getClass().toString() + ": no evaluation", e);
         }
     }
 

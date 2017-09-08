@@ -15,6 +15,7 @@
  */
 package com.github.thesmartenergy.sparql.generate.jena.normalizer;
 
+import com.github.thesmartenergy.sparql.generate.jena.expr.E_URIParam;
 import com.github.thesmartenergy.sparql.generate.jena.graph.Node_X;
 import com.github.thesmartenergy.sparql.generate.jena.graph.Node_XExpr;
 import com.github.thesmartenergy.sparql.generate.jena.graph.Node_XLiteral;
@@ -25,6 +26,7 @@ import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.expr.E_IRI;
 import org.apache.jena.sparql.expr.E_StrConcat;
 import org.apache.jena.sparql.expr.E_StrDatatype;
+import org.apache.jena.sparql.expr.E_StrEncodeForURI;
 import org.apache.jena.sparql.expr.E_StrLang;
 import org.apache.jena.sparql.expr.Expr;
 import org.apache.jena.sparql.expr.ExprAggregator;
@@ -73,7 +75,11 @@ public class ExprNormalizer {
 
     private Expr normalize(ExprFunction1 func) {
         Expr arg = normalize(func.getArg());
-        return func.copy(arg);
+        if(func instanceof E_URIParam) {
+            return new E_StrEncodeForURI(arg);
+        } else {
+            return func.copy(arg);
+        }
     }
 
     private Expr normalize(ExprFunction2 func) {

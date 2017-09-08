@@ -71,10 +71,7 @@ public class ITE_CSVFirstRow extends IteratorFunctionBase1 {
      */
     @Override
     public List<NodeValue> exec(NodeValue csv) {
-
-        if (csv.getDatatypeURI() == null
-                && datatypeUri == null
-                || csv.getDatatypeURI() != null
+        if (csv.getDatatypeURI() != null
                 && !csv.getDatatypeURI().equals(datatypeUri)
                 && !csv.getDatatypeURI().equals("http://www.w3.org/2001/XMLSchema#string")) {
             LOG.warn("The URI of NodeValue1 MUST be"
@@ -89,7 +86,7 @@ public class ITE_CSVFirstRow extends IteratorFunctionBase1 {
             String sourceCSV = String.valueOf(csv.asNode().getLiteralLexicalForm());
 
             ICsvListReader listReader = null;
-            InputStream is = new ByteArrayInputStream(sourceCSV.getBytes());
+            InputStream is = new ByteArrayInputStream(sourceCSV.getBytes("UTF-8"));
             InputStreamReader reader = new InputStreamReader(is);
             BufferedReader br = new BufferedReader(reader);
             listReader = new CsvListReader(br, CsvPreference.STANDARD_PREFERENCE);

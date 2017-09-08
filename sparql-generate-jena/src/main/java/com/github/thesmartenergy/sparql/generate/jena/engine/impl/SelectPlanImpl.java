@@ -85,10 +85,7 @@ public class SelectPlanImpl extends PlanBase implements SelectPlan {
         for(Element olde : old.getElements()) {
             temp.addElement(olde);
         }
-        q.setQueryPattern(temp);
-
-        LOG.info(q.toString());
-        
+        q.setQueryPattern(temp);        
         try {
             QueryExecution exec = QueryExecutionFactory.create(q, inputDataset);
             ResultSet results = exec.execSelect();            

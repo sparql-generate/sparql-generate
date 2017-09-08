@@ -107,9 +107,7 @@ public class ITE_JSONListElement extends IteratorFunctionBase2 {
      */
     @Override
     public List<NodeValue> exec(NodeValue json, NodeValue jsonquery) {
-        if (json.getDatatypeURI() == null
-                && datatypeUri == null
-                || json.getDatatypeURI() != null
+        if (json.getDatatypeURI() != null
                 && !json.getDatatypeURI().equals(datatypeUri)
                 && !json.getDatatypeURI().equals("http://www.w3.org/2001/XMLSchema#string")) {
             LOG.warn("The URI of NodeValue1 MUST be"

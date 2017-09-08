@@ -75,7 +75,7 @@ public class LocatorURLAccept implements Locator {
             URLConnection conn = url.openConnection();
             String userInfo = url.getUserInfo();
             if (userInfo != null && !userInfo.isEmpty()) {
-                String encodedUserInfo = new String(Base64.encodeBase64(userInfo.getBytes()));
+                String encodedUserInfo = new String(Base64.encodeBase64(userInfo.getBytes("UTF-8")));
                 conn.setRequestProperty("Authorization", "Basic " + encodedUserInfo);
             }
             conn.setRequestProperty("Accept", acceptHeader);
@@ -90,6 +90,7 @@ public class LocatorURLAccept implements Locator {
             if (log.isTraceEnabled()) {
                 log.trace("Found: " + acceptURI);
             }
+            log.debug("found distant: " + source + " " + conn.getContentType() + " " + conn.getContentEncoding());
             return new TypedInputStream(in, conn.getContentType(), conn.getContentEncoding());
         } catch (java.io.FileNotFoundException ex) {
             if (log.isTraceEnabled()) {

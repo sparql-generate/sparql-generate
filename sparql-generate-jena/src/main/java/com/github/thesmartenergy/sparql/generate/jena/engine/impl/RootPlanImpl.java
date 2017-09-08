@@ -313,7 +313,6 @@ public final class RootPlanImpl extends PlanBase implements RootPlan,
             final List<Var> variables,
             final List<BindingHashMapOverwrite> values,
             final BNodeMap bNodeMap, Iterator<IteratorOrSourcePlan> nextPlans) {
-        LOG.debug("exec with " + variables + " " + values);
 
 
         if (nextPlans.hasNext()) {

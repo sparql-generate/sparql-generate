@@ -54,6 +54,11 @@ import java.util.Iterator;
 import org.apache.jena.atlas.io.IndentedWriter;
 import org.apache.jena.query.QueryVisitor;
 import org.apache.jena.rdf.model.Model;
+import org.apache.jena.riot.Lang;
+import org.apache.jena.riot.LangBuilder;
+import org.apache.jena.riot.RDFLanguages;
+import static org.apache.jena.riot.RDFLanguages.strLangRDFXML;
+import static org.apache.jena.riot.WebContent.contentTypeRDFXML;
 import org.apache.jena.riot.system.stream.LocationMapper;
 import org.apache.jena.riot.system.stream.StreamManager;
 import org.apache.jena.sparql.core.Prologue;
@@ -110,7 +115,7 @@ public final class SPARQLGenerate {
      * The SPARQL-Generate syntax.
      */
     public static final Syntax SYNTAX;
-
+    
     /**
      * Force the initialization of SPARQL-Generate.
      */
@@ -187,6 +192,23 @@ public final class SPARQLGenerate {
         SerializerRegistry registry = SerializerRegistry.get();
         registry.addQuerySerializer(SPARQLGenerate.SYNTAX, factory);
         
+        RDFLanguages.unregister(Lang.RDFXML);
+        RDFLanguages.register(LangBuilder.create(strLangRDFXML, contentTypeRDFXML)
+                                .addAltNames("RDFXML", "RDF/XML-ABBREV", "RDFXML-ABBREV")
+                                .addFileExtensions("rdf", "owl")
+                                .build());
+        RDFLanguages.register(LangBuilder.create("XML", "application/xml")
+                                .addFileExtensions("xml")
+                                .build());
+        RDFLanguages.register(LangBuilder.create("JSON", "application/json")
+                                .addFileExtensions("json")
+                                .build());
+        RDFLanguages.register(LangBuilder.create("HTML", "text/html")
+                                .addFileExtensions("html", "xhtml")
+                                .build());
+        RDFLanguages.register(LangBuilder.create("XHTML", "application/xhtml+xml")
+                                .addFileExtensions("xhtml")
+                                .build());
         getStreamManager();
     }
 

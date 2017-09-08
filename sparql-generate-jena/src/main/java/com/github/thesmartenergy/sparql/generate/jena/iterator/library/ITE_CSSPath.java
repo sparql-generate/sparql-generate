@@ -71,10 +71,8 @@ public class ITE_CSSPath extends IteratorFunctionBase2 {
      */
     @Override
     public List<NodeValue> exec(NodeValue html, NodeValue cssSelector) {
-        if (html.getDatatypeURI() == null
-                && datatypeUri == null
-                || html.getDatatypeURI() != null
-                && html.getDatatypeURI().equals(datatypeUri)
+        if (html.getDatatypeURI() != null
+                && !html.getDatatypeURI().equals(datatypeUri)
                 && !html.getDatatypeURI().equals("http://www.w3.org/2001/XMLSchema#string")) {
             LOG.warn("The URI of NodeValue1 MUST be"
                     + " <" + datatypeUri + "> or"

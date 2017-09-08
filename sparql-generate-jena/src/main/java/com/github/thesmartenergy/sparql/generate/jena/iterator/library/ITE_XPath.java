@@ -87,15 +87,13 @@ public class ITE_XPath extends IteratorFunctionBase2 {
      */
     @Override
     public List<NodeValue> exec(NodeValue xml, NodeValue v2) {
-        if (xml.getDatatypeURI() == null
-                && datatypeUri == null
-                || xml.getDatatypeURI() != null
+        if (xml.getDatatypeURI() != null
                 && !xml.getDatatypeURI().equals(datatypeUri)
                 && !xml.getDatatypeURI().equals("http://www.w3.org/2001/XMLSchema#string")) {
             LOG.warn("The URI of NodeValue1 MUST be"
-                    + " <" + datatypeUri + "> or"
-                    + " <http://www.w3.org/2001/XMLSchema#string>. Got <"
-                    + xml.getDatatypeURI() + ">. Returning null.");
+                    + " <" + datatypeUri + "> "
+                    + " or <http://www.w3.org/2001/XMLSchema#string>. Got " 
+                    + xml.getDatatypeURI() + " Returning null.");
         }
         DocumentBuilderFactory builderFactory
                 = DocumentBuilderFactory.newInstance();
@@ -107,7 +105,7 @@ public class ITE_XPath extends IteratorFunctionBase2 {
                     
             builder = builderFactory.newDocumentBuilder();
             Document document = builder
-                    .parse(new ByteArrayInputStream(xmlstring.getBytes()));
+                    .parse(new ByteArrayInputStream(xmlstring.getBytes("UTF-8")));
 
             XPath xPath = XPathFactory.newInstance().newXPath();
 
@@ -117,7 +115,6 @@ public class ITE_XPath extends IteratorFunctionBase2 {
 
             //will contain the final results
             List<NodeValue> nodeValues = new ArrayList<>(nodeList.getLength());
-            LOG.debug("===> Number of iterations for " + v2 + " " + nodeList.getLength());
 
             for (int i = 0; i < nodeList.getLength(); i++) {
 

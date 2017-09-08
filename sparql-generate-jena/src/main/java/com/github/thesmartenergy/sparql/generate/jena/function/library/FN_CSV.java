@@ -68,10 +68,7 @@ public class FN_CSV extends FunctionBase2 {
      */
     @Override
     public NodeValue exec(NodeValue csv, NodeValue column) {
-
-        if (csv.getDatatypeURI() == null
-                && datatypeUri == null
-                || csv.getDatatypeURI() != null
+        if (csv.getDatatypeURI() != null
                 && !csv.getDatatypeURI().equals(datatypeUri)
                 && !csv.getDatatypeURI().equals("http://www.w3.org/2001/XMLSchema#string")) {
             LOG.warn("The URI of NodeValue1 MUST be <" + datatypeUri + ">"
@@ -80,7 +77,6 @@ public class FN_CSV extends FunctionBase2 {
         }
 
         
-//        LOG.debug("===========> "+column);
         DocumentBuilderFactory builderFactory
                 = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = null;
@@ -89,7 +85,7 @@ public class FN_CSV extends FunctionBase2 {
             String sourceCSV = String.valueOf(csv.asNode().getLiteralLexicalForm());
 
 
-            InputStream is = new ByteArrayInputStream(sourceCSV.getBytes());
+            InputStream is = new ByteArrayInputStream(sourceCSV.getBytes("UTF-8"));
             BufferedReader br = new BufferedReader(new InputStreamReader(is));
 
             //ICsvListReader listReader = null;
@@ -105,7 +101,7 @@ public class FN_CSV extends FunctionBase2 {
             return new NodeValueString(headers.get(columnName));
 
         } catch (Exception e) {
-            LOG.debug("Error:XPATJ " + e.getMessage());
+            LOG.debug("Error:XPATH " + e.getMessage());
             throw new ExprEvalException("FunctionBase: no evaluation", e);
         }
     }

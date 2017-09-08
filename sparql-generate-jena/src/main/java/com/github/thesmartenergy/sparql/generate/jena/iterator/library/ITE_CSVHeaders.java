@@ -19,46 +19,18 @@ import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.IteratorFunctionBase1;
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
-import com.github.thesmartenergy.sparql.generate.jena.iterator.IteratorFunctionBase2;
 import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.StringWriter;
 import java.util.List;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathFactory;
-import org.apache.jena.datatypes.RDFDatatype;
-import org.apache.jena.datatypes.TypeMapper;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.NodeValue;
-import org.apache.jena.sparql.expr.nodevalue.NodeValueNode;
 import org.apache.log4j.Logger;
-import org.w3c.dom.Document;
-import org.w3c.dom.NodeList;
-import org.apache.jena.sparql.expr.nodevalue.NodeValueBoolean;
-import org.apache.jena.sparql.expr.nodevalue.NodeValueDecimal;
-import org.apache.jena.sparql.expr.nodevalue.NodeValueDouble;
-import org.apache.jena.sparql.expr.nodevalue.NodeValueFloat;
-import org.apache.jena.sparql.expr.nodevalue.NodeValueInteger;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueNode;
-import org.apache.jena.sparql.expr.nodevalue.NodeValueString;
-import java.math.BigDecimal;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.dom.DOMSource; 
-import javax.xml.transform.stream.StreamResult;
-import org.supercsv.io.ICsvListReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.Map;
-import org.supercsv.io.CsvListReader;
-import org.supercsv.io.CsvListWriter;
 import org.supercsv.io.CsvMapReader;
 import org.supercsv.prefs.CsvPreference;
 
@@ -94,10 +66,7 @@ public class ITE_CSVHeaders extends IteratorFunctionBase1 {
      */
     @Override
     public List<NodeValue> exec(NodeValue csv) {
-       
-        if (csv.getDatatypeURI() == null
-                && datatypeUri == null
-                || csv.getDatatypeURI() != null
+        if (csv.getDatatypeURI() != null
                 && !csv.getDatatypeURI().equals(datatypeUri)
                 && !csv.getDatatypeURI().equals("http://www.w3.org/2001/XMLSchema#string")) {
             LOG.warn("The URI of NodeValue1 MUST be <" + datatypeUri + ">"
@@ -116,7 +85,7 @@ public class ITE_CSVHeaders extends IteratorFunctionBase1 {
             String sourceCSV = String.valueOf(csv.asNode().getLiteralLexicalForm());
         
             
-            InputStream is = new ByteArrayInputStream(sourceCSV.getBytes());
+            InputStream is = new ByteArrayInputStream(sourceCSV.getBytes("UTF-8"));
             BufferedReader br = new BufferedReader(new InputStreamReader(is));
             
             

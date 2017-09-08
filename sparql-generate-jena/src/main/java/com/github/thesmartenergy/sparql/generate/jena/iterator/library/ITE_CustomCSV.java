@@ -85,10 +85,7 @@ public class ITE_CustomCSV extends IteratorFunctionBase5 {
      */
     @Override
     public List<NodeValue> exec(NodeValue csv, NodeValue quoteChar, NodeValue delimiterChar, NodeValue endOfLineSymbols, NodeValue header) {
-
-        if (csv.getDatatypeURI() == null
-                && datatypeUri == null
-                || csv.getDatatypeURI() != null
+        if (csv.getDatatypeURI() != null
                 && !csv.getDatatypeURI().equals(datatypeUri)
                 && !csv.getDatatypeURI().equals("http://www.w3.org/2001/XMLSchema#string")) {
             LOG.warn("The URI of NodeValue1 MUST be"
@@ -101,7 +98,7 @@ public class ITE_CustomCSV extends IteratorFunctionBase5 {
             String sourceCSV = String.valueOf(csv.asNode().getLiteralLexicalForm());
 
             ICsvListReader listReader = null;
-            InputStream is = new ByteArrayInputStream(sourceCSV.getBytes());
+            InputStream is = new ByteArrayInputStream(sourceCSV.getBytes("UTF-8"));
             InputStreamReader reader = new InputStreamReader(is);
             BufferedReader br = new BufferedReader(reader);
 
@@ -122,12 +119,10 @@ public class ITE_CustomCSV extends IteratorFunctionBase5 {
                
                 if (header.getBoolean()){
                     sw.write(headerRow);
-                    System.out.println("header row: " + headerRow);
                 }
                 sw.write("\n");
                 String row = listReader.getUntokenizedRow();
                 sw.write(row);
-                System.out.println(row);
 
                 NodeValue nodeValue = new NodeValueString(sw.toString());
                 nodeValues.add(nodeValue);

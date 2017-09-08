@@ -49,13 +49,11 @@ public class ITE_Regex extends IteratorFunctionBase3 {
     public static final String URI = SPARQLGenerate.ITER + "regex";
     
     public ITE_Regex(){
-        System.out.println("~####################################### ITE REGEX");
     }
     
     @Override
     public List<NodeValue> exec(NodeValue stringValue, NodeValue regex, NodeValue locationV) {
         
-            System.out.println("ITE REGEX "+stringValue.asString()+" "+regex.asString()+" "+locationV.asString());
             String string = stringValue.getString();
             String regexString = regex.getString();
             

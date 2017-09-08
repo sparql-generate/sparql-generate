@@ -118,10 +118,7 @@ public class FN_CustomCSV extends FunctionBase {
     }
 
     private NodeValue exec(NodeValue csv, NodeValue column, NodeValue quoteChar, NodeValue delimiterChar, NodeValue endOfLineSymbols, NodeValue header) {
-
-        if (csv.getDatatypeURI() == null
-                && datatypeUri == null
-                || csv.getDatatypeURI() != null
+        if (csv.getDatatypeURI() != null
                 && !csv.getDatatypeURI().equals(datatypeUri)
                 && !csv.getDatatypeURI().equals("http://www.w3.org/2001/XMLSchema#string")) {
             LOG.warn("The URI of NodeValue1 MUST be <" + datatypeUri + ">"
@@ -137,15 +134,13 @@ public class FN_CustomCSV extends FunctionBase {
 
             String sourceCSV = String.valueOf(csv.asNode().getLiteralLexicalForm());
 
-            InputStream is = new ByteArrayInputStream(sourceCSV.getBytes());
+            InputStream is = new ByteArrayInputStream(sourceCSV.getBytes("UTF-8"));
             BufferedReader br = new BufferedReader(new InputStreamReader(is));
 
             String headers_str = "";
-//            System.out.println("test=================header" + header.getBoolean());
             if (header.getBoolean()) {
                 headers_str = br.readLine().split(endOfLineSymbols.asString())[0];
             }
-//            System.out.println("test=================header" + headers_str);
 
             CsvPreference prefs = new CsvPreference.Builder(quoteChar.asString().charAt(0), delimiterChar.asString().charAt(0), endOfLineSymbols.asString()).build();
 
@@ -169,7 +164,7 @@ public class FN_CustomCSV extends FunctionBase {
             }
 
         } catch (Exception e) {
-            LOG.debug("Error:XPATJ " + e.getMessage());
+            LOG.debug("Error CustomCSV " + e.getMessage());
             throw new ExprEvalException("FunctionBase: no evaluation", e);
         }
     }

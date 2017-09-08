@@ -100,10 +100,7 @@ public class ITE_CBOR extends IteratorFunctionBase2 {
      */
     @Override
     public List<NodeValue> exec(NodeValue cbor, NodeValue jsonpath) {
-        
-        if (cbor.getDatatypeURI() == null
-                && datatypeUri == null
-                || cbor.getDatatypeURI() != null
+        if (cbor.getDatatypeURI() != null
                 && !cbor.getDatatypeURI().equals(datatypeUri)
                 && !cbor.getDatatypeURI().equals("http://www.w3.org/2001/XMLSchema#string")) {
             LOG.warn("The URI of NodeValue1 MUST be"

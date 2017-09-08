@@ -59,9 +59,7 @@ public class FN_HTMLAttribute extends FunctionBase2 {
      * @return a RDF Literal with datatype URI {@code xsd:string}
      */
     public NodeValue exec(NodeValue html, NodeValue attributeName) {
-        if (html.getDatatypeURI() == null
-                && datatypeUri == null
-                || html.getDatatypeURI() != null
+        if (html.getDatatypeURI() != null
                 && !html.getDatatypeURI().equals(datatypeUri)
                 && !html.getDatatypeURI().equals("http://www.w3.org/2001/XMLSchema#string")) {
             LOG.warn("The URI of NodeValue1 MUST be <" + datatypeUri + ">"
@@ -75,7 +73,7 @@ public class FN_HTMLAttribute extends FunctionBase2 {
             String attributeNameValue = String.valueOf(attributeName.asNode().getLiteralValue());
             return new NodeValueString(htmldoc.body().child(0).attributes().get(attributeNameValue));
         } catch (Exception e) {
-            LOG.debug("Error:HTML Tag " + e.getMessage());
+            LOG.debug("Error HTML Attribute " + e.getMessage());
             throw new ExprEvalException("FunctionBase: no evaluation", e);
         }
     }

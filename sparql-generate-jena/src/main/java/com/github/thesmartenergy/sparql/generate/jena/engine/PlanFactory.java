@@ -82,7 +82,7 @@ public class PlanFactory {
     /**
      * The registry of {@link IteratorFunction}s.
      */
-    private final IteratorFunctionRegistry sr = IteratorFunctionRegistry.get();
+    private static final IteratorFunctionRegistry sr = IteratorFunctionRegistry.get();
 
 
     /**
@@ -102,7 +102,7 @@ public class PlanFactory {
      * @return the RootPlan that may be used to execute the SPARQL Generate
      * query.
      */
-    public final RootPlan create(final SPARQLGenerateQuery query) {
+    public static final RootPlan create(final SPARQLGenerateQuery query) {
         checkNotNull(query, "Query must not be null");
         if(!query.hasEmbeddedExpressions()) {
             return make(query);
@@ -120,7 +120,7 @@ public class PlanFactory {
      * @return the RootPlan that may be used to execute the SPARQL
  Generate query.
      */
-    public final RootPlan create(final String queryStr) {
+    public static final RootPlan create(final String queryStr) {
         checkNotNull(queryStr, "Parameter string must not be null");
         SPARQLGenerateQuery query;
         try {
@@ -139,7 +139,7 @@ public class PlanFactory {
      * @param query the SPARQL Generate Query.
      * @return the RootPlan.
      */
-    private RootPlan make(final SPARQLGenerateQuery query) {
+    private static RootPlan make(final SPARQLGenerateQuery query) {
         return make(query, false);
     }
 
@@ -150,7 +150,7 @@ public class PlanFactory {
      * @param distant whether this query was obtained from a GENERATE URI.
      * @return the RootPlan.
      */
-    private RootPlan make(final SPARQLGenerateQuery query,
+    private static RootPlan make(final SPARQLGenerateQuery query,
             final boolean distant) {
         checkNotNull(query, "The query must not be null");
 
@@ -198,7 +198,7 @@ public class PlanFactory {
      * @param elementIterator the SPARQL SELECTOR
      * @return -
      */
-    IteratorPlan makeIteratorPlan(
+    static IteratorPlan makeIteratorPlan(
             final ElementIterator elementIterator) 
                 throws SPARQLGenerateException {
         checkNotNull(elementIterator, "The Iterator must not be null");
@@ -232,7 +232,7 @@ public class PlanFactory {
      * @param elementSource the SPARQL SOURCE
      * @return -
      */
-    private SourcePlan makeSourcePlan (
+    private static SourcePlan makeSourcePlan (
             final ElementSource elementSource) throws SPARQLGenerateException {
         checkNotNull(elementSource, "The Source must not be null");
 
@@ -257,7 +257,7 @@ public class PlanFactory {
      * @param elementBind the SPARQL BIND
      * @return -
      */
-    private SourcePlan makeBindPlan (
+    private static SourcePlan makeBindPlan (
             final ElementBind elementBind) throws SPARQLGenerateException {
         checkNotNull(elementBind, "The Bind element must not be null");
        
@@ -276,7 +276,7 @@ public class PlanFactory {
      * @param query the query for which the plan is created.
      * @return -
      */
-    private SelectPlan makeSelectPlan(
+    private static SelectPlan makeSelectPlan(
             final SPARQLGenerateQuery query) {
         checkNotNull(query.getQueryPattern(), "The query must not be null");
         Query select = asSelectQuery(query);
@@ -291,7 +291,7 @@ public class PlanFactory {
      * @throws IOException Thrown if the source query cannot be found, or if a
      * parse error occurs
      */
-    private RootPlan makeGenerateQueryPlan (
+    private static RootPlan makeGenerateQueryPlan (
             final SPARQLGenerateQuery query) throws SPARQLGenerateException {
         checkNotNull(query, "The query must not be null");
         checkIsTrue(query.hasGenerateURI(), "Query was expected to be of type"
@@ -318,7 +318,7 @@ public class PlanFactory {
      * @param query the query for which the plan is created.
      * @return -
      */
-    private GeneratePlan makeGenerateTemplatePlan (
+    private static GeneratePlan makeGenerateTemplatePlan (
             final SPARQLGenerateQuery query) throws SPARQLGenerateException {
         checkNotNull(query, "The query must not be null");
         checkIsTrue(query.hasGenerateTemplate(), "Query was expected to be of"
@@ -349,7 +349,7 @@ public class PlanFactory {
      * @param query the SPARQL Generate query
      * @return the SPARQL SELECT Query.
      */
-    private Query asSelectQuery(final SPARQLGenerateQuery query) {
+    private static Query asSelectQuery(final SPARQLGenerateQuery query) {
         checkNotNull(query, "The query must not be null");
 
         final Query output = new Query();
@@ -500,7 +500,7 @@ public class PlanFactory {
      * @param msg message used to throw the exception if the object is null.
      * @throws IllegalArgumentException Thrown if the object is null.
      */
-    private void checkNotNull(final Object obj, final String msg) {
+    private static void checkNotNull(final Object obj, final String msg) {
         checkIsTrue(obj != null, msg);
     }
 
@@ -511,7 +511,7 @@ public class PlanFactory {
      * @param msg message used to throw the exception if the boolean is false.
      * @throws IllegalArgumentException Thrown if the boolean is false.
      */
-    private void checkIsTrue(final boolean test, final String msg) {
+    private static void checkIsTrue(final boolean test, final String msg) {
         if (!test) {
             throw new IllegalArgumentException(msg);
         }
