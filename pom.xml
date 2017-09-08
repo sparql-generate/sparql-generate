@@ -186,8 +186,7 @@
                             <exclude>**/nbactions.xml</exclude>
                             <exclude>**/README.md</exclude>
                             <exclude>**/nbproject/*</exclude>
-                            <exclude>**/log4j.properties</exclude>
-                            <exclude>**/log4j-testing.properties</exclude>
+                            <exclude>**/log4j2.xml</exclude>
                             <exclude>**/*.classpath</exclude>
                             <exclude>**/target/**/*</exclude>
                             <exclude>**/dependency-reduced-pom.xml</exclude>

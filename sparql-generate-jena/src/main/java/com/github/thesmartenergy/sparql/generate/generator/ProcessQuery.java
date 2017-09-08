@@ -29,22 +29,24 @@ import org.apache.jena.query.QueryFactory;
 import org.apache.jena.query.QuerySolutionMap;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
  * @author bakerally
  */
 public class ProcessQuery {
-    static Logger LOG;
-    public static String process(String query,String conf,String outputFormat){
+
+    private static final Logger LOG = LogManager.getLogger(ProcessQuery.class);
+
+    public static String process(String query, String conf, String outputFormat) {
         Model configurationModel = null;
-        LOG = Logger.getLogger(ProcessQuery.class);
-        if (conf.length() > 0){
+        if (conf.length() > 0) {
             configurationModel = generateConfiguration(conf);
-            SPARQLGenerate.getStreamManager(configurationModel);
+            SPARQLGenerate.resetStreamManager(configurationModel);
         }
-        
+
         LOG.debug("Processing Query");
         SPARQLGenerateQuery q = (SPARQLGenerateQuery) QueryFactory.create(query, SPARQLGenerate.SYNTAX);
 
@@ -57,47 +59,47 @@ public class ProcessQuery {
         // execute plan
         plan.exec(initialBinding, output);
         StringWriter sw = new StringWriter();
-        output.write(sw,outputFormat);
+        output.write(sw, outputFormat);
         System.out.println("Final RDF Output from SPARGL:");
         return sw.toString();
     }
-    
-    static Model generateConfiguration(String configuration){
+
+    static Model generateConfiguration(String configuration) {
         Model configurationModel = null;
-        List <String> IRI_mappings = Arrays.asList(configuration.split(";"));
-        if (IRI_mappings.size() == 0){
-           System.out.println("Invalid configuration");
-           return null;
+        List<String> IRI_mappings = Arrays.asList(configuration.split(";"));
+        if (IRI_mappings.size() == 0) {
+            System.out.println("Invalid configuration");
+            return null;
         }
         String rdfMapping = "@prefix lm: <http://jena.hpl.hp.com/2004/08/location-mapping#> .\n";
         rdfMapping += "[] lm:mapping \n";
-        List <String> fileMappings = new ArrayList <String>();
+        List<String> fileMappings = new ArrayList<String>();
 
-        for (String IRI_mapping:IRI_mappings){
+        for (String IRI_mapping : IRI_mappings) {
 
-            String filePaths []= IRI_mapping.split("=");
-            if (filePaths.length == 0){
-                 System.out.println(IRI_mapping+" Invalid IRI configuration");
-                 return null;
+            String filePaths[] = IRI_mapping.split("=");
+            if (filePaths.length == 0) {
+                System.out.println(IRI_mapping + " Invalid IRI configuration");
+                return null;
             } else {
 
-                    File f = new File(filePaths[1]);
-                    if(f.exists() && !f.isDirectory()) {
-                         String currentMapping = "[ lm:name \""+filePaths[0]+"\" ; lm:altName \""+filePaths[1]+"\" ]";
-                         System.out.println(currentMapping);
-                         fileMappings.add(currentMapping);
-                         System.out.println(fileMappings.size());
-                    } else {
-                        LOG.error("File "+filePaths[1]+" not found.");
+                File f = new File(filePaths[1]);
+                if (f.exists() && !f.isDirectory()) {
+                    String currentMapping = "[ lm:name \"" + filePaths[0] + "\" ; lm:altName \"" + filePaths[1] + "\" ]";
+                    System.out.println(currentMapping);
+                    fileMappings.add(currentMapping);
+                    System.out.println(fileMappings.size());
+                } else {
+                    LOG.error("File " + filePaths[1] + " not found.");
 
-                    }
+                }
             }
         }
-        if (fileMappings.size() > 0){
+        if (fileMappings.size() > 0) {
             System.out.println(fileMappings.size());
-            String lastMapping = fileMappings.remove(fileMappings.size()-1);
-            for (String currentMapping:fileMappings){
-                rdfMapping += currentMapping +", \n";
+            String lastMapping = fileMappings.remove(fileMappings.size() - 1);
+            for (String currentMapping : fileMappings) {
+                rdfMapping += currentMapping + ", \n";
             }
             rdfMapping += lastMapping + ".";
         }
@@ -105,7 +107,7 @@ public class ProcessQuery {
         strConf = rdfMapping;
 
         configurationModel = ModelFactory.createDefaultModel();
-        configurationModel.read(new ByteArrayInputStream(strConf.getBytes()), null,"TTL");
+        configurationModel.read(new ByteArrayInputStream(strConf.getBytes()), null, "TTL");
         return configurationModel;
     }
 }

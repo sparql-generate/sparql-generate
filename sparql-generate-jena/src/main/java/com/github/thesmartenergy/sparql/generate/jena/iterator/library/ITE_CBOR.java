@@ -38,7 +38,8 @@ import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.NodeValue;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueNode;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * A SPARQL function that takes as an input a CBOR document, decodes it and
@@ -77,7 +78,7 @@ public class ITE_CBOR extends IteratorFunctionBase2 {
     /**
      * The logger.
      */
-    private static final Logger LOG = Logger.getLogger(ITE_CBOR.class);
+    private static final Logger LOG = LogManager.getLogger(ITE_CBOR.class);
 
     /**
      * The SPARQL function URI.

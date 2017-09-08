@@ -24,14 +24,14 @@ import java.io.StringWriter;
 import java.util.List;
 import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.NodeValue;
-import org.apache.log4j.Logger;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueString;
 import org.supercsv.io.ICsvListReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import org.supercsv.io.CsvListReader;
-import org.supercsv.io.CsvListWriter;
 import org.supercsv.prefs.CsvPreference;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * A SPARQL Iterator function that return a row of a CSV document, together with
@@ -51,7 +51,7 @@ public class ITE_CustomCSV extends IteratorFunctionBase5 {
     /**
      * The logger.
      */
-    private static final Logger LOG = Logger.getLogger(ITE_CustomCSV.class);
+    private static final Logger LOG = LogManager.getLogger(ITE_CustomCSV.class);
 
     /**
      * The SPARQL function URI.

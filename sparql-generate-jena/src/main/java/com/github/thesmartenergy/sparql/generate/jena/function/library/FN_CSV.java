@@ -26,8 +26,9 @@ import java.util.Map;
 import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.NodeValue;
 import org.apache.jena.sparql.function.FunctionBase2;
-import org.apache.log4j.Logger;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueString;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.supercsv.io.CsvMapReader;
 import org.supercsv.prefs.CsvPreference;
 
@@ -43,7 +44,7 @@ public class FN_CSV extends FunctionBase2 {
     /**
      * The logger.
      */
-    private static final Logger LOG = Logger.getLogger(FN_CSV.class);
+    private static final Logger LOG = LogManager.getLogger(FN_CSV.class);
 
     /**
      * The SPARQL function URI.
@@ -73,7 +74,7 @@ public class FN_CSV extends FunctionBase2 {
                 && !csv.getDatatypeURI().equals("http://www.w3.org/2001/XMLSchema#string")) {
             LOG.warn("The URI of NodeValue1 MUST be <" + datatypeUri + ">"
                     + "or <http://www.w3.org/2001/XMLSchema#string>."
-                    + " Returning null.");
+                   );
         }
 
         

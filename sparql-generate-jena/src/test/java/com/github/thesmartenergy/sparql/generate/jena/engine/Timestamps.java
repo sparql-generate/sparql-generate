@@ -15,6 +15,7 @@
  */
 package com.github.thesmartenergy.sparql.generate.jena.engine;
 
+import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -28,6 +29,8 @@ import org.junit.Test;
 public class Timestamps extends TestBase {
 
     public Timestamps() {
+        
+        SPARQLGenerate.init();
 
     }
 

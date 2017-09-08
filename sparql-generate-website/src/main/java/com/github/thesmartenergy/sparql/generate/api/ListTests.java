@@ -21,7 +21,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Arrays;
-import java.util.logging.Logger;
 import javax.servlet.http.HttpServlet;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -33,6 +32,8 @@ import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.ResIterator;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.ResourceFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -41,7 +42,7 @@ import org.apache.jena.rdf.model.ResourceFactory;
 @Path("/list")
 public class ListTests extends HttpServlet {
 
-    private static final Logger LOG = Logger.getLogger(ListTests.class.getSimpleName());
+    private static final Logger LOG = LogManager.getLogger(ListTests.class);
 
     @GET
     public Response doGet() throws IOException, URISyntaxException {

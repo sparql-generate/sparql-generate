@@ -20,11 +20,12 @@ import java.util.ArrayList;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.IteratorFunctionBase3;
 import java.util.List;
 import org.apache.jena.sparql.expr.NodeValue;
-import org.apache.log4j.Logger;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueString;
 import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * A SPARQL Iterator function that returns a list of strings
@@ -45,7 +46,7 @@ public class ITE_Regex extends IteratorFunctionBase3 {
     /**
      * The logger.
      */
-    private static final Logger LOG = Logger.getLogger(ITE_Regex.class);
+    private static final Logger LOG = LogManager.getLogger(ITE_Regex.class);
     public static final String URI = SPARQLGenerate.ITER + "regex";
     
     public ITE_Regex(){

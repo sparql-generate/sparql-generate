@@ -31,8 +31,9 @@ import java.util.Set;
 import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.NodeValue;
-import org.apache.log4j.Logger;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.IteratorFunctionBase1;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * A SPARQL Iterator function that lists the keys of a JSON object represented
@@ -70,7 +71,7 @@ public class ITE_JSONListKeys extends IteratorFunctionBase1 {
     /**
      * The logger.
      */
-    private static final Logger LOG = Logger.getLogger(ITE_JSONListKeys.class);
+    private static final Logger LOG = LogManager.getLogger(ITE_JSONListKeys.class);
 
     /**
      * The SPARQL function URI.
@@ -97,7 +98,7 @@ public class ITE_JSONListKeys extends IteratorFunctionBase1 {
                     + " <" + datatypeUri + "> or"
                     + " <http://www.w3.org/2001/XMLSchema#string>."
                     + " Got <" + json.getDatatypeURI() + ">"
-                    + " Returning null.");
+                   );
         }
         try {
             Gson gson = new Gson();

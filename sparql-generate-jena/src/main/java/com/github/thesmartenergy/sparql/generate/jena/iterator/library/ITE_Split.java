@@ -20,9 +20,10 @@ import java.util.ArrayList;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.IteratorFunctionBase2;
 import java.util.List;
 import org.apache.jena.sparql.expr.NodeValue;
-import org.apache.log4j.Logger;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueString;
 import java.util.Arrays;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * A SPARQL Iterator function that returns a list of strings
@@ -36,7 +37,7 @@ public class ITE_Split extends IteratorFunctionBase2 {
     /**
      * The logger.
      */
-    private static final Logger LOG = Logger.getLogger(ITE_Split.class);
+    private static final Logger LOG = LogManager.getLogger(ITE_Split.class);
     public static final String URI = SPARQLGenerate.ITER + "Split";
     
     /**

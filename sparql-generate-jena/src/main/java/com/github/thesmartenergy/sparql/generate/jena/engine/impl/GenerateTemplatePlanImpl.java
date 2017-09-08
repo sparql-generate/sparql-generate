@@ -24,7 +24,8 @@ import org.apache.jena.query.Dataset;
 import org.apache.jena.query.QuerySolutionMap;
 import org.apache.jena.riot.system.StreamRDF;
 import org.apache.jena.sparql.core.Var;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * The GENERATE {...} template.
@@ -36,9 +37,9 @@ public class GenerateTemplatePlanImpl extends PlanBase implements GeneratePlan {
     /**
      * the logger.
      */
-    private static final Logger LOG
-            = Logger.getLogger(GenerateTemplatePlanImpl.class);
+    private static final Logger LOG = LogManager.getLogger(GenerateTemplatePlanImpl.class);
 
+    
     /**
      * the list of generate blocks.
      */

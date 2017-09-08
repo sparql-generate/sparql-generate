@@ -28,7 +28,6 @@ import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.shared.PrefixMapping;
 import org.apache.jena.sparql.core.Var;
-import org.apache.log4j.Logger;
 import com.github.thesmartenergy.sparql.generate.jena.engine.SelectPlan;
 import com.github.thesmartenergy.sparql.generate.jena.engine.SourcePlan;
 import java.util.ArrayList;
@@ -39,6 +38,8 @@ import org.apache.jena.graph.Triple;
 import org.apache.jena.query.QuerySolutionMap;
 import org.apache.jena.riot.system.StreamRDF;
 import org.apache.jena.sparql.core.Quad;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Entry point to a SPARQL Generate query execution.
@@ -51,7 +52,7 @@ public final class RootPlanImpl extends PlanBase implements RootPlan,
     /**
      * The logger.
      */
-    private static final Logger LOG = Logger.getLogger(RootPlanImpl.class);
+    private static final Logger LOG = LogManager.getLogger(RootPlanImpl.class);
 
     /**
      * Selector and Source plans.

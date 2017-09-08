@@ -30,7 +30,8 @@ import org.apache.jena.sparql.engine.binding.BindingHashMap;
 import org.apache.jena.sparql.syntax.Element;
 import org.apache.jena.sparql.syntax.ElementData;
 import org.apache.jena.sparql.syntax.ElementGroup;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Executes the SPARQL SELECT query.
@@ -39,7 +40,7 @@ import org.apache.log4j.Logger;
  */
 public class SelectPlanImpl extends PlanBase implements SelectPlan {
 
-    private static final Logger LOG = Logger.getLogger(SelectPlanImpl.class);
+    private static final Logger LOG = LogManager.getLogger(SelectPlanImpl.class);
 
     /**
      * The query.

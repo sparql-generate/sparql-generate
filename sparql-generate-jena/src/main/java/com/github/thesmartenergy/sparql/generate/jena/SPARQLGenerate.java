@@ -15,6 +15,7 @@
  */
 package com.github.thesmartenergy.sparql.generate.jena;
 
+import com.github.thesmartenergy.sparql.generate.jena.locator.LocatorURLAccept;
 import com.github.thesmartenergy.sparql.generate.jena.function.library.FN_BNode2;
 import com.github.thesmartenergy.sparql.generate.jena.function.library.FN_CBOR;
 import com.github.thesmartenergy.sparql.generate.jena.function.library.FN_CSV;
@@ -59,13 +60,19 @@ import org.apache.jena.riot.LangBuilder;
 import org.apache.jena.riot.RDFLanguages;
 import static org.apache.jena.riot.RDFLanguages.strLangRDFXML;
 import static org.apache.jena.riot.WebContent.contentTypeRDFXML;
+import org.apache.jena.riot.system.stream.JenaIOEnvironment;
 import org.apache.jena.riot.system.stream.LocationMapper;
+import org.apache.jena.riot.system.stream.Locator;
+import org.apache.jena.riot.system.stream.LocatorClassLoader;
+import org.apache.jena.riot.system.stream.LocatorFile;
 import org.apache.jena.riot.system.stream.StreamManager;
 import org.apache.jena.sparql.core.Prologue;
 import org.apache.jena.sparql.serializer.QuerySerializerFactory;
 import org.apache.jena.sparql.serializer.SerializationContext;
 import org.apache.jena.sparql.serializer.SerializerRegistry;
 import org.apache.jena.sparql.util.NodeToLabelMapBNode;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * The configuration entry point of SPARQL-Generate. Method {@link #init()} must
@@ -122,7 +129,11 @@ public final class SPARQLGenerate {
     public static void init() {
     }
 
+    static final Logger log = LogManager.getLogger(SPARQLGenerate.class);
+
     static {
+        log.trace("initializing SPARQLGenerate");
+        
         SYNTAX = new SPARQLGenerateSyntax(SYNTAX_URI);
 
         FunctionRegistry fnreg = FunctionRegistry.get();
@@ -209,7 +220,7 @@ public final class SPARQLGenerate {
         RDFLanguages.register(LangBuilder.create("XHTML", "application/xhtml+xml")
                                 .addFileExtensions("xhtml")
                                 .build());
-        getStreamManager();
+        getStreamManager(true);
     }
 
     /**
@@ -278,22 +289,28 @@ public final class SPARQLGenerate {
 
     public static StreamManager getStreamManager(boolean fresh) {
         if (fresh) {
-            StreamManager sm = StreamManager.makeDefaultStreamManager();
-            StreamManager.setGlobal(sm);
+            resetStreamManager((Locator) null);
         }
-        StreamManager sm = StreamManager.get();
-        sm.addLocator(new LocatorURLAccept());
-        return sm;
+        return StreamManager.get();
     }
 
-    public static StreamManager getStreamManager(Model configurationModel) {
-        if (configurationModel == null) {
-            return getStreamManager(true);
+    public static void resetStreamManager(Locator locator) {
+        StreamManager sm = new StreamManager();
+        if(locator != null) {
+            sm.addLocator(locator);
         }
-
-        StreamManager sm = StreamManager.makeDefaultStreamManager();
+        sm.addLocator(new LocatorFile(null));
+        sm.addLocator(new LocatorClassLoader(StreamManager.class.getClassLoader())) ;
+        sm.setLocationMapper(JenaIOEnvironment.getLocationMapper()) ;
         sm.addLocator(new LocatorURLAccept());
         StreamManager.setGlobal(sm);
+    }
+
+    public static StreamManager resetStreamManager(Model configurationModel) {
+        StreamManager sm = getStreamManager(true);
+        if (configurationModel == null) {
+            return sm;
+        }
 
         org.apache.jena.util.LocationMapper old = new org.apache.jena.util.LocationMapper(configurationModel);
         LocationMapper mapper = new LocationMapper();

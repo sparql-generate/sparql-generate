@@ -33,8 +33,9 @@ import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.system.stream.LocatorFile;
 import org.apache.jena.riot.system.stream.StreamManager;
-import org.apache.log4j.Logger;
 import static org.junit.Assert.assertTrue;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -47,8 +48,7 @@ public class TestBase {
     static File exampleDir;
 
     static void setUpClass(Class clazz) throws Exception {
-        LOG = Logger.getLogger(clazz);
-        LOG.debug(clazz.getName());
+        LOG = LogManager.getLogger(clazz);
         String dir = clazz.getSimpleName();
         dir = Character.toLowerCase(dir.charAt(0))
                 + (dir.length() > 1 ? dir.substring(1) : "");
@@ -61,7 +61,7 @@ public class TestBase {
         Model conf = RDFDataMgr.loadModel(confUri.toString());
 
         // initialize stream manager
-        StreamManager sm = SPARQLGenerate.getStreamManager(conf);
+        StreamManager sm = SPARQLGenerate.resetStreamManager(conf);
         sm.addLocator(new LocatorFile(exampleDir.toURI().getPath()));
     }
 
@@ -106,7 +106,7 @@ public class TestBase {
         long start = start0;
         SPARQLGenerateQuery q = (SPARQLGenerateQuery) QueryFactory.create(query, SPARQLGenerate.SYNTAX);
         long now = System.currentTimeMillis();
-        System.out.println("needed " + (now - start) + " to parse query");
+        LOG.trace("needed " + (now - start) + " to parse query");
         start = now;
 
         // create generation plan
@@ -116,16 +116,16 @@ public class TestBase {
         QuerySolutionMap initialBinding = null;
 
         now = System.currentTimeMillis();
-        System.out.println("needed " + (now - start) + " to get ready");
+        LOG.trace("needed " + (now - start) + " to get ready");
         start = now;
 
         // execute plan
         plan.exec(initialBinding, output); 
 
         now = System.currentTimeMillis();
-        System.out.println("executed plan in " + (now - start));
+        LOG.trace("executed plan in " + (now - start));
         start = now;
-        System.out.println("total needed " + (now - start0));
+        LOG.trace("total needed " + (now - start0));
 
         // write output
         String fileName = exampleDir.toString() + "/output.ttl";

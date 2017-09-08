@@ -24,7 +24,6 @@ import com.github.thesmartenergy.sparql.generate.jena.normalizer.QueryNormalizer
 import java.util.List;
 import org.apache.jena.query.QueryFactory;
 import org.apache.jena.sparql.syntax.Element;
-import org.apache.log4j.Logger;
 
 /**
  *

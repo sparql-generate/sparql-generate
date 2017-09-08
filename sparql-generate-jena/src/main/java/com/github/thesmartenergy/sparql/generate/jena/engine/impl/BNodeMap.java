@@ -21,6 +21,8 @@ import org.apache.jena.ext.com.google.common.collect.Maps;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.sparql.core.Var;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Class to store overridable blank node mappings efficiently.
@@ -29,6 +31,8 @@ import org.apache.jena.sparql.core.Var;
  */
 public class BNodeMap {
 
+    static final Logger log = LogManager.getLogger(BNodeMap.class);
+    
     /** The parent BNodeMap. */
     private final BNodeMap parent;
     

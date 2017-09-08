@@ -30,9 +30,10 @@ import org.apache.jena.sparql.ARQInternalErrorException;
 import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.ExprList;
 import org.apache.jena.sparql.expr.NodeValue;
-import org.apache.log4j.Logger;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueString;
 import org.apache.jena.sparql.function.FunctionBase;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.supercsv.io.CsvListReader;
 import org.supercsv.io.CsvMapReader;
 import org.supercsv.prefs.CsvPreference;
@@ -53,7 +54,7 @@ public class FN_CustomCSV extends FunctionBase {
     /**
      * The logger.
      */
-    private static final Logger LOG = Logger.getLogger(FN_CustomCSV.class);
+    private static final Logger LOG = LogManager.getLogger(FN_CustomCSV.class);
 
     /**
      * The SPARQL function URI.
@@ -123,10 +124,9 @@ public class FN_CustomCSV extends FunctionBase {
                 && !csv.getDatatypeURI().equals("http://www.w3.org/2001/XMLSchema#string")) {
             LOG.warn("The URI of NodeValue1 MUST be <" + datatypeUri + ">"
                     + "or <http://www.w3.org/2001/XMLSchema#string>."
-                    + " Returning null.");
+                   );
         }
 
-        LOG.debug("===========> " + column);
         DocumentBuilderFactory builderFactory
                 = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = null;
@@ -147,6 +147,7 @@ public class FN_CustomCSV extends FunctionBase {
             String nodeVal = "none";
 
             if (header.getBoolean()) {
+                LOG.trace("header is true ");
                 CsvMapReader mapReader = new CsvMapReader(br, prefs);
 
                 Map<String, String> row = mapReader.read(headers_str.split(delimiterChar.asString()));
@@ -154,12 +155,15 @@ public class FN_CustomCSV extends FunctionBase {
                 nodeVal = row.get(columnName);
 
             } else {
+                LOG.trace("header is false");
                 List<String> values = new CsvListReader(br, prefs).read();
                 nodeVal = values.get(Integer.valueOf(column.asString()));
             }
             if (nodeVal != null) {
+                LOG.trace("return ", nodeVal);
                 return new NodeValueString(nodeVal);
             } else {
+                LOG.trace("node is null. return nothing");
                 return new NodeValueString("");
             }
 

@@ -17,7 +17,6 @@ package com.github.thesmartenergy.sparql.generate.jena.function.library;
 
 import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
 import org.apache.jena.sparql.expr.NodeValue;
-import org.apache.log4j.Logger;
 import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.text.DateFormat;
@@ -29,6 +28,8 @@ import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueNode;
 import org.apache.jena.sparql.function.FunctionBase1;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * A SPARQL Function that converts a timestamp encoded in an xsd:string to a 
@@ -44,7 +45,7 @@ public final class FN_DateTime extends FunctionBase1 {
     /**
      * The logger.
      */
-    private static final Logger LOG = Logger.getLogger(FN_DateTime.class);
+    private static final Logger LOG = LogManager.getLogger(FN_DateTime.class);
 
     /**
      * The SPARQL function URI.
@@ -60,17 +61,17 @@ public final class FN_DateTime extends FunctionBase1 {
         BigInteger timeStamp;
         if(timeStampValue == null || !timeStampValue.isInteger()) {
             throw new ExprEvalException("The NodeValue " + timeStampValue + " MUST be an integer."
-                    + " Returning null.");
+                   );
         } else {
             timeStamp = timeStampValue.getInteger();
         }
         
         if (timeStamp.compareTo(BigInteger.valueOf(Long.MAX_VALUE)) != -1) {
             throw new ExprEvalException("The NodeValue " + timeStamp + " MUST be less than the biggest long value."
-                    + " Returning null.");
+                   );
         } else if (timeStamp.signum() != 1) {
             throw new ExprEvalException("The NodeValue " + timeStamp + " MUST be positive."
-                    + " Returning null.");
+                   );
         }         
 
         Timestamp stamp = new Timestamp(timeStamp.longValue());

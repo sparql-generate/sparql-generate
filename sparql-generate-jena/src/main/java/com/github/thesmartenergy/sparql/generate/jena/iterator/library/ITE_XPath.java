@@ -16,7 +16,6 @@
 package com.github.thesmartenergy.sparql.generate.jena.iterator.library;
 
 import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
-import com.github.thesmartenergy.sparql.generate.jena.function.library.FN_XPath;
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.IteratorFunctionBase2;
@@ -33,7 +32,6 @@ import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.NodeValue;
-import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueBoolean;
@@ -44,13 +42,12 @@ import org.apache.jena.sparql.expr.nodevalue.NodeValueInteger;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueNode;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueString;
 import java.math.BigDecimal;
-import java.util.Iterator;
-import javax.xml.XMLConstants;
-import javax.xml.namespace.NamespaceContext;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * A SPARQL Iterator function that extracts a list of sub-XML elements of a XML
@@ -65,7 +62,7 @@ public class ITE_XPath extends IteratorFunctionBase2 {
     /**
      * The logger.
      */
-    private static final Logger LOG = Logger.getLogger(ITE_XPath.class);
+    private static final Logger LOG = LogManager.getLogger(ITE_XPath.class);
 
     /**
      * The SPARQL function URI.
@@ -93,7 +90,7 @@ public class ITE_XPath extends IteratorFunctionBase2 {
             LOG.warn("The URI of NodeValue1 MUST be"
                     + " <" + datatypeUri + "> "
                     + " or <http://www.w3.org/2001/XMLSchema#string>. Got " 
-                    + xml.getDatatypeURI() + " Returning null.");
+                    + xml.getDatatypeURI());
         }
         DocumentBuilderFactory builderFactory
                 = DocumentBuilderFactory.newInstance();

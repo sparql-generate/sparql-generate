@@ -47,7 +47,6 @@ import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryParseException;
 import org.apache.jena.sparql.core.Prologue;
 import org.apache.jena.sparql.engine.binding.Binding;
-import org.apache.log4j.Logger;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.IteratorFunction;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.IteratorFunctionFactory;
 import com.github.thesmartenergy.sparql.generate.jena.syntax.ElementGenerateTriplesBlock;
@@ -55,6 +54,8 @@ import java.nio.charset.Charset;
 import org.apache.jena.graph.Node;
 import org.apache.jena.riot.system.stream.StreamManager;
 import org.apache.jena.sparql.syntax.ElementBind;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * A factory that creates a {@link RootPlan} from a SPARQL Generate query.
@@ -77,7 +78,7 @@ public class PlanFactory {
     /**
      * The logger.
      */
-    static final Logger LOG = Logger.getLogger(PlanFactory.class);
+    private static final Logger LOG = LogManager.getLogger(PlanFactory.class);
 
     /**
      * The registry of {@link IteratorFunction}s.
@@ -127,6 +128,7 @@ public class PlanFactory {
             query = (SPARQLGenerateQuery) QueryFactory.create(queryStr,
                     SPARQLGenerate.SYNTAX);
         } catch (QueryParseException ex) {
+            LOG.debug("Error while parsing the query ", queryStr);
             throw new SPARQLGenerateException(
                     "Error while parsing the query ", ex);
         }
@@ -185,7 +187,7 @@ public class PlanFactory {
         } else if (query.hasGenerateTemplate()) {
             generatePlan = makeGenerateTemplatePlan(query);
         } else {
-            LOG.debug("Query with no generate part.");
+            LOG.debug("Query with no generate part.", query);
         }
         return new RootPlanImpl(
                 iteratorAndSourcePlans, selectPlan,

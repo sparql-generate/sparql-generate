@@ -27,13 +27,14 @@ import org.apache.jena.rdf.model.Model;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.system.stream.LocatorFile;
 import org.apache.jena.riot.system.stream.StreamManager;
-import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -48,7 +49,7 @@ public class Bnodes {
 
     @BeforeClass
     public static void setUpClass() throws Exception {
-        LOG = Logger.getLogger(Bnodes.class);
+        LOG = LogManager.getLogger(Bnodes.class);
         LOG.debug(Bnodes.class.getName());
     }
 
@@ -84,7 +85,7 @@ public class Bnodes {
 
         // initialize file manager
         
-        StreamManager sm = SPARQLGenerate.getStreamManager(conf);
+        StreamManager sm = SPARQLGenerate.resetStreamManager(conf);
         sm.addLocator(new LocatorFile(exampleDir.toURI().getPath()));
                 
         String qstring = IOUtils.toString(sm.open("query.rqg"), "UTF-8");
@@ -96,12 +97,18 @@ public class Bnodes {
         Model output = plan.exec();
 
         // write output
-        output.write(System.out, "TTL");
+        if(LOG.isTraceEnabled()) {
+            StringWriter sw = new StringWriter();
+            output.write(sw, "TTL");
+            LOG.trace(sw);
+        }
 
         Model expectedOutput = RDFDataMgr.loadModel("expected_output.ttl");
-        StringWriter sw = new StringWriter();
-        expectedOutput.write(sw, "TTL");
-        LOG.debug("\n"+sw.toString());
+        if(LOG.isTraceEnabled()) {
+            StringWriter sw = new StringWriter();
+            expectedOutput.write(sw, "TTL");
+            LOG.trace("\n"+sw.toString());
+        }
 
         Assert.assertTrue(output.isIsomorphicWith(expectedOutput));
     }

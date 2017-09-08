@@ -27,7 +27,6 @@ import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.NodeValue;
-import org.apache.log4j.Logger;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueNode;
 import org.supercsv.io.ICsvListReader;
 import java.io.InputStream;
@@ -35,6 +34,8 @@ import java.io.InputStreamReader;
 import java.util.Iterator;
 import org.supercsv.io.CsvListReader;
 import org.supercsv.prefs.CsvPreference;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * A SPARQL Iterator function that iterates over the columns of a CSV document.
@@ -50,7 +51,7 @@ public class ITE_CSVFirstRow extends IteratorFunctionBase1 {
     /**
      * The logger.
      */
-    private static final Logger LOG = Logger.getLogger(ITE_CSVFirstRow.class);
+    private static final Logger LOG = LogManager.getLogger(ITE_CSVFirstRow.class);
 
     /**
      * The SPARQL function URI.

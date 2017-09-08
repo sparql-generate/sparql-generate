@@ -23,7 +23,8 @@ import org.apache.jena.sparql.lang.SPARQLParser;
 import com.github.thesmartenergy.sparql.generate.jena.query.SPARQLGenerateQuery;
 import java.io.Reader;
 import java.io.StringReader;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Class to parse a SPARQL-Generate query. Use preferably ARQ methods to parse
@@ -42,7 +43,7 @@ public class ParserSPARQLGenerate extends SPARQLParser {
      * The logger.
      */
     private static final Logger LOG
-            = Logger.getLogger(ParserSPARQLGenerate.class);
+            = LogManager.getLogger(ParserSPARQLGenerate.class);
 
     /**
      * Private interface.

@@ -27,12 +27,13 @@ import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.NodeValue;
-import org.apache.log4j.Logger;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueNode;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import org.supercsv.io.CsvMapReader;
 import org.supercsv.prefs.CsvPreference;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * A SPARQL Iterator function that return a row of a CSV document, together with the header. The Iterator function URI is
@@ -49,7 +50,7 @@ public class ITE_CSVHeaders extends IteratorFunctionBase1 {
     /**
      * The logger.
      */
-    private static final Logger LOG = Logger.getLogger(ITE_CSVHeaders.class);
+    private static final Logger LOG = LogManager.getLogger(ITE_CSVHeaders.class);
 
     /**
      * The SPARQL function URI.
@@ -71,7 +72,7 @@ public class ITE_CSVHeaders extends IteratorFunctionBase1 {
                 && !csv.getDatatypeURI().equals("http://www.w3.org/2001/XMLSchema#string")) {
             LOG.warn("The URI of NodeValue1 MUST be <" + datatypeUri + ">"
                     + "or <http://www.w3.org/2001/XMLSchema#string>."
-                    + " Returning null.");
+                   );
         }
         List<NodeValue> nodeValues = new ArrayList<>();
         

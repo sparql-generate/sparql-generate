@@ -28,18 +28,16 @@ import org.apache.jena.sparql.expr.nodevalue.NodeValueFloat;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueInteger;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueString;
 import org.apache.jena.sparql.function.FunctionBase2;
-import org.apache.log4j.Logger;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.Map;
-import static org.apache.jena.assembler.JA.data;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueNode;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * A SPARQL Function that extracts a string from a JSON document, according to a
@@ -54,7 +52,7 @@ public final class FN_JSONPath extends FunctionBase2 {
     /**
      * The logger.
      */
-    private static final Logger LOG = Logger.getLogger(FN_JSONPath.class);
+    private static final Logger LOG = LogManager.getLogger(FN_JSONPath.class);
 
     /**
      * The SPARQL function URI.
@@ -81,7 +79,7 @@ public final class FN_JSONPath extends FunctionBase2 {
                 && !json.getDatatypeURI().equals("http://www.w3.org/2001/XMLSchema#string")) {
             LOG.warn("The URI of NodeValue1 MUST be <" + datatypeUri + ">"
                     + " or <http://www.w3.org/2001/XMLSchema#string>. Got " 
-                    + json.getDatatypeURI() + " Returning null.");
+                    + json.getDatatypeURI());
         }
 
         try {

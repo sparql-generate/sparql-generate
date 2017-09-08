@@ -28,7 +28,6 @@ import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.NodeValue;
-import org.apache.log4j.Logger;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueNode;
 import org.supercsv.io.ICsvListReader;
 import java.util.function.Consumer;
@@ -37,6 +36,8 @@ import org.apache.jena.riot.system.stream.StreamManager;
 import org.supercsv.io.CsvListReader;
 import org.supercsv.io.CsvListWriter;
 import org.supercsv.prefs.CsvPreference;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * A SPARQL Iterator function that return a row of a CSV document, together with
@@ -53,7 +54,7 @@ public class ITE_CSVStream extends IteratorStreamFunctionBase2 {
     /**
      * The logger.
      */
-    private static final Logger LOG = Logger.getLogger(ITE_CSVStream.class);
+    private static final Logger LOG = LogManager.getLogger(ITE_CSVStream.class);
 
     /**
      * The SPARQL function URI.

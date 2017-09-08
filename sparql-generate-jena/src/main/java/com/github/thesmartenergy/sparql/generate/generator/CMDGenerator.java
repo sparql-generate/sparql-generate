@@ -24,19 +24,19 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Enumeration;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.LogManager;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.BOMInputStream;
 import org.apache.jena.rdf.model.Model;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.config.Configurator;
 
 public class CMDGenerator {
     
-    static Logger LOG;
+    private static final Logger LOG = LogManager.getLogger(CMDGenerator.class);
     
     public static void main(String [] args){
         
@@ -54,14 +54,8 @@ public class CMDGenerator {
             
             
             if ( cl.hasOption('l') ) {
-               Enumeration<String> loggers = LogManager.getLogManager().getLoggerNames();
-                while (loggers.hasMoreElements()) {
-                   java.util.logging.Logger element = LogManager.getLogManager().getLogger(loggers.nextElement());
-                   element.setLevel(Level.OFF);
-                }
-                Logger.getRootLogger().setLevel(org.apache.log4j.Level.OFF);
+               Configurator.setRootLevel(Level.OFF);
             }
-            LOG = Logger.getLogger(CMDGenerator.class);
             
             
         

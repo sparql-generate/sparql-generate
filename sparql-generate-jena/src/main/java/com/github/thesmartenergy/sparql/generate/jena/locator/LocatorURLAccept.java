@@ -13,19 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.thesmartenergy.sparql.generate.jena;
+package com.github.thesmartenergy.sparql.generate.jena.locator;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.io.input.BOMInputStream;
 import org.apache.jena.atlas.web.TypedInputStream;
 import org.apache.jena.riot.system.stream.Locator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -33,7 +35,8 @@ import org.slf4j.LoggerFactory;
  */
 public class LocatorURLAccept implements Locator {
 
-    static Logger log = LoggerFactory.getLogger(LocatorURLAccept.class);
+    static Logger log = LogManager.getLogger(LocatorURLAccept.class);
+    
 
     @Override
     public boolean equals(Object other) {
@@ -47,24 +50,21 @@ public class LocatorURLAccept implements Locator {
 
     @Override
     public String getName() {
-        return "LocatorURLAccept";
+        return LocatorURLAccept.class.getSimpleName();
     }
 
     @Override
     public TypedInputStream open(String acceptURI) {
+        log.trace(acceptURI);
         if (!acceptURI.substring(0, 7).equals("accept:")) {
-            if (log.isTraceEnabled()) {
-                log.trace("Not found : " + acceptURI);
-            }
+            log.trace("not supported " + acceptURI);
             return null;
         }
 
         // get accept
         int index = acceptURI.indexOf(":", 7);
         if (index == -1) {
-            if (log.isTraceEnabled()) {
-                log.trace("Incorrect accept URI: " + acceptURI);
-            }
+            log.trace("not supported " + acceptURI);
             return null;
         }
         String acceptHeader = acceptURI.substring(7, index);
@@ -72,7 +72,7 @@ public class LocatorURLAccept implements Locator {
 
         try {
             URL url = new URL(source);
-            URLConnection conn = url.openConnection();
+            URLConnection conn = (URLConnection) url.openConnection();
             String userInfo = url.getUserInfo();
             if (userInfo != null && !userInfo.isEmpty()) {
                 String encodedUserInfo = new String(Base64.encodeBase64(userInfo.getBytes("UTF-8")));
@@ -83,42 +83,31 @@ public class LocatorURLAccept implements Locator {
             conn.setDoInput(true);
             conn.setDoOutput(false);
             // Default is true.  See javadoc for HttpURLConnection
-            //((HttpURLConnection)conn).setInstanceFollowRedirects(true) ;
+            ((HttpURLConnection)conn).setInstanceFollowRedirects(true) ;
             conn.connect();
-            InputStream in = new BufferedInputStream(conn.getInputStream());
+            InputStream in = new BufferedInputStream(new BOMInputStream(conn.getInputStream()));
 
-            if (log.isTraceEnabled()) {
-                log.trace("Found: " + acceptURI);
-            }
-            log.debug("found distant: " + source + " " + conn.getContentType() + " " + conn.getContentEncoding());
+            log.trace("found: " + source + " " + conn.getContentType() + " " + conn.getContentEncoding());
             return new TypedInputStream(in, conn.getContentType(), conn.getContentEncoding());
         } catch (java.io.FileNotFoundException ex) {
-            if (log.isTraceEnabled()) {
-                log.trace("LocatorURLAccept: not found: " + acceptURI);
-            }
+            log.trace("not found: " + source, ex);
             return null;
         } catch (MalformedURLException ex) {
-            log.warn("Malformed URL: " + acceptURI);
+            log.trace("Malformed URL: " + source, ex);
             return null;
         } // IOExceptions that occur sometimes.
         catch (java.net.UnknownHostException ex) {
-            if (log.isTraceEnabled()) {
-                log.trace("LocatorURLAccept: not found (UnknownHostException): " + acceptURI);
-            }
+            log.trace("UnknownHostException " + source, ex);
             return null;
         } catch (java.net.ConnectException ex) {
-            if (log.isTraceEnabled()) {
-                log.trace("LocatorURLAccept: not found (ConnectException): " + acceptURI);
-            }
+            log.trace("ConnectException " + source, ex);
             return null;
         } catch (java.net.SocketException ex) {
-            if (log.isTraceEnabled()) {
-                log.trace("LocatorURLAccept: not found (SocketException): " + acceptURI);
-            }
+            log.trace("SocketException " + source, ex);
             return null;
-        } // And IOExceptions we don't expect
+        }
         catch (IOException ex) {
-            log.warn("I/O Exception opening URL: " + acceptURI + "  " + ex.getMessage(), ex);
+            log.warn("I/O Exception opening URL: " + source + "  " + ex.getMessage(), ex);
             return null;
         }
     }

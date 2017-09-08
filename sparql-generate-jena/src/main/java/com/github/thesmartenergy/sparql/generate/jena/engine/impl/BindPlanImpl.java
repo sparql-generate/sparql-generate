@@ -22,8 +22,9 @@ import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.expr.Expr;
 import org.apache.jena.sparql.expr.NodeValue;
 import org.apache.jena.sparql.util.ExprUtils;
-import org.apache.log4j.Logger;
 import com.github.thesmartenergy.sparql.generate.jena.engine.SourcePlan;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Executes a {@code BIND( <expr> AS <var>)} clause.
@@ -32,11 +33,11 @@ import com.github.thesmartenergy.sparql.generate.jena.engine.SourcePlan;
  */
 public class BindPlanImpl extends PlanBase implements SourcePlan {
 
+
     /**
      * The logger.
      */
-    private static final Logger LOG
-            = Logger.getLogger(BindPlanImpl.class.getName());
+    private static final Logger LOG = LogManager.getLogger(BindPlanImpl.class);
 
     /**
      * The expression.

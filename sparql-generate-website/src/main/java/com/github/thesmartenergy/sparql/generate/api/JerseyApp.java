@@ -15,7 +15,6 @@
  */
 package com.github.thesmartenergy.sparql.generate.api;
 
-import java.util.logging.Logger;
 import javax.ws.rs.ApplicationPath;
 import org.glassfish.jersey.server.ResourceConfig;
 
@@ -25,8 +24,6 @@ import org.glassfish.jersey.server.ResourceConfig;
  */
 @ApplicationPath("api")
 public class JerseyApp extends ResourceConfig {
-
-    private static final Logger LOG = Logger.getLogger(JerseyApp.class.getSimpleName());
 
     public JerseyApp() {
         packages("com.github.thesmartenergy.sparql.generate.api");

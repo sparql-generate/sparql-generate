@@ -18,6 +18,7 @@ package com.github.thesmartenergy.sparql.generate.api;
 import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
 import com.github.thesmartenergy.sparql.generate.jena.engine.PlanFactory;
 import com.github.thesmartenergy.sparql.generate.jena.engine.RootPlan;
+import com.github.thesmartenergy.sparql.generate.jena.locator.LocatorStringMap;
 import com.google.gson.Gson;
 import com.google.gson.internal.StringMap;
 import com.jayway.jsonpath.Configuration;
@@ -31,12 +32,9 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.DefaultValue;
@@ -51,9 +49,8 @@ import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
 import org.apache.jena.rdf.model.Model;
-import org.apache.jena.riot.system.stream.Locator;
-import org.apache.jena.riot.system.stream.StreamManager;
-
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 /**
  *
  * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
@@ -61,7 +58,7 @@ import org.apache.jena.riot.system.stream.StreamManager;
 @Path("/transform")
 public class Transform extends HttpServlet {
 
-    private static final Logger LOG = Logger.getLogger(Transform.class.getSimpleName());
+    private static final Logger LOG = LogManager.getLogger(Transform.class);
 
     static {
         Configuration.setDefaults(new Configuration.Defaults() {
@@ -168,15 +165,9 @@ public class Transform extends HttpServlet {
                 conn.setRequestMethod("GET");
                 query = IOUtils.toString(conn.getInputStream(), "UTF-8");
             }
-            LOG.info("Request for execution: \n " + query + "\n");
+            LOG.trace("Request for execution: \n " + query + "\n");
 
-            StreamManager sm = SPARQLGenerate.getStreamManager(true);
-            List<Locator> locators = new ArrayList<>();
-            locators.addAll(sm.locators());
-            locators.forEach((locator) -> {
-                sm.remove(locator);
-            });
-            
+            LocatorStringMap locator = new LocatorStringMap();
             Gson gson = new Gson();
             List<Object> documents = gson.fromJson(documentset, List.class);
             if (documents != null) {
@@ -184,14 +175,12 @@ public class Transform extends HttpServlet {
                     StringMap document = (StringMap) documents.get(i);
                     String uri = (String) document.get("uri");
                     String doc = (String) document.get("document");
-                    sm.addLocator(new UniqueLocator(uri, doc));
-                    LOG.info("with document: " + uri + " = " + doc);
+                    locator.put(uri, doc);
+                    LOG.trace("with document: " + uri + " = " + doc);
                 }
             }
             
-            locators.forEach((locator) -> {
-                sm.addLocator(locator);
-            });
+            SPARQLGenerate.resetStreamManager(locator);
             
             // parse the SPARQL-Generate query and create plan
             RootPlan plan = PlanFactory.create(query);
@@ -201,7 +190,7 @@ public class Transform extends HttpServlet {
             StringWriter sw = new StringWriter();
             model.write(sw, lang, "http://example.org/");
             String ttl = sw.toString();
-            LOG.log(Level.INFO, "Generated: \n" + ttl);
+            LOG.trace("Generated: \n" + ttl);
             return Response.ok(ttl, "text/turtle")
                     .header("Content-Disposition", "filename= message." + ext + ";")
                     .build();
@@ -209,7 +198,7 @@ public class Transform extends HttpServlet {
             StringWriter sw = new StringWriter();
             PrintWriter pw = new PrintWriter(sw);
             e.printStackTrace(pw);
-            LOG.log(Level.INFO, "Triggered error: ", e);
+            LOG.warn("Triggered error: ", query, queryurl, documentset, lang, ext, e);
             return Response.serverError().entity(sw.toString()).build();
         }
     }

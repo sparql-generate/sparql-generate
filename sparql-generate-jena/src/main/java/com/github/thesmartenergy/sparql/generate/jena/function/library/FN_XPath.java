@@ -29,14 +29,15 @@ import javax.xml.namespace.NamespaceContext;
 import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.NodeValue;
 import org.apache.jena.sparql.function.FunctionBase2;
-import org.apache.log4j.Logger;
-import org.w3c.dom.Document;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueBoolean;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueDecimal;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueDouble;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueFloat;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueInteger;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueString;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.w3c.dom.Document;
 
 /**
  * A SPARQL Function that extracts a string from a XML document, according to a
@@ -52,7 +53,7 @@ public class FN_XPath extends FunctionBase2 {
     /**
      * The logger.
      */
-    private static final Logger LOG = Logger.getLogger(FN_XPath.class);
+    private static final Logger LOG = LogManager.getLogger(FN_XPath.class);
 
     /**
      * The SPARQL function URI.
@@ -81,7 +82,7 @@ public class FN_XPath extends FunctionBase2 {
                 && !xml.getDatatypeURI().equals("http://www.w3.org/2001/XMLSchema#string")) {
             LOG.warn("The URI of NodeValue1 MUST be <" + datatypeUri + ">"
                     + " or <http://www.w3.org/2001/XMLSchema#string>. Got " 
-                    + xml.getDatatypeURI() + " Returning null.");
+                    + xml.getDatatypeURI());
         }
         DocumentBuilderFactory builderFactory
                 = DocumentBuilderFactory.newInstance();

@@ -23,12 +23,13 @@ import org.apache.jena.datatypes.TypeMapper;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.sparql.core.Var;
-import org.apache.log4j.Logger;
 import java.util.Objects;
 import com.github.thesmartenergy.sparql.generate.jena.engine.SourcePlan;
-import java.io.IOException;
 import org.apache.jena.atlas.web.TypedInputStream;
+import org.apache.jena.riot.system.stream.Locator;
 import org.apache.jena.riot.system.stream.StreamManager;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Executes a <code>{@code SOURCE <node> ACCEPT <mime> AS <var>}</code> clause.
@@ -40,8 +41,7 @@ public class SourcePlanImpl extends PlanBase implements SourcePlan {
     /**
      * The logger.
      */
-    private static final Logger LOG
-            = Logger.getLogger(SourcePlanImpl.class.getName());
+    private static final Logger LOG = LogManager.getLogger(SourcePlanImpl.class);
 
     /**
      * The source node. A uri or a variable.
@@ -107,30 +107,37 @@ public class SourcePlanImpl extends PlanBase implements SourcePlan {
 
             // generate the source URI.
             final String sourceUri = getActualSource(value);
+            LOG.trace(sourceUri);
 
             // try with accept header.
             String acceptHeader = getAcceptHeader(value);
             if (acceptHeader != null) {
+                LOG.trace("try with " + acceptHeader);
                 String acceptURI = "accept:" + acceptHeader + ":" + sourceUri;
                 try {
+                    LOG.trace("enter");
                     TypedInputStream stream = StreamManager.get().open(acceptURI);
+                    LOG.trace("leave");
                     if (stream != null) {
-                            literal = IOUtils.toString(stream.getInputStream(), "UTF-8");
-                            if (stream.getMediaType() != null && stream.getMediaType().getContentType() != null) {
-                                datatypeURI = "http://www.iana.org/assignments/media-types/" + stream.getMediaType().getContentType();
-                            } else {
-                                datatypeURI = "http://www.w3.org/2001/XMLSchema#string";
-                            }
-                            RDFDatatype dt = tm.getSafeTypeByName(datatypeURI);
-                            final Node n = NodeFactory.createLiteral(literal, dt);
-                            return new BindingHashMapOverwrite(value, var, n);
+                        literal = IOUtils.toString(stream.getInputStream(), "UTF-8");
+                        if (stream.getMediaType() != null && stream.getMediaType().getContentType() != null) {
+                            datatypeURI = "http://www.iana.org/assignments/media-types/" + stream.getMediaType().getContentType();
+                        } else {
+                            datatypeURI = "http://www.w3.org/2001/XMLSchema#string";
+                        }
+                        RDFDatatype dt = tm.getSafeTypeByName(datatypeURI);
+                        final Node n = NodeFactory.createLiteral(literal, dt);
+                        return new BindingHashMapOverwrite(value, var, n);
                     }
+                    LOG.trace("got null");
                 } catch (Exception ex) {
+                    LOG.debug("got exception ", ex);
                 }
             }
 
             // try without.
             try {
+                LOG.trace("try without header");
                 TypedInputStream stream = StreamManager.get().open(sourceUri);
                 if (stream != null) {
                     literal = IOUtils.toString(stream.getInputStream(), "UTF-8");
@@ -141,9 +148,12 @@ public class SourcePlanImpl extends PlanBase implements SourcePlan {
                     }
                     RDFDatatype dt = tm.getSafeTypeByName(datatypeURI);
                     final Node n = NodeFactory.createLiteral(literal, dt);
+                    LOG.trace(n);
                     return new BindingHashMapOverwrite(value, var, n);
-            }
+                }
+                    LOG.trace("got null");
             } catch (Exception ex) {
+                LOG.debug("got exception ", ex);
             }
             
             LOG.warn("not found with streamManager: " + sourceUri);
