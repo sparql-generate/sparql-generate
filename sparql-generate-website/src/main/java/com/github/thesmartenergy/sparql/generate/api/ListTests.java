@@ -20,8 +20,7 @@ import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Arrays;
 import java.util.logging.Logger;
 import javax.servlet.http.HttpServlet;
 import javax.ws.rs.GET;
@@ -34,7 +33,6 @@ import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.ResIterator;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.ResourceFactory;
-import org.apache.jena.riot.RDFDataMgr;
 
 /**
  *
@@ -48,10 +46,11 @@ public class ListTests extends HttpServlet {
     @GET
     public Response doGet() throws IOException, URISyntaxException {
         File tests = new File(ListTests.class.getClassLoader().getResource("tests").toURI());
-        System.out.println("isdirectory " + tests.isDirectory());
         
         StringBuilder sb = new StringBuilder();
-        for (File test : tests.listFiles()) {
+        File[] files = tests.listFiles();
+        Arrays.sort(files);
+        for (File test : files) {
             if(test.isDirectory()) {
                 sb.append(test.getName()+"\n");
             }
@@ -84,7 +83,6 @@ public class ListTests extends HttpServlet {
                 sb.append("%%%%%%%%%%");
                 String altName = subject.getProperty(ResourceFactory.createProperty("http://jena.hpl.hp.com/2004/08/location-mapping#altName")).getString();
                 String value = IOUtils.toString(new FileInputStream(new File(test, altName)));
-                System.out.println(value);
                 sb.append(value);
                 sb.append("**********");
             } catch(Exception ex) {

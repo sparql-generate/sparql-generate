@@ -241,7 +241,8 @@ CONSTRUCT {
                 }            
             }
         }
-        $("#result").html("refreshing...");
+        $("#result").html("click on \"Result\" to send the query...");
+        $("#tabs").tabs("option", "active", 0);
         http.send();
     }
     
@@ -268,7 +269,8 @@ CONSTRUCT {
                 show_documents();
             }
         }
-        $("#result").html("refreshing...");
+        $("#result").html("click on \"Result\" to send the query...");
+        $("#tabs").tabs("option", "active", 0);
         http.send();
     }
         
@@ -295,7 +297,7 @@ CONSTRUCT {
                 $("#result").html(response);
             }
         }
-        $("#result").html("refreshing...");
+        $("#result").html("pending result...");
         http.send(params);
     });    
     

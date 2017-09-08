@@ -23,12 +23,11 @@ The [javadoc](http://w3id.org/sparql-generate/apidocs/index.html) contains compr
 
 ### Classes `PlanFactory` and `RootPlan`
 
-First use an instance of `PlanFactory` to instantiate a `RootPlan` for a SPARQL-Generate query.
+First use class `PlanFactory` to instantiate a `RootPlan` for a SPARQL-Generate query.
 
 ```java
 SPARQLGenerateQuery query;
-PlanFactory factory = new PlanFactory();
-RootPlan plan = factory.create(query);
+RootPlan plan = PlanFactory.create(query);
 ```
 
 Then the `RootPlan` can be executed several times on different SPARQL datasets, and with different initial bindings (i.e., on multiple _messages_). Call one of the `exec` methods to trigger the RDF generation. Here is the signature of three of these methods:
@@ -109,7 +108,7 @@ Model conf = RDFDataMgr.loadModel(confUri.toString());
 StreamManager sm = SPARQLGenerate.getStreamManager(conf);
 sm.addLocator(new LocatorFile(exampleDir.toURI().getPath()));
 
-PlanFactory factory = new PlanFactory();
+PlanFactory.create(query);
 ...
 
 ```

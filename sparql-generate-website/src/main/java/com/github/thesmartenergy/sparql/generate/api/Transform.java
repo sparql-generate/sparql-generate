@@ -18,7 +18,6 @@ package com.github.thesmartenergy.sparql.generate.api;
 import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
 import com.github.thesmartenergy.sparql.generate.jena.engine.PlanFactory;
 import com.github.thesmartenergy.sparql.generate.jena.engine.RootPlan;
-import com.github.thesmartenergy.sparql.generate.jena.query.SPARQLGenerateQuery;
 import com.google.gson.Gson;
 import com.google.gson.internal.StringMap;
 import com.jayway.jsonpath.Configuration;
@@ -31,15 +30,13 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.EnumSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.naming.spi.Resolver;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.DefaultValue;
@@ -53,12 +50,9 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
-import org.apache.jena.query.QueryFactory;
-import org.apache.jena.query.Syntax;
 import org.apache.jena.rdf.model.Model;
-import org.apache.jena.riot.system.IRIResolver;
-import org.apache.jena.util.FileManager;
-import org.apache.jena.util.Locator;
+import org.apache.jena.riot.system.stream.Locator;
+import org.apache.jena.riot.system.stream.StreamManager;
 
 /**
  *
@@ -160,8 +154,6 @@ public class Transform extends HttpServlet {
     }
 
     private Response doTransform(Request r, HttpServletRequest request, String query, String queryurl, String documentset, String lang, String ext) {
-        FileManager fileManager = new FileManager();
-
         if (query.equals("") && queryurl.equals("")) {
             return Response.status(Response.Status.BAD_REQUEST).entity("At least one of query or queryurl query parameters must be set.").build();
         }
@@ -171,62 +163,53 @@ public class Transform extends HttpServlet {
 
         try {
             if (!queryurl.equals("")) {
-
-                System.out.println("queryurl = " + queryurl);
-
                 URL url = new URL(queryurl);
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                 conn.setRequestMethod("GET");
-                query = IOUtils.toString(conn.getInputStream());
+                query = IOUtils.toString(conn.getInputStream(), "UTF-8");
             }
+            LOG.info("Request for execution: \n " + query + "\n");
 
-            Iterator<Locator> locators = fileManager.locators();
-            int j = 0;
-            while (locators.hasNext()) {
-                j++;
-                Locator locator = locators.next();
-                System.out.println(locator.getName() + " " + locator.getClass().getName());
-            }
-            System.out.println("there was " + j + " locators");
-
+            StreamManager sm = SPARQLGenerate.getStreamManager(true);
+            List<Locator> locators = new ArrayList<>();
+            locators.addAll(sm.locators());
+            locators.forEach((locator) -> {
+                sm.remove(locator);
+            });
+            
             Gson gson = new Gson();
             List<Object> documents = gson.fromJson(documentset, List.class);
             if (documents != null) {
-                String dturi = "http://www.w3.org/2001/XMLSchema#string";
                 for (int i = 0; i < documents.size(); i++) {
                     StringMap document = (StringMap) documents.get(i);
                     String uri = (String) document.get("uri");
                     String doc = (String) document.get("document");
-                    fileManager.addLocator(new UniqueLocator(uri, doc, dturi));
+                    sm.addLocator(new UniqueLocator(uri, doc));
+                    LOG.info("with document: " + uri + " = " + doc);
                 }
             }
-
+            
+            locators.forEach((locator) -> {
+                sm.addLocator(locator);
+            });
+            
             // parse the SPARQL-Generate query and create plan
-            PlanFactory factory = new PlanFactory(fileManager);
-
-            Syntax syntax = SPARQLGenerate.SYNTAX;
-            SPARQLGenerateQuery q = (SPARQLGenerateQuery) QueryFactory.create(query, syntax);
-            System.out.println(q.getBaseURI());
-            System.out.println(q.getBaseURI().startsWith("file://"));
-            if (q.getBaseURI().startsWith("file://")) {
-                System.out.println("in");
-                q.setBaseURI("http://example.org/");
-                q = (SPARQLGenerateQuery) q.cloneQuery();
-            }
-            RootPlan plan = factory.create(q);
+            RootPlan plan = PlanFactory.create(query);
 
             Model model = plan.exec();
 
             StringWriter sw = new StringWriter();
-            Response.ResponseBuilder res;
             model.write(sw, lang, "http://example.org/");
-            res = Response.ok(sw.toString(), "text/turtle");
-            res.header("Content-Disposition", "filename= message." + ext + ";");
-            return res.build();
+            String ttl = sw.toString();
+            LOG.log(Level.INFO, "Generated: \n" + ttl);
+            return Response.ok(ttl, "text/turtle")
+                    .header("Content-Disposition", "filename= message." + ext + ";")
+                    .build();
         } catch (Exception e) {
             StringWriter sw = new StringWriter();
             PrintWriter pw = new PrintWriter(sw);
             e.printStackTrace(pw);
+            LOG.log(Level.INFO, "Triggered error: ", e);
             return Response.serverError().entity(sw.toString()).build();
         }
     }

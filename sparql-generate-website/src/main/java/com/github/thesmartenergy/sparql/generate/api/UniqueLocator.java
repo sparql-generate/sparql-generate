@@ -15,9 +15,12 @@
  */
 package com.github.thesmartenergy.sparql.generate.api;
 
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.apache.commons.io.IOUtils;
-import org.apache.jena.util.Locator;
-import org.apache.jena.util.TypedStream;
+import org.apache.jena.atlas.web.TypedInputStream;
+import org.apache.jena.riot.system.stream.Locator;
 
 /**
  *
@@ -29,26 +32,28 @@ public class UniqueLocator implements Locator {
 
     private String messageuri;
     private String message;
-    private String datatype;
 
-    public UniqueLocator(String messageuri, String message, String datatype) {
+    public UniqueLocator(String messageuri, String message) {
         this.messageuri = messageuri;
         this.message = message;
-        this.datatype = datatype;
     }
 
-    @Override 
-    public TypedStream open(String messageuri) {
-        if (messageuri.equals(this.messageuri)) {
-            return new TypedStream(IOUtils.toInputStream(message), datatype);
-        } else {
-            return null;
-        }
-    }
 
     @Override
     public String getName() {
         return name;
+    }
+
+    @Override
+    public TypedInputStream open(String string) {
+        if (messageuri.equals(this.messageuri)) {
+            try {
+                return new TypedInputStream(IOUtils.toInputStream(message, "UTF-8"), (String) null);
+            } catch (IOException ex) {
+                Logger.getLogger(UniqueLocator.class.getName()).log(Level.WARNING, null, ex);
+            }
+        }
+        return null;
     }
 
 }
