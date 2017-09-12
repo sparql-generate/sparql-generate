@@ -225,7 +225,6 @@ public class QueryNormalizer implements SPARQLGenerateQueryVisitor {
 
     @Override
     public void visitLimit(Query query) {
-        
     }
 
     @Override

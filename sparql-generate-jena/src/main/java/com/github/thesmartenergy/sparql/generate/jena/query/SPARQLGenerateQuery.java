@@ -24,6 +24,8 @@ import com.github.thesmartenergy.sparql.generate.jena.normalizer.QueryNormalizer
 import java.util.List;
 import org.apache.jena.query.QueryFactory;
 import org.apache.jena.sparql.syntax.Element;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -31,6 +33,8 @@ import org.apache.jena.sparql.syntax.Element;
  */
 public class SPARQLGenerateQuery extends Query {
 
+    private static final Logger LOG = LogManager.getLogger(SPARQLGenerateQuery.class);
+    
     static {
         SPARQLGenerate.init();
         /* Ensure everything has started properly */ }
@@ -51,7 +55,6 @@ public class SPARQLGenerateQuery extends Query {
      * Returns if the query contains expressions in literals, URIs, or in place
      * of variables.
      * 
-     * @param hasEmbeddedExpressions 
      */
     public boolean hasEmbeddedExpressions() {
         return hasEmbeddedExpressions;
@@ -192,7 +195,9 @@ public class SPARQLGenerateQuery extends Query {
             return this;
         }
         String qs = this.toString();
+        LOG.trace(qs);
         SPARQLGenerateQuery query = (SPARQLGenerateQuery) QueryFactory.create(qs, getSyntax()) ;
+        LOG.trace(query);
         QueryNormalizer normalizer = new QueryNormalizer();
         query.visit(normalizer);
         return query;

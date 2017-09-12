@@ -105,7 +105,12 @@ public class ExprNormalizer {
     }
 
     private Expr normalize(ExprFunctionOp funcOp) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        ExprList args = new ExprList();
+        for (Expr expr : funcOp.getArgs()) {
+            Expr arg = normalize(expr);
+            args.add(arg);
+        }
+        return funcOp.copy(args,funcOp.getGraphPattern());
     }
 
     private Expr normalize(NodeValueNode nv) {
@@ -113,7 +118,7 @@ public class ExprNormalizer {
     }
 
     private Expr normalize(ExprAggregator eAgg) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return eAgg;
     }
 
     /**

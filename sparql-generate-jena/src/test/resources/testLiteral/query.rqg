@@ -1,0 +1,21 @@
+BASE <http://example.com/> 
+PREFIX iter: <http://w3id.org/sparql-generate/iter/>
+PREFIX fn: <http://w3id.org/sparql-generate/fn/>
+
+GENERATE { 
+<s> <p> "a{true}".
+}
+SOURCE <source{true}> AS ?source
+ITERATOR iter:JSONListKeys("iterator{true}") AS ?key
+WHERE {
+
+<s> <p> <o{true}>.
+
+  { SELECT ( COUNT( ?s ) AS ?count ) {
+   <s> <p> <o{true}> .
+  }
+  }
+
+}
+ORDER BY ?key
+LIMIT 3

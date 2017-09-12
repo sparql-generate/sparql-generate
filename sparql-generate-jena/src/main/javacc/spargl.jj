@@ -95,7 +95,8 @@ void Generate() : { }
 {
   Prologue()
   ( GenerateQuery1() 
-  | GenerateQuery2() )
+  | GenerateQuery2()
+  | SelectQuery() )
 }
 void GenerateQuery1() : { }
 {
@@ -235,6 +236,13 @@ void PrefixDecl() : { Token t ; String iri ; }
     <PREFIX> t = <PNAME_NS> iri = IRIREF()
       { String s = fixupPrefix(t.image, t.beginLine, t.beginColumn) ;
         getPrologue().setPrefix(s, iri) ; }
+}
+void SelectQuery() : { }
+{
+  SelectClause()
+  ( DatasetClause() )*
+  WhereClause()
+  SolutionModifier()
 }
 void SubSelect() :{ }
 {

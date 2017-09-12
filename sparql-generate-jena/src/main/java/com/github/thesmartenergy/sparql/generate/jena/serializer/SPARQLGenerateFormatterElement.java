@@ -519,8 +519,8 @@ public class SPARQLGenerateFormatterElement extends SPARQLGenerateFormatterBase 
         Query q = el.getQuery();
 
         // Serialize with respect to the existing context
-        QuerySerializerFactory factory = SerializerRegistry.get().getQuerySerializerFactory(Syntax.syntaxSPARQL_11);
-        QueryVisitor serializer = factory.create(Syntax.syntaxSPARQL_11, context, out);
+        QuerySerializerFactory factory = SerializerRegistry.get().getQuerySerializerFactory(SPARQLGenerate.SYNTAX);
+        QueryVisitor serializer = factory.create(SPARQLGenerate.SYNTAX, context, out);
         q.visit(serializer);
 
         out.decIndent(INDENT);
