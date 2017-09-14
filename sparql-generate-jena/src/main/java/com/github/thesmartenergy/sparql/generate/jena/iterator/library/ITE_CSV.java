@@ -86,7 +86,7 @@ public class ITE_CSV extends IteratorFunctionBase1 {
                 .getSafeTypeByName(datatypeUri);
         try {
 
-            String sourceCSV = String.valueOf(csv.asNode().getLiteralLexicalForm());
+            String sourceCSV = csv.asNode().getLiteralLexicalForm();
 
             ICsvListReader listReader = null;
             InputStream is = new ByteArrayInputStream(sourceCSV.getBytes("UTF-8"));
@@ -97,7 +97,6 @@ public class ITE_CSV extends IteratorFunctionBase1 {
             listReader = new CsvListReader(br, CsvPreference.STANDARD_PREFERENCE);
 
             List<NodeValue> nodeValues = new ArrayList<>(listReader.length());
-
             while (listReader.read() != null) {
                 StringWriter sw = new StringWriter();
 

@@ -99,10 +99,14 @@ public class FN_CSV extends FunctionBase2 {
             //return new NodeValueString(headers.get(path.asNode().getLiteralValue()));
             String columnName = (String) column.asNode().getLiteralValue();
 
-            return new NodeValueString(headers.get(columnName));
-
+            String value = headers.get(columnName);
+            if(value == null) {
+                throw new NullPointerException("No column " + columnName);
+            }
+            NodeValue node = new NodeValueString(value);
+            return node;
         } catch (Exception e) {
-            LOG.debug("Error:XPATH " + e.getMessage());
+            LOG.debug("Error: CSV " + e.getMessage());
             throw new ExprEvalException("FunctionBase: no evaluation", e);
         }
     }

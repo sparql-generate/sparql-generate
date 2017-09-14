@@ -22,6 +22,7 @@ import java.util.List;
 import org.apache.jena.sparql.expr.NodeValue;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueString;
 import java.util.Arrays;
+import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -48,8 +49,9 @@ public class ITE_Split extends IteratorFunctionBase2 {
      */
     @Override
     public List<NodeValue> exec(NodeValue stringValue, NodeValue delimeterValue) {
-            String string = stringValue.getString();
-            String delimeter = delimeterValue.getString();
+        try {
+            String string = stringValue.asNode().getLiteralLexicalForm();
+            String delimeter = delimeterValue.asNode().getLiteralLexicalForm();
             List <String> splits = new ArrayList<String>(Arrays.asList(string.split(delimeter)));
      
             //will contain the final results
@@ -60,6 +62,9 @@ public class ITE_Split extends IteratorFunctionBase2 {
                nodeValues.add(nodeValue);
            }
            return nodeValues;
+        } catch(Exception e) {
+            throw new ExprEvalException("Split: no evaluation", e);
+        }
   
     }
 }
