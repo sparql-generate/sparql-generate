@@ -97,19 +97,20 @@ public class IteratorPlanImpl extends PlanBase implements IteratorPlan {
                     if (nodeValues == null || nodeValues.isEmpty()) {
                         newValues.add(new BindingHashMapOverwrite(binding, var, null));
                     } else {
-                        for (NodeValue nodeValue : nodeValues) {
+                        nodeValues.forEach((nodeValue) -> {
                             newValues.add(
                                     new BindingHashMapOverwrite(
                                             binding, var, nodeValue.asNode()));
-                        }
+                        });
                         bindingStream.accept(newValues);
                     }
                 });
             } catch (ExprEvalException ex) {
+                newValues.add(new BindingHashMapOverwrite(binding, var, null));
                 if(ex instanceof VariableNotBoundException) {
                     LOG.warn("Iterator execution failed " + ex);
                 } else {
-                    LOG.warn("Unknown function execution error: " + ex);
+                    LOG.warn("Function execution error: " + ex);
                 }
             }
         }

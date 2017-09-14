@@ -109,6 +109,7 @@ public class PlanFactory {
             return make(query);
         } else {
             SPARQLGenerateQuery q = query.normalize();
+            LOG.trace("normalized: " + q);
             return make(q);
         }
     }

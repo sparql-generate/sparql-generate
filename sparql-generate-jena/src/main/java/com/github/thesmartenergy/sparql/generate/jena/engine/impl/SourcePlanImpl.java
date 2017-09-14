@@ -26,7 +26,6 @@ import org.apache.jena.sparql.core.Var;
 import java.util.Objects;
 import com.github.thesmartenergy.sparql.generate.jena.engine.SourcePlan;
 import org.apache.jena.atlas.web.TypedInputStream;
-import org.apache.jena.riot.system.stream.Locator;
 import org.apache.jena.riot.system.stream.StreamManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -148,7 +147,6 @@ public class SourcePlanImpl extends PlanBase implements SourcePlan {
                     }
                     RDFDatatype dt = tm.getSafeTypeByName(datatypeURI);
                     final Node n = NodeFactory.createLiteral(literal, dt);
-                    LOG.trace(n);
                     return new BindingHashMapOverwrite(value, var, n);
                 }
                     LOG.trace("got null");
