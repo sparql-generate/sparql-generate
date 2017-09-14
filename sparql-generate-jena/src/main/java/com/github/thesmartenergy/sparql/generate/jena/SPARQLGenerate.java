@@ -43,6 +43,7 @@ import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITE_CSV;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITE_CSVFirstRow;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITE_CSVWrapped;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITE_CSVHeaders;
+import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITE_CSVStream;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITE_CustomCSV;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITE_JSONListElement;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITE_JSONListKeys;
@@ -165,6 +166,7 @@ public final class SPARQLGenerate {
         itereg.put(ITE_CSSPath.URI, ITE_CSSPath.class);
         itereg.put(ITE_CBOR.URI, ITE_CBOR.class);
         itereg.put(ITE_CSVHeaders.URI, ITE_CSVHeaders.class);
+        itereg.put(ITE_CSVStream.URI, ITE_CSVStream.class);
 
         SPARQLParserRegistry.get()
                 .add(SYNTAX, new SPARQLParserFactory() {

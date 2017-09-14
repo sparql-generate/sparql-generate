@@ -99,7 +99,7 @@ public class ITE_CustomCSV extends IteratorFunctionBase5 {
 
             ICsvListReader listReader = null;
             InputStream is = new ByteArrayInputStream(sourceCSV.getBytes("UTF-8"));
-            InputStreamReader reader = new InputStreamReader(is);
+            InputStreamReader reader = new InputStreamReader(is,"UTF-8");
             BufferedReader br = new BufferedReader(reader);
 
             String headerRow = "";

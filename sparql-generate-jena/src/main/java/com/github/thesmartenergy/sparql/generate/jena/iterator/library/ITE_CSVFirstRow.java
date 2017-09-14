@@ -88,7 +88,7 @@ public class ITE_CSVFirstRow extends IteratorFunctionBase1 {
 
             ICsvListReader listReader = null;
             InputStream is = new ByteArrayInputStream(sourceCSV.getBytes("UTF-8"));
-            InputStreamReader reader = new InputStreamReader(is);
+            InputStreamReader reader = new InputStreamReader(is,"UTF-8");
             BufferedReader br = new BufferedReader(reader);
             listReader = new CsvListReader(br, CsvPreference.STANDARD_PREFERENCE);
 

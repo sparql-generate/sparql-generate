@@ -108,7 +108,28 @@ public class SourcePlanImpl extends PlanBase implements SourcePlan {
             final String sourceUri = getActualSource(value);
             LOG.trace(sourceUri);
 
-            // try with accept header.
+            
+            // try without accept header -> local.
+            try {
+                LOG.trace("try without header");
+                TypedInputStream stream = StreamManager.get().open(sourceUri);
+                if (stream != null) {
+                    literal = IOUtils.toString(stream.getInputStream(), "UTF-8");
+                    if (stream.getMediaType() != null && stream.getMediaType().getContentType() != null) {
+                        datatypeURI = "http://www.iana.org/assignments/media-types/" + stream.getMediaType().getContentType();
+                    } else {
+                        datatypeURI = "http://www.w3.org/2001/XMLSchema#string";
+                    }
+                    RDFDatatype dt = tm.getSafeTypeByName(datatypeURI);
+                    final Node n = NodeFactory.createLiteral(literal, dt);
+                    return new BindingHashMapOverwrite(value, var, n);
+                }
+                LOG.trace("got null");
+            } catch (Exception ex) {
+                LOG.debug("got exception ", ex);
+            }
+
+            // try with accept header -> distant.
             String acceptHeader = getAcceptHeader(value);
             if (acceptHeader != null) {
                 LOG.trace("try with " + acceptHeader);
@@ -132,26 +153,6 @@ public class SourcePlanImpl extends PlanBase implements SourcePlan {
                 } catch (Exception ex) {
                     LOG.debug("got exception ", ex);
                 }
-            }
-
-            // try without.
-            try {
-                LOG.trace("try without header");
-                TypedInputStream stream = StreamManager.get().open(sourceUri);
-                if (stream != null) {
-                    literal = IOUtils.toString(stream.getInputStream(), "UTF-8");
-                    if (stream.getMediaType() != null && stream.getMediaType().getContentType() != null) {
-                        datatypeURI = "http://www.iana.org/assignments/media-types/" + stream.getMediaType().getContentType();
-                    } else {
-                        datatypeURI = "http://www.w3.org/2001/XMLSchema#string";
-                    }
-                    RDFDatatype dt = tm.getSafeTypeByName(datatypeURI);
-                    final Node n = NodeFactory.createLiteral(literal, dt);
-                    return new BindingHashMapOverwrite(value, var, n);
-                }
-                    LOG.trace("got null");
-            } catch (Exception ex) {
-                LOG.debug("got exception ", ex);
             }
             
             LOG.warn("not found with streamManager: " + sourceUri);

@@ -135,7 +135,7 @@ public class FN_CustomCSV extends FunctionBase {
             String sourceCSV = String.valueOf(csv.asNode().getLiteralLexicalForm());
 
             InputStream is = new ByteArrayInputStream(sourceCSV.getBytes("UTF-8"));
-            BufferedReader br = new BufferedReader(new InputStreamReader(is));
+            BufferedReader br = new BufferedReader(new InputStreamReader(is,"UTF-8"));
 
             String headers_str = "";
             if (header.getBoolean()) {

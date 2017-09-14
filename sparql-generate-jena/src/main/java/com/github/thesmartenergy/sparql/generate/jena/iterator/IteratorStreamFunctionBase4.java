@@ -17,9 +17,7 @@ package com.github.thesmartenergy.sparql.generate.jena.iterator;
 
 import java.util.List;
 import java.util.function.Consumer;
-import org.apache.jena.query.QueryBuildException;
 import org.apache.jena.sparql.ARQInternalErrorException;
-import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.ExprList;
 import org.apache.jena.sparql.expr.NodeValue;
 

@@ -69,7 +69,7 @@ public class FN_HTMLAttribute extends FunctionBase2 {
         }
 
         try {
-            String sourceHtml = String.valueOf(html.asNode().getLiteralValue());
+            String sourceHtml = String.valueOf(html.asNode().getLiteralLexicalForm());
             org.jsoup.nodes.Document htmldoc = Jsoup.parseBodyFragment(sourceHtml);
             String attributeNameValue = String.valueOf(attributeName.asNode().getLiteralValue());
             return new NodeValueString(htmldoc.body().child(0).attributes().get(attributeNameValue));

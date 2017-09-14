@@ -77,17 +77,13 @@ public class FN_CSV extends FunctionBase2 {
                    );
         }
 
-        
-        DocumentBuilderFactory builderFactory
-                = DocumentBuilderFactory.newInstance();
-        DocumentBuilder builder = null;
         try {
 
             String sourceCSV = String.valueOf(csv.asNode().getLiteralLexicalForm());
 
 
             InputStream is = new ByteArrayInputStream(sourceCSV.getBytes("UTF-8"));
-            BufferedReader br = new BufferedReader(new InputStreamReader(is));
+            BufferedReader br = new BufferedReader(new InputStreamReader(is, "UTF-8"));
 
             //ICsvListReader listReader = null;
             //listReader = new CsvListReader(br, CsvPreference.STANDARD_PREFERENCE);

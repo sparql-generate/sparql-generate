@@ -84,7 +84,7 @@ public class ITE_CSSPath extends IteratorFunctionBase2 {
                 .getSafeTypeByName(datatypeUri);
         try {
 
-            String sourceHtml = String.valueOf(html.asNode().getLiteralValue());
+            String sourceHtml = String.valueOf(html.asNode().getLiteralLexicalForm());
             Document htmldoc = Jsoup.parse(sourceHtml);
 
             String selectPath = String.valueOf(cssSelector.asNode().getLiteralValue());

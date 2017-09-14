@@ -87,7 +87,7 @@ public class ITE_CSVHeaders extends IteratorFunctionBase1 {
         
             
             InputStream is = new ByteArrayInputStream(sourceCSV.getBytes("UTF-8"));
-            BufferedReader br = new BufferedReader(new InputStreamReader(is));
+            BufferedReader br = new BufferedReader(new InputStreamReader(is,"UTF-8"));
             
             
            
