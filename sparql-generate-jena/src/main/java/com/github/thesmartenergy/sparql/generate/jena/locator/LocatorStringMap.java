@@ -43,7 +43,11 @@ public class LocatorStringMap implements Locator {
         try {
             bomSafeMessage = IOUtils.toString(new BOMInputStream(IOUtils.toInputStream(message, "UTF-8")), "UTF-8");
         } catch (IOException ex) {
-            log.warn("failed bomSafeMessage" + message);
+            log.warn("failed bomSafeMessage " + message, ex);
+            
+        }
+        if (!messageuri.substring(0, 7).equals("accept:")) {
+            messageuri = "accept:*/*:" + messageuri;
         }
         docs.put(messageuri, bomSafeMessage);
     }
@@ -56,16 +60,19 @@ public class LocatorStringMap implements Locator {
 
     @Override
     public TypedInputStream open(String uri) {
+        if (!uri.substring(0, 7).equals("accept:")) {
+            uri = "accept:*/*:" + uri;
+        }
         String message = docs.get(uri);
         if(message == null) {
-            log.trace("not found " + uri);
+            log.warn("not found " + uri);
             return null;
         }
         try {
             log.trace("found " + uri);
             return new TypedInputStream(IOUtils.toInputStream(message, "UTF-8"), (String) null);
         } catch (IOException ex) {
-            log.trace("ioexception " + uri , ex);
+            log.warn("ioexception " + uri , ex);
             return null;
         }
     }

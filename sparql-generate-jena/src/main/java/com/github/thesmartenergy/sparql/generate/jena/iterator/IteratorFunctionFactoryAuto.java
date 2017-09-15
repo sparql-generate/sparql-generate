@@ -13,32 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.github.thesmartenergy.sparql.generate.jena.iterator;
 
 import org.apache.jena.query.QueryBuildException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-/** Extension factory that instantiates a class each time. */ 
-
-class IteratorFunctionrFactoryAuto implements IteratorFunctionFactory
-{
-    Class<?> extClass ;
+/**
+ * Extension factory that instantiates a class each time.
+ */
+class IteratorFunctionFactoryAuto implements IteratorFunctionFactory {
     
-    IteratorFunctionrFactoryAuto(Class<?> xClass)
-    {
-        extClass = xClass ;
+    static final Logger LOG = LogManager.getLogger(IteratorFunctionFactoryAuto.class);
+
+    Class<?> extClass;
+
+    IteratorFunctionFactoryAuto(Class<?> xClass) {
+        extClass = xClass;
     }
-    
+
     @Override
-    public IteratorFunction create(String uri)
-    {
-        try
-        {
-            return (IteratorFunction)extClass.newInstance() ;
-        } catch (Exception e)
-        {
+    public IteratorFunction create(String uri) {
+        try {
+            return (IteratorFunction) extClass.newInstance();
+        } catch (Exception e) {
+            LOG.debug("Can't instantiate iterator function"
+                    + " for " + uri, e);
             throw new QueryBuildException("Can't instantiate iterator function"
-                    + " for "+uri, e) ;
-        } 
+                    + " for " + uri, e);
+        }
     }
 }

@@ -91,7 +91,7 @@ public class ITE_CustomCSV extends IteratorFunctionBase5 {
             LOG.warn("The URI of NodeValue1 MUST be"
                     + " <" + datatypeUri + "> or"
                     + " <http://www.w3.org/2001/XMLSchema#string>. Got <"
-                    + csv.getDatatypeURI() + ">. Returning null.");
+                    + csv.getDatatypeURI() + ">.");
         }
 
         try {
@@ -129,8 +129,9 @@ public class ITE_CustomCSV extends IteratorFunctionBase5 {
             }
 
             return nodeValues;
-        } catch (Exception e) {
-            throw new ExprEvalException("FunctionBase: no evaluation", e);
+        } catch (Exception ex) {
+            LOG.debug("No evaluation for " + csv, ex);
+            throw new ExprEvalException("No evaluation for " + csv, ex);
         }
     }
 }

@@ -57,14 +57,13 @@ public class LocatorURLAccept implements Locator {
     public TypedInputStream open(String acceptURI) {
         log.trace(acceptURI);
         if (!acceptURI.substring(0, 7).equals("accept:")) {
-            log.trace("not supported " + acceptURI);
-            return null;
+            acceptURI = "accept:*/*:" + acceptURI;
         }
 
         // get accept
         int index = acceptURI.indexOf(":", 7);
         if (index == -1) {
-            log.trace("not supported " + acceptURI);
+            log.warn("not supported " + acceptURI);
             return null;
         }
         String acceptHeader = acceptURI.substring(7, index);
@@ -87,23 +86,23 @@ public class LocatorURLAccept implements Locator {
             conn.connect();
             InputStream in = new BufferedInputStream(new BOMInputStream(conn.getInputStream()));
 
-            log.trace("found: " + source + " " + conn.getContentType() + " " + conn.getContentEncoding());
+            log.warn("found: " + source + " " + conn.getContentType() + " " + conn.getContentEncoding());
             return new TypedInputStream(in, conn.getContentType(), conn.getContentEncoding());
         } catch (java.io.FileNotFoundException ex) {
-            log.trace("not found: " + source, ex);
+            log.warn("not found: " + source, ex);
             return null;
         } catch (MalformedURLException ex) {
-            log.trace("Malformed URL: " + source, ex);
+            log.warn("Malformed URL: " + source, ex);
             return null;
         } // IOExceptions that occur sometimes.
         catch (java.net.UnknownHostException ex) {
-            log.trace("UnknownHostException " + source, ex);
+            log.warn("UnknownHostException " + source, ex);
             return null;
         } catch (java.net.ConnectException ex) {
-            log.trace("ConnectException " + source, ex);
+            log.warn("ConnectException " + source, ex);
             return null;
         } catch (java.net.SocketException ex) {
-            log.trace("SocketException " + source, ex);
+            log.warn("SocketException " + source, ex);
             return null;
         }
         catch (IOException ex) {

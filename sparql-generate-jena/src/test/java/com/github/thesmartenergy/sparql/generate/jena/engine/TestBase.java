@@ -106,7 +106,7 @@ public class TestBase {
         long start = start0;
         SPARQLGenerateQuery q = (SPARQLGenerateQuery) QueryFactory.create(query, SPARQLGenerate.SYNTAX);
         long now = System.currentTimeMillis();
-        LOG.trace("needed " + (now - start) + " to parse query");
+        LOG.info("needed " + (now - start) + " to parse query");
         start = now;
 
         // create generation plan
@@ -116,16 +116,16 @@ public class TestBase {
         QuerySolutionMap initialBinding = null;
 
         now = System.currentTimeMillis();
-        LOG.trace("needed " + (now - start) + " to get ready");
+        LOG.info("needed " + (now - start) + " to get ready");
         start = now;
 
         // execute plan
         plan.exec(initialBinding, output); 
 
         now = System.currentTimeMillis();
-        LOG.trace("executed plan in " + (now - start));
+        LOG.info("executed plan in " + (now - start));
         start = now;
-        LOG.trace("total needed " + (now - start0));
+        LOG.info("total needed " + (now - start0));
 
         // write output
         String fileName = exampleDir.toString() + "/output.ttl";
@@ -136,7 +136,7 @@ public class TestBase {
             try {
                 out.close();
             } catch (IOException closeException) {
-                LOG.debug("Error while writing to file");
+                LOG.error("Error while writing to file");
             }
         }
 

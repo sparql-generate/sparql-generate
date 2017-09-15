@@ -105,13 +105,12 @@ public class IteratorPlanImpl extends PlanBase implements IteratorPlan {
                         bindingStream.accept(newValues);
                     }
                 });
-            } catch (ExprEvalException ex) {
+            } catch (VariableNotBoundException ex) {
+                LOG.warn("Iterator execution failed " + ex);
                 newValues.add(new BindingHashMapOverwrite(binding, var, null));
-                if(ex instanceof VariableNotBoundException) {
-                    LOG.warn("Iterator execution failed " + ex);
-                } else {
-                    LOG.warn("Function execution error: " + ex);
-                }
+            } catch(ExprEvalException ex) {
+                LOG.warn("Function execution error: " + ex);
+                newValues.add(new BindingHashMapOverwrite(binding, var, null));
             }
         }
     }

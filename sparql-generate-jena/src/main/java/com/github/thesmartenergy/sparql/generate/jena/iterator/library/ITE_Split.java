@@ -62,8 +62,9 @@ public class ITE_Split extends IteratorFunctionBase2 {
                nodeValues.add(nodeValue);
            }
            return nodeValues;
-        } catch(Exception e) {
-            throw new ExprEvalException("Split: no evaluation", e);
+        } catch (Exception ex) {
+            LOG.debug("No evaluation for " + stringValue + ", " + delimeterValue , ex);
+            throw new ExprEvalException("No evaluation for " + stringValue + ", " + delimeterValue , ex);
         }
   
     }

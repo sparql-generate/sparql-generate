@@ -101,9 +101,9 @@ public class FN_CSV extends FunctionBase2 {
             }
             NodeValue node = new NodeValueString(value);
             return node;
-        } catch (Exception e) {
-            LOG.debug("Error: CSV " + e.getMessage());
-            throw new ExprEvalException("FunctionBase: no evaluation", e);
+        } catch (Exception ex) {
+            LOG.debug("No evaluation for " + csv + ", " + column, ex);
+            throw new ExprEvalException("No evaluation for " + csv + ", " + column, ex);
         }
     }
 }

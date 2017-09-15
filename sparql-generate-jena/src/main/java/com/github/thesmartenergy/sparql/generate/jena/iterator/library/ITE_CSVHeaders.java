@@ -100,8 +100,9 @@ public class ITE_CSVHeaders extends IteratorFunctionBase1 {
                 nodeValues.add(nodeValue);
            }
             return nodeValues;  
-        } catch (Exception e) {
-            throw new ExprEvalException("FunctionBase: no evaluation", e);
+        } catch (Exception ex) {
+            LOG.debug("No evaluation for " + csv , ex);
+            throw new ExprEvalException("No evaluation for " + csv , ex);
         }
     }
 

@@ -149,8 +149,9 @@ public class ITE_JSONListElement extends IteratorFunctionBase2 {
                 position++;
             }
             return nodeValues;
-        } catch (Exception e) {
-            throw new ExprEvalException("FunctionBase: no evaluation", e);
+        } catch (Exception ex) {
+            LOG.debug("No evaluation for " + json + ", " + jsonquery , ex);
+            throw new ExprEvalException("No evaluation for " + json + ", " + jsonquery , ex);
         }
     }
 }

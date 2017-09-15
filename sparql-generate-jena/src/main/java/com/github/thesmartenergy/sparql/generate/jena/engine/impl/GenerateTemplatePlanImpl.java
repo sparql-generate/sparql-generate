@@ -101,6 +101,7 @@ public class GenerateTemplatePlanImpl extends PlanBase implements GeneratePlan {
                     }
                     rootPlan.exec(inputDataset, b, outputStream, bNodeMap2);
                 } else {
+                    LOG.warn("should not reach this point");
                     throw new SPARQLGenerateException("should not reach this"
                             + " point");
                 }

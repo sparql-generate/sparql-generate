@@ -101,6 +101,8 @@ public class ITE_CSVStream extends IteratorStreamFunctionBase4 {
     }
 
     private void exec(final String csvString, final NodeValue headerValue, final int max, final Consumer<List<NodeValue>> nodeValuesStream, final ScheduledExecutorService scheduler) {
+        
+        
 
         try (TypedInputStream tis = StreamManager.get().open(csvString);
                 BufferedReader br = new BufferedReader(new InputStreamReader(tis.getInputStream(), "UTF-8"))) {
@@ -130,7 +132,8 @@ public class ITE_CSVStream extends IteratorStreamFunctionBase4 {
                         if (header != null) {
                             listWriter.writeHeader(header);
                         }
-                        listWriter.write(listReader.getUntokenizedRow());
+                        String row = listReader.getUntokenizedRow();
+                        listWriter.write();
                     }
                     Node node = NodeFactory.createLiteral(sw.toString(), dt);
                     nodeValues.add(new NodeValueNode(node));
@@ -146,10 +149,9 @@ public class ITE_CSVStream extends IteratorStreamFunctionBase4 {
                 nodeValuesStream.accept(nodeValues);
             }
 
-        } catch (Exception e) {
-            String msg = "Function " + ITE_CSVStream.class.getSimpleName() + ": no evaluation";
-            LOG.warn(msg + " " + e.getMessage());
-            throw new ExprEvalException(msg, e);
+        } catch (Exception ex) {
+            LOG.debug("No evaluation for " + csvString , ex);
+            throw new ExprEvalException("No evaluation for " + csvString , ex);
         }
     }
 

@@ -74,6 +74,7 @@ public class BindPlanImpl extends PlanBase implements SourcePlan {
             final List<BindingHashMapOverwrite> values) {
         boolean added = variables.add(var);
         if (!added) {
+            LOG.warn("Variable " + var + " is already bound !");
             throw new SPARQLGenerateException("Variable " + var + " is already"
                     + " bound !");
         }

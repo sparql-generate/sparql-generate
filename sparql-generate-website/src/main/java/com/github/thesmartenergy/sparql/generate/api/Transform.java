@@ -91,7 +91,8 @@ public class Transform extends HttpServlet {
             @Context HttpServletRequest request,
             @DefaultValue("") @QueryParam("query") String query,
             @DefaultValue("") @QueryParam("queryurl") String queryurl,
-            @DefaultValue("") @QueryParam("documentset") String documentset) throws IOException {
+            @DefaultValue("") @QueryParam("documentset") String documentset,
+            @DefaultValue("fatal") @QueryParam("log") String logLevel) throws IOException {
         return doTransform(r, request, query, queryurl, documentset, "TTL", "ttl");
     }
 

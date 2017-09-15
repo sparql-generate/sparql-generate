@@ -118,8 +118,9 @@ public class FN_XPath extends FunctionBase2 {
             }
             return new NodeValueString(String.valueOf(value));
 
-        } catch (Exception e) {
-            throw new ExprEvalException(this.getClass().toString() + ": no evaluation", e);
+        } catch (Exception ex) {
+            LOG.debug("No evaluation of " + xml + ", " + xpath, ex);
+            throw new ExprEvalException("No evaluation of " + xml + ", " + xpath, ex);
         }
     }
 

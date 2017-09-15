@@ -163,13 +163,13 @@ public class FN_CustomCSV extends FunctionBase {
                 LOG.trace("return ", nodeVal);
                 return new NodeValueString(nodeVal);
             } else {
-                LOG.trace("node is null. return nothing");
+                LOG.debug("node is null. return nothing");
                 return new NodeValueString("");
             }
 
-        } catch (Exception e) {
-            LOG.debug("Error CustomCSV " + e.getMessage());
-            throw new ExprEvalException("FunctionBase: no evaluation", e);
+        } catch (Exception ex) {
+            LOG.debug("No evaluation for " + csv + ", " + column, ex);
+            throw new ExprEvalException("No evaluation for " + csv + ", " + column, ex);
         }
     }
 }

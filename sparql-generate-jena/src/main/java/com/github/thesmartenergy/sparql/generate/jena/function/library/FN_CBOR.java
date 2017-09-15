@@ -114,8 +114,9 @@ public final class FN_CBOR extends FunctionBase2 {
                     return new NodeValueString(String.valueOf(value));
                 }
             }
-        } catch (Exception e) {
-            throw new ExprEvalException("FunctionBase: no evaluation", e);
+        } catch (Exception ex) {
+            LOG.debug("No evaluation of " + jsonpath + "  on " + cbor, ex);
+            throw new ExprEvalException("FunctionBase: no evaluation", ex);
         }
     }
 }

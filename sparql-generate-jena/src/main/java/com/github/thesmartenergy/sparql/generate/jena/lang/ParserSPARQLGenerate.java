@@ -92,24 +92,32 @@ public class ParserSPARQLGenerate extends SPARQLParser {
             parser.setQuery(query);
             action.exec(parser);
         } catch (ParseException ex) {
-            throw new QueryParseException(ex.getMessage(),
+            QueryParseException e = new QueryParseException(ex.getMessage(),
                     ex.currentToken.beginLine,
-                    ex.currentToken.beginColumn
-            );
+                    ex.currentToken.beginColumn);
+            LOG.error(e);
+            throw e;
         } catch (TokenMgrError tErr) {
             // Last valid token : not the same as token error message - but this should not happen
             int col = parser.token.endColumn;
             int line = parser.token.endLine;
-            throw new QueryParseException(tErr.getMessage(), line, col);
+            QueryParseException e = new QueryParseException(tErr.getMessage(), line, col);
+            LOG.error(e);
+            throw e;
         } catch (QueryException ex) {
+            LOG.error(ex);
             throw ex;
         } catch (JenaException ex) {
-            throw new QueryException(ex.getMessage(), ex);
+            QueryException e = new QueryException(ex.getMessage(), ex);
+            LOG.error(e);
+            throw e;
         } catch (Error err) {
             // The token stream can throw errors.
-            throw new QueryParseException(err.getMessage(), err, -1, -1);
+            QueryParseException e = new QueryParseException(err.getMessage(), err, -1, -1);
+            LOG.error(e);
+            throw e;
         } catch (Throwable th) {
-            LOG.warn("Unexpected throwable: ", th);
+            LOG.error("Unexpected throwable: ", th);
             throw new QueryException(th.getMessage(), th);
         }
     }

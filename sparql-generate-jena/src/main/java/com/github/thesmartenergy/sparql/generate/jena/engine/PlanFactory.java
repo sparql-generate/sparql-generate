@@ -129,7 +129,7 @@ public class PlanFactory {
             query = (SPARQLGenerateQuery) QueryFactory.create(queryStr,
                     SPARQLGenerate.SYNTAX);
         } catch (QueryParseException ex) {
-            LOG.debug("Error while parsing the query ", queryStr);
+            LOG.error("Error while parsing the query ", queryStr);
             throw new SPARQLGenerateException(
                     "Error while parsing the query ", ex);
         }
@@ -188,7 +188,7 @@ public class PlanFactory {
         } else if (query.hasGenerateTemplate()) {
             generatePlan = makeGenerateTemplatePlan(query);
         } else {
-            LOG.debug("Query with no generate part.", query);
+            LOG.trace("Query with no generate part.", query);
         }
         return new RootPlanImpl(
                 iteratorAndSourcePlans, selectPlan,
@@ -307,9 +307,13 @@ public class PlanFactory {
                             SPARQLGenerate.SYNTAX);
             return make(q, true);
         } catch (IOException ex) {
+            LOG.error("Error while loading the query"
+                    + " file " + query.getGenerateURI(), ex);
             throw new SPARQLGenerateException("Error while loading the query"
                     + " file " + query.getGenerateURI(), ex);
         } catch (QueryParseException ex) {
+            LOG.error("Error while parsing the query"
+                    + query.getGenerateURI(), ex);
             throw new SPARQLGenerateException("Error while parsing the query "
                     + query.getGenerateURI(), ex);
         }
@@ -492,7 +496,7 @@ public class PlanFactory {
             }
 
         });
-//        LOG.debug("Generated query select query: " + output.serialize());
+        LOG.trace("Generated query select query: " + output.serialize());
         return output;
     }
 

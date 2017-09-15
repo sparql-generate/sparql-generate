@@ -54,6 +54,7 @@ public class SelectPlanImpl extends PlanBase implements SelectPlan {
      */
     public SelectPlanImpl(final Query query) {
         if (!query.isSelectType()) {
+            LOG.error("Should be select query. " + query);
             throw new IllegalArgumentException("Should be select query.");
         }
         this.select = query;
@@ -110,6 +111,7 @@ public class SelectPlanImpl extends PlanBase implements SelectPlan {
                 values.add((BindingHashMapOverwrite) newBinding);
             }
         } catch (Exception ex) {
+            LOG.error("Error while executing SELECT Query", ex);
             throw new SPARQLGenerateException("Error while executing"
                     + " SELECT Query", ex);
         }

@@ -131,8 +131,9 @@ public class ITE_CBOR extends IteratorFunctionBase2 {
                 nodeValues.add(nodeValue);
             }
             return nodeValues;
-        } catch (Exception e) {
-            throw new ExprEvalException("FunctionBase: no evaluation", e);
+        } catch (Exception ex) {
+            LOG.debug("No evaluation of " + cbor + ", " + jsonpath, ex);
+            throw new ExprEvalException("No evaluation of " + cbor + ", " + jsonpath, ex);
         }
     }
 }

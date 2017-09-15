@@ -1,0 +1,15 @@
+PREFIX sgiter: <http://w3id.org/sparql-generate/iter/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX sgfn: <http://w3id.org/sparql-generate/fn/> 
+LOOK UP <http://ci.emse.fr/sparql-generate/cities.json> AS ?message
+ITERATE sgiter:JSONListKeys( ?message ) AS ?cityName 
+WHEREVER { 
+  FILTER( STRSTARTS( ?cityName , "New" ) ) 
+  BIND( sgfn:JSONPath( ?message, "$.['{ ?cityName }']" ) AS  ?city )
+} 
+CONSTRUCT {
+  ITERATE sgiter:JSONListKeys( ?city ) AS ?key  
+  CONSTRUCT {
+    <city/{ ?cityName }> <{ ?key }> "{ sgfn:JSONPath( ?message , "$.['{ ?cityName }']['{ ?key }']" )  }"@en . 
+  } .
+}

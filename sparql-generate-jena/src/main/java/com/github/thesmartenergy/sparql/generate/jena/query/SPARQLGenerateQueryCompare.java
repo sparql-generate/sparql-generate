@@ -21,6 +21,8 @@ import org.apache.jena.query.Query;
 import org.apache.jena.sparql.core.ComparisonException;
 import org.apache.jena.sparql.core.Prologue;
 import org.apache.jena.sparql.core.QueryCompare;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -32,6 +34,7 @@ public class SPARQLGenerateQueryCompare implements SPARQLGenerateQueryVisitor {
     private boolean result = true;
     static public boolean PrintMessages = false;
     private QueryCompare qc;
+    static private final Logger LOG = LogManager.getLogger(SPARQLGenerateQueryCompare.class);
 
     public static boolean equals(SPARQLGenerateQuery query1, SPARQLGenerateQuery query2) {
         if (query1 == query2) {
@@ -44,6 +47,7 @@ public class SPARQLGenerateQueryCompare implements SPARQLGenerateQueryVisitor {
         try {
             query2.visit(visitor);
         } catch (ComparisonException ex) {
+            LOG.warn(ex);
             return false;
         }
         return visitor.isTheSame();
@@ -100,12 +104,14 @@ public class SPARQLGenerateQueryCompare implements SPARQLGenerateQueryVisitor {
             try {
                 check("Generate pattern URIs", b1);
             } catch(Exception e) {
+                LOG.warn(e);
             } 
         } else if (query.hasGenerateTemplate()) {
             boolean b2 = query.getGenerateTemplate().equals(query2.getGenerateTemplate());
             try {
                 check("Generate pattern URIs", b2);
             } catch(Exception e) {
+                LOG.warn(e);
             } 
         }
     }
@@ -116,6 +122,7 @@ public class SPARQLGenerateQueryCompare implements SPARQLGenerateQueryVisitor {
         try {
             check("Iterators and sources", b1);
         } catch(Exception e) {
+            LOG.warn(e);
         } 
     }
 

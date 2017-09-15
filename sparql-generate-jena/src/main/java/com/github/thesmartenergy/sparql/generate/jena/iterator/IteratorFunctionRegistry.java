@@ -87,7 +87,7 @@ public class IteratorFunctionRegistry //extends HashMap<String, Iterator>
             return ; 
         }
         
-        registry.put(uri, new IteratorFunctionrFactoryAuto(funcClass)) ;
+        registry.put(uri, new IteratorFunctionFactoryAuto(funcClass)) ;
     }
     
     /** Lookup by URI */

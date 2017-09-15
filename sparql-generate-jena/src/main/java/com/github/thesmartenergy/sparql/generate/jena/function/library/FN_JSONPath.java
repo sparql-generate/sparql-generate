@@ -123,8 +123,9 @@ public final class FN_JSONPath extends FunctionBase2 {
                     return new NodeValueString(String.valueOf(value));
                 }
             }
-        } catch (Exception e) {
-            throw new ExprEvalException("FunctionBase: no evaluation", e);
+        } catch (Exception ex) {
+            LOG.debug("No evaluation of " + json + ", " + jsonpath, ex);
+            throw new ExprEvalException("No evaluation of " + json + ", " + jsonpath, ex);
         }
     }
 }

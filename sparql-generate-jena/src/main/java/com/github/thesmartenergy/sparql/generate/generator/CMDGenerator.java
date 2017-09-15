@@ -68,7 +68,7 @@ public class CMDGenerator {
                     FileInputStream fisTargetFile = new FileInputStream(f);
                     query = IOUtils.toString(new BOMInputStream(fisTargetFile), "UTF-8");    
                     System.out.println("\n\nRead SPARQL-Generate Query ..\n"+query+"\n\n");
-                    LOG.debug("\n\nRead SPARQL-Generate Query ..\n"+query+"\n\n");
+                    LOG.trace("\n\nRead SPARQL-Generate Query ..\n"+query+"\n\n");
                 } else {
                     System.out.println("File "+file_path+" not found.");
                     LOG.error("File "+file_path+" not found.");
@@ -107,13 +107,10 @@ public class CMDGenerator {
             
             
         } catch (org.apache.commons.cli.ParseException ex) {
-            System.out.println(ex);
             LOG.error(ex);
         } catch (FileNotFoundException ex) {
-            System.out.println(ex);
             LOG.error(ex);
         } catch (IOException ex) {
-            System.out.println(ex);
             LOG.error(ex);
         }
         

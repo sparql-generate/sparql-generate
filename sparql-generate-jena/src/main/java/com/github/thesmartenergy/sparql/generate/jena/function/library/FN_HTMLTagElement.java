@@ -81,9 +81,9 @@ public class FN_HTMLTagElement extends FunctionBase2{
             Elements elements = htmldoc.select(selectPath);
             
             return new NodeValueString(elements.outerHtml());
-        } catch (Exception e) {
-            LOG.debug("Error HTML Tag Element "+e.getMessage());
-            throw new ExprEvalException("FunctionBase: no evaluation", e);
+        } catch (Exception ex) {
+            LOG.debug("No evaluation of " + html + ", " + v2, ex);
+            throw new ExprEvalException("No evaluation of " + html + ", " + v2, ex);
         }
     }
 }

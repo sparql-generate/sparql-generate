@@ -77,9 +77,9 @@ public class FN_HTMLTag extends FunctionBase2 {
             String selectPath = String.valueOf(v2.asNode().getLiteralLexicalForm());
             Elements elements = htmldoc.select(selectPath);
             return new NodeValueString(elements.text());
-        } catch (Exception e) {
-            LOG.debug("Error:HTML Tag " + e.getMessage());
-            throw new ExprEvalException("FunctionBase: no evaluation", e);
+        } catch (Exception ex) {
+            LOG.debug("No evaluation of " + html + ", " + v2, ex);
+            throw new ExprEvalException("No evaluation of " + html + ", " + v2, ex);
         }
     }
 }

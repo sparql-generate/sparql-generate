@@ -47,7 +47,7 @@ public class ProcessQuery {
             SPARQLGenerate.resetStreamManager(configurationModel);
         }
 
-        LOG.debug("Processing Query");
+        LOG.trace("Processing Query");
         SPARQLGenerateQuery q = (SPARQLGenerateQuery) QueryFactory.create(query, SPARQLGenerate.SYNTAX);
 
         PlanFactory factory = new PlanFactory();

@@ -104,8 +104,9 @@ public class ITE_CSSPath extends IteratorFunctionBase2 {
             }
 
             return nodeValues;
-        } catch (Exception e) {
-            throw new ExprEvalException("FunctionBase: no evaluation", e);
+        } catch (Exception ex) {
+            LOG.debug("No evaluation of " + html + ", " + cssSelector, ex);
+            throw new ExprEvalException("No evaluation of " + html + ", " + cssSelector, ex);
         }
     }
 }

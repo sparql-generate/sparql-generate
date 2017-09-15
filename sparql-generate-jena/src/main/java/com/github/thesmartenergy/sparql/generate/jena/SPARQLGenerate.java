@@ -15,7 +15,6 @@
  */
 package com.github.thesmartenergy.sparql.generate.jena;
 
-import com.github.thesmartenergy.sparql.generate.jena.locator.LocatorURLAccept;
 import com.github.thesmartenergy.sparql.generate.jena.function.library.FN_BNode2;
 import com.github.thesmartenergy.sparql.generate.jena.function.library.FN_CBOR;
 import com.github.thesmartenergy.sparql.generate.jena.function.library.FN_CSV;
@@ -51,6 +50,9 @@ import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITE_JSONP
 import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITE_Regex;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITE_Split;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITE_XPath;
+import com.github.thesmartenergy.sparql.generate.jena.locator.LocatorClassLoaderAccept;
+import com.github.thesmartenergy.sparql.generate.jena.locator.LocatorFileAccept;
+import com.github.thesmartenergy.sparql.generate.jena.locator.LocatorURLAccept;
 import com.github.thesmartenergy.sparql.generate.jena.serializer.SPARQLGenerateQuerySerializer;
 import java.util.Iterator;
 import org.apache.jena.atlas.io.IndentedWriter;
@@ -64,8 +66,6 @@ import static org.apache.jena.riot.WebContent.contentTypeRDFXML;
 import org.apache.jena.riot.system.stream.JenaIOEnvironment;
 import org.apache.jena.riot.system.stream.LocationMapper;
 import org.apache.jena.riot.system.stream.Locator;
-import org.apache.jena.riot.system.stream.LocatorClassLoader;
-import org.apache.jena.riot.system.stream.LocatorFile;
 import org.apache.jena.riot.system.stream.StreamManager;
 import org.apache.jena.sparql.core.Prologue;
 import org.apache.jena.sparql.serializer.QuerySerializerFactory;
@@ -301,8 +301,8 @@ public final class SPARQLGenerate {
         if(locator != null) {
             sm.addLocator(locator);
         }
-        sm.addLocator(new LocatorFile(null));
-        sm.addLocator(new LocatorClassLoader(StreamManager.class.getClassLoader())) ;
+        sm.addLocator(new LocatorFileAccept(null));
+        sm.addLocator(new LocatorClassLoaderAccept(StreamManager.class.getClassLoader())) ;
         sm.setLocationMapper(JenaIOEnvironment.getLocationMapper()) ;
         sm.addLocator(new LocatorURLAccept());
         StreamManager.setGlobal(sm);
@@ -319,7 +319,14 @@ public final class SPARQLGenerate {
         Iterator<String> altEntries = old.listAltEntries();
         while (altEntries.hasNext()) {
             String uri = altEntries.next();
-            mapper.addAltEntry(uri, old.getAltEntry(uri));
+            String entry = old.getAltEntry(uri);
+            if(!uri.startsWith("accept:")) {
+                uri = "accept:*/*:" + uri;
+            }
+            if(!entry.startsWith("accept:")) {
+                entry = "accept:*/*:" + uri;
+            }
+            mapper.addAltEntry(uri, entry);
         }
 
         Iterator<String> altPrefixes = old.listAltPrefixes();
