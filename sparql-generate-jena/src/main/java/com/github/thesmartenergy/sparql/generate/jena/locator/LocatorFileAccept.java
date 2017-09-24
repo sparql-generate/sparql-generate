@@ -25,7 +25,6 @@ import org.apache.jena.atlas.web.ContentType;
 import org.apache.jena.atlas.web.TypedInputStream;
 import org.apache.jena.riot.RDFLanguages;
 import org.apache.jena.riot.system.stream.Locator;
-import org.apache.jena.riot.system.stream.StreamManager;
 import org.apache.jena.util.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -160,26 +159,25 @@ public class LocatorFileAccept implements Locator
         
         
         String fn = toFileName(filenameIRI) ;
-        if ( fn == null )
+        if ( fn == null ) {
+            log.debug("Cannot find a proper filename: " + filenameIRI);
             return null ;
+        }
         
         try {
             if ( ! exists$(fn) )
             {
-                if ( StreamManager.logAllLookups && log.isTraceEnabled())
-                    log.trace("Not found: "+filenameIRI+thisDirLogStr) ;
+                log.debug("Not found: "+filenameIRI+thisDirLogStr) ;
                 return null ;
             }
         } catch (AccessControlException e) {
-            log.warn("Security problem testing for file", e);
+            log.debug("Security problem testing for file", e);
             return null;
         }
         
         try {
             InputStream in = IO.openFileEx(fn) ;
-
-            if ( StreamManager.logAllLookups && log.isTraceEnabled() )
-                log.trace("Found: "+filenameIRI+thisDirLogStr) ;
+            log.info("Found: "+filenameIRI+thisDirLogStr) ;
             
             ContentType ct = RDFLanguages.guessContentType(filenameIRI) ;
             return new TypedInputStream(in, ct, filenameIRI) ;
@@ -187,7 +185,7 @@ public class LocatorFileAccept implements Locator
         {
             // Includes FileNotFoundException
             // We already tested whether the file exists or not.
-            log.warn("File unreadable (but exists): "+fn+" Exception: "+ioEx.getMessage()) ;
+            log.debug("File unreadable (but exists): "+fn+" Exception: "+ioEx.getMessage()) ;
             return null ;
         }
     }

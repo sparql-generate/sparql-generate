@@ -39,7 +39,6 @@ public class GenerateTemplatePlanImpl extends PlanBase implements GeneratePlan {
      */
     private static final Logger LOG = LogManager.getLogger(GenerateTemplatePlanImpl.class);
 
-    
     /**
      * the list of generate blocks.
      */
@@ -89,14 +88,17 @@ public class GenerateTemplatePlanImpl extends PlanBase implements GeneratePlan {
                     QuerySolutionMap b = new QuerySolutionMap();
                     for (Var v : binding.varsList()) {
                         Node n = binding.get(v);
+                        if (n == null) {
+                            continue;
+                        }
                         if (bNodeMap.contains(n)) {
                             b.add(v.getVarName(), inputDataset
-                                                .getDefaultModel()
-                                                .asRDFNode(bNodeMap.get(n)));
+                                    .getDefaultModel()
+                                    .asRDFNode(bNodeMap.get(n)));
                         } else {
                             b.add(v.getVarName(), inputDataset
-                                                .getDefaultModel()
-                                                .asRDFNode(n));
+                                    .getDefaultModel()
+                                    .asRDFNode(n));
                         }
                     }
                     rootPlan.exec(inputDataset, b, outputStream, bNodeMap2);

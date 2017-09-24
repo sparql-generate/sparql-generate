@@ -13,6 +13,13 @@
     display: none;
 }
 
+label {
+    display: inline;
+}
+
+select {
+    display: inline;
+}
 
 a.externalLink[href^="https"] {
     background: none;
@@ -35,4 +42,22 @@ blockquote p {
     margin-right: 7px;
     margin-left: 7px;  
     font-size: 14.5px;
+}
+
+.nav-list>.active>a, .nav-list>.active>a:hover, .nav-list>.active>a:focus {
+    background: #57338b;    
+}
+
+#try-it-online {
+    margin: 10px 100px;
+    color: #fff;
+    background: #57338b;
+    padding: .2em 1.8em;
+    border-radius: .2em;
+    font-size: 20px;
+}
+
+#drop_zone {
+  border: 2px solid black;
+  height: 40px;
 }

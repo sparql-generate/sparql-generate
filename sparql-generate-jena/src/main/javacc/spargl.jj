@@ -102,7 +102,11 @@ void GenerateQuery1() : { }
 {
   <GENERATE>
     { asSPARQLGenerateQuery().setQueryGenerateType() ; }
-  GenerateTemplate()
+  ( 
+    { String generateUri; } generateUri = SourceSelector() { asSPARQLGenerateQuery().setGenerateURI(generateUri); }
+  | 
+    GenerateTemplate() 
+  )
   ( DatasetClause() )*
   {  List<Element> list = new ArrayList<Element> ();}
   ( IteratorOrSourceClause(list) )*
@@ -119,8 +123,12 @@ void GenerateQuery2() : { }
   ( WhereClause() )?
   SolutionModifier()
   <CONSTRUCT>
-    { asSPARQLGenerateQuery().setQueryGenerateType() ; }
-  GenerateTemplate()
+  { asSPARQLGenerateQuery().setQueryGenerateType() ; }
+  ( 
+    { String generateUri; } generateUri = SourceSelector() { asSPARQLGenerateQuery().setGenerateURI(generateUri); }
+  | 
+    GenerateTemplate() 
+  )
 }
 void GenerateTemplate() : { }
 {

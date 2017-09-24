@@ -55,7 +55,6 @@ public class LocatorURLAccept implements Locator {
 
     @Override
     public TypedInputStream open(String acceptURI) {
-        log.trace(acceptURI);
         if (!acceptURI.substring(0, 7).equals("accept:")) {
             acceptURI = "accept:*/*:" + acceptURI;
         }
@@ -63,7 +62,7 @@ public class LocatorURLAccept implements Locator {
         // get accept
         int index = acceptURI.indexOf(":", 7);
         if (index == -1) {
-            log.warn("not supported " + acceptURI);
+            log.debug("not supported " + acceptURI);
             return null;
         }
         String acceptHeader = acceptURI.substring(7, index);
@@ -86,27 +85,27 @@ public class LocatorURLAccept implements Locator {
             conn.connect();
             InputStream in = new BufferedInputStream(new BOMInputStream(conn.getInputStream()));
 
-            log.warn("found: " + source + " " + conn.getContentType() + " " + conn.getContentEncoding());
+            log.info("found: " + source + " " + conn.getContentType() + " " + conn.getContentEncoding());
             return new TypedInputStream(in, conn.getContentType(), conn.getContentEncoding());
         } catch (java.io.FileNotFoundException ex) {
-            log.warn("not found: " + source, ex);
+            log.debug("File not found online: " + source);
             return null;
         } catch (MalformedURLException ex) {
-            log.warn("Malformed URL: " + source, ex);
+            log.debug("Malformed URL: " + source);
             return null;
         } // IOExceptions that occur sometimes.
         catch (java.net.UnknownHostException ex) {
-            log.warn("UnknownHostException " + source, ex);
+            log.debug("UnknownHostException " + source);
             return null;
         } catch (java.net.ConnectException ex) {
-            log.warn("ConnectException " + source, ex);
+            log.debug("ConnectException " + source);
             return null;
         } catch (java.net.SocketException ex) {
-            log.warn("SocketException " + source, ex);
+            log.debug("SocketException " + source);
             return null;
         }
         catch (IOException ex) {
-            log.warn("I/O Exception opening URL: " + source + "  " + ex.getMessage(), ex);
+            log.debug("I/O Exception opening URL: " + source + "  " + ex.getMessage());
             return null;
         }
     }

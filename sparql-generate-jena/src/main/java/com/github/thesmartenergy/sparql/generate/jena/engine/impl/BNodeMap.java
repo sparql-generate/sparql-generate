@@ -73,7 +73,7 @@ public class BNodeMap {
         }
         for (Var v : binding.varsList()) {
             Node n = binding.get(v);
-            if (n.isBlank() && !parent.contains(n)) {
+            if (n != null && n.isBlank() && !parent.contains(n)) {
                 Node bn = NodeFactory.createBlankNode();
                 bNodeMap.put(n, bn);
             }

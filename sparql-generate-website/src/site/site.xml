@@ -30,16 +30,24 @@ See the License for the specific language governing permissions and
       <link rel="stylesheet" type="text/css" href="css/small.css" media="only all and (max-width: 649px)">
 
       <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-      <link href='https://thesmartenergy.github.io/YASGUI.YASQE/dist/yasqe.min.css' rel='stylesheet' type='text/css'/>
+      <link href='https://thesmartenergy.github.io/sparql-generate-yasqe/dist/yasqe.min.css' rel='stylesheet' type='text/css'/>
+      <link href='https://perfectkb.github.io/yate/dist/yate.min.css' rel='stylesheet' type='text/css'/>
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.30.0/codemirror.css">
+      
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.30.0/codemirror.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.30.0/addon/mode/loadmode.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.30.0/mode/meta.min.js"></script>
 
       <script src="https://cdn.jsdelivr.net/clipboard.js/1.6.0/clipboard.min.js"></script>
       <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
       <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-      <script src='https://thesmartenergy.github.io/YASGUI.YASQE/dist/yasqe.bundled.js'></script>]]>
+      <script src='https://thesmartenergy.github.io/sparql-generate-yasqe/dist/yasqe.bundled.js'></script>
+      <script src='https://perfectkb.github.io/yate/dist/yate.bundled.min.js'></script>]]>
         </head>
         
         <menu name="Overview">
             <item name="SPARQL-Generate Overview" href="index.html"/>
+            <item name="Try it online" href="language-form.html"/>
             <item name="The language" href="language.html"/>
             <item name="Java library" href="get-started.html"/>
             <item name="Executable JAR" href="language-cli.html" />  

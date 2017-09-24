@@ -15,6 +15,7 @@
  */
 package com.github.thesmartenergy.sparql.generate.jena.engine.impl;
 
+import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
 import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerateException;
 import java.util.List;
 import org.apache.commons.io.IOUtils;
@@ -112,7 +113,11 @@ public class SourcePlanImpl extends PlanBase implements SourcePlan {
                 sourceUri = "accept:" + acceptHeader + ":" + sourceUri;
             }
             try {
-                final TypedInputStream stream = StreamManager.get().open(sourceUri);
+                final TypedInputStream stream = SPARQLGenerate.getStreamManager().open(sourceUri);
+                if(stream == null) {
+                    LOG.warn("Got nothing when fetching source " + sourceUri);
+                    return new BindingHashMapOverwrite(value, var, null);
+                }
                 final String literal = IOUtils.toString(stream.getInputStream(), "UTF-8");
                 final RDFDatatype dt;;
                 if (stream.getMediaType() != null && stream.getMediaType().getContentType() != null) {

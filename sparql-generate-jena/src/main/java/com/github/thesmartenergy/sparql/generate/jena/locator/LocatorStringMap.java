@@ -43,7 +43,7 @@ public class LocatorStringMap implements Locator {
         try {
             bomSafeMessage = IOUtils.toString(new BOMInputStream(IOUtils.toInputStream(message, "UTF-8")), "UTF-8");
         } catch (IOException ex) {
-            log.warn("failed bomSafeMessage " + message, ex);
+            log.debug("failed bomSafeMessage " + message, ex);
             
         }
         if (!messageuri.substring(0, 7).equals("accept:")) {
@@ -65,14 +65,14 @@ public class LocatorStringMap implements Locator {
         }
         String message = docs.get(uri);
         if(message == null) {
-            log.warn("not found " + uri);
+            log.debug("not found " + uri);
             return null;
         }
         try {
-            log.trace("found " + uri);
+            log.info("found " + uri);
             return new TypedInputStream(IOUtils.toInputStream(message, "UTF-8"), (String) null);
         } catch (IOException ex) {
-            log.warn("ioexception " + uri , ex);
+            log.debug("ioexception " + uri , ex);
             return null;
         }
     }

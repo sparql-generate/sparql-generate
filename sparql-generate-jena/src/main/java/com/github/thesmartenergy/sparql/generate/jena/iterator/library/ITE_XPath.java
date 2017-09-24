@@ -150,10 +150,11 @@ public class ITE_XPath extends IteratorFunctionBase2 {
                 }
                 nodeValues.add(nodeValue);
             }
+            LOG.trace("Evaluation of " + v2 + ": " + nodeValues.size() + " values");
             return nodeValues;
         } catch (Exception ex) {
             LOG.debug("No evaluation for " + xml + ", " + v2 , ex);
-            throw new ExprEvalException("No evaluation for " + xml + ", " + v2 , ex);
+            throw new ExprEvalException("No evaluation for " + v2 , ex);
         }
     }
 }

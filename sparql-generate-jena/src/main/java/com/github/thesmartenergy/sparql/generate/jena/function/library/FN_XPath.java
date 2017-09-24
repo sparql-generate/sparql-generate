@@ -18,14 +18,26 @@ package com.github.thesmartenergy.sparql.generate.jena.function.library;
 import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.io.StringWriter;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathFactory;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import javax.xml.XMLConstants;
 import javax.xml.namespace.NamespaceContext;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.xpath.XPathConstants;
+import org.apache.jena.datatypes.RDFDatatype;
+import org.apache.jena.datatypes.TypeMapper;
+import org.apache.jena.graph.Node;
+import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.NodeValue;
 import org.apache.jena.sparql.function.FunctionBase2;
@@ -34,10 +46,12 @@ import org.apache.jena.sparql.expr.nodevalue.NodeValueDecimal;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueDouble;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueFloat;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueInteger;
+import org.apache.jena.sparql.expr.nodevalue.NodeValueNode;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueString;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
 
 /**
  * A SPARQL Function that extracts a string from a XML document, according to a
@@ -68,8 +82,8 @@ public class FN_XPath extends FunctionBase2 {
     /**
      *
      * @param xml a RDF Literal with datatype URI
-     * {@code <http://www.iana.org/assignments/media-types/application/xml>} pr {@code xsd:string}
-     * representing the source XML document
+     * {@code <http://www.iana.org/assignments/media-types/application/xml>} pr
+     * {@code xsd:string} representing the source XML document
      * @param xpath a RDF Literal with datatype {@code xsd:string} representing
      * the XPath expression to be evaluated on the XML document
      * @return a RDF Literal with datatype being the type of the object
@@ -81,7 +95,7 @@ public class FN_XPath extends FunctionBase2 {
                 && !xml.getDatatypeURI().equals(datatypeUri)
                 && !xml.getDatatypeURI().equals("http://www.w3.org/2001/XMLSchema#string")) {
             LOG.warn("The URI of NodeValue1 MUST be <" + datatypeUri + ">"
-                    + " or <http://www.w3.org/2001/XMLSchema#string>. Got " 
+                    + " or <http://www.w3.org/2001/XMLSchema#string>. Got "
                     + xml.getDatatypeURI());
         }
         DocumentBuilderFactory builderFactory
@@ -91,8 +105,7 @@ public class FN_XPath extends FunctionBase2 {
         try {
             // THIS IS A HACK !! FIND A BETTER WAY TO MANAGE NAMESPACES
             String xmlstring = xml.asNode().getLiteralLexicalForm().replaceAll("xmlns=\"[^\"]*\"", "");
-            
-            
+
             builder = builderFactory.newDocumentBuilder();
             InputStream in = new ByteArrayInputStream(xmlstring.getBytes("UTF-8"));
             Document document = builder.parse(in);
@@ -100,24 +113,49 @@ public class FN_XPath extends FunctionBase2 {
             XPath xPath = XPathFactory.newInstance().newXPath();
             xPath.setNamespaceContext(new UniversalNamespaceResolver(document));
             //Node node = (Node) xPath.compile(xpath.getString()).evaluate(document, XPathConstants.NODE);
-            Object value = xPath.compile(xpath.getString()).evaluate(document);
-            if (value instanceof String) {
-                return new NodeValueString((String) value);
-            } else if (value instanceof Float) {
-                return new NodeValueFloat((Float) value);
-            } else if (value instanceof Boolean) {
-                return new NodeValueBoolean((Boolean) value);
-            } else if (value instanceof Integer) {
-                return new NodeValueInteger((Integer) value);
-            } else if (value instanceof Long) {
-                return new NodeValueInteger((Integer) value);
-            } else if (value instanceof Double) {
-                return new NodeValueDouble((Double) value);
-            } else if (value instanceof BigDecimal) {
-                return new NodeValueDecimal((BigDecimal) value);
-            }
-            return new NodeValueString(String.valueOf(value));
 
+            org.w3c.dom.Node xmlNode = (org.w3c.dom.Node) xPath
+                    .compile(xpath.getString())
+                    .evaluate(document, XPathConstants.NODE);
+            if(xmlNode == null) {
+                LOG.debug("No evaluation of " + xpath);
+                throw new ExprEvalException("No evaluation of " + xpath);
+            }
+
+            /*
+                Node node = NodeFactory.createLiteral(xmlNode.getNodeValue(), dt);
+                NodeValue nodeValue = new NodeValueNode(node);
+                nodeValues.add(nodeValue);
+             */
+            NodeValue nodeValue = null;
+            Object value = xmlNode.getNodeValue();
+            if (value instanceof Float) {
+                nodeValue = new NodeValueFloat((Float) value);
+            } else if (value instanceof Boolean) {
+                nodeValue = new NodeValueBoolean((Boolean) value);
+            } else if (value instanceof Integer) {
+                nodeValue = new NodeValueInteger((Integer) value);
+            } else if (value instanceof Double) {
+                nodeValue = new NodeValueDouble((Double) value);
+            } else if (value instanceof BigDecimal) {
+                nodeValue = new NodeValueDecimal((BigDecimal) value);
+            } else if (value instanceof String) {
+                nodeValue = new NodeValueString((String) value);
+            } else {
+
+                RDFDatatype dt = TypeMapper.getInstance()
+                        .getSafeTypeByName(datatypeUri);
+
+                TransformerFactory tFactory = TransformerFactory.newInstance();
+                Transformer transformer = tFactory.newTransformer();
+                DOMSource source = new DOMSource(xmlNode);
+                StringWriter writer = new StringWriter();
+                transformer.transform(source, new StreamResult(writer));
+                Node node = NodeFactory.createLiteral(writer.getBuffer().toString(), dt);
+                nodeValue = new NodeValueNode(node);
+            }
+            LOG.debug("Evaluation of " + xpath + ":  " + nodeValue);
+            return nodeValue;
         } catch (Exception ex) {
             LOG.debug("No evaluation of " + xml + ", " + xpath, ex);
             throw new ExprEvalException("No evaluation of " + xml + ", " + xpath, ex);

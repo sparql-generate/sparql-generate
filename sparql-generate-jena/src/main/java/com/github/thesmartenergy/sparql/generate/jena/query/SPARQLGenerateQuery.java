@@ -195,6 +195,7 @@ public class SPARQLGenerateQuery extends Query {
             return this;
         }
         String qs = this.toString();
+        LOG.debug("normalizing " + qs);
         SPARQLGenerateQuery query = (SPARQLGenerateQuery) QueryFactory.create(qs, getSyntax()) ;
         QueryNormalizer normalizer = new QueryNormalizer();
         query.visit(normalizer);

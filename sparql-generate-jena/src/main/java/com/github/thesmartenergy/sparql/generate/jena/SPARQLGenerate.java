@@ -297,7 +297,7 @@ public final class SPARQLGenerate {
     }
 
     public static void resetStreamManager(Locator locator) {
-        StreamManager sm = new StreamManager();
+        StreamManager sm = new SPARQLGenerateStreamManager();
         if(locator != null) {
             sm.addLocator(locator);
         }
@@ -320,12 +320,12 @@ public final class SPARQLGenerate {
         while (altEntries.hasNext()) {
             String uri = altEntries.next();
             String entry = old.getAltEntry(uri);
-            if(!uri.startsWith("accept:")) {
-                uri = "accept:*/*:" + uri;
-            }
-            if(!entry.startsWith("accept:")) {
-                entry = "accept:*/*:" + uri;
-            }
+//            if(!uri.startsWith("accept:")) {
+//                uri = "accept:*/*:" + uri;
+//            }
+//            if(!entry.startsWith("accept:")) {
+//                entry = "accept:*/*:" + uri;
+//            }
             mapper.addAltEntry(uri, entry);
         }
 

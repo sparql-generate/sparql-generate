@@ -58,9 +58,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * A factory that creates a {@link RootPlan} from a SPARQL Generate query.
- * Then the {@code RootPlan} may be used to execute the SPARQL Generate
- * query.
+ * A factory that creates a {@link RootPlan} from a SPARQL Generate query. Then
+ * the {@code RootPlan} may be used to execute the SPARQL Generate query.
  * <p>
  * A {@link SPARQLGenerateQuery} may be created from a string as follows:
  * <pre>{@code
@@ -85,10 +84,8 @@ public class PlanFactory {
      */
     private static final IteratorFunctionRegistry sr = IteratorFunctionRegistry.get();
 
-
     /**
-     * A factory that creates a {@link RootPlan} from a SPARQL Generate
-     * query.
+     * A factory that creates a {@link RootPlan} from a SPARQL Generate query.
      * <p>
      * A {@link SPARQLGenerateQuery} may be created from a string as follows:
      * <pre>{@code
@@ -105,22 +102,15 @@ public class PlanFactory {
      */
     public static final RootPlan create(final SPARQLGenerateQuery query) {
         checkNotNull(query, "Query must not be null");
-        if(!query.hasEmbeddedExpressions()) {
-            return make(query);
-        } else {
-            SPARQLGenerateQuery q = query.normalize();
-            LOG.trace("normalized: " + q);
-            return make(q);
-        }
+        return make(query);
     }
 
     /**
-     * A factory that creates a {@link RootPlan} from a SPARQL Generate
-     * query.
+     * A factory that creates a {@link RootPlan} from a SPARQL Generate query.
      *
      * @param queryStr the string representation of the SPARQL Generate query.
-     * @return the RootPlan that may be used to execute the SPARQL
- Generate query.
+     * @return the RootPlan that may be used to execute the SPARQL Generate
+     * query.
      */
     public static final RootPlan create(final String queryStr) {
         checkNotNull(queryStr, "Parameter string must not be null");
@@ -156,21 +146,27 @@ public class PlanFactory {
     private static RootPlan make(final SPARQLGenerateQuery query,
             final boolean distant) {
         checkNotNull(query, "The query must not be null");
+        
+        if (query.hasEmbeddedExpressions()) {
+            SPARQLGenerateQuery q = query.normalize();
+            LOG.trace("normalized: " + q);
+            return make(q, distant);
+        }
 
         List<IteratorOrSourcePlan> iteratorAndSourcePlans = new ArrayList<>();
         SelectPlan selectPlan = null;
         GeneratePlan generatePlan = null;
 
         if (query.hasIteratorsAndSources()) {
-            for(Element el : query.getIteratorsAndSources()) {
+            for (Element el : query.getIteratorsAndSources()) {
                 IteratorOrSourcePlan iteratorOrSourcePlan;
                 if (el instanceof ElementIterator) {
                     ElementIterator elementIterator = (ElementIterator) el;
                     iteratorOrSourcePlan = makeIteratorPlan(elementIterator);
-                } else if (el instanceof ElementSource) { 
+                } else if (el instanceof ElementSource) {
                     ElementSource elementSource = (ElementSource) el;
                     iteratorOrSourcePlan = makeSourcePlan(elementSource);
-                } else if (el instanceof ElementBind) { 
+                } else if (el instanceof ElementBind) {
                     ElementBind elementBind = (ElementBind) el;
                     iteratorOrSourcePlan = makeBindPlan(elementBind);
                 } else {
@@ -180,7 +176,7 @@ public class PlanFactory {
                 iteratorAndSourcePlans.add(iteratorOrSourcePlan);
             }
         }
-        if (query.getQueryPattern()!=null) {
+        if (query.getQueryPattern() != null) {
             selectPlan = makeSelectPlan(query);
         }
         if (query.hasGenerateURI()) {
@@ -202,8 +198,8 @@ public class PlanFactory {
      * @return -
      */
     static IteratorPlan makeIteratorPlan(
-            final ElementIterator elementIterator) 
-                throws SPARQLGenerateException {
+            final ElementIterator elementIterator)
+            throws SPARQLGenerateException {
         checkNotNull(elementIterator, "The Iterator must not be null");
 
         Var var = elementIterator.getVar();
@@ -218,7 +214,7 @@ public class PlanFactory {
         String iri = function.getFunctionIRI();
 
         IteratorFunctionFactory factory = sr.get(iri);
-        if(factory == null) {
+        if (factory == null) {
             throw new SPARQLGenerateException("Unknown Iterator Function: " + iri);
         }
         IteratorFunction iterator = factory.create(iri);
@@ -228,14 +224,14 @@ public class PlanFactory {
     }
 
     /**
-     * Makes the plan for a SPARQL SOURCE clause. If (1) accept
-     * is not set and (2) the {@code StreamManager} finds the file
-     * locally, then the behaviour is not specified (yet).
+     * Makes the plan for a SPARQL SOURCE clause. If (1) accept is not set and
+     * (2) the {@code StreamManager} finds the file locally, then the behaviour
+     * is not specified (yet).
      *
      * @param elementSource the SPARQL SOURCE
      * @return -
      */
-    private static SourcePlan makeSourcePlan (
+    private static SourcePlan makeSourcePlan(
             final ElementSource elementSource) throws SPARQLGenerateException {
         checkNotNull(elementSource, "The Source must not be null");
 
@@ -260,10 +256,10 @@ public class PlanFactory {
      * @param elementBind the SPARQL BIND
      * @return -
      */
-    private static SourcePlan makeBindPlan (
+    private static SourcePlan makeBindPlan(
             final ElementBind elementBind) throws SPARQLGenerateException {
         checkNotNull(elementBind, "The Bind element must not be null");
-       
+
         Var var = elementBind.getVar();
         Expr expr = elementBind.getExpr();
 
@@ -294,28 +290,35 @@ public class PlanFactory {
      * @throws IOException Thrown if the source query cannot be found, or if a
      * parse error occurs
      */
-    private static RootPlan makeGenerateQueryPlan (
+    private static RootPlan makeGenerateQueryPlan(
             final SPARQLGenerateQuery query) throws SPARQLGenerateException {
         checkNotNull(query, "The query must not be null");
         checkIsTrue(query.hasGenerateURI(), "Query was expected to be of type"
                 + " GENERATE ?source...");
         try {
-            InputStream in = StreamManager.get().open(query.getGenerateURI());
+            String generateURI = query.getGenerateURI();
+            StreamManager sm = SPARQLGenerate.getStreamManager();
+            InputStream in = sm.open(generateURI);
             String qString = IOUtils.toString(in, Charset.forName("UTF-8"));
             SPARQLGenerateQuery q
                     = (SPARQLGenerateQuery) QueryFactory.create(qString,
                             SPARQLGenerate.SYNTAX);
             return make(q, true);
+        } catch (NullPointerException ex) {
+            LOG.error("NullPointerException while loading the query"
+                    + " file " + query.getGenerateURI() + ": " + ex.getMessage());
+            throw new SPARQLGenerateException("NullPointerException exception while loading the query"
+                    + " file " + query.getGenerateURI() + ": " + ex.getMessage());
         } catch (IOException ex) {
-            LOG.error("Error while loading the query"
-                    + " file " + query.getGenerateURI(), ex);
-            throw new SPARQLGenerateException("Error while loading the query"
-                    + " file " + query.getGenerateURI(), ex);
+            LOG.error("IOException while loading the query"
+                    + " file " + query.getGenerateURI() + ": " + ex.getMessage());
+            throw new SPARQLGenerateException("IOException  while loading the query"
+                    + " file " + query.getGenerateURI() + ": " + ex.getMessage());
         } catch (QueryParseException ex) {
-            LOG.error("Error while parsing the query"
-                    + query.getGenerateURI(), ex);
-            throw new SPARQLGenerateException("Error while parsing the query "
-                    + query.getGenerateURI(), ex);
+            LOG.error("QueryParseException while parsing the query"
+                    + query.getGenerateURI() + ": " + ex.getMessage());
+            throw new SPARQLGenerateException("QueryParseException while parsing the query "
+                    + query.getGenerateURI() + ": " + ex.getMessage());
         }
     }
 
@@ -325,7 +328,7 @@ public class PlanFactory {
      * @param query the query for which the plan is created.
      * @return -
      */
-    private static GeneratePlan makeGenerateTemplatePlan (
+    private static GeneratePlan makeGenerateTemplatePlan(
             final SPARQLGenerateQuery query) throws SPARQLGenerateException {
         checkNotNull(query, "The query must not be null");
         checkIsTrue(query.hasGenerateTemplate(), "Query was expected to be of"
@@ -432,7 +435,7 @@ public class PlanFactory {
             @Override
             public void visitIteratorsAndSources(SPARQLGenerateQuery query) {
             }
-            
+
             @Override
             public void visitGroupBy(final Query query) {
                 if (query.hasGroupBy()) {
