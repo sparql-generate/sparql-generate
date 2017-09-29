@@ -1,6 +1,8 @@
 PREFIX sgiter: <http://w3id.org/sparql-generate/iter/>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 PREFIX sgfn: <http://w3id.org/sparql-generate/fn/> 
+BASE <http://example.org/>
+
 LOOK UP <http://ci.emse.fr/sparql-generate/cities.json> AS ?message
 ITERATE sgiter:JSONListKeys( ?message ) AS ?cityName 
 WHEREVER { 

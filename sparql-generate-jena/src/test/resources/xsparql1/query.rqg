@@ -17,6 +17,6 @@ ITERATOR iter:XPath(?person, "//knows" ) AS ?knows
 WHERE {
     BIND( fn:XPath(?person,"/person/@name"  ) AS ?personName )
     BIND (fn:bnode(CONCAT("http://example.com/",?personName)) AS ?personNode)
-    BIND( fn:XPath(?knows,"/knows"  ) AS ?knowsPerson )
+    BIND( fn:XPath(?knows,"/knows/text()"  ) AS ?knowsPerson )
     BIND (fn:bnode(CONCAT("http://example.com/",?knowsPerson)) AS ?knowsPersonNode)
 }

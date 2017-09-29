@@ -97,7 +97,6 @@ public class SPARQLGenerateQuerySerializer implements SPARQLGenerateQueryVisitor
 
     @Override
     public void startVisit(Query query) {
-        LOG.trace("start");
     }
 
     @Override

@@ -44,7 +44,7 @@ public class ProcessQuery {
         Model configurationModel = null;
         if (conf.length() > 0) {
             configurationModel = generateConfiguration(conf);
-            SPARQLGenerate.resetStreamManager(configurationModel);
+            SPARQLGenerate.getStreamManager().setLocationMapper(configurationModel);
         }
 
         LOG.trace("Processing Query");

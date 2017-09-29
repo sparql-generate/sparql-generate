@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- <Thesauri xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Version="2" xmlns="http://www.blue-order.com/Schema/Thesaurus"> -->
+<Thesauri>
+<Thesaurus Id="VRT_THESAURUS_KEYWORDS" LastChanged="2015-04-24T11:13:11" FixForPlatform="true">
+	<Localizations>
+		<Localization Culture="nl-BE" Tenant="DEFAULT">
+			<Label>Trefwoorden</Label>
+		</Localization>
+		<Localization Culture="en" Tenant="DEFAULT">
+			<Label>Keywords</Label>
+		</Localization>
+	</Localizations>
+	<Terms>
+		<Term id="1" ParentId="2">
+			<Owners>
+				<Owner>DEFAULT</Owner>
+			</Owners>
+			<Localizations>
+				<Localization Culture="nl-BE" Tenant="DEFAULT">
+					<Label>'NL GRAVENVOEREN</Label>
+				</Localization>
+				<Localization Culture="en" Tenant="DEFAULT">
+					<Label>'S GRAVENVOEREN</Label>
+				</Localization>
+			</Localizations>
+		</Term>
+		<Term id="2" ParentId="3">
+			<Owners>
+				<Owner>DEFAULT</Owner>
+			</Owners>
+			<Localizations>
+				<Localization Culture="nl-BE" Tenant="DEFAULT">
+					<Label>'NL GRAVENWEZEL</Label>
+				</Localization>
+				<Localization Culture="en" Tenant="DEFAULT">
+					<Label>'S GRAVENWEZEL</Label>
+				</Localization>
+			</Localizations>
+		</Term>
+		<Term id="3" ParentId="4">
+			<Owners>
+				<Owner>DEFAULT</Owner>
+			</Owners>
+			<Localizations>
+				<Localization Culture="nl-BE" Tenant="DEFAULT">
+					<Label>'NL GRAVESANDE AD</Label>
+				</Localization>
+				<Localization Culture="en" Tenant="DEFAULT">
+					<Label>'S GRAVESANDE AD</Label>
+				</Localization>
+			</Localizations>
+		</Term>
+		<Term id="4" ParentId="5">
+			<Owners>
+				<Owner>DEFAULT</Owner>
+			</Owners>
+			<Localizations>
+				<Localization Culture="nl-BE" Tenant="DEFAULT">
+					<Label>'NL HEEREN DIANE</Label>
+				</Localization>
+				<Localization Culture="en" Tenant="DEFAULT">
+					<Label>'S HEEREN DIANE</Label>
+				</Localization>
+			</Localizations>
+		</Term>
+		<Term id="5" ParentId="6">
+			<Owners>
+				<Owner>DEFAULT</Owner>
+			</Owners>
+			<Localizations>
+				<Localization Culture="nl-BE" Tenant="DEFAULT">
+					<Label>'NL HEERENBERG</Label>
+				</Localization>
+				<Localization Culture="en" Tenant="DEFAULT">
+					<Label>'S HEERENBERG</Label>
+				</Localization>
+			</Localizations>
+		</Term>
+	</Terms>
+</Thesaurus>
+</Thesauri>

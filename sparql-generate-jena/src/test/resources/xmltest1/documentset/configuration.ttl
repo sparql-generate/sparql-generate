@@ -1,0 +1,6 @@
+@prefix lm: <http://jena.hpl.hp.com/2004/08/location-mapping#> .
+
+[] lm:mapping
+   [ lm:name "http://example.com/transport.xml" ; lm:altName "documentset/transport.xml" ; lm:media "application/xml" ] 
+   .
+

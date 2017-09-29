@@ -49,6 +49,8 @@ import org.apache.jena.sparql.core.Prologue;
 import org.apache.jena.sparql.engine.binding.Binding;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.IteratorFunction;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.IteratorFunctionFactory;
+import com.github.thesmartenergy.sparql.generate.jena.stream.LookUpRequest;
+import com.github.thesmartenergy.sparql.generate.jena.stream.SPARQLGenerateStreamManager;
 import com.github.thesmartenergy.sparql.generate.jena.syntax.ElementGenerateTriplesBlock;
 import java.nio.charset.Charset;
 import org.apache.jena.graph.Node;
@@ -149,7 +151,7 @@ public class PlanFactory {
         
         if (query.hasEmbeddedExpressions()) {
             SPARQLGenerateQuery q = query.normalize();
-            LOG.trace("normalized: " + q);
+            LOG.trace("normalized query: " + q);
             return make(q, distant);
         }
 
@@ -297,8 +299,8 @@ public class PlanFactory {
                 + " GENERATE ?source...");
         try {
             String generateURI = query.getGenerateURI();
-            StreamManager sm = SPARQLGenerate.getStreamManager();
-            InputStream in = sm.open(generateURI);
+            final LookUpRequest request = new LookUpRequest(generateURI, SPARQLGenerate.MEDIA_TYPE);
+            InputStream in = SPARQLGenerate.getStreamManager().open(request);
             String qString = IOUtils.toString(in, Charset.forName("UTF-8"));
             SPARQLGenerateQuery q
                     = (SPARQLGenerateQuery) QueryFactory.create(qString,
@@ -499,7 +501,6 @@ public class PlanFactory {
             }
 
         });
-        LOG.trace("Generated query select query: " + output.serialize());
         return output;
     }
 

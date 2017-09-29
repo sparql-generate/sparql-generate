@@ -50,22 +50,18 @@ import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITE_JSONP
 import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITE_Regex;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITE_Split;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITE_XPath;
-import com.github.thesmartenergy.sparql.generate.jena.locator.LocatorClassLoaderAccept;
-import com.github.thesmartenergy.sparql.generate.jena.locator.LocatorFileAccept;
-import com.github.thesmartenergy.sparql.generate.jena.locator.LocatorURLAccept;
 import com.github.thesmartenergy.sparql.generate.jena.serializer.SPARQLGenerateQuerySerializer;
-import java.util.Iterator;
+import com.github.thesmartenergy.sparql.generate.jena.stream.SPARQLGenerateStreamManager;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 import org.apache.jena.atlas.io.IndentedWriter;
 import org.apache.jena.query.QueryVisitor;
-import org.apache.jena.rdf.model.Model;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.LangBuilder;
 import org.apache.jena.riot.RDFLanguages;
 import static org.apache.jena.riot.RDFLanguages.strLangRDFXML;
 import static org.apache.jena.riot.WebContent.contentTypeRDFXML;
-import org.apache.jena.riot.system.stream.JenaIOEnvironment;
-import org.apache.jena.riot.system.stream.LocationMapper;
-import org.apache.jena.riot.system.stream.Locator;
 import org.apache.jena.riot.system.stream.StreamManager;
 import org.apache.jena.sparql.core.Prologue;
 import org.apache.jena.sparql.serializer.QuerySerializerFactory;
@@ -118,6 +114,11 @@ public final class SPARQLGenerate {
      * The URI of the SPARQL Generate syntax.
      */
     public static final String SYNTAX_URI = NS + "syntax";
+
+    /**
+     * The File Extension for SPARQL Generate documents.
+     */
+    public static final String EXT = ".rqg";
 
     /**
      * The SPARQL-Generate syntax.
@@ -222,7 +223,8 @@ public final class SPARQLGenerate {
         RDFLanguages.register(LangBuilder.create("XHTML", "application/xhtml+xml")
                                 .addFileExtensions("xhtml")
                                 .build());
-        getStreamManager(true);
+        
+        StreamManager.setGlobal(SPARQLGenerateStreamManager.makeStreamManager());
     }
 
     /**
@@ -284,59 +286,27 @@ public final class SPARQLGenerate {
         }
 
     }
+    
+    private static final Map<Thread, SPARQLGenerateStreamManager> streamManagers = new HashMap<>();
 
-    public static StreamManager getStreamManager() {
-        return getStreamManager(false);
-    }
-
-    public static StreamManager getStreamManager(boolean fresh) {
-        if (fresh) {
-            resetStreamManager((Locator) null);
-        }
-        return StreamManager.get();
-    }
-
-    public static void resetStreamManager(Locator locator) {
-        StreamManager sm = new SPARQLGenerateStreamManager();
-        if(locator != null) {
-            sm.addLocator(locator);
-        }
-        sm.addLocator(new LocatorFileAccept(null));
-        sm.addLocator(new LocatorClassLoaderAccept(StreamManager.class.getClassLoader())) ;
-        sm.setLocationMapper(JenaIOEnvironment.getLocationMapper()) ;
-        sm.addLocator(new LocatorURLAccept());
-        StreamManager.setGlobal(sm);
-    }
-
-    public static StreamManager resetStreamManager(Model configurationModel) {
-        StreamManager sm = getStreamManager(true);
-        if (configurationModel == null) {
+    public static SPARQLGenerateStreamManager getStreamManager() {
+        if(streamManagers.containsKey(Thread.currentThread())) {
+            SPARQLGenerateStreamManager sm = streamManagers.get(Thread.currentThread());
+            StreamManager.setGlobal(sm);
             return sm;
+        } 
+        try {
+            return (SPARQLGenerateStreamManager) StreamManager.get();
+        } catch (ClassCastException ex) {
+            log.error(ex.getMessage());
         }
-
-        org.apache.jena.util.LocationMapper old = new org.apache.jena.util.LocationMapper(configurationModel);
-        LocationMapper mapper = new LocationMapper();
-        Iterator<String> altEntries = old.listAltEntries();
-        while (altEntries.hasNext()) {
-            String uri = altEntries.next();
-            String entry = old.getAltEntry(uri);
-//            if(!uri.startsWith("accept:")) {
-//                uri = "accept:*/*:" + uri;
-//            }
-//            if(!entry.startsWith("accept:")) {
-//                entry = "accept:*/*:" + uri;
-//            }
-            mapper.addAltEntry(uri, entry);
-        }
-
-        Iterator<String> altPrefixes = old.listAltPrefixes();
-        while (altPrefixes.hasNext()) {
-            String uri = altPrefixes.next();
-            mapper.addAltPrefix(uri, old.getAltPrefix(uri));
-        }
-        StreamManager.get().setLocationMapper(mapper);
-
-        return sm;
+        return null;
+    }
+    
+    public static void setStreamManager(SPARQLGenerateStreamManager streamManager) {
+        Objects.requireNonNull(streamManager);
+        streamManagers.put(Thread.currentThread(), streamManager);
+        StreamManager.setGlobal(streamManager);
     }
 
 }

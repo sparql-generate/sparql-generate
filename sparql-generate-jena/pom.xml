@@ -133,8 +133,7 @@
                             <configuration>
                                 <transformers>
                                     <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-<!--                                        <mainClass>com.github.thesmartenergy.sparql.generate.generator.CMDGenerator</mainClass>-->
-                                        <mainClass>com.github.thesmartenergy.sparql.generate.generator.Bigcsv</mainClass>
+                                        <mainClass>com.github.thesmartenergy.sparql.generate.generator.CMDGenerator</mainClass>
                                     </transformer>
                                 </transformers>
                             </configuration>

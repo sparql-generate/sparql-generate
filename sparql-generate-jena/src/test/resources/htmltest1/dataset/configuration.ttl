@@ -1,0 +1,5 @@
+@prefix lm: <http://jena.hpl.hp.com/2004/08/location-mapping#> .
+
+#[] lm:mapping
+#   [ lm:name "http://example.org/graph" ; lm:altName "dataset/graph.ttl" ; lm:media "text/turtle" ] ,
+#   .

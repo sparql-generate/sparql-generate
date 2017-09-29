@@ -35,7 +35,6 @@ import org.apache.jena.sparql.expr.nodevalue.NodeValueNode;
 import org.supercsv.io.ICsvListReader;
 import java.util.function.Consumer;
 import org.apache.jena.atlas.web.TypedInputStream;
-import org.apache.jena.riot.system.stream.StreamManager;
 import org.supercsv.io.CsvListReader;
 import org.supercsv.io.CsvListWriter;
 import org.supercsv.prefs.CsvPreference;
@@ -101,10 +100,7 @@ public class ITE_CSVStream extends IteratorStreamFunctionBase4 {
     }
 
     private void exec(final String csvString, final NodeValue headerValue, final int max, final Consumer<List<NodeValue>> nodeValuesStream, final ScheduledExecutorService scheduler) {
-        
-        
-
-        try (TypedInputStream tis = StreamManager.get().open(csvString);
+        try (TypedInputStream tis = SPARQLGenerate.getStreamManager().open(csvString);
                 BufferedReader br = new BufferedReader(new InputStreamReader(tis.getInputStream(), "UTF-8"))) {
 
             String header = null;

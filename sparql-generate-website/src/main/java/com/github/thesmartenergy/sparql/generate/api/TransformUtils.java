@@ -16,7 +16,7 @@
 package com.github.thesmartenergy.sparql.generate.api;
 
 import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
-import com.github.thesmartenergy.sparql.generate.jena.locator.LocatorStringMap;
+import com.github.thesmartenergy.sparql.generate.jena.stream.LocatorStringMap;
 import com.google.gson.Gson;
 import com.google.gson.internal.StringMap;
 import com.jayway.jsonpath.Option;

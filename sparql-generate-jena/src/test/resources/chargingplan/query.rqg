@@ -44,15 +44,15 @@ GENERATE {
 
         } ITERATOR rqg-ite:XPath(?chargingPlan, "//Order") AS ?order
         WHERE {
-            BIND( strdt( rqg-fn:XPath(?order, "//DateDebut"), xsd:dateTime ) AS ?start )
-            BIND( strdt( rqg-fn:XPath(?order, "//DateFin"), xsd:dateTime ) AS ?end )
-            BIND( xsd:decimal( rqg-fn:XPath(?order, "//Puissance") ) AS ?power )
+            BIND( strdt( rqg-fn:XPath(?order, "//DateDebut/text()"), xsd:dateTime ) AS ?start )
+            BIND( strdt( rqg-fn:XPath(?order, "//DateFin/text()"), xsd:dateTime ) AS ?end )
+            BIND( xsd:decimal( rqg-fn:XPath(?order, "//Puissance/text()") ) AS ?power )
         
         } .
 
     } ITERATOR rqg-ite:XPath(?message, "//ChargingPlan") AS ?chargingPlan
     WHERE  {
-        BIND( rqg-fn:XPath(?chargingPlan, "//IdCharge") AS ?idCharge )
+        BIND( rqg-fn:XPath(?chargingPlan, "//IdCharge/text()") AS ?idCharge )
         BIND( IRI( CONCAT ("Charge/" , ?idCharge ) ) AS ?charge )
     } .
 

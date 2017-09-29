@@ -1,0 +1,5 @@
+@prefix lm: <http://jena.hpl.hp.com/2004/08/location-mapping#> .
+
+[] lm:mapping
+   [ lm:name "http://w3id.org/sparql-generate/example/source/design" ; lm:altName "documentset/design.csv" ; lm:media "text/csv" ]
+   .

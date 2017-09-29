@@ -38,7 +38,10 @@ import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
 import org.apache.jena.rdf.model.Model;
+import org.apache.jena.riot.Lang;
+import org.apache.jena.riot.RDFParser;
 import org.apache.jena.riot.system.stream.StreamManager;
+import org.apache.jena.sparql.util.Symbol;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -56,6 +59,21 @@ public class Transform extends HttpServlet {
     @PostConstruct
     private void postConstruct() {
         utils = new TransformUtils(UUID.randomUUID().toString(), LOG);
+        
+        
+                org.apache.jena.sparql.util.Context c = new org.apache.jena.sparql.util.Context();
+        Symbol thread = Symbol.create("thread");
+        c.put(thread, Thread.currentThread());
+        
+        StreamManager.get(c)
+        
+        RDFParser.source("ilh").lang(Lang.TTL).context(c)
+        StreamManager.get();
+        
+        
+        
+
+
     }
     
     @GET

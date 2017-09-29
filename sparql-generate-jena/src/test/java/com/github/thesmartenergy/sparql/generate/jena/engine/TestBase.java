@@ -17,52 +17,154 @@ package com.github.thesmartenergy.sparql.generate.jena.engine;
 
 import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
 import com.github.thesmartenergy.sparql.generate.jena.query.SPARQLGenerateQuery;
+import com.github.thesmartenergy.sparql.generate.jena.stream.LocationMapperAccept;
+import com.github.thesmartenergy.sparql.generate.jena.stream.LocatorFileAccept;
+import com.github.thesmartenergy.sparql.generate.jena.stream.LookUpRequest;
+import com.github.thesmartenergy.sparql.generate.jena.stream.SPARQLGenerateStreamManager;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.StringWriter;
 import java.net.URI;
-import java.net.URL;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.logging.Level;
+import java.util.regex.Pattern;
 import org.apache.commons.io.IOUtils;
+import org.apache.jena.query.Dataset;
+import org.apache.jena.query.DatasetFactory;
+import org.apache.jena.query.QueryExecutionFactory;
 import org.apache.jena.query.QueryFactory;
 import org.apache.jena.query.QuerySolutionMap;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.system.stream.LocatorFile;
 import org.apache.jena.riot.system.stream.StreamManager;
 import static org.junit.Assert.assertTrue;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 
 /**
  *
  * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */
+@RunWith(Parameterized.class)
 public class TestBase {
 
-    static Logger LOG;
-    static URL examplePath;
-    static File exampleDir;
+    private static final Logger LOG = LogManager.getLogger(TestBase.class);
 
-    static void setUpClass(Class clazz) throws Exception {
-        LOG = LogManager.getLogger(clazz);
-        String dir = clazz.getSimpleName();
-        dir = Character.toLowerCase(dir.charAt(0))
-                + (dir.length() > 1 ? dir.substring(1) : "");
-        examplePath = clazz.getResource("/" + dir);
+    private final Logger log;
 
-        exampleDir = new File(examplePath.toURI());
+    private final File exampleDir;
+    
+    private static final String pattern = "";
 
+    
+    public TestBase(Logger log, File exampleDir, String name) {
+        this.log = log;
+        this.exampleDir = exampleDir;
+
+        log.info("constructing with " + exampleDir);
+
+        SPARQLGenerate.init();
+                
         // read location-mapping
-        URI confUri = exampleDir.toURI().resolve("configuration.ttl");
-        Model conf = RDFDataMgr.loadModel(confUri.toString());
+        Model conf = ModelFactory.createDefaultModel();
+        conf.add(RDFDataMgr.loadModel(new File(exampleDir, "queryset/configuration.ttl").toString(), Lang.TTL));
+        conf.add(RDFDataMgr.loadModel(new File(exampleDir, "documentset/configuration.ttl").toString(), Lang.TTL));
 
         // initialize stream manager
-        StreamManager sm = SPARQLGenerate.resetStreamManager(conf);
-        sm.addLocator(new LocatorFile(exampleDir.toURI().getPath()));
+        SPARQLGenerateStreamManager sm = SPARQLGenerateStreamManager.makeStreamManager(new LocatorFileAccept(exampleDir.toURI().getPath()));
+        sm.setLocationMapper(conf);
+        SPARQLGenerate.setStreamManager(sm);
+    }
+
+    @Test
+    public void testPlanExecution() throws Exception {
+        
+        String query = IOUtils.toString(SPARQLGenerate.getStreamManager().open(new LookUpRequest("query.rqg", SPARQLGenerate.MEDIA_TYPE)), "UTF-8");
+        
+        long start0 = System.currentTimeMillis();
+        long start = start0;
+        SPARQLGenerateQuery q = (SPARQLGenerateQuery) QueryFactory.create(query, SPARQLGenerate.SYNTAX);
+        long now = System.currentTimeMillis();
+        log.info("needed " + (now - start) + " to parse query");
+        start = now;
+
+        // create generation plan
+        PlanFactory factory = new PlanFactory();
+        RootPlan plan = factory.create(q);        
+        Dataset ds = loadDataset();
+        
+        now = System.currentTimeMillis();
+        log.info("needed " + (now - start) + " to get ready");
+        start = now;
+
+        // execute plan
+        Model output = plan.exec(ds);
+
+        now = System.currentTimeMillis();
+        log.info("executed plan in " + (now - start));
+        start = now;
+        log.info("total needed " + (now - start0));
+
+        // write output
+        String fileName = exampleDir.toString() + "/output.ttl";
+        FileWriter out = new FileWriter(fileName);
+        try {
+            output.write(out, "TTL");
+//            StringWriter sw = new StringWriter();
+//            output.write(sw, "TTL");
+//            log.debug("output is " + sw.toString());
+        } finally {
+            try {
+                out.close();
+            } catch (IOException closeException) {
+                log.error("Error while writing to file");
+            }
+        }
+
+        URI expectedOutputUri = exampleDir.toURI().resolve("expected_output.ttl");
+        Model expectedOutput = RDFDataMgr.loadModel(expectedOutputUri.toString(), Lang.TTL);
+        StringWriter sw = new StringWriter();
+        expectedOutput.write(sw, "TTL");
+        assertTrue(output.isIsomorphicWith(expectedOutput));
+    }
+    
+    Dataset loadDataset() {
+        Dataset ds = DatasetFactory.create();
+        try {
+            ds.setDefaultModel(RDFDataMgr.loadModel(new File(exampleDir, "default.ttl").toString(), Lang.TTL));
+        } catch (Exception ex) {
+            log.trace("error while loading the default graph default.ttl: " + ex.getMessage());
+        }
+
+        String query = "PREFIX lm: <http://jena.hpl.hp.com/2004/08/location-mapping#>\n"
+                + "SELECT * WHERE { [] lm:name ?name ; lm:altName ?alt .}" ;
+        try {
+            Model conf = RDFDataMgr.loadModel(new File(exampleDir, "dataset/configuration.ttl").toString(), Lang.TTL);
+            QueryExecutionFactory.create(query, conf).execSelect().forEachRemaining((sol)-> {
+                try {
+                    String name = sol.getLiteral("name").getString();
+                    String alt = sol.getLiteral("alt").getString();
+                    Model ng = RDFDataMgr.loadModel(new File(exampleDir, alt).toString(), Lang.TTL);
+                    ds.addNamedModel(name, ng);
+                } catch (Exception ex) {  
+                    log.trace("error while loading the default graph default.ttl: " + ex.getMessage());
+                }
+            });
+        } catch (Exception ex) {
+            log.trace("error while loading the dataset configuration file dataset/configuration.ttl: "  + ex.getMessage());
+        }
+        return ds;
     }
 
     void testQuerySerialization() throws Exception {
@@ -100,50 +202,31 @@ public class TestBase {
 //        LOG.debug(q2);
     }
 
-    void testPlanExecution() throws Exception {
-        String query = IOUtils.toString(StreamManager.get().open("query.rqg"), "UTF-8");
-        long start0 = System.currentTimeMillis();
-        long start = start0;
-        SPARQLGenerateQuery q = (SPARQLGenerateQuery) QueryFactory.create(query, SPARQLGenerate.SYNTAX);
-        long now = System.currentTimeMillis();
-        LOG.info("needed " + (now - start) + " to parse query");
-        start = now;
-
-        // create generation plan
-        PlanFactory factory = new PlanFactory();
-        RootPlan plan = factory.create(q);
-        Model output = ModelFactory.createDefaultModel();
-        QuerySolutionMap initialBinding = null;
-
-        now = System.currentTimeMillis();
-        LOG.info("needed " + (now - start) + " to get ready");
-        start = now;
-
-        // execute plan
-        plan.exec(initialBinding, output); 
-
-        now = System.currentTimeMillis();
-        LOG.info("executed plan in " + (now - start));
-        start = now;
-        LOG.info("total needed " + (now - start0));
-
-        // write output
-        String fileName = exampleDir.toString() + "/output.ttl";
-        FileWriter out = new FileWriter(fileName);
+    @Parameters(name = "Test {2}")
+    public static Collection<Object[]> data() {
+        
         try {
-            output.write(out, "TTL");
-        } finally {
-            try {
-                out.close();
-            } catch (IOException closeException) {
-                LOG.error("Error while writing to file");
-            }
-        }
+            Collection<Object[]> data = new ArrayList<Object[]>();
 
-        URI expectedOutputUri = exampleDir.toURI().resolve("expected_output.ttl");
-        Model expectedOutput = RDFDataMgr.loadModel(expectedOutputUri.toString());
-        StringWriter sw = new StringWriter();
-        expectedOutput.write(sw, "TTL");
-        assertTrue(output.isIsomorphicWith(expectedOutput));
+            File tests = new File(TestBase.class.getClassLoader().getResource("").toURI());
+            LOG.trace(tests.getAbsolutePath());
+
+            File[] files = tests.listFiles();
+            Arrays.sort(files);
+            for (File exampleDir : files) {
+                if(!exampleDir.getName().matches(".*" + pattern + ".*")){
+                    continue;
+                }
+                if (exampleDir.isDirectory() && !exampleDir.getName().equals("com")) {
+                    Logger log = LogManager.getLogger(exampleDir.getName());
+                    Object[] fileArg1 = new Object[]{log, exampleDir, exampleDir.getName()};
+                    data.add(fileArg1);
+                }
+            }
+            return data;
+        } catch (URISyntaxException ex) {
+            java.util.logging.Logger.getLogger(TestBase.class.getName()).log(Level.SEVERE, null, ex);
+            return null;
+        }
     }
 }

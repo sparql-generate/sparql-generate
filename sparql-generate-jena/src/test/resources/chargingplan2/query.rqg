@@ -31,11 +31,11 @@ GENERATE {
     GENERATE {
         GENERATE {
             [] a seas:Evaluation ;
-                seas:SystemOfInterest <Charge/{ rqg-fn:XPath(?chargingPlan, "//IdCharge") }> ;
+                seas:SystemOfInterest <Charge/{ rqg-fn:XPath(?chargingPlan, "//IdCharge/text()") }> ;
                 seas:temporalContext [ 
-                   seas:start "{ rqg-fn:XPath(?order, "//DateDebut") }"^^xsd:dateTime ; 
-                   seas:end   "{ rqg-fn:XPath(?order, "//DateFin")   }"^^xsd:dateTime ] ;
-                seas:constantPower ?{xsd:decimal( rqg-fn:XPath(?order, "//Puissance") )}.
+                   seas:start "{ rqg-fn:XPath(?order, "//DateDebut/text()") }"^^xsd:dateTime ; 
+                   seas:end   "{ rqg-fn:XPath(?order, "//DateFin/text()")   }"^^xsd:dateTime ] ;
+                seas:constantPower ?{xsd:decimal( rqg-fn:XPath(?order, "//Puissance/text()") )}.
         } ITERATOR rqg-ite:XPath(?chargingPlan, "//Order") AS ?order .
     } ITERATOR rqg-ite:XPath(?message, "//ChargingPlan") AS ?chargingPlan .
 } 

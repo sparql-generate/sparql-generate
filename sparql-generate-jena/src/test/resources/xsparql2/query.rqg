@@ -12,7 +12,7 @@ GENERATE {
     }
     ITERATOR iter:XPath(?person, "//knows" ) AS ?knows 
     WHERE {
-        BIND( fn:XPath(?knows,"/knows"  ) AS ?knowsPerson )
+        BIND( fn:XPath(?knows,"/knows/text()"  ) AS ?knowsPerson )
         BIND (BNODE(?knowsPerson) AS ?knowsPersonNode)
     } .
 }

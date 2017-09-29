@@ -26,8 +26,9 @@ import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.sparql.core.Var;
 import java.util.Objects;
 import com.github.thesmartenergy.sparql.generate.jena.engine.SourcePlan;
+import com.github.thesmartenergy.sparql.generate.jena.stream.LookUpRequest;
+import com.github.thesmartenergy.sparql.generate.jena.stream.SPARQLGenerateStreamManager;
 import org.apache.jena.atlas.web.TypedInputStream;
-import org.apache.jena.riot.system.stream.StreamManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -107,15 +108,13 @@ public class SourcePlanImpl extends PlanBase implements SourcePlan {
         ensureNotEmpty(variables, values);
         values.replaceAll((BindingHashMapOverwrite value) -> {
             // generate the source URI.
-            String sourceUri = getActualSource(value);
-            String acceptHeader = getAcceptHeader(value);
-            if(acceptHeader != null) {
-                sourceUri = "accept:" + acceptHeader + ":" + sourceUri;
-            }
+            final String sourceUri = getActualSource(value);
+            final String acceptHeader = getAcceptHeader(value);
             try {
-                final TypedInputStream stream = SPARQLGenerate.getStreamManager().open(sourceUri);
+                final LookUpRequest request = new LookUpRequest(sourceUri, acceptHeader);
+                final TypedInputStream stream = SPARQLGenerate.getStreamManager().open(request);
                 if(stream == null) {
-                    LOG.warn("Got nothing when fetching source " + sourceUri);
+                    LOG.warn("Got nothing when fetching source " + sourceUri + " with " + acceptHeader);
                     return new BindingHashMapOverwrite(value, var, null);
                 }
                 final String literal = IOUtils.toString(stream.getInputStream(), "UTF-8");
