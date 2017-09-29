@@ -7,7 +7,7 @@ The general structure of a SPARQL-Generate query is as follows:
 ```
 PREFIX declarations             -- same as SPARQL 1.1
 FROM and FROM NAMED clauses     -- same as SPARQL 1.1
-GNERATE template                -- replaces and extends SPARQL 1.1 CONSTRUCT
+GENERATE template                -- replaces and extends SPARQL 1.1 CONSTRUCT
 ITERATOR, SOURCE, BIND clauses  -- see below
 WHERE clause                    -- same as SPARQL 1.1
 Solution modifiers              -- group by, order by, limit, offset,... same as SPARQL 1.1
