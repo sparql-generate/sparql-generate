@@ -12,6 +12,7 @@ CodeMirror.modeURL = "https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.30.0/m
 //  validate
 
 var valid = true;
+var open = false;
 
 var validate = function() {
 
@@ -26,29 +27,31 @@ var validate = function() {
 
   var names = [];
 
-  if(!queryset_editors[0].queryValid) {
+  if(!defaultquery_editor.queryValid) {
     valid = false;
-    queryset_tags[0].addClass("invalid");
-    queryset_tags[0].children(":first").append(" <span class='invalidmsg'>This query is not valid.</span>");
+    defaultquery_tag.addClass("invalid");
+    defaultquery_tag.children(":first").append(" <span class='invalidmsg'>This query is not valid.</span>");
   }
-  for(var i=0;i<queryset_editors[1].length;i++) {
-    var query = queryset[1][i];
-    var editor = queryset_editors[1][i];
-    var tag = queryset_tags[1][i];
+  for(var i=0;i<namedqueries_editors.length;i++) {
+    var query = namedqueries[i];
+    var editor = namedqueries_editors[i];
+    var tag = namedqueries_tags[i];
 
     if(!editor.queryValid) {
       valid = false;
       tag.addClass("invalid");
       tag.children(":first").append(" <span class='invalidmsg'>This query is not valid.</span>");
     }
-    for(var n of queryset[1]) {
+    for(var n of namedqueries) {
       if(query !== n && query.uri == n.uri && query.mediatype == n.mediatype ) {
+        valid = false;
         tag.addClass("invalid");
         tag.children(":first").append(" <span class='invalidmsg'>Another query has the same URI.</span>");        
       }
     }
     for(var n of documentset) {
       if(query.uri == n.uri && query.mediatype == n.mediatype ) {
+        valid = false;
         tag.addClass("invalid");
         tag.children(":first").append(" <span class='invalidmsg'>A document has the same URI and mediatype 'application/vnd.sparql-generate'.</span>");        
       }
@@ -56,68 +59,87 @@ var validate = function() {
   }
 
   // validating dataset
-  if(!dataset_editors[0].docValid) {
+  if(!defaultgraph_editor.docValid) {
     valid = false;
-    dataset_tags[0].addClass("invalid");
-    dataset_tags[0].children(":first").append(" <span class='invalidmsg'>This graph is not valid.</span>");
+    defaultgraph_tag.addClass("invalid");
+    defaultgraph_tag.children(":first").append(" <span class='invalidmsg'>This graph is not valid.</span>");
   }
-  for(var i=0;i<dataset_editors[1].length;i++) {
-    var graph = dataset[1][i];
-    var editor = dataset_editors[1][i];
-    var tag = dataset_tags[1][i];
+  for(var i=0;i<namedgraphs_editors.length;i++) {
+    var graph = namedgraphs[i];
+    var editor = namedgraphs_editors[i];
+    var tag = namedgraphs_tags[i];
 
-    if(!dataset_editors[1][i].docValid) {
+    if(!namedgraphs_editors[i].docValid) {
       valid = false;
-      dataset_tags[1][i].addClass("invalid");
-      dataset_tags[1][i].children(":first").append(" <span class='invalidmsg'>This graph is not valid.</span>");
+      namedgraphs_tags[i].addClass("invalid");
+      namedgraphs_tags[i].children(":first").append(" <span class='invalidmsg'>This graph is not valid.</span>");
     }
-    for(var n of dataset[1]) {
+    for(var n of namedgraphs) {
       if(graph !== n && graph.uri == n.uri && graph.mediatype == n.mediatype ) {
+        valid = false;
         tag.addClass("invalid");
         tag.children(":first").append(" <span class='invalidmsg'>Another graph has the same URI.</span>");        
       }
     }
     for(var n of documentset) {
       if(graph.uri == n.uri && graph.mediatype == n.mediatype ) {
+        valid = false;
         tag.addClass("invalid");
         tag.children(":first").append(" <span class='invalidmsg'>A document has the same URI and mediatype 'text/turtle'.</span>");        
       }
     }
-
   }
 
   // validating documents
+  console.log("validating documents");
   for(var i=0;i<documentset_editors.length;i++) {
     var doc = documentset[i];
     var editor = documentset_editors[i];
     var tag = documentset_tags[i];
 
+    console.log(doc);
 
     if(!doc.mediatype.match(/\w+\/[-+.\w]+/i)) {
+      valid = false;
       tag.addClass("invalid");
       tag.children(":first").append(" <span class='invalidmsg'>The mediatype is invalid.</span>");        
     }
-    for(var n of queryset[1]) {
+    for(var n of namedqueries) {
       if(doc.uri == n.uri && doc.mediatype == n.mediatype ) {
+        valid = false;
         tag.addClass("invalid");
         tag.children(":first").append(" <span class='invalidmsg'>A query has the same URI.</span>");        
       }
     }
-    for(var n of dataset[1]) {
+    for(var n of namedgraphs) {
       if(doc.uri == n.uri && doc.mediatype == n.mediatype ) {
+        valid = false;
         tag.addClass("invalid");
         tag.children(":first").append(" <span class='invalidmsg'>A graph has the same URI.</span>");        
       }
     }
     for(var n of documentset) {
       if(doc !== n && doc.uri == n.uri && doc.mediatype == n.mediatype ) {
+        valid = false;
         tag.addClass("invalid");
         tag.children(":first").append(" <span class='invalidmsg'>Another document has the same URI and mediatype.</span>");        
       }
     }
   }
 
-  
+  console.log("almost there")
+  if(valid && open) {
+    console.log("there")
+    var msg = {
+        defaultquery: defaultquery_string,
+        namedqueries: namedqueries,
+        defaultgraph: defaultgraph_string,
+        namedgraphs: namedgraphs,
+        documentset: documentset
+    };
+    socket.send(JSON.stringify(msg));
+  }
+
 
 
 }
@@ -129,20 +151,22 @@ var resetErrors = function() {
 
  
 var init = function() {
-  $("#bodyColumn").empty();
-  $("#bodyColumn").append(`
- 
-  <h1>Try SPARQL-Generate</h1>
+  $("form").empty();
+  
+  namedqueries = [],
+  namedqueries_editors = [],
+  namedqueries_tags = [];
+  namedgraphs = [],
+  namedgraphs_editors = [],
+  namedgraphs_tags = [];
+  documentset = [],
+  documentset_editors = [],
+  documentset_tags = [];
 
-  <p> Edit the SPARQL-Generate query, an optional Dataset, and an optional Documentset over which it will be evaluated.</p>
-  <p>See <a href="functions.html">our predefined SPARQL binding functions and SPARQL-Generate iterator functions</a>.</p>
-  <p>You can also <label for="test">load one of the unit tests:</label> <select name="test" id="tests"><option value="---">---</value></select></p>
-
-  <form></form>`);
-  show_queryset();
-  show_dataset();
-  show_documentset();
-  show_result();
+  load_queryset();
+  load_dataset();
+  load_documentset();
+  load_result();
   validate();
 }
 
@@ -154,19 +178,27 @@ var init = function() {
 ///////////////////////////////////////
 // queryset
 
-var update_queryset = function() {
-  localStorage.setItem('queryset', JSON.stringify(queryset));
-}
+var defaultquery_string,
+ defaultquery_tag,
+ defaultquery_editor,
+ namedqueries = [],
+ namedqueries_editors = [],
+ namedqueries_tags = [];
 
-var get_queryset = function() {
-  var queryset_str = localStorage.getItem('queryset');
-  if(queryset_str !== null) {
-    try {
-      return JSON.parse(queryset_str); 
-    }
-    catch(err){}
-  }
-  queryset = [ `PREFIX sgiter: <http://w3id.org/sparql-generate/iter/>
+var load_queryset = function() {
+
+  // fieldset for queries
+  $("form").append(`<fieldset id="queryset">
+    <legend>SPARQL-Generate Queries</legend>
+    <div id="queryset_drop_zone" class="drop_zone">
+      <strong>Click here to add a new named query, you can also drag SPARQL-Generate documents to load them ...</strong>
+    </div>
+  </fieldset>`);
+
+  // load default query
+  defaultquery_string = localStorage.getItem('defaultquery');
+  if(defaultquery_string == null) {
+    defaultquery_string = `PREFIX sgiter: <http://w3id.org/sparql-generate/iter/>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 PREFIX sgfn: <http://w3id.org/sparql-generate/fn/> 
 LOOK UP <https://ci.mines-stetienne.fr/sparql-generate/cities.json> AS ?message
@@ -180,39 +212,56 @@ CONSTRUCT {
   CONSTRUCT {
     <city/{ ?cityName }> <{ ?key }> "{ sgfn:JSONPath( ?message , "$.['{ ?cityName }']['{ ?key }']" )  }"@en . 
   } .
-}` , [] ];
-  update_queryset();
-  return queryset; 
-}
-
-var queryset = get_queryset() , queryset_editors, queryset_tags; // queryset and editors
-
-var show_queryset = function() {
-
-  $("form").append(`<fieldset id="queryset">
-      <legend>SPARQL-Generate Queries</legend>
-      <div id="queryset_drop_zone" class="drop_zone">
-        <strong>Click here to add a new named query, you can also drag SPARQL-Generate documents to load them ...</strong>
-      </div>
-    </fieldset>`);
-
-  queryset_editors = [];
-  queryset_editors[1] = [];
-  queryset_tags = [];
-  queryset_tags[1] = [];
-
-  // show default
-  show_default_query();
-  for(var i=0; i<queryset[1].length; i++) {
-    show_named_query(queryset[1][i]);
+}`;
+    localStorage.setItem('defaultquery', defaultquery_string);
   }
 
+  // show default query
+  defaultquery_tag = $(`<fieldset id='default_query'>
+      <label>Default query</label>
+      <textarea></textarea>
+    </fieldset>`)
+  .insertBefore($("#queryset_drop_zone"));
+
+  defaultquery_editor = YASQE.fromTextArea($('#default_query textarea')[0], {
+    createShareLink: false,
+    lineNumbers: true
+  });
+  defaultquery_editor.setValue(defaultquery_string);
+  defaultquery_editor.on("change", function(){
+      defaultquery_string = defaultquery_editor.getValue();
+      localStorage.setItem('defaultquery', defaultquery_string);
+      validate();
+    }
+  );
+
+  // load named queries
+  namedqueries = localStorage.getItem('namedqueries');
+  if(namedqueries !== null) {
+    try {
+      namedqueries = JSON.parse(namedqueries); 
+    }
+    catch(err){
+      namedqueries = [];
+      localStorage.setItem('namedqueries', JSON.stringify(namedqueries));
+    }
+  } else {
+    namedqueries = [];
+    localStorage.setItem('namedqueries', JSON.stringify(namedqueries));
+  }
+
+  // show named queries
+  for(var i=0; i<namedqueries.length; i++) {
+    show_namedquery(namedqueries[i]);
+  }
+
+  // activate drop zone
   $("#queryset_drop_zone")
   .click(function() {
     var nq = {
-      uri: "http://example.org/query#" + queryset[1].length,
+      uri: "http://example.org/query#" + namedqueries.length,
       mediatype: "application/vnd.sparql-generate",
-      query: `PREFIX sgiter: <http://w3id.org/sparql-generate/iter/>
+      string: `PREFIX sgiter: <http://w3id.org/sparql-generate/iter/>
 PREFIX sgfn: <http://w3id.org/sparql-generate/fn/> 
 
 LOOK UP <> AS ?message
@@ -220,9 +269,9 @@ ITERATE sgiter:XPath( ?message ) AS ?var
 WHEREVER {  } 
 CONSTRUCT {  }`
     };
-    queryset[1].push(nq);
-    update_queryset();
-    show_named_query(nq);
+    namedqueries.push(nq);
+    localStorage.setItem('namedqueries', JSON.stringify(namedqueries));
+    show_namedquery(nq);
     validate();
   })
   .on('drop', function(ev) {
@@ -239,11 +288,11 @@ CONSTRUCT {  }`
             var nq = {
               uri: f.name,
               mediatype: "application/vnd.sparql-generate",
-              query: event.target.result
+              string: event.target.result
             };
-            queryset[1].push(nq);
-            update_queryset();
-            show_named_query(nq);
+            namedqueries.push(nq);
+            localStorage.setItem('namedqueries', JSON.stringify(namedqueries));
+            show_namedquery(nq);
             validate();
           }})(i,f);
           reader.readAsText(f);
@@ -259,9 +308,9 @@ CONSTRUCT {  }`
             mediatype: "application/vnd.sparql-generate",
             query: event.target.result
           };
-          queryset[1].push(nq);
-          update_queryset();
-          show_named_query(nq);
+          namedqueries.push(nq);
+          localStorage.setItem('namedqueries', JSON.stringify(namedqueries));
+          show_namedquery(nq);
           validate();
         }})(i,dt.files[i]);
         reader.readAsText(dt.files[i]);
@@ -273,27 +322,7 @@ CONSTRUCT {  }`
   });  
 }
 
-var show_default_query = function() {
-  queryset_tags[0] = $(`<fieldset id='default_query'>
-      <label>Default query</label>
-      <textarea></textarea>
-    </fieldset>`)
-  .insertBefore($("#queryset_drop_zone"));
-
-  queryset_editors[0] = YASQE.fromTextArea($('#default_query textarea')[0], {
-    createShareLink: false,
-    lineNumbers: true
-  });
-  queryset_editors[0].setValue(queryset[0]);
-  queryset_editors[0].on("change", function(){
-      queryset[0] = queryset_editors[0].getValue();
-      update_queryset();
-      validate();
-    }
-  );
-}
-
-var show_named_query = function(nq) {
+var show_namedquery = function(nq) {
   var tag = $("<fieldset>")
     .attr("class","named_query")
     .append($("<label>")
@@ -311,7 +340,7 @@ var show_named_query = function(nq) {
 
   tag.find(".name").on('blur keyup paste', [nq,tag.find(".name")], function(event) {
       event.data[0].uri = event.data[1].text();
-      update_queryset();
+      localStorage.setItem('namedqueries', JSON.stringify(namedqueries));
       validate();
     }
   );
@@ -331,15 +360,15 @@ var show_named_query = function(nq) {
   {
     lineNumbers: true,
   });
-  yasqe.setValue(nq.query);
+  yasqe.setValue(nq.string);
   yasqe.on("change", function(){
-    nq.query = yasqe.getValue();
-    update_queryset();
+    nq.string = yasqe.getValue();
+    localStorage.setItem('namedqueries', JSON.stringify(namedqueries));
     validate();
   });
 
-  queryset_editors[1].push(yasqe);
-  queryset_tags[1].push(tag);
+  namedqueries_editors.push(yasqe);
+  namedqueries_tags.push(tag);
   
   tag.find("label").next("div").hide();
 
@@ -347,15 +376,15 @@ var show_named_query = function(nq) {
     if(!confirm("Permanently delete this named query?")) {
       return;
     }
-    for(var i=0;i<queryset[1].length;i++) {
-      if(nq == queryset[1][i]) {
-        queryset[1].splice(i,1);
-        queryset_editors[1].splice(i,1);
-        queryset_tags[1].splice(i,1);
+    for(var i=0;i<namedqueries.length;i++) {
+      if(nq == namedqueries[i]) {
+        namedqueries.splice(i,1);
+        namedqueries_editors.splice(i,1);
+        namedqueries_tags.splice(i,1);
       }
     }
     tag.remove();
-    update_queryset();
+    localStorage.setItem('namedqueries', JSON.stringify(namedqueries));
     validate();
   }})(nq, yasqe, tag));
 
@@ -370,27 +399,16 @@ var show_named_query = function(nq) {
 ///////////////////////////////////////
 // dataset
 
-var update_dataset = function() {
-  localStorage.setItem('dataset', JSON.stringify(dataset));
-}
+var defaultgraph_string,
+ defaultgraph_tag,
+ defaultgraph_editor,
+ namedgraphs = [],
+ namedgraphs_editors = [],
+ namedgraphs_tags = [];
 
-var get_dataset = function() {
-  var dataset_str = localStorage.getItem('dataset');
-  if(dataset_str !== null) {
-    try {
-      return JSON.parse(dataset_str); 
-    }
-    catch(err){}
-  }
-  dataset = [ "<s> <p> <o> ." , [] ];
-  update_dataset();
-  return dataset; 
-}
-
-var dataset = get_dataset() , dataset_editors, dataset_tags; // dataset and editors
-
-var show_dataset = function() {
-
+var load_dataset = function() {
+ 
+  // fieldset for dataset
   $("form").append(`<fieldset id="dataset">
     <legend>Dataset</legend>
     <div id="dataset_drop_zone" class="drop_zone">
@@ -398,27 +416,73 @@ var show_dataset = function() {
     </div>
   </fieldset>`);
 
-  dataset_editors = [];
-  dataset_editors[1] = [];
-  dataset_tags = [];
-  dataset_tags[1] = [];
+  defaultgraph_string = localStorage.getItem('defaultgraph');
+  if(defaultgraph_string == null) {
+    defaultgraph_string = "";
+    localStorage.setItem('defaultgraph', defaultgraph_string);
+  }
 
-  // show default
-  show_default_graph();
-  for(var i=0; i<dataset[1].length; i++) {
-    show_named_graph(dataset[1][i]);
+  // show default graph
+  defaultgraph_tag = $(`<fieldset id='default_graph'>
+      <label>Default graph (<a class='edit'>edit</a><a class='h' style='display:none'>hide</a>)</label>
+      <textarea></textarea>
+    </fieldset>`)
+  .insertBefore($("#dataset_drop_zone"));
+
+  defaultgraph_editor = YATE.fromTextArea($('#default_graph textarea')[0], {
+    createShareLink: false,
+    lineNumbers: true
+  });
+  defaultgraph_editor.setValue(defaultgraph_string);
+  defaultgraph_editor.on("change", function(){
+      defaultgraph_string = defaultgraph_editor.getValue();
+      localStorage.setItem('defaultgraph', defaultgraph_string);
+      validate();
+    }
+  );
+
+  $("#default_graph").find(".edit").click(function() {
+    $("#default_graph").find(".edit").hide();
+    $("#default_graph").find(".h").show();
+    $("#default_graph label").next("div").show();
+  });
+  $("#default_graph").find(".h").click(function() {
+    $("#default_graph").find(".edit").show();
+    $("#default_graph").find(".h").hide();
+    $("#default_graph label").next("div").hide();
+  });
+  defaultgraph_tag.find("label").next("div").hide();
+
+  // load named graphs
+  namedgraphs = localStorage.getItem('namedgraphs');
+  if(namedgraphs !== null) {
+    try {
+      namedgraphs = JSON.parse(namedgraphs); 
+    }
+    catch(err){
+      namedgraphs = [];
+      localStorage.setItem('namedgraphs', JSON.stringify(namedgraphs));
+    }
+  } else {
+    namedgraphs = [];
+    localStorage.setItem('namedgraphs', JSON.stringify(namedgraphs));
+  }
+
+  // show named graphs
+  for(var i=0; i<namedgraphs.length; i++) {
+    show_namedgraph(namedgraphs[i]);
   }
 
   $("#dataset_drop_zone")
   .click(function() {
     var ng = {
-      uri: "http://example.org/graph#" + dataset[1].length,
+      uri: "http://example.org/graph#" + namedgraphs.length,
       mediatype: "text/turtle",
-      graph: "<s> <p> <o> ."
+      string: ""
     };
-    dataset[1].push(ng);
-    update_dataset();
-    show_named_graph(ng);
+    namedgraphs.push(ng);
+    localStorage.setItem('namedgraphs', JSON.stringify(namedgraphs));
+    show_namedgraph(ng);
     validate();
   })
   .on('drop', function(ev) {
@@ -435,11 +499,11 @@ var show_dataset = function() {
             var ng = {
               uri: f.name,
               mediatype: "text/turtle",
-              graph: event.target.result
+              string: event.target.result
             };
-            dataset[1].push(ng);
-            update_dataset();
-            show_named_graph(ng);
+            namedgraphs.push(ng);
+            localStorage.setItem('namedgraphs', JSON.stringify(namedgraphs));
+            show_namedgraph(ng);
             validate();
           }})(i,f);
           reader.readAsText(f);
@@ -453,11 +517,11 @@ var show_dataset = function() {
           var ng = {
             uri: f.name,
             mediatype: "text/turtle",
-            graph: event.target.result
+            string: event.target.result
           };
-          dataset[1].push(ng);
-          update_dataset();
-          show_named_graph(ng);
+          namedgraphs.push(ng);
+          localStorage.setItem('namedgraphs', JSON.stringify(namedgraphs));
+          show_namedgraph(ng);
           validate();
         }})(i,dt.files[i]);
         reader.readAsText(dt.files[i]);
@@ -469,41 +533,7 @@ var show_dataset = function() {
   });  
 }
 
-var show_default_graph = function() {
-  var tag = $(`<fieldset id='default_graph'>
-      <label>Default graph (<a class='edit'>edit</a><a class='h' style='display:none'>hide</a>)</label>
-      <textarea></textarea>
-    </fieldset>`)
-  .insertBefore($("#dataset_drop_zone"));
-
-  dataset_tags[0] = tag;
-  dataset_editors[0] = YATE.fromTextArea($('#default_graph textarea')[0], {
-    createShareLink: false,
-    lineNumbers: true
-  });
-  dataset_editors[0].setValue(dataset[0]);
-  dataset_editors[0].on("change", function(){
-      dataset[0] = dataset_editors[0].getValue();
-      update_dataset();
-      validate();
-    }
-  );
-
-  $("#default_graph").find(".edit").click(function() {
-    $("#default_graph").find(".edit").hide();
-    $("#default_graph").find(".h").show();
-    $("#default_graph label").next("div").show();
-  });
-  $("#default_graph").find(".h").click(function() {
-    $("#default_graph").find(".edit").show();
-    $("#default_graph").find(".h").hide();
-    $("#default_graph label").next("div").hide();
-  });
-  tag.find("label").next("div").hide();
-
-}
-
-var show_named_graph = function(ng) {
+var show_namedgraph = function(ng) {
   var tag = $("<fieldset>")
     .attr("class","named_graph")
     .append($("<label>")
@@ -521,7 +551,7 @@ var show_named_graph = function(ng) {
 
   tag.find(".name").on('blur keyup paste', [ng,tag.find(".name")], function(event) {
       event.data[0].uri = event.data[1].text();
-      update_dataset();
+      localStorage.setItem('namedgraphs', JSON.stringify(namedgraphs));
       validate();
     }
   );
@@ -541,15 +571,15 @@ var show_named_graph = function(ng) {
   {
     lineNumbers: true,
   });
-  yate.setValue(ng.graph);
+  yate.setValue(ng.string);
   yate.on("change", function(){
-    ng.graph = yate.getValue();
-    update_dataset();
+    ng.string = yate.getValue();
+    localStorage.setItem('namedgraphs', JSON.stringify(namedgraphs));
     validate();
   });
 
-  dataset_editors[1].push(yate);
-  dataset_tags[1].push(tag);
+  namedgraphs_editors.push(yate);
+  namedgraphs_tags.push(tag);
 
   tag.find("label").next("div").hide();
 
@@ -557,15 +587,15 @@ var show_named_graph = function(ng) {
     if(!confirm("Permanently delete this named graph?")) {
       return;
     }
-    for(var i=0;i<dataset[1].length;i++) {
-      if(ng == dataset[1][i]) {
-        dataset[1].splice(i,1);
-        dataset_editors[1].splice(i,1);
-        dataset_tags[1].splice(i,1);
+    for(var i=0;i<namedgraphs.length;i++) {
+      if(ng == namedgraphs[i]) {
+        namedgraphs.splice(i,1);
+        namedgraphs_editors.splice(i,1);
+        namedgraphs_tags.splice(i,1);
       }
     }
     tag.remove();
-    update_dataset();
+    localStorage.setItem('namedgraphs', JSON.stringify(namedgraphs));
     validate();
   }})(ng, yate, tag));
 }
@@ -579,27 +609,14 @@ var show_named_graph = function(ng) {
 ///////////////////////////////////////
 //  documentset
 
-var update_documentset = function() {
-  localStorage.setItem('documentset', JSON.stringify(documentset));
-}
+var documentset,
+ documentset_editors = [],
+ documentset_tags = [];
 
-var get_documentset = function() {
-  var documentset_str = localStorage.getItem('documentset');
-  if(documentset_str !== null) {
-    try {
-      return JSON.parse(documentset_str); 
-    }
-    catch(err){}
-  }
-  documentset = [];
-  update_documentset();
-  return documentset; 
-}
 
-var documentset = get_documentset() , documentset_editors , documentset_tags; // documentset and editors
+var load_documentset = function() {
 
-var show_documentset = function() {
- 
+  // fieldset for documents
  $("form").append(`<fieldset id="documentset_list">
     <legend>Documentset</legend>
     <div id="documentset_drop_zone" class="drop_zone">
@@ -607,23 +624,38 @@ var show_documentset = function() {
     </div>
   </fieldset>`);
 
-  documentset_editors = [];
-  documentset_tags = [];
-
-  for(var i=0; i<documentset.length; i++) {
-    show_named_document(documentset[i]);
+  // load documentset 
+  documentset = localStorage.getItem('documentset');
+  if(documentset !== null) {
+    try {
+      documentset = JSON.parse(documentset); 
+    }
+    catch(err){
+      documentset = [];
+      localStorage.setItem('documentset', JSON.stringify(documentset));
+    }
+  } else {
+    documentset = [];
+    localStorage.setItem('documentset', JSON.stringify(documentset));
   }
 
+  // show named documents
+  for(var i=0; i<documentset.length; i++) {
+    show_nameddocument(documentset[i]);
+  }
+
+  // activate drop zone
   $("#documentset_drop_zone")
   .click(function() {
     var doc = {
       uri: "http://example.org/document#" + documentset.length,
       mediatype: "text/plain",
-      document: ""
+      string: ""
     };
     documentset.push(doc);
-    update_documentset();
-    show_named_document(doc);
+    localStorage.setItem('documentset', JSON.stringify(documentset));
+    show_nameddocument(doc);
+    validate();
   })
   .on('drop', function(ev) {
     ev.preventDefault();
@@ -639,11 +671,12 @@ var show_documentset = function() {
             var doc = {
               uri: f.name,
               mediatype: CodeMirror.findModeByFileName(f.name).mime,
-              document: event.target.result
+              string: event.target.result
             };
             documentset.push(doc);
-            update_documentset();
-            show_named_document(doc);
+            localStorage.setItem('documentset', JSON.stringify(documentset));
+            show_nameddocument(doc);
+            validate();
           }})(i,f);
           reader.readAsText(f);
         }
@@ -656,11 +689,12 @@ var show_documentset = function() {
           var doc = {
             uri: f.name,
             mediatype: CodeMirror.findModeByFileName(f.name).mime,
-            document: event.target.result
+            string: event.target.result
           };
           documentset.push(doc);
-          update_documentset();
-          show_named_document(doc);
+          localStorage.setItem('documentset', JSON.stringify(documentset));
+          show_nameddocument(doc);
+          validate();
         }})(i,dt.files[i]);
         reader.readAsText(dt.files[i]);
       }  
@@ -671,7 +705,7 @@ var show_documentset = function() {
   });  
 }
 
-var show_named_document = function(doc) {
+var show_nameddocument = function(doc) {
   var tag = $("<fieldset>")
     .attr("class","named_document")
     .append($("<label>")
@@ -696,7 +730,7 @@ var show_named_document = function(doc) {
 
   tag.find(".name").on('blur keyup paste', [doc,tag.find(".name")], function(event) {
       event.data[0].uri = event.data[1].text();
-      update_documentset();
+      localStorage.setItem('documentset', JSON.stringify(documentset));
       validate();
     }
   );
@@ -716,10 +750,11 @@ var show_named_document = function(doc) {
   {
     lineNumbers: true,
   });
-  editor.setValue(doc.document);
+  editor.setValue(doc.string);
   editor.on("change", function(){
-    doc.document = editor.getValue();
-    update_documentset();
+    doc.string = editor.getValue();
+    localStorage.setItem('documentset', JSON.stringify(documentset));
+    validate();
   });
   var info = CodeMirror.findModeByMIME(doc.mediatype);
   if (info && info.mode) {
@@ -744,7 +779,7 @@ var show_named_document = function(doc) {
       }
     }
     tag.remove();
-    update_documentset();
+    localStorage.setItem('documentset', JSON.stringify(documentset));
     validate();
   };})(doc, editor, tag));
 
@@ -756,7 +791,7 @@ var show_named_document = function(doc) {
         editor.setOption("mode", doc.mediatype);
         CodeMirror.autoLoadMode(editor, info.mode);
       }
-      update_documentset();
+      localStorage.setItem('documentset', JSON.stringify(documentset));
       validate();
     };})(doc,editor,tag.find(".media")));
 
@@ -771,7 +806,7 @@ var show_named_document = function(doc) {
 
 var result;
 
-var show_result = function() {
+var load_result = function() {
 
  $("form").append(`<fieldset id="result_list">
     <legend>Result</legend>
@@ -822,89 +857,55 @@ var load_tests = function() {
 var load_test = function(id) {
   $.getJSON("api/list/"+id, function( data ) {
         console.log(data);
-        queryset = data.queryset;
-        dataset = data.dataset;
-        documentset = data.documentset;
+        localStorage.setItem('defaultquery', data.defaultquery);
+        localStorage.setItem('namedqueries', JSON.stringify(data.namedqueries));
+        localStorage.setItem('defaultgraph', data.defaultgraph);
+        localStorage.setItem('namedgraphs', JSON.stringify(data.namedgraphs));
+        localStorage.setItem('documentset', JSON.stringify(data.documentset));
         init();
-
-          // var data = http.responseText.split("**********");
-          // yasqe.setValue(data[0]);
-          // data.splice(0,1);
-          // var documents = new Array;
-          // var j = 0;
-          // for(var i = 0 ; i<data.length-1 ;i++ ) {
-          //     var message = data[i].split("%%%%%%%%%%");
-          //     if( !message[0].endsWith("query") && !message[0].endsWith("expected_output")) {
-          //         documents[j]={"uri":message[0], "document":message[1]};
-          //         j++;
-          //     }
-          // }
-          // localStorage.setItem('documents',JSON.stringify(documents));
-          // show_query();
-          // show_documents();
       });
   
   $("#tabs").tabs("option", "active", 0);
 }
  
 $(document).ready(function() {
+
+  $("#bodyColumn").empty();
+  $("#bodyColumn").append(`
+ 
+  <h1>Try SPARQL-Generate</h1>
+
+  <p> Edit the SPARQL-Generate query, an optional Dataset, and an optional Documentset over which it will be evaluated.</p>
+  <p>See <a href="functions.html">our predefined SPARQL binding functions and SPARQL-Generate iterator functions</a>.</p>
+  <p>You can also <label for="test">load one of the unit tests:</label> <select name="test" id="tests"><option value="---">---</value></select></p>
+
+  <form></form>`);
+
   init();
   load_tests();
+
+  var websocketurl = "wss://" + window.location.hostname + (window.location.port!="" ? ":" + window.location.port : "") + "/sparql-generate/transformStream";
+  socket = new WebSocket(websocketurl);
  
-         
-    $("#generate").click(function() {
-        var websocketurl = "wss://" + window.location.hostname + (window.location.port!="" ? ":" + window.location.port : "") + window.location.pathname + "transformStream";
- 
-        var exampleSocket = new WebSocket(websocketurl);
-         
-        exampleSocket.onopen = function (event) {
-            var msg = {
-                type: "message",
-                query: "hello query",
-                queryurl: "hello query",
-                defaultGraph: " ",
-                documentset: { "one" : "onevalue" , "two": "twovalue"}
-            };
-            exampleSocket.send(JSON.stringify(msg));
- 
- 
-        };
-         
-        exampleSocket.onmessage = function (event) {
-            console.log(event.data);
-        }
-         
-        exampleSocket.onclose = function (event) {
-            console.log("closed");
-        }
- 
-         
-//        var http = new XMLHttpRequest();
-//        var url = "api/transform";
-//        http.open("POST", url, true);
-//        
-//        params = "";
-//        params += "query=" + encodeURIComponent(yasqe.getValue());
-//        params += "&documentset=" + encodeURIComponent(JSON.stringify(get_documentset()));
-//
-//        //Send the proper header information along with the request
-//        http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-//        http.setRequestHeader("Accept", "application/json");
-//
-//        http.onreadystatechange = function() {//Call a function when the state changes.
-//            if(http.readyState == 4) {
-//                response = JSON.parse(http.responseText);
-//                console.log(response);
-//                yate.setValue(response.output);
-//                response.log = response.log.replace(/</g,"&lt;");
-//                response.log = response.log.replace(/>/g,"&gt;");
-//                
-//                $("#log").html(response.log);
-//            }
-//        }
-//        // https://github.com/thesmartenergy/sparql-generate/issues/new?title=unexpected%20output&body=urlencoded%20log%20trace
-//        yate.setValue("pending result...");
-//        http.send(params);
-    });    
-     
+  socket.onopen = function (event) {
+    open = true;
+    validate();
+  };
+   
+  socket.onmessage = function (event) {
+      console.log(event.data);
+      if(event.data == "clear") {
+        result.setValue("");
+        $("#log").empty();
+      } else {
+        var data = JSON.parse(event.data);
+        result.setValue(result.getValue() + data.result);       
+        $("#log").append(data.log);
+      }
+  }
+   
+  socket.onclose = function (event) {
+      console.log("closed");
+  }
+
 });

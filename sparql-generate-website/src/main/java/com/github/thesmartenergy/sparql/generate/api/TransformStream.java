@@ -15,21 +15,52 @@
  */
 package com.github.thesmartenergy.sparql.generate.api;
 
+import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
+import com.github.thesmartenergy.sparql.generate.jena.engine.PlanFactory;
+import com.github.thesmartenergy.sparql.generate.jena.engine.RootPlan;
+import com.github.thesmartenergy.sparql.generate.jena.query.SPARQLGenerateQuery;
+import com.github.thesmartenergy.sparql.generate.jena.stream.LocatorStringMap;
+import com.github.thesmartenergy.sparql.generate.jena.stream.SPARQLGenerateStreamManager;
 import com.google.gson.Gson;
+import com.jayway.jsonpath.Option;
+import com.jayway.jsonpath.spi.json.JacksonJsonProvider;
+import com.jayway.jsonpath.spi.json.JsonProvider;
+import com.jayway.jsonpath.spi.mapper.JacksonMappingProvider;
+import com.jayway.jsonpath.spi.mapper.MappingProvider;
 import java.io.IOException;
-import java.util.Map;
+import java.io.StringWriter;
+import java.util.EnumSet;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.PostConstruct;
-import javax.enterprise.context.RequestScoped;
 import javax.websocket.OnClose;
-import javax.websocket.OnError;
 import javax.websocket.OnMessage;
 import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
+import org.apache.commons.io.IOUtils;
+import org.apache.jena.graph.Triple;
+import org.apache.jena.query.Dataset;
+import org.apache.jena.query.DatasetFactory;
+import org.apache.jena.query.QueryFactory;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.riot.Lang;
+import org.apache.jena.riot.RDFDataMgr;
+import org.apache.jena.riot.system.StreamRDF;
+import org.apache.jena.shared.PrefixMapping;
+import org.apache.jena.sparql.core.Quad;
+import org.apache.jena.sparql.serializer.SerializationContext;
+import org.apache.jena.sparql.util.FmtUtils;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.Appender;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.appender.WriterAppender;
+import org.apache.logging.log4j.core.config.LoggerConfig;
+import org.apache.logging.log4j.core.layout.PatternLayout;
 
 /**
  *
@@ -39,193 +70,202 @@ import org.apache.logging.log4j.Logger;
 public class TransformStream {
 
     private static final Logger LOG = LogManager.getLogger(TransformStream.class);
+    private Appender appender;
+    private String appenderName;
     private static long MAX_DURATION = TimeUnit.MILLISECONDS.convert(1, TimeUnit.MINUTES);
     private static int MAX_TRIPLES = 5000;
-
-    private TransformUtils utils;
+    private static String base = "http://example.org/";
+    private StringWriter swLog;
 
     @PostConstruct
     private void postConstruct() {
-        utils = new TransformUtils(UUID.randomUUID().toString(), LOG);
-        System.out.println("postconstruct " + utils);
+        appenderName = UUID.randomUUID().toString();
     }
 
     @OnOpen
     public void open(Session session) {
-        System.out.println("Established connection");
-        LOG.info("Established connection");
+        swLog = setLogger(null);
+        LOG.info("Establishing connection");
     }
 
     @OnClose
     public void close(Session session) {
         LOG.info("Closing connection");
+        removeAppender();
     }
 
-    	
     @OnMessage
     public void handleMessage(String message, Session session) throws IOException, InterruptedException {
+        Dataset dataset = DatasetFactory.create();
+        LocatorStringMap loc = new LocatorStringMap();
+        String defaultquery;
+        try {
+            Request request = new Gson().fromJson(message, Request.class);
 
-//		
-//        // Print the client message for testing purposes
-//        System.out.println("Received: " + message);
-//
-//        // Send the first message to the client
-//        session.getBasicRemote().sendText("This is the first server message");
-//
-//        // Send 3 messages to the client every 5 seconds
-//        int sentMessages = 0;
-//        while(sentMessages < 3){
-//                Thread.sleep(5000);
-//                session.getBasicRemote().
-//                        sendText("This is an intermediate server message. Count: " 
-//                                + sentMessages);
-//                sentMessages++;
-//        }
-//
-//        // Send a final message to the client
-//        session.getBasicRemote().sendText("This is the last server message");
-        
-        LOG.info("Received: " + message);
+            defaultquery = request.defaultquery;
 
-        Map<String, Object> document = (new Gson()).fromJson(message, Map.class);
-        String query, queryurl, defaultGraph, logLevel;
-        Map<String, Object> documentset;
-        if (document != null ) {
-            query = (String) document.getOrDefault("query", "");
-            queryurl = (String) document.getOrDefault("queryurl", "");
-            defaultGraph = (String) document.getOrDefault("defaultGraph", "");
-            logLevel = (String) document.getOrDefault("logLevel", "warn"); 
-            documentset = (Map<String, Object>) document.get("documentset");  
-        } 
+            request.namedqueries.forEach((nq) -> {
+                loc.put(nq.uri, nq.string, nq.mediatype);
+            });
+            Model g = ModelFactory.createDefaultModel();
+            RDFDataMgr.read(g, IOUtils.toInputStream(request.defaultgraph, "UTF-8"), base, Lang.TTL);
+            dataset.setDefaultModel(g);
 
-        int sentMessages = 0; 
-        while (sentMessages < 3) {
-            Thread.sleep(5000);
-            session.getBasicRemote().sendText("This is an intermediate server message. Count: " + sentMessages);
-            sentMessages++;
+            request.namedgraphs.forEach((ng) -> {
+                Model model = ModelFactory.createDefaultModel();
+                try {
+                    RDFDataMgr.read(model, IOUtils.toInputStream(ng.string, "UTF-8"), base, Lang.TTL);
+                } catch (IOException ex) {
+                    LOG.warn("error while parsing graph " + ng.uri, ex);
+                }
+                dataset.addNamedModel(ng.uri, model);
+            });
+
+            request.documentset.forEach((doc) -> {
+                loc.put(doc.uri, doc.string, doc.mediatype);
+            });
+
+            SPARQLGenerateStreamManager sm = SPARQLGenerateStreamManager.makeStreamManager(loc);
+            SPARQLGenerate.setStreamManager(sm);
+        } catch (Exception ex) {
+            System.out.println("error while reading parameters: " + ex.getMessage());
+            return;
         }
-          
-        // Send a final message to the client
-        session.getBasicRemote().sendText("This is the last server message");
-        
-        Thread.sleep(5000);
-        session.close();
 
-//            for (int i = 0; i < documents.size(); i++) {
-//                StringMap document = (StringMap) documents.get(i);
-//                String uri = (String) document.get("uri");
-//                String doc = (String) document.get("document");
-//                locator.put(uri, doc);
-//                log.trace("with document: " + uri + " = " + doc);
-//            }
-//        }
-//        SPARQLGenerate.resetStreamManager(locator);
-//        
-//        new Gson()/
-//        @DefaultValue("") @FormParam("query") String query,
-//            @DefaultValue("") @FormParam("queryurl") String queryurl,
-//            @DefaultValue("") @FormParam("defaultGraph") String defaultGraph,
-//            @DefaultValue("") @FormParam("documentset") String documentset,
-//            @DefaultValue("warn") @FormParam("logLevel") String logLevel
-//        
-//        
-//        session.getQueryString()
-//        
-//        if (query.equals("") && queryurl.equals("")) {
-//            return Response.status(Response.Status.BAD_REQUEST).entity("At least one of query or queryurl query parameters must be set.").build();
-//        }
-//        if (!queryurl.equals("") && !query.equals("")) {
-//            return Response.status(Response.Status.BAD_REQUEST).entity("At most one of query or queryurl query parameters must be set.").build();
-//        }
-//               
-//
-//        final StringWriter swLog = utils.setLogger(logLevel);
-//
-//        try {
-//            utils.setStreamManager(documentset);
-//        } catch (Exception ex) {
-//            LOG.error("Error while processing the documentset", ex);
-//            return createResponse(Response.Status.BAD_REQUEST, null, swLog);
-//        }
-//
-//        final StringWriter swOut = new StringWriter();
-//        try {
-//            if (!queryurl.equals("")) {
-//                query = IOUtils.toString(StreamManager.get().open(queryurl), "UTF-8");
-//            }
-//        } catch (IOException | NullPointerException ex) {
-//            LOG.error("Error while loading the query", ex);
-//            return createResponse(Response.Status.INTERNAL_SERVER_ERROR, null, swLog);
-//        }
-//
-//        final Model inputModel = utils.setInputModel(defaultGraph);
-//
-//        final RootPlan plan;
-//        try {
-//            plan = PlanFactory.create(query);
-//        } catch (Exception e) {
-//            LOG.error("Exception while processing the request", e);
-//            return createResponse(Response.Status.BAD_REQUEST, swOut, swLog);
-//        }
-//
-//        return execFull(plan, inputModel, swOut, swLog);
-//        
-//        
-//
-//        final long startDate = (new Date()).getTime();
-//
-//        try {
-//            plan.exec(inputModel, new MyStreamRDF());
-//
-//            return createResponse(Response.Status.OK, swOut, swLog);
-//
-//        } catch (Exception ex) {
-//            LOG.error("Exception while creating",)
-//        }
-//        removeAppender();
-//        return Response.ok(status(status)
-//                .entity(GSON.toJson(response))
-//                .type("application/json")
-//                .build();
+        SPARQLGenerateQuery q = (SPARQLGenerateQuery) QueryFactory.create(defaultquery, SPARQLGenerate.SYNTAX);
+        RootPlan plan = PlanFactory.create(q);
+
+        StreamRDF outputStream = new WebSocketRDF(session, swLog, q.getPrefixMapping());
+        outputStream.start();
+        plan.exec(dataset, outputStream);
+        outputStream.finish();
     }
 
-//
-//    private static final class MyStreamRDF implements StreamRDF {
-//        
-//        PrefixMapping pm = PrefixMapping.Standard;        
-//        final Map<String, String> response= new HashMap<>();
-//
-//        @Override
-//        public void start() {
-//            LOG.trace("Starting streaming.");
+    private static class WebSocketRDF implements StreamRDF {
+
+        private final Session session;
+        private final StringWriter swLog;
+        private final PrefixMapping pm;
+        private final SerializationContext context;
+
+        public WebSocketRDF(Session session, StringWriter swLog, PrefixMapping pm) {
+            this.session = session;
+            this.swLog = swLog;
+            this.pm = pm;
+            context = new SerializationContext(pm);
+        }
+
+        @Override
+        public void start() {
+            try {
+                session.getBasicRemote().sendText("clear");
+            } catch (IOException ex) {
+                LOG.error("IOException ", ex);
+            }
+        }
+
+        @Override
+        public void base(String string) {
+            try {
+                session.getBasicRemote().sendText(new Gson().toJson(new Response("", "@base <" + string + ">\n")));
+            } catch (IOException ex) {
+                LOG.error("IOException ", ex);
+            }
+        }
+
+        @Override
+        public void prefix(String prefix, String uri) {
+            pm.setNsPrefix(prefix, uri);
+            StringBuilder sb = new StringBuilder();
+            sb.append("@Prefix ").append(prefix).append(": <").append(uri).append("> .\n");
+            try {
+                session.getBasicRemote().sendText(new Gson().toJson(new Response("", sb.toString())));
+            } catch (IOException ex) {
+                LOG.error("IOException ", ex);
+            }
+        }
+
+        @Override
+        public void triple(Triple triple) {
+            try {
+                Response response = new Response(swLog.toString(), FmtUtils.stringForTriple(triple, context) + " .\n");
+//                    swLog.getBuffer().setLength(0);
+                session.getBasicRemote().sendText(new Gson().toJson(response));
+            } catch (IOException ex) {
+                LOG.error("IOException ", ex); 
+            }
+        }
+
+        @Override
+        public void quad(Quad quad) {
+        }
+
+        @Override
+        public void finish() {
+            LOG.info("end of transformation");
+        }
+    }
+
+    static {
+        com.jayway.jsonpath.Configuration.setDefaults(new com.jayway.jsonpath.Configuration.Defaults() {
+
+            private final JsonProvider jsonProvider = new JacksonJsonProvider();
+            private final MappingProvider mappingProvider
+                    = new JacksonMappingProvider();
+
+            @Override
+            public JsonProvider jsonProvider() {
+                return jsonProvider;
+            }
+
+            @Override
+            public MappingProvider mappingProvider() {
+                return mappingProvider;
+            }
+
+            @Override
+            public Set<Option> options() {
+                return EnumSet.noneOf(Option.class);
+            }
+        });
+    }
+
+    StringWriter setLogger(String logLevel) {
+//        final LoggerContext context = LoggerContext.getContext(true);
+//        final org.apache.logging.log4j.core.config.Configuration config = context.getConfiguration();
+//        final PatternLayout layout = PatternLayout.newBuilder().withPattern("%d{HH:mm:ss,SSS} %-5p %t:%C:%L%n%m%n").build();
+
+        StringWriter sw = new StringWriter();
+//        appender = WriterAppender.createAppender(layout, null, sw, appenderName, false, true);
+//        appender.start();
+//        config.addAppender(appender);
+//        addAppender(logLevel);
+
+        return sw;
+    }
+
+    void addAppender(String logLevel) {
+//        Level level;
+//        if (logLevel == null) {
+//            level = Level.TRACE;
+//        } else {
+//            level = Level.getLevel(logLevel);
+//            if (level == null) {
+//                level = Level.TRACE;
+//            }
 //        }
-//
-//        @Override
-//        public void triple(Triple triple) {
-//            if (swOut != null) {
-//                response.put("output", triple.toString(pm));
-//            } 
-//            response.put("log", swLog.toString());
+//        final LoggerContext context = LoggerContext.getContext(true);
+//        final org.apache.logging.log4j.core.config.Configuration config = context.getConfiguration();
+//        for (final LoggerConfig loggerConfig : config.getLoggers().values()) {
+//            loggerConfig.addAppender(appender, level, null);
 //        }
-//
-//        @Override
-//        public void quad(Quad quad) {
-//            throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    void removeAppender() {
+//        final LoggerContext context = LoggerContext.getContext(true);
+//        final org.apache.logging.log4j.core.config.Configuration config = context.getConfiguration();
+//        for (final LoggerConfig loggerConfig : config.getLoggers().values()) {
+//            loggerConfig.removeAppender(appenderName);
 //        }
-//
-//        @Override
-//        public void base(String string) {
-//
-//        }
-//
-//        @Override
-//        public void prefix(String string, String string1) {
-//            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-//        }
-//
-//        @Override
-//        public void finish() {
-//            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-//        }
-//    }
+    }
 }

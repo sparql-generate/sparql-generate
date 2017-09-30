@@ -290,12 +290,15 @@ public final class SPARQLGenerate {
     private static final Map<Thread, SPARQLGenerateStreamManager> streamManagers = new HashMap<>();
 
     public static SPARQLGenerateStreamManager getStreamManager() {
+        log.info("trying to get stream manager for " + Thread.currentThread());
         if(streamManagers.containsKey(Thread.currentThread())) {
+            log.info("found the perfect one");
             SPARQLGenerateStreamManager sm = streamManagers.get(Thread.currentThread());
             StreamManager.setGlobal(sm);
             return sm;
         } 
         try {
+            log.info("let's take the default one");
             return (SPARQLGenerateStreamManager) StreamManager.get();
         } catch (ClassCastException ex) {
             log.error(ex.getMessage());
@@ -305,6 +308,7 @@ public final class SPARQLGenerate {
     
     public static void setStreamManager(SPARQLGenerateStreamManager streamManager) {
         Objects.requireNonNull(streamManager);
+        log.info("putting stream manager at " + Thread.currentThread());
         streamManagers.put(Thread.currentThread(), streamManager);
         StreamManager.setGlobal(streamManager);
     }
