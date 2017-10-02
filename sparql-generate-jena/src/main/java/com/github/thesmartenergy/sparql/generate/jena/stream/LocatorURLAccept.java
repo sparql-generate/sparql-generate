@@ -25,8 +25,8 @@ import java.net.URLConnection;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.input.BOMInputStream;
 import org.apache.jena.atlas.web.TypedInputStream;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 /**
  *
@@ -34,7 +34,7 @@ import org.apache.logging.log4j.Logger;
  */
 public class LocatorURLAccept extends LocatorAcceptBase {
 
-    static Logger log = LogManager.getLogger(LocatorURLAccept.class);
+    static Logger log = LoggerFactory.getLogger(LocatorURLAccept.class);
 
     @Override
     public boolean equals(Object other) {

@@ -21,8 +21,8 @@ import org.apache.jena.query.Dataset;
 import org.apache.jena.riot.system.StreamRDF;
 import org.apache.jena.sparql.core.BasicPattern;
 import org.apache.jena.sparql.modify.TemplateLib;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 /**
  * Generates a triples block in the {@code GENERATE} clause.
@@ -35,7 +35,7 @@ public class GenerateTriplesPlanImpl
     /**
      * The logger.
      */
-    private static final Logger LOG = LogManager.getLogger(GenerateTriplesPlanImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(GenerateTriplesPlanImpl.class);
 
 
     /**

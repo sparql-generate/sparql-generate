@@ -23,8 +23,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import org.apache.jena.atlas.web.ContentType;
 import org.apache.jena.atlas.web.TypedInputStream;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 /**
  *
@@ -32,7 +32,7 @@ import org.apache.logging.log4j.Logger;
  */
 public class LocatorClassLoaderAccept extends LocatorAcceptBase {
 
-    static Logger log = LogManager.getLogger(LocatorClassLoaderAccept.class);
+    static Logger log = LoggerFactory.getLogger(LocatorClassLoaderAccept.class);
 
     private final ClassLoader classLoader;
 

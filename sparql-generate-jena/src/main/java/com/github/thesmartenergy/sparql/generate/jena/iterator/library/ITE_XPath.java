@@ -46,8 +46,8 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 /**
  * A SPARQL Iterator function that extracts a list of sub-XML elements of a XML
@@ -62,7 +62,7 @@ public class ITE_XPath extends IteratorFunctionBase2 {
     /**
      * The logger.
      */
-    private static final Logger LOG = LogManager.getLogger(ITE_XPath.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ITE_XPath.class);
 
     /**
      * The SPARQL function URI.

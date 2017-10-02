@@ -1,0 +1,5 @@
+@prefix lm: <http://jena.hpl.hp.com/2004/08/location-mapping#> .
+
+[] lm:mapping
+   [ lm:name "https://w3id.org/product/props/Pset_AirSideSystemInformation.xml"; lm:altName "documentset/Pset_AirSideSystemInformation.xml" ; lm:media "application/xml" ] 
+   .

@@ -45,8 +45,8 @@ import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.system.stream.LocatorFile;
 import org.apache.jena.riot.system.stream.StreamManager;
 import static org.junit.Assert.assertTrue;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -59,7 +59,7 @@ import org.junit.runners.Parameterized.Parameters;
 @RunWith(Parameterized.class)
 public class TestBase {
 
-    private static final Logger LOG = LogManager.getLogger(TestBase.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TestBase.class);
 
     private final Logger log;
 
@@ -218,7 +218,7 @@ public class TestBase {
                     continue;
                 }
                 if (exampleDir.isDirectory() && !exampleDir.getName().equals("com")) {
-                    Logger log = LogManager.getLogger(exampleDir.getName());
+                    Logger log = LoggerFactory.getLogger(exampleDir.getName());
                     Object[] fileArg1 = new Object[]{log, exampleDir, exampleDir.getName()};
                     data.add(fileArg1);
                 }

@@ -16,15 +16,15 @@
 package com.github.thesmartenergy.sparql.generate.jena.iterator;
 
 import org.apache.jena.query.QueryBuildException;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 /**
  * Extension factory that instantiates a class each time.
  */
 class IteratorFunctionFactoryAuto implements IteratorFunctionFactory {
     
-    static final Logger LOG = LogManager.getLogger(IteratorFunctionFactoryAuto.class);
+    static final Logger LOG = LoggerFactory.getLogger(IteratorFunctionFactoryAuto.class);
 
     Class<?> extClass;
 

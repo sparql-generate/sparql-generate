@@ -29,14 +29,12 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.BOMInputStream;
 import org.apache.jena.rdf.model.Model;
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.core.config.Configurator;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 public class CMDGenerator {
     
-    private static final Logger LOG = LogManager.getLogger(CMDGenerator.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CMDGenerator.class);
     
     public static void main(String [] args){
         
@@ -54,7 +52,7 @@ public class CMDGenerator {
             
             
             if ( cl.hasOption('l') ) {
-               Configurator.setRootLevel(Level.OFF);
+//               Configurator.setRootLevel(Level.OFF);
             }
             
             
@@ -107,11 +105,11 @@ public class CMDGenerator {
             
             
         } catch (org.apache.commons.cli.ParseException ex) {
-            LOG.error(ex);
+            LOG.error("",ex);
         } catch (FileNotFoundException ex) {
-            LOG.error(ex);
+            LOG.error("",ex);
         } catch (IOException ex) {
-            LOG.error(ex);
+            LOG.error("",ex);
         }
         
         

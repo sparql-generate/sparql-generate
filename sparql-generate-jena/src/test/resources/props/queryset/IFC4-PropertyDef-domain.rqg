@@ -1,0 +1,53 @@
+PREFIX sgfn:   <http://w3id.org/sparql-generate/fn/>
+PREFIX sgiter: <http://w3id.org/sparql-generate/iter/>
+PREFIX rdfs:   <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX ex:     <http://example.org/>
+PREFIX dcterms:    <http://purl.org/dc/terms/> 
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX bot: <https://w3id.org/bot#>
+PREFIX schema: <http://schema.org/>
+
+BASE <https://w3id.org/product/props/>
+
+GENERATE {
+
+  GENERATE {
+    <{ ?name }> schema:domainIncludes ?domain .
+  } 
+  WHERE {
+    FILTER( ! ( ?pset = "Pset_DoorWindowGlazingType"
+              || ?pset = "Pset_DoorWindowShadingType"
+              || ?pset = "Pset_AirSideSystemInformation"
+              || ?pset = "Pset_SpaceFireSafetyRequirements"
+              || ?pset = "Pset_SpaceLightingRequirements"
+              || ?pset = "Pset_SpaceOccupancyRequirements"
+              || ?pset = "Pset_SpaceThermalRequirements" ) )
+    BIND( substr( replace( sgfn:XPath(?source,"/PropertySetDef/ApplicableClasses/ClassName/text()") , " " , "") , 4) AS ?className ) 
+
+    BIND( IF( contains( ?className , "/" ) , 
+              <https://w3id.org/product/{ strbefore( ?className , "/" ) }#{ strafter( ?className , "/")}> ,
+              <https://w3id.org/product/{ ?className }> ) AS ?domain)
+    
+  } .
+
+  GENERATE {
+    <{ ?name }> schema:domainIncludes bot:Element .
+  }
+  WHERE {
+    FILTER( ( ?pset = "Pset_DoorWindowGlazingType"
+            || ?pset = "Pset_DoorWindowShadingType") )
+  } .
+
+  GENERATE {
+    <{ ?name }> schema:domainIncludes bot:Zone .
+  }
+  WHERE {
+    FILTER( ( ?pset = "Pset_AirSideSystemInformation"
+              || ?pset = "Pset_SpaceFireSafetyRequirements"
+              || ?pset = "Pset_SpaceLightingRequirements"
+              || ?pset = "Pset_SpaceOccupancyRequirements"
+              || ?pset = "Pset_SpaceThermalRequirements" ) )
+  } .
+
+}

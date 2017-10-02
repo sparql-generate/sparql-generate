@@ -48,8 +48,8 @@ import org.apache.jena.sparql.expr.nodevalue.NodeValueFloat;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueInteger;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueNode;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueString;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
@@ -67,7 +67,7 @@ public class FN_XPath extends FunctionBase2 {
     /**
      * The logger.
      */
-    private static final Logger LOG = LogManager.getLogger(FN_XPath.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FN_XPath.class);
 
     /**
      * The SPARQL function URI.

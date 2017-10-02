@@ -36,8 +36,8 @@ import java.util.Map;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueNode;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 /**
  * A SPARQL Function that extracts a string from a JSON document, according to a
@@ -52,7 +52,7 @@ public final class FN_JSONPath extends FunctionBase2 {
     /**
      * The logger.
      */
-    private static final Logger LOG = LogManager.getLogger(FN_JSONPath.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FN_JSONPath.class);
 
     /**
      * The SPARQL function URI.

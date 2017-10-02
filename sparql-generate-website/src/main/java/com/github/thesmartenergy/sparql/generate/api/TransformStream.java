@@ -28,7 +28,6 @@ import com.jayway.jsonpath.spi.json.JsonProvider;
 import com.jayway.jsonpath.spi.mapper.JacksonMappingProvider;
 import com.jayway.jsonpath.spi.mapper.MappingProvider;
 import java.io.IOException;
-import java.io.StringWriter;
 import java.util.EnumSet;
 import java.util.Set;
 import java.util.UUID;
@@ -53,14 +52,8 @@ import org.apache.jena.shared.PrefixMapping;
 import org.apache.jena.sparql.core.Quad;
 import org.apache.jena.sparql.serializer.SerializationContext;
 import org.apache.jena.sparql.util.FmtUtils;
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.core.Appender;
-import org.apache.logging.log4j.core.LoggerContext;
-import org.apache.logging.log4j.core.appender.WriterAppender;
-import org.apache.logging.log4j.core.config.LoggerConfig;
-import org.apache.logging.log4j.core.layout.PatternLayout;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 /**
  *
@@ -69,38 +62,39 @@ import org.apache.logging.log4j.core.layout.PatternLayout;
 @ServerEndpoint("/transformStream")
 public class TransformStream {
 
-    private static final Logger LOG = LogManager.getLogger(TransformStream.class);
-    private Appender appender;
-    private String appenderName;
+    private static final Logger LOG = LoggerFactory.getLogger(TransformStream.class);
+    private static final Gson gson = new Gson();
+
+//    private Appender appender;
     private static long MAX_DURATION = TimeUnit.MILLISECONDS.convert(1, TimeUnit.MINUTES);
     private static int MAX_TRIPLES = 5000;
     private static String base = "http://example.org/";
-    private StringWriter swLog;
-
-    @PostConstruct
-    private void postConstruct() {
-        appenderName = UUID.randomUUID().toString();
-    }
+    private final StringWriterAppender appender = (StringWriterAppender) org.apache.log4j.Logger.getRootLogger().getAppender("WEBSOCKET");
 
     @OnOpen
     public void open(Session session) {
-        swLog = setLogger(null);
         LOG.info("Establishing connection");
     }
 
     @OnClose
     public void close(Session session) {
         LOG.info("Closing connection");
-        removeAppender();
     }
 
     @OnMessage
     public void handleMessage(String message, Session session) throws IOException, InterruptedException {
+        System.out.println(Thread.currentThread().getName());
+        appender.putSession(Thread.currentThread(), session);
         Dataset dataset = DatasetFactory.create();
         LocatorStringMap loc = new LocatorStringMap();
         String defaultquery;
         try {
-            Request request = new Gson().fromJson(message, Request.class);
+            session.getBasicRemote().sendText("clear");
+        } catch (IOException ex) {
+            java.util.logging.Logger.getLogger(TransformStream.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+        try {
+            Request request = gson.fromJson(message, Request.class);
 
             defaultquery = request.defaultquery;
 
@@ -135,30 +129,33 @@ public class TransformStream {
         SPARQLGenerateQuery q = (SPARQLGenerateQuery) QueryFactory.create(defaultquery, SPARQLGenerate.SYNTAX);
         RootPlan plan = PlanFactory.create(q);
 
-        StreamRDF outputStream = new WebSocketRDF(session, swLog, q.getPrefixMapping());
+        StreamRDF outputStream = new WebSocketRDF(session, q.getPrefixMapping());
         outputStream.start();
         plan.exec(dataset, outputStream);
         outputStream.finish();
+        appender.removeSession(Thread.currentThread());
     }
 
     private static class WebSocketRDF implements StreamRDF {
 
         private final Session session;
-        private final StringWriter swLog;
         private final PrefixMapping pm;
         private final SerializationContext context;
 
-        public WebSocketRDF(Session session, StringWriter swLog, PrefixMapping pm) {
+        public WebSocketRDF(Session session, PrefixMapping pm) {
             this.session = session;
-            this.swLog = swLog;
             this.pm = pm;
             context = new SerializationContext(pm);
         }
 
         @Override
         public void start() {
+            StringBuilder sb = new StringBuilder();
+            pm.getNsPrefixMap().forEach((prefix,uri)->{
+                sb.append("@Prefix ").append(prefix).append(": <").append(uri).append("> .\n");
+            });
             try {
-                session.getBasicRemote().sendText("clear");
+                session.getBasicRemote().sendText(gson.toJson(new Response(null, sb.toString() + "\n")));
             } catch (IOException ex) {
                 LOG.error("IOException ", ex);
             }
@@ -167,7 +164,7 @@ public class TransformStream {
         @Override
         public void base(String string) {
             try {
-                session.getBasicRemote().sendText(new Gson().toJson(new Response("", "@base <" + string + ">\n")));
+                session.getBasicRemote().sendText(gson.toJson(new Response(null, "@base <" + string + ">\n")));
             } catch (IOException ex) {
                 LOG.error("IOException ", ex);
             }
@@ -175,22 +172,23 @@ public class TransformStream {
 
         @Override
         public void prefix(String prefix, String uri) {
-            pm.setNsPrefix(prefix, uri);
-            StringBuilder sb = new StringBuilder();
-            sb.append("@Prefix ").append(prefix).append(": <").append(uri).append("> .\n");
-            try {
-                session.getBasicRemote().sendText(new Gson().toJson(new Response("", sb.toString())));
-            } catch (IOException ex) {
-                LOG.error("IOException ", ex);
+            if(!uri.equals(pm.getNsPrefixURI(prefix))) {
+                pm.setNsPrefix(prefix, uri);
+                StringBuilder sb = new StringBuilder();
+                sb.append("@Prefix ").append(prefix).append(": <").append(uri).append("> .\n");
+                try {
+                    session.getBasicRemote().sendText(gson.toJson(new Response(null, sb.toString())));
+                } catch (IOException ex) {
+                    LOG.error("IOException ", ex);
+                }
             }
         }
 
         @Override
         public void triple(Triple triple) {
             try {
-                Response response = new Response(swLog.toString(), FmtUtils.stringForTriple(triple, context) + " .\n");
-//                    swLog.getBuffer().setLength(0);
-                session.getBasicRemote().sendText(new Gson().toJson(response));
+                Response response = new Response(null, FmtUtils.stringForTriple(triple, context) + " .\n");
+                session.getBasicRemote().sendText(gson.toJson(response));
             } catch (IOException ex) {
                 LOG.error("IOException ", ex); 
             }
@@ -228,44 +226,5 @@ public class TransformStream {
                 return EnumSet.noneOf(Option.class);
             }
         });
-    }
-
-    StringWriter setLogger(String logLevel) {
-//        final LoggerContext context = LoggerContext.getContext(true);
-//        final org.apache.logging.log4j.core.config.Configuration config = context.getConfiguration();
-//        final PatternLayout layout = PatternLayout.newBuilder().withPattern("%d{HH:mm:ss,SSS} %-5p %t:%C:%L%n%m%n").build();
-
-        StringWriter sw = new StringWriter();
-//        appender = WriterAppender.createAppender(layout, null, sw, appenderName, false, true);
-//        appender.start();
-//        config.addAppender(appender);
-//        addAppender(logLevel);
-
-        return sw;
-    }
-
-    void addAppender(String logLevel) {
-//        Level level;
-//        if (logLevel == null) {
-//            level = Level.TRACE;
-//        } else {
-//            level = Level.getLevel(logLevel);
-//            if (level == null) {
-//                level = Level.TRACE;
-//            }
-//        }
-//        final LoggerContext context = LoggerContext.getContext(true);
-//        final org.apache.logging.log4j.core.config.Configuration config = context.getConfiguration();
-//        for (final LoggerConfig loggerConfig : config.getLoggers().values()) {
-//            loggerConfig.addAppender(appender, level, null);
-//        }
-    }
-
-    void removeAppender() {
-//        final LoggerContext context = LoggerContext.getContext(true);
-//        final org.apache.logging.log4j.core.config.Configuration config = context.getConfiguration();
-//        for (final LoggerConfig loggerConfig : config.getLoggers().values()) {
-//            loggerConfig.removeAppender(appenderName);
-//        }
     }
 }

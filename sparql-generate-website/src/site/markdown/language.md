@@ -1,5 +1,7 @@
 # SPARQL-Generate Overview
 
+---
+
 ## Syntax
 
 The general structure of a SPARQL-Generate query is as follows:
@@ -49,6 +51,7 @@ One may **embed SPARQL expressions in nodes** (since version 2.0.0-beta) whereve
 - IRIs and literals can contain embedded expressions: `<foo{ <expr> }bar>`, `"foo{ <expr> }bar"@en`,  `'''foo{ <expr> }'''^^<bar{ <expr> }>`;
 - variables can be replaced by any other expression node, such as in `?{ ?value1 >= 2.5 }`.
 
+
 ## Binding and iterator functions
 
 `sparql-generate-jena` provides a set of SPARQL binding functions and SPARQL-Generate iterator functions that enable to generate RDF from JSON, XML, HTML, CSV, and plain text.
@@ -67,12 +70,12 @@ In this document, we solely describe one iterator function, and one custom bindi
 * documentation for the [iterator functions](apidocs/com/github/thesmartenergy/sparql/generate/jena/iterator/library/package-summary.html)
 * documentation for the [custom SPARQL functions](apidocs/com/github/thesmartenergy/sparql/generate/jena/function/library/package-summary.html).
 
-### Example 1: iterator function http://w3id.org/sparql-generate/iter/JSONPath
+**Example 1: iterator function sgiter:JSONPath **
 
 A SPARQL Iterator function that extracts a list of sub-JSON documents of a JSON document, according to a JSONPath expression.
 
 ```
-set of literals http://w3id.org/sparql-generate/iter/JSONPath( xsd:string message, xsd:string json_path_jayway )
+set of literals sgiter:JSONPath( xsd:string message, xsd:string json_path_jayway )
 ```
 
 For example, let be the following partial solution binding:
@@ -93,7 +96,7 @@ Then iterator clause `ITERATOR iter:JSONPath( ?message, "$.x[1:4]" ) AS ?value` 
 This iterator function uses library [JsonPath from GitHub user jayway](https://github.com/jayway/JsonPath).
 
 
-### Example 2: custom binding function http://w3id.org/sparql-generate/fn/HTMLTagElement
+**Example 2: custom binding function sgfn:TMLTagElement **
 
 A SPARQL function that extracts the text from an HTML element. It takes two parameters as input:
 
@@ -103,9 +106,10 @@ A SPARQL function that extracts the text from an HTML element. It takes two para
 It returns a RDF Literal with datatype URI `xsd:string` for the text of the element .
 
 ```
-xsd:string http://w3id.org/sparql-generate/fn/JSONPath( xsd:string message, xsd:string tagname )
+xsd:string sgfn:JSONPath( xsd:string message, xsd:string tagname )
 ```
 
+---
 
 ## How it works
 
@@ -116,6 +120,7 @@ To put it simply, the execution of a SPARQL Generate is defined as follows:
 1. this SPARQL 1.1 SELECT query is evaluated on the SPARQL dataset, and produces a set of solution bindings.
 1. for each of these solution bindings, and for each element in the GENERATE template, one either produce triples, or execute the embedded query.  
 
+---
 
 ## IANA considerations.
 

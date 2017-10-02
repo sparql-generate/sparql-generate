@@ -27,8 +27,8 @@ import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.NodeValue;
 import org.apache.jena.sparql.function.FunctionBase2;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueString;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import org.supercsv.io.CsvMapReader;
 import org.supercsv.prefs.CsvPreference;
 
@@ -44,7 +44,7 @@ public class FN_CSV extends FunctionBase2 {
     /**
      * The logger.
      */
-    private static final Logger LOG = LogManager.getLogger(FN_CSV.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FN_CSV.class);
 
     /**
      * The SPARQL function URI.

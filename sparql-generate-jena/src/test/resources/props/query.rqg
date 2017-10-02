@@ -1,0 +1,19 @@
+PREFIX sgfn:   <http://w3id.org/sparql-generate/fn/>
+PREFIX sgiter: <http://w3id.org/sparql-generate/iter/>
+PREFIX rdfs:   <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX ex:     <http://example.org/>
+PREFIX dcterms:    <http://purl.org/dc/terms/> 
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX schema: <http://schema.org/>
+
+BASE <https://w3id.org/product/props/>
+GENERATE {
+
+    GENERATE <queries/IFC4-PropertyDef.rqg>
+    ITERATOR sgiter:XPath(?source, "//PropertyDef" ) AS ?property .
+
+} SOURCE <Pset_AirSideSystemInformation.xml> AS ?source 
+WHERE {
+  BIND( sgfn:XPath(?source, "/PropertySetDef/Name/text()") AS ?pset )
+}

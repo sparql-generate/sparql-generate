@@ -21,8 +21,8 @@ import java.util.Map;
 import java.util.Objects;
 import org.apache.commons.io.IOUtils;
 import org.apache.jena.atlas.web.TypedInputStream;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 /**
  *
@@ -30,7 +30,7 @@ import org.apache.logging.log4j.Logger;
  */
 public class LocatorStringMap extends LocatorAcceptBase {
     
-    private static final Logger LOG = LogManager.getLogger(LocatorStringMap.class);
+    private static final Logger LOG = LoggerFactory.getLogger(LocatorStringMap.class);
 
     private final Map<LookUpRequest, TypedString> docs = new HashMap<>();
     
@@ -47,13 +47,29 @@ public class LocatorStringMap extends LocatorAcceptBase {
 
     @Override
     public TypedInputStream open(LookUpRequest request) {
-        TypedString ts = docs.get(request);
-        if(ts!=null) {
-            try {            
-                return new TypedInputStream(IOUtils.toInputStream(ts.message, "UTF-8"), ts.mediaType);
-            } catch (IOException ex) {
-                LOG.error("error", ex);
+        try {            
+            if (docs.containsKey(request)) {
+                TypedString doc = docs.get(request);
+                return new TypedInputStream(IOUtils.toInputStream(doc.message, "UTF-8"), doc.mediaType);
             }
+            //relax subtype
+            for(LookUpRequest poss : docs.keySet()) {
+                if(poss.getFilenameOrURI().equals(request.getFilenameOrURI()) && poss.getType().equals(request.getType()) && ( poss.getSubType().equals("*") || request.getSubType().equals("*"))) {
+                    TypedString doc = docs.get(poss);
+                    return new TypedInputStream(IOUtils.toInputStream(doc.message, "UTF-8"), doc.mediaType);
+                }
+            }
+            //relax type and subtype
+            for(LookUpRequest poss : docs.keySet()) {
+                if(poss.getFilenameOrURI().equals(request.getFilenameOrURI())
+                        && ( poss.getType().equals("*") || request.getType().equals("*") )
+                        && ( poss.getSubType().equals(request.getSubType()) || poss.getSubType().equals("*") || request.getSubType().equals("*")) ) {
+                    TypedString doc = docs.get(poss);
+                    return new TypedInputStream(IOUtils.toInputStream(doc.message, "UTF-8"), doc.mediaType);
+                }
+            }
+        } catch (IOException ex) {
+            LOG.error("error", ex);
         }
         return null;
     }

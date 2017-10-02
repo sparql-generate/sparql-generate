@@ -13,6 +13,7 @@ CodeMirror.modeURL = "https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.30.0/m
 
 var valid = true;
 var open = false;
+var timers = [];
 
 var validate = function() {
 
@@ -24,8 +25,6 @@ var validate = function() {
 
   valid = true;
   resetErrors();
-
-  var names = [];
 
   if(!defaultquery_editor.queryValid) {
     valid = false;
@@ -91,13 +90,10 @@ var validate = function() {
   }
 
   // validating documents
-  console.log("validating documents");
   for(var i=0;i<documentset_editors.length;i++) {
     var doc = documentset[i];
     var editor = documentset_editors[i];
     var tag = documentset_tags[i];
-
-    console.log(doc);
 
     if(!doc.mediatype.match(/\w+\/[-+.\w]+/i)) {
       valid = false;
@@ -127,9 +123,11 @@ var validate = function() {
     }
   }
 
-  console.log("almost there")
   if(valid && open) {
-    console.log("there")
+    for(var timer of timers) {
+      window.clearTimeout(timer);
+    }
+    timers = [];
     var msg = {
         defaultquery: defaultquery_string,
         namedqueries: namedqueries,
@@ -137,22 +135,56 @@ var validate = function() {
         namedgraphs: namedgraphs,
         documentset: documentset
     };
-    socket.send(JSON.stringify(msg));
+    timers.push(window.setTimeout(function(msg) {
+      console.log("sending request");
+      socket.send(JSON.stringify(msg));
+    }, 100, msg));
   }
-
-
-
-}
+};
 
 var resetErrors = function() {
   $(".invalid").removeClass("invalid");
   $(".invalidmsg").remove();
-}
+};
 
- 
-var init = function() {
-  $("form").empty();
-  
+var init = function() { 
+  $("#form").empty();
+  $("#form").append(`
+<div class="col-lg-6">
+  <div id="queryset" class="fieldset">
+    <legend>SPARQL-Generate Queries</legend>
+    <p>See <a href="functions.html">our predefined SPARQL binding functions and SPARQL-Generate iterator functions</a>.</p>
+    <div id="queryset_drop_zone" class="drop_zone">
+      <strong>Click here to add a new named query, you can also drag SPARQL-Generate documents to load them ...</strong>
+    </div>
+  </div>
+  <div id="documentset_list" class="fieldset">
+    <legend>Documentset</legend>
+    <div id="documentset_drop_zone" class="drop_zone">
+      <strong>Click here to add a new document, you can also drag one or more files to load them ...</strong>
+    </div>
+    <div id="dataset" class="fieldset">
+      <legend>Dataset</legend>
+      <div id="dataset_drop_zone" class="drop_zone">
+        <strong>Click here to add a new graph, you can also drag turtle documents to load them ...</strong>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="col-lg-6">
+  <div class="fieldset">
+    <div id="result_list">
+      <legend>Result</legend>
+      <textarea id="result"> </textarea>
+    </div>
+    <div id="log">
+      <legend>Log</legend>
+      <pre></pre>
+    </div>
+  </div>
+</div>`);
+    
+    
   namedqueries = [],
   namedqueries_editors = [],
   namedqueries_tags = [];
@@ -187,14 +219,6 @@ var defaultquery_string,
 
 var load_queryset = function() {
 
-  // fieldset for queries
-  $("form").append(`<fieldset id="queryset">
-    <legend>SPARQL-Generate Queries</legend>
-    <div id="queryset_drop_zone" class="drop_zone">
-      <strong>Click here to add a new named query, you can also drag SPARQL-Generate documents to load them ...</strong>
-    </div>
-  </fieldset>`);
-
   // load default query
   defaultquery_string = localStorage.getItem('defaultquery');
   if(defaultquery_string == null) {
@@ -217,10 +241,10 @@ CONSTRUCT {
   }
 
   // show default query
-  defaultquery_tag = $(`<fieldset id='default_query'>
+  defaultquery_tag = $(`<div id='default_query'>
       <label>Default query</label>
       <textarea></textarea>
-    </fieldset>`)
+    </div>`)
   .insertBefore($("#queryset_drop_zone"));
 
   defaultquery_editor = YASQE.fromTextArea($('#default_query textarea')[0], {
@@ -323,7 +347,7 @@ CONSTRUCT {  }`
 }
 
 var show_namedquery = function(nq) {
-  var tag = $("<fieldset>")
+  var tag = $("<div>")
     .attr("class","named_query")
     .append($("<label>")
       .append("Query named by URI <")
@@ -407,15 +431,6 @@ var defaultgraph_string,
  namedgraphs_tags = [];
 
 var load_dataset = function() {
- 
-  // fieldset for dataset
-  $("form").append(`<fieldset id="dataset">
-    <legend>Dataset</legend>
-    <div id="dataset_drop_zone" class="drop_zone">
-      <strong>Click here to add a new graph, you can also drag turtle documents to load them ...</strong>
-    </div>
-  </fieldset>`);
-
   defaultgraph_string = localStorage.getItem('defaultgraph');
   if(defaultgraph_string == null) {
     defaultgraph_string = "";
@@ -423,10 +438,10 @@ var load_dataset = function() {
   }
 
   // show default graph
-  defaultgraph_tag = $(`<fieldset id='default_graph'>
+  defaultgraph_tag = $(`<div id='default_graph'>
       <label>Default graph (<a class='edit'>edit</a><a class='h' style='display:none'>hide</a>)</label>
       <textarea></textarea>
-    </fieldset>`)
+    </div>`)
   .insertBefore($("#dataset_drop_zone"));
 
   defaultgraph_editor = YATE.fromTextArea($('#default_graph textarea')[0], {
@@ -534,7 +549,7 @@ var load_dataset = function() {
 }
 
 var show_namedgraph = function(ng) {
-  var tag = $("<fieldset>")
+  var tag = $("<div>")
     .attr("class","named_graph")
     .append($("<label>")
       .append("Graph named by URI <")
@@ -615,15 +630,6 @@ var documentset,
 
 
 var load_documentset = function() {
-
-  // fieldset for documents
- $("form").append(`<fieldset id="documentset_list">
-    <legend>Documentset</legend>
-    <div id="documentset_drop_zone" class="drop_zone">
-      <strong>Click here to add a new document, you can also drag one or more files to load them ...</strong>
-    </div>
-  </fieldset>`);
-
   // load documentset 
   documentset = localStorage.getItem('documentset');
   if(documentset !== null) {
@@ -706,7 +712,7 @@ var load_documentset = function() {
 }
 
 var show_nameddocument = function(doc) {
-  var tag = $("<fieldset>")
+  var tag = $("<div>")
     .attr("class","named_document")
     .append($("<label>")
       .append("Document named by URI <")
@@ -750,7 +756,9 @@ var show_nameddocument = function(doc) {
   {
     lineNumbers: true,
   });
-  editor.setValue(doc.string);
+  if(doc && doc.string) {
+    editor.setValue(doc.string);
+  }
   editor.on("change", function(){
     doc.string = editor.getValue();
     localStorage.setItem('documentset', JSON.stringify(documentset));
@@ -807,15 +815,6 @@ var show_nameddocument = function(doc) {
 var result;
 
 var load_result = function() {
-
- $("form").append(`<fieldset id="result_list">
-    <legend>Result</legend>
-    <textarea id="result"> </textarea>
-    <fieldset id="log">
-      <legend>Log</legend>
-    </fieldset>
-  </fieldset>`);
-
   result = YATE.fromTextArea(document.getElementById('result'), {
   "readOnly": true, 
   "createShareLink": false});
@@ -842,7 +841,6 @@ var load_tests = function() {
           }            
       }
   }
-  $("#tabs").tabs("option", "active", 0);
   http.send();
 
   $("#tests").change(function() {
@@ -856,7 +854,6 @@ var load_tests = function() {
 
 var load_test = function(id) {
   $.getJSON("api/list/"+id, function( data ) {
-        console.log(data);
         localStorage.setItem('defaultquery', data.defaultquery);
         localStorage.setItem('namedqueries', JSON.stringify(data.namedqueries));
         localStorage.setItem('defaultgraph', data.defaultgraph);
@@ -869,43 +866,44 @@ var load_test = function(id) {
 }
  
 $(document).ready(function() {
+    
+    
+    
+  $(".main-body").parent().empty().removeClass("container").addClass("container-fluid").append(`
+  <h1>SPARQL-Generate Playground</h1>
 
-  $("#bodyColumn").empty();
-  $("#bodyColumn").append(`
- 
-  <h1>Try SPARQL-Generate</h1>
+  <p>You can <label for="test">load and try one of the unit tests:</label> <select name="test" id="tests"><option value="---">---</option></select></p>
 
-  <p> Edit the SPARQL-Generate query, an optional Dataset, and an optional Documentset over which it will be evaluated.</p>
-  <p>See <a href="functions.html">our predefined SPARQL binding functions and SPARQL-Generate iterator functions</a>.</p>
-  <p>You can also <label for="test">load one of the unit tests:</label> <select name="test" id="tests"><option value="---">---</value></select></p>
-
-  <form></form>`);
-
+  <div id="form" class="row"></div>`);
   init();
   load_tests();
 
-  var websocketurl = "wss://" + window.location.hostname + (window.location.port!="" ? ":" + window.location.port : "") + "/sparql-generate/transformStream";
+  var websocketurl = "wss://" + window.location.hostname + (window.location.port!="" ? ":" + window.location.port : "") + "/sparql-generate-test/transformStream";
   socket = new WebSocket(websocketurl);
  
   socket.onopen = function (event) {
     open = true;
+    console.log("websocket open");
     validate();
   };
    
   socket.onmessage = function (event) {
-      console.log(event.data);
       if(event.data == "clear") {
         result.setValue("");
-        $("#log").empty();
+        $("#log pre").empty();
       } else {
         var data = JSON.parse(event.data);
-        result.setValue(result.getValue() + data.result);       
-        $("#log").append(data.log);
+        if(data.result && data.result != "") {
+          result.setValue(result.getValue() + data.result);       
+        }
+        if(data.log && data.log != "") {
+          $("#log pre").append(data.log.replace(/</g, "&lt;"));
+        }
       }
   }
    
   socket.onclose = function (event) {
-      console.log("closed");
+      console.log("websocket closed");
   }
 
 });

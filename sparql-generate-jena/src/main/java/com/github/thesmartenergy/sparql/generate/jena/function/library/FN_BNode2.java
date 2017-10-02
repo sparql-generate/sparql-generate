@@ -27,8 +27,8 @@ import org.apache.jena.sparql.expr.NodeValue;
 import org.apache.jena.sparql.function.FunctionBase1;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 /**
  * A SPARQL Binding Function that generates a blank node, which is the same
@@ -45,7 +45,7 @@ public class FN_BNode2 extends FunctionBase1 {
     /**
      * The logger.
      */
-    private static final Logger LOG = LogManager.getLogger(FN_BNode2.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FN_BNode2.class);
 
     /**
      * The SPARQL function URI.

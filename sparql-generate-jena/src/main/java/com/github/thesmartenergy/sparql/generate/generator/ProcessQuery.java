@@ -29,8 +29,8 @@ import org.apache.jena.query.QueryFactory;
 import org.apache.jena.query.QuerySolutionMap;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 /**
  *
@@ -38,7 +38,7 @@ import org.apache.logging.log4j.Logger;
  */
 public class ProcessQuery {
 
-    private static final Logger LOG = LogManager.getLogger(ProcessQuery.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ProcessQuery.class);
 
     public static String process(String query, String conf, String outputFormat) {
         Model configurationModel = null;

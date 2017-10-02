@@ -32,8 +32,8 @@ import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.NodeValue;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.IteratorFunctionBase1;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 /**
  * A SPARQL Iterator function that lists the keys of a JSON object represented
@@ -71,7 +71,7 @@ public class ITE_JSONListKeys extends IteratorFunctionBase1 {
     /**
      * The logger.
      */
-    private static final Logger LOG = LogManager.getLogger(ITE_JSONListKeys.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ITE_JSONListKeys.class);
 
     /**
      * The SPARQL function URI.

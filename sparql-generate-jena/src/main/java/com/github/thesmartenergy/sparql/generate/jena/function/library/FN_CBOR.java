@@ -34,8 +34,8 @@ import java.util.Base64;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueNode;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 /**
  * A SPARQL function that takes as an input a CBOR document, decodes it and
@@ -50,7 +50,7 @@ public final class FN_CBOR extends FunctionBase2 {
     /**
      * The logger.
      */
-    private static final Logger LOG = LogManager.getLogger(FN_CBOR.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FN_CBOR.class);
 
     /**
      * The SPARQL function URI.

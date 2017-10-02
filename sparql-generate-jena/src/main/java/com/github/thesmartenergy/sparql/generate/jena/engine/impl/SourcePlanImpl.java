@@ -29,8 +29,8 @@ import com.github.thesmartenergy.sparql.generate.jena.engine.SourcePlan;
 import com.github.thesmartenergy.sparql.generate.jena.stream.LookUpRequest;
 import com.github.thesmartenergy.sparql.generate.jena.stream.SPARQLGenerateStreamManager;
 import org.apache.jena.atlas.web.TypedInputStream;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 /**
  * Executes a <code>{@code SOURCE <node> ACCEPT <mime> AS <var>}</code> clause.
@@ -42,7 +42,7 @@ public class SourcePlanImpl extends PlanBase implements SourcePlan {
     /**
      * The logger.
      */
-    private static final Logger LOG = LogManager.getLogger(SourcePlanImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SourcePlanImpl.class);
 
     /**
      * The source node. A uri or a variable.

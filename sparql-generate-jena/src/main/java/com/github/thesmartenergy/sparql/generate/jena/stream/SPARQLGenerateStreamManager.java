@@ -21,8 +21,8 @@ import org.apache.jena.riot.system.stream.LocationMapper;
 import org.apache.jena.riot.system.stream.Locator;
 import org.apache.jena.riot.system.stream.StreamManager;
 import org.apache.jena.riot.RiotNotFoundException;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 /**
  *
@@ -30,7 +30,7 @@ import org.apache.logging.log4j.Logger;
  */
 public class SPARQLGenerateStreamManager extends StreamManager {
 
-    private static final Logger LOG = LogManager.getLogger(SPARQLGenerateStreamManager.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SPARQLGenerateStreamManager.class);
 
     public SPARQLGenerateStreamManager() {
     }

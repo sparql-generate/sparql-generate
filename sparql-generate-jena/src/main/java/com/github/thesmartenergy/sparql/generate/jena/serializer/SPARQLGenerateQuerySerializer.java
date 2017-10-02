@@ -35,8 +35,8 @@ import org.apache.jena.sparql.syntax.Element;
 import org.apache.jena.sparql.syntax.ElementBind;
 import org.apache.jena.sparql.syntax.Template;
 import org.apache.jena.sparql.util.FmtUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 /**
  * Extends the ARQ Query Serializer with SPARQL Generate specificities.
@@ -52,7 +52,7 @@ public class SPARQLGenerateQuerySerializer implements SPARQLGenerateQueryVisitor
     private final SPARQLGenerateFormatterTemplate fmtTemplate;
     private final SPARQLGenerateFmtExprSPARQL fmtExpr;
     
-    private static Logger LOG = LogManager.getLogger(SPARQLGenerateQuerySerializer.class);
+    private static Logger LOG = LoggerFactory.getLogger(SPARQLGenerateQuerySerializer.class);
 
     public SPARQLGenerateQuerySerializer(IndentedWriter out, SerializationContext context) {
         this.out = out;

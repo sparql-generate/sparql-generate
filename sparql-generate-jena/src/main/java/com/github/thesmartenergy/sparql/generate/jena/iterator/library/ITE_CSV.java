@@ -35,8 +35,8 @@ import java.io.InputStreamReader;
 import org.supercsv.io.CsvListReader;
 import org.supercsv.io.CsvListWriter;
 import org.supercsv.prefs.CsvPreference;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 /**
  * A SPARQL Iterator function that return a row of a CSV document, together with
@@ -53,7 +53,7 @@ public class ITE_CSV extends IteratorFunctionBase1 {
     /**
      * The logger.
      */
-    private static final Logger LOG = LogManager.getLogger(ITE_CSV.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ITE_CSV.class);
 
     /**
      * The SPARQL function URI.

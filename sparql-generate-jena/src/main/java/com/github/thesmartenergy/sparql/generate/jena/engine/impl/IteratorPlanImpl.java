@@ -25,8 +25,8 @@ import com.github.thesmartenergy.sparql.generate.jena.iterator.IteratorFunction;
 import java.util.ArrayList;
 import java.util.function.Consumer;
 import org.apache.jena.sparql.expr.VariableNotBoundException;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 /**
  * Executes a {@code ITERATOR <iterator>(<expreList>) AS <var>} clause.
@@ -38,7 +38,7 @@ public class IteratorPlanImpl extends PlanBase implements IteratorPlan {
     /**
      * The logger.
      */
-    private static final Logger LOG = LogManager.getLogger(IteratorPlanImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(IteratorPlanImpl.class);
 
 
     /**

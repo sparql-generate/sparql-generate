@@ -1,0 +1,22 @@
+@prefix lm: <http://jena.hpl.hp.com/2004/08/location-mapping#> .
+
+[] lm:mapping
+   [ lm:name "https://w3id.org/product/props/queries/IFC4-PropertyDef.rqg" ; 
+     lm:altName "queryset/IFC4-PropertyDef.rqg" ; 
+     lm:media "application/vnd.sparql-generate" ] ,
+   [ lm:name "https://w3id.org/product/props/queries/IFC4-PropertyDef-definitionAlias.rqg" ; 
+     lm:altName "queryset/IFC4-PropertyDef-definitionAlias.rqg" ; 
+     lm:media "application/vnd.sparql-generate" ] ,
+   [ lm:name "https://w3id.org/product/props/queries/IFC4-PropertyDef-domain.rqg" ; 
+     lm:altName "queryset/IFC4-PropertyDef-domain.rqg" ; 
+     lm:media "application/vnd.sparql-generate" ] ,
+   [ lm:name "https://w3id.org/product/props/queries/IFC4-PropertyDef-nameAlias.rqg" ; 
+     lm:altName "queryset/IFC4-PropertyDef-nameAlias.rqg" ; 
+     lm:media "application/vnd.sparql-generate" ] ,
+   [ lm:name "https://w3id.org/product/props/queries/IFC4-PropertyDef-ReferenceValue.rqg" ; 
+     lm:altName "queryset/IFC4-PropertyDef-ReferenceValue.rqg" ; 
+     lm:media "application/vnd.sparql-generate" ] ,
+   [ lm:name "https://w3id.org/product/props/queries/IFC4-PropertyDef-SingleValue.rqg" ; 
+     lm:altName "queryset/IFC4-PropertyDef-SingleValue.rqg" ; 
+     lm:media "application/vnd.sparql-generate" ] 
+   .

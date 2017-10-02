@@ -36,8 +36,8 @@ import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.NodeValue;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueNode;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 /**
  * A SPARQL Iterator function that extracts a list of sub-JSON documents of a
@@ -75,7 +75,7 @@ public class ITE_JSONListElement extends IteratorFunctionBase2 {
     /**
      * The logger.
      */
-    private static final Logger LOG = LogManager.getLogger(ITE_JSONListElement.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ITE_JSONListElement.class);
 
     /**
      * The SPARQL function URI.

@@ -38,8 +38,8 @@ import org.apache.jena.graph.Triple;
 import org.apache.jena.query.QuerySolutionMap;
 import org.apache.jena.riot.system.StreamRDF;
 import org.apache.jena.sparql.core.Quad;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 /**
  * Entry point to a SPARQL Generate query execution.
@@ -52,7 +52,7 @@ public final class RootPlanImpl extends PlanBase implements RootPlan,
     /**
      * The logger.
      */
-    private static final Logger LOG = LogManager.getLogger(RootPlanImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(RootPlanImpl.class);
 
     /**
      * Selector and Source plans.

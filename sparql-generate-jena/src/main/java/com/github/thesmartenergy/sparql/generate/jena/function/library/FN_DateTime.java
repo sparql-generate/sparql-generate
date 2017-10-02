@@ -28,8 +28,8 @@ import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueNode;
 import org.apache.jena.sparql.function.FunctionBase1;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 /**
  * A SPARQL Function that converts a timestamp encoded in an xsd:string to a 
@@ -45,7 +45,7 @@ public final class FN_DateTime extends FunctionBase1 {
     /**
      * The logger.
      */
-    private static final Logger LOG = LogManager.getLogger(FN_DateTime.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FN_DateTime.class);
 
     /**
      * The SPARQL function URI.

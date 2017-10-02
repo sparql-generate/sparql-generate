@@ -14,6 +14,8 @@ Latest version implements iterator and custom SPARQL functions to generate RDF f
 
 The [javadoc](http://w3id.org/sparql-generate/apidocs/index.html) contains comprehensive documentations and examples, and the [sources](http://search.maven.org/#search%7Cga%7C1%7Csparql-generate-jena) contains a set of unit tests to get more examples. 
 
+---
+
 ### Parsing a Query
 
 ```java

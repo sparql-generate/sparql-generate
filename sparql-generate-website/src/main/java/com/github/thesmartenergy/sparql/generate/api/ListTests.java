@@ -35,8 +35,8 @@ import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.ResIterator;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.ResourceFactory;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 /**
  *
@@ -44,8 +44,9 @@ import org.apache.logging.log4j.Logger;
  */
 @Path("/list")
 public class ListTests extends HttpServlet {
-
-    private static final Logger LOG = LogManager.getLogger(ListTests.class);
+    
+    private static final Logger LOG = LoggerFactory.getLogger(ListTests.class);
+    private static final Gson gson = new Gson();
 
     @GET
     public Response doGet() throws IOException, URISyntaxException {
@@ -88,7 +89,7 @@ public class ListTests extends HttpServlet {
         request.namedgraphs = getDocuments(test, "dataset");
         request.documentset = getDocuments(test, "documentset");
 
-        Response.ResponseBuilder res = Response.ok(new Gson().toJson(request), "application/json");
+        Response.ResponseBuilder res = Response.ok(gson.toJson(request), "application/json");
         return res.build();
     }
 

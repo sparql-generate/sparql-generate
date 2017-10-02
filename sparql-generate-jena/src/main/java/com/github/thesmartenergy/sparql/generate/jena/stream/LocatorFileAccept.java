@@ -26,8 +26,8 @@ import org.apache.jena.atlas.lib.IRILib;
 import org.apache.jena.atlas.web.ContentType;
 import org.apache.jena.atlas.web.TypedInputStream;
 import org.apache.jena.util.FileUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 /**
  *
@@ -37,7 +37,7 @@ public class LocatorFileAccept extends LocatorAcceptBase {
     // Implementation note:
     // Java7: Path.resolve may provide an answer from the intricies of MS Windows
 
-    static Logger log = LogManager.getLogger(LocatorFileAccept.class);
+    static Logger log = LoggerFactory.getLogger(LocatorFileAccept.class);
     private final String thisDir;
     private final String thisDirLogStr;
 

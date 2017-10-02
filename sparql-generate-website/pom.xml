@@ -71,12 +71,12 @@
             <artifactId>jersey-server</artifactId>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-web</artifactId>
-            <version>2.9.0</version>
-        </dependency>
         
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>1.7.25</version>
+        </dependency>
 
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -92,7 +92,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-site-plugin</artifactId>
-                    <version>3.5</version>
+                    <version>3.3</version>
                     <inherited>true</inherited>
                     <executions>
                         <execution>
@@ -123,7 +123,19 @@
                                 </reports>
                             </plugin>
                         </reportPlugins>
-                    </configuration>        
+                    </configuration> 
+                    <dependencies>
+                    <dependency>
+                        <groupId>lt.velykis.maven.skins</groupId>
+                        <artifactId>reflow-velocity-tools</artifactId>
+                        <version>1.1.1</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.apache.velocity</groupId>
+                        <artifactId>velocity</artifactId>
+                        <version>1.7</version>
+                    </dependency>
+                    </dependencies>       
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>

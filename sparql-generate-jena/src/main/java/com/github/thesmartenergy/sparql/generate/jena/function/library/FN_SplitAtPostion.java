@@ -20,8 +20,8 @@ import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.NodeValue;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueString;
 import org.apache.jena.sparql.function.FunctionBase3;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 /**
  * A SPARQL Function that extracts part of a string from another string, based
@@ -36,7 +36,7 @@ public class FN_SplitAtPostion extends FunctionBase3 {
     /**
      * The logger.
      */
-    private static final Logger LOG = LogManager.getLogger(FN_SplitAtPostion.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FN_SplitAtPostion.class);
 
     /**
      * The SPARQL function URI.

@@ -20,8 +20,8 @@ import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.NodeValue;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueString;
 import org.apache.jena.sparql.function.FunctionBase2;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.select.Elements;
 
@@ -48,7 +48,7 @@ public class FN_HTMLTagElement extends FunctionBase2{
     /**
      * The logger.
      */
-    private static final Logger LOG = LogManager.getLogger(FN_HTMLTagElement.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FN_HTMLTagElement.class);
 
     /**
      * The SPARQL function URI.

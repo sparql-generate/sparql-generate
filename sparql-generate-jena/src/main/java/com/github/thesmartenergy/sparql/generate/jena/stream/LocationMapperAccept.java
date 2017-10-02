@@ -28,8 +28,8 @@ import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.ResourceFactory;
 import org.apache.jena.riot.system.stream.LocationMapper;
 import org.apache.jena.vocabulary.LocationMappingVocab;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 /**
  *
@@ -39,7 +39,7 @@ public class LocationMapperAccept extends LocationMapper {
     
     private static final Property accept = ResourceFactory.getInstance().createProperty("http://jena.hpl.hp.com/2004/08/location-mapping#media");
     
-    static Logger log = LogManager.getLogger(LocationMapperAccept.class);
+    static Logger log = LoggerFactory.getLogger(LocationMapperAccept.class);
     Map<LookUpRequest, LookUpRequest> altLocations = new HashMap<>();
 
     /**
@@ -126,9 +126,6 @@ public class LocationMapperAccept extends LocationMapper {
     }
     
     public LookUpRequest altRequest(LookUpRequest request, LookUpRequest otherwise) {
-        if(request.getFilenameOrURI().startsWith("http")) {
-            int i=0;
-        }
         if (altLocations.containsKey(request)) {
             return altLocations.get(request);
         }

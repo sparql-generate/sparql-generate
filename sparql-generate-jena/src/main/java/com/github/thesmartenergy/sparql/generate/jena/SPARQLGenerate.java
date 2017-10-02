@@ -68,8 +68,8 @@ import org.apache.jena.sparql.serializer.QuerySerializerFactory;
 import org.apache.jena.sparql.serializer.SerializationContext;
 import org.apache.jena.sparql.serializer.SerializerRegistry;
 import org.apache.jena.sparql.util.NodeToLabelMapBNode;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 /**
  * The configuration entry point of SPARQL-Generate. Method {@link #init()} must
@@ -131,7 +131,7 @@ public final class SPARQLGenerate {
     public static void init() {
     }
 
-    static final Logger log = LogManager.getLogger(SPARQLGenerate.class);
+    static final Logger log = LoggerFactory.getLogger(SPARQLGenerate.class);
 
     static {
         log.trace("initializing SPARQLGenerate");
