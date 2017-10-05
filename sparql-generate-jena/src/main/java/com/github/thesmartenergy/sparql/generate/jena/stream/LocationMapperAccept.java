@@ -56,13 +56,14 @@ public class LocationMapperAccept extends LocationMapper {
                 + "OPTIONAL { ?e lm:media ?media . } "
                 + "}");
         QueryExecutionFactory.create(q, configurationModel).execSelect().forEachRemaining((result) -> {
+            String name = null, altName = null, media = null;
             try {
-                String name = result.getLiteral("name").getString();
-                String altName = result.getLiteral("alt").getString();
-                String media = (result.getLiteral("media") == null ? null : result.getLiteral("media").getString());
+                name = result.getLiteral("name").getString();
+                altName = result.getLiteral("alt").getString();
+                media = (result.getLiteral("media") == null ? null : result.getLiteral("media").getString());
                 altLocations.put(new LookUpRequest(name, media), new LookUpRequest(altName, media));
             } catch (Exception ex) {
-                log.warn("Error while reading mapping in configuration model " + ex);
+                log.warn("Error while reading mapping in configuration model for name " + name + ", alt " + altName + ", media " + media,ex);
             }
         });
     }

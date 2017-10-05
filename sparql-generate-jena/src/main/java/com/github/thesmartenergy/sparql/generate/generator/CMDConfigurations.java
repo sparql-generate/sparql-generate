@@ -15,8 +15,8 @@
  */
 package com.github.thesmartenergy.sparql.generate.generator;
 
-import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
@@ -28,7 +28,7 @@ import org.apache.commons.cli.ParseException;
 public class CMDConfigurations {
     public static CommandLine parseArguments(String[] args) throws ParseException {
         
-         BasicParser commandLineParser = new BasicParser();
+         DefaultParser commandLineParser = new DefaultParser();
          CommandLine cl = commandLineParser.parse(getCMDOptions(), args);
          
          /*Process Options*/
@@ -37,22 +37,18 @@ public class CMDConfigurations {
         if ( cl.hasOption('h') ) {
             CMDConfigurations.displayHelp();
         }
-        
-        
-         
          
         return cl;
     }
     
     public static Options getCMDOptions(){
         Options opt = new Options()
-                .addOption("h", "help",false, "Show help")
-                .addOption("m", "message", true, "URI to the message")
-                .addOption("qf", "queryfile", true, "Local path to the file containing the SPARGL query")
-                .addOption("qs", "query string", true, "The SPARGL query string")
-                .addOption("f","outputformat",true,"Output RDF format, e.g. -f TTL. Possible serializations are: TTL for Turtle, NTRIPLES for NTRIPLES, RDFXML for RDF/XML, N3 for N3, JSONLD for JSON-LD, TRIG for TRIG")
-                .addOption("l", false, "Disable logging, by default logging is enabled")
-                .addOption("c", true, "Configuration for mapping remote IRI to local files of the form IRI=/path/to/file1;IRI=/path/to/file2")
+                .addOption("h", "help", false, "Show help")
+                .addOption("d", "dir", true, "Location of the directory with the queries, documentset, dataset, and configuration files as explained in https://w3id.org/sparql-generate/language-cli.html. Default value is .")
+                .addOption("q", "query-file", true, "Name of the query file in the directory. Default value is query.rqg")
+                .addOption("o" , "output", true, "Location where the output is to be stored. No value means output goes to the console.")
+                .addOption("l", "log-level", true, "Set log level, acceptable values are TRACE < DEBUG < INFO < WARN < ERROR < FATAL < OFF. No value or unrecognized value results in level DEBUG")
+                .addOption("f" , "log-file", true, "Location where the log is to be stored. No value means output goes to the console.")
                 ;
         return opt;
     }

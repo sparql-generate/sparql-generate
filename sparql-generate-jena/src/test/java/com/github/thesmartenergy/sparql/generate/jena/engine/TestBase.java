@@ -21,6 +21,7 @@ import com.github.thesmartenergy.sparql.generate.jena.stream.LocationMapperAccep
 import com.github.thesmartenergy.sparql.generate.jena.stream.LocatorFileAccept;
 import com.github.thesmartenergy.sparql.generate.jena.stream.LookUpRequest;
 import com.github.thesmartenergy.sparql.generate.jena.stream.SPARQLGenerateStreamManager;
+import com.github.thesmartenergy.sparql.generate.jena.utils.SPARQLGenerateUtils;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -102,7 +103,7 @@ public class TestBase {
         // create generation plan
         PlanFactory factory = new PlanFactory();
         RootPlan plan = factory.create(q);        
-        Dataset ds = loadDataset();
+        Dataset ds = SPARQLGenerateUtils.loadDataset(exampleDir);
         
         now = System.currentTimeMillis();
         log.info("needed " + (now - start) + " to get ready");
@@ -137,34 +138,6 @@ public class TestBase {
         StringWriter sw = new StringWriter();
         expectedOutput.write(sw, "TTL");
         assertTrue(output.isIsomorphicWith(expectedOutput));
-    }
-    
-    Dataset loadDataset() {
-        Dataset ds = DatasetFactory.create();
-        try {
-            ds.setDefaultModel(RDFDataMgr.loadModel(new File(exampleDir, "default.ttl").toString(), Lang.TTL));
-        } catch (Exception ex) {
-            log.trace("error while loading the default graph default.ttl: " + ex.getMessage());
-        }
-
-        String query = "PREFIX lm: <http://jena.hpl.hp.com/2004/08/location-mapping#>\n"
-                + "SELECT * WHERE { [] lm:name ?name ; lm:altName ?alt .}" ;
-        try {
-            Model conf = RDFDataMgr.loadModel(new File(exampleDir, "dataset/configuration.ttl").toString(), Lang.TTL);
-            QueryExecutionFactory.create(query, conf).execSelect().forEachRemaining((sol)-> {
-                try {
-                    String name = sol.getLiteral("name").getString();
-                    String alt = sol.getLiteral("alt").getString();
-                    Model ng = RDFDataMgr.loadModel(new File(exampleDir, alt).toString(), Lang.TTL);
-                    ds.addNamedModel(name, ng);
-                } catch (Exception ex) {  
-                    log.trace("error while loading the default graph default.ttl: " + ex.getMessage());
-                }
-            });
-        } catch (Exception ex) {
-            log.trace("error while loading the dataset configuration file dataset/configuration.ttl: "  + ex.getMessage());
-        }
-        return ds;
     }
 
     void testQuerySerialization() throws Exception {
