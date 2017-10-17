@@ -200,7 +200,7 @@ public class TransformStream {
 
         @Override
         public void finish() {
-            LOG.info("end of transformation");
+            LOG.trace("end of transformation");
         }
     }
 

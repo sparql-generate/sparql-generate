@@ -113,7 +113,7 @@ xsd:string sgfn:JSONPath( xsd:string message, xsd:string tagname )
 
 ## How it works
 
-To put it simply, the execution of a SPARQL Generate is defined as follows:
+To put it simply, the execution of a SPARQL-Generate is defined as follows:
 
 1. clauses `ITERATE` and `LOOK UP` are processed in order, and one constructs a [SPARQL 1.1 VALUES](https://www.w3.org/TR/sparql11-query/#inline-data) data block.
 1. one constructs a SPARQL 1.1 `SELECT *` query from the SPARQL-Generate `WHEREVER` clause, and add the data block at the beginning of the `WHERE` clause.

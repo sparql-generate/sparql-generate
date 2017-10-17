@@ -26,7 +26,7 @@ import org.apache.jena.riot.system.StreamRDF;
  * Then, call one of the <code>exec</code> methods to trigger the
  * RDF generation.
  * <p>
- * The SPARQL Select part of a SPARQL Generate is evaluated on a RDF model, or a
+ * The SPARQL Select part of a SPARQL-Generate is evaluated on a RDF model, or a
  * SPARQL Dataset. The corresponding parameters are
  * <code>inputModel</code> or <code>inputDataset</code>.
  * To instantiate a {@link Model}, one may use:
@@ -65,7 +65,7 @@ import org.apache.jena.riot.system.StreamRDF;
  * </li>
  * </ul>
  * <p>
- * In SPARQL Generate over Apache Jena, one calls an <code>exec</code> method
+ * In SPARQL-Generate over Apache Jena, one calls an <code>exec</code> method
  * with parameter <code>initialBindings</code>.
  * <p>As a complete example, the following code executes a plan for the example
  * above:

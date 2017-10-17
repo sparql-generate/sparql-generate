@@ -20,7 +20,6 @@ import java.util.Map;
 import org.apache.jena.ext.com.google.common.collect.Maps;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
-import org.apache.jena.sparql.core.Var;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 
@@ -71,13 +70,13 @@ public class BNodeMap {
         if (binding == null) {
             return;
         }
-        for (Var v : binding.varsList()) {
-            Node n = binding.get(v);
-            if (n != null && n.isBlank() && !parent.contains(n)) {
-                Node bn = NodeFactory.createBlankNode();
-                bNodeMap.put(n, bn);
-            }
-        }
+        binding.varsList().stream()
+                .map((v) -> binding.get(v))
+                .filter((n) -> (n != null && n.isBlank() && !parent.contains(n)))
+                .forEach((n) -> {
+            Node bn = NodeFactory.createBlankNode();
+            bNodeMap.put(n, bn);
+        });
     }
 
     public final boolean contains(final Node node) {
@@ -118,22 +117,5 @@ public class BNodeMap {
         return asMap;
     }
 
-//    /**
-//     * {@inheritDoc }
-//     */
-//    @Override
-//    public final int size() {
-//        return varsList().size();
-//    }
-//
-//    /**
-//     * {@inheritDoc }
-//     */
-//    @Override
-//    public final boolean isEmpty() {
-//        return varsList().isEmpty();
-//    }
-//    
-    
     //todo write equal, hash, and tostring methods.
 }

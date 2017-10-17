@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 /**
- * Contains the Parser classes for SPARQL Generate queries, that actually
+ * Contains the Parser classes for SPARQL-Generate queries, that actually
  * extend the SPARQL 1.1 query syntax. This parser is hence conformant to the
  * SPARQL 1.1 specification.
  */

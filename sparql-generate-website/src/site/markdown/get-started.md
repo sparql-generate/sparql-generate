@@ -56,7 +56,7 @@ ModelFactory.createDefaultModel();
 
 ### Evaluating a query over a SPARQL Dataset
 
-Part of the SPARQL GENERATE query execution consists in evaluating a SPARQL 1.1 `SELECT *` query over a RDF Graph, or a SPARQL Dataset. Exactly like in SPARQL 1.1. The corresponding parameters are `inputModel` or `inputDataset`. To instantiate a `Dataset`, which is the Jena class for a SPARQL Dataset, one may use:
+Part of the SPARQL-Generate query execution consists in evaluating a SPARQL 1.1 `SELECT *` query over a RDF Graph, or a SPARQL Dataset. Exactly like in SPARQL 1.1. The corresponding parameters are `inputModel` or `inputDataset`. To instantiate a `Dataset`, which is the Jena class for a SPARQL Dataset, one may use:
 
 ```java
 DatasetFactory.create(Model model);
@@ -77,7 +77,7 @@ Suppose one needs to execute a plan with a variable `?msg` bound to a message wi
 - has lexical form `"mymessage"`,
 - has datatype IRI `<http://www.iana.org/assignments/media-types/application/json>` (this is optional).
 
-In SPARQL Generate over Apache Jena, one calls an `exec` method with parameter `initialBindings`. The following code shows how this can be done with the plan instantiated above:
+In SPARQL-Generate over Apache Jena, one calls an `exec` method with parameter `initialBindings`. The following code shows how this can be done with the plan instantiated above:
 
 ```java
 String variable = "msg";

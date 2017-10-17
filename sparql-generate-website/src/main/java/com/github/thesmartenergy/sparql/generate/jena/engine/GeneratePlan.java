@@ -30,7 +30,7 @@ public interface GeneratePlan {
 
     /**
      * Executes the GENERATE Clause. Uses the given {@code inputDataset}
-     * for the subsequent SPARQL GENERATE queries. Emit the generated RDF
+     * for the subsequent SPARQL-Generate queries. Emit the generated RDF
      * triples to the {@code stream} RDF Stream. Use the given
      * {@code variables} and {@code values} to generate triples.
      *

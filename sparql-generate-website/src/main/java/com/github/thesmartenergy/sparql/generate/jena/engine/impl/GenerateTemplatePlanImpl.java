@@ -74,9 +74,9 @@ public class GenerateTemplatePlanImpl extends PlanBase implements GeneratePlan {
             final List<Var> variables,
             final List<BindingHashMapOverwrite> values,
             final BNodeMap bNodeMap) {
-        for (BindingHashMapOverwrite binding : values) {
+        values.forEach((binding) -> {
             BNodeMap bNodeMap2 = new BNodeMap(bNodeMap, binding);
-            for (GenerateTemplateElementPlan el : templateElementPlans) {
+            templateElementPlans.forEach((el) -> {
                 if (el instanceof GenerateTriplesPlanImpl) {
                     GenerateTriplesPlanImpl subPlanTriples
                             = (GenerateTriplesPlanImpl) el;
@@ -86,29 +86,28 @@ public class GenerateTemplatePlanImpl extends PlanBase implements GeneratePlan {
                 } else if (el instanceof RootPlanImpl) {
                     RootPlanImpl rootPlan = (RootPlanImpl) el;
                     QuerySolutionMap b = new QuerySolutionMap();
-                    for (Var v : binding.varsList()) {
+                    binding.varsList().forEach((v) -> {
                         Node n = binding.get(v);
-                        if (n == null) {
-                            continue;
+                        if (!(n == null)) {
+                            if (bNodeMap.contains(n)) {
+                                b.add(v.getVarName(), inputDataset
+                                        .getDefaultModel()
+                                        .asRDFNode(bNodeMap.get(n)));
+                            } else {
+                                b.add(v.getVarName(), inputDataset
+                                        .getDefaultModel()
+                                        .asRDFNode(n));
+                            }
                         }
-                        if (bNodeMap.contains(n)) {
-                            b.add(v.getVarName(), inputDataset
-                                    .getDefaultModel()
-                                    .asRDFNode(bNodeMap.get(n)));
-                        } else {
-                            b.add(v.getVarName(), inputDataset
-                                    .getDefaultModel()
-                                    .asRDFNode(n));
-                        }
-                    }
+                    });
+                    LOG.trace("Entering sub SPARQL-Generate with \n\t" + b);
                     rootPlan.exec(inputDataset, b, outputStream, bNodeMap2);
                 } else {
-                    LOG.warn("should not reach this point");
                     throw new SPARQLGenerateException("should not reach this"
                             + " point");
                 }
-            }
-        }
+            });
+        });
     }
 
 }

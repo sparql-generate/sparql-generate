@@ -14,6 +14,6 @@
  * limitations under the License.
  */
 /**
- * Contains the classes to serialize SPARQL Generate queries.
+ * Contains the classes to serialize SPARQL-Generate queries.
  */
 package com.github.thesmartenergy.sparql.generate.jena.serializer;

@@ -16,7 +16,7 @@
 package com.github.thesmartenergy.sparql.generate.jena.query;
 
 /**
- * Extends the ARQ query visitor for elements specific to SPARQL Generate
+ * Extends the ARQ query visitor for elements specific to SPARQL-Generate
  * queries.
  *
  * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
@@ -25,13 +25,13 @@ public interface SPARQLGenerateQueryVisitor extends org.apache.jena.query.QueryV
 
     /**
      * Visits the {@code GENERATE} clause.
-     * @param query the SPARQL Generate query.
+     * @param query the SPARQL-Generate query.
      */
     public void visitGenerateResultForm(SPARQLGenerateQuery query);
 
     /**
      * Visits all of the {@code ITERATOR} and {@code SOURCE} clauses.
-     * @param query the SPARQL Generate query.
+     * @param query the SPARQL-Generate query.
      */
     public void visitIteratorsAndSources(SPARQLGenerateQuery query);
 

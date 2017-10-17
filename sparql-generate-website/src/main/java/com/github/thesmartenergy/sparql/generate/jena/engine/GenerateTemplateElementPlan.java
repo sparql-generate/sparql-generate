@@ -13,10 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.github.thesmartenergy.sparql.generate.jena.engine;
+
 /**
- * Contains the model for <a href="w3id.org/sparql-generate/">SPARQL Generate
- * iterator functions</a>. SPARQL Generate iterator functions are similar
- * to SPARQL functions,  except they return a list of RDF terms or SPARQL
- * variables, instead of only one.
+ * Executes one block in the SPARQL-Generate template.
+ *
+ * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */
-package com.github.thesmartenergy.sparql.generate.jena.iterator;
+public interface GenerateTemplateElementPlan {
+
+}

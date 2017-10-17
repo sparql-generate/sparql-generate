@@ -87,7 +87,7 @@ public class SPARQLGenerateParserBase extends SPARQLParserBase {
     }
 
     /**
-     * If possible, cast the query to a SPARQL Generate Query. Else, returns
+     * If possible, cast the query to a SPARQL-Generate Query. Else, returns
      * null.
      *
      * @return -

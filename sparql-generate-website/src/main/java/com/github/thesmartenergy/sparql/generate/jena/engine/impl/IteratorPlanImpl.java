@@ -90,10 +90,16 @@ public class IteratorPlanImpl extends PlanBase implements IteratorPlan {
         }
 
         ensureNotEmpty(variables, values);
-        for (BindingHashMapOverwrite binding: values) {
+        final StringBuilder sb;
+        if(LOG.isTraceEnabled()) {
+            sb = new StringBuilder("Execution of " + iterator + " " + exprList + " AS  " + var + ":\n");
+        } else {
+            sb = null;
+        }
+        values.forEach((binding) -> {
             List<BindingHashMapOverwrite> newValues= new ArrayList();
             try {
-                iterator.exec(binding, exprList, null, (List<NodeValue> nodeValues) -> {
+                iterator.exec(binding, exprList, null, (nodeValues) -> {
                     if (nodeValues == null || nodeValues.isEmpty()) {
                         newValues.add(new BindingHashMapOverwrite(binding, var, null));
                     } else {
@@ -105,13 +111,14 @@ public class IteratorPlanImpl extends PlanBase implements IteratorPlan {
                         bindingStream.accept(newValues);
                     }
                 });
-            } catch (VariableNotBoundException ex) {
-                LOG.warn("Iterator execution failed " + ex);
-                newValues.add(new BindingHashMapOverwrite(binding, var, null));
-            } catch(ExprEvalException ex) {
-                LOG.warn("Function execution error: " + ex);
+        if(LOG.isTraceEnabled()) {
+            sb.setLength(sb.length() - 2);
+        }
+        LOG.trace(sb.toString());
+            } catch (ExprEvalException ex) {
+                LOG.debug("Iterator execution failed: ", ex);
                 newValues.add(new BindingHashMapOverwrite(binding, var, null));
             }
-        }
+        });
     }
 }

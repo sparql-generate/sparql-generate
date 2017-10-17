@@ -23,7 +23,7 @@ import org.apache.jena.sparql.util.NodeIsomorphismMap;
 import com.github.thesmartenergy.sparql.generate.jena.query.SPARQLGenerateQuery;
 
 /**
- * A SPARQL Generate sub-query.
+ * A SPARQL-Generate sub-query.
  *
  * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */

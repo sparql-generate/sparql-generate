@@ -22,7 +22,7 @@ import org.apache.jena.sparql.syntax.ElementVisitor;
 import org.apache.jena.sparql.util.NodeIsomorphismMap;
 
 /**
- * A SPARQL Generate {@code ITERATOR} clause.
+ * A SPARQL-Generate {@code ITERATOR} clause.
  * 
  * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */

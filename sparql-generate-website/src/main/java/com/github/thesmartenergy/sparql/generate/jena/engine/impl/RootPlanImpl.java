@@ -42,7 +42,7 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 
 /**
- * Entry point to a SPARQL Generate query execution.
+ * Entry point to a SPARQL-Generate query execution.
  *
  * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */

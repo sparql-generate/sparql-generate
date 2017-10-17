@@ -69,19 +69,32 @@ public class BindPlanImpl extends PlanBase implements SourcePlan {
     /**
      * {@inheritDoc}
      */
+    @Override
     final public void exec(
             final List<Var> variables,
             final List<BindingHashMapOverwrite> values) {
         boolean added = variables.add(var);
         if (!added) {
-            LOG.warn("Variable " + var + " is already bound !");
             throw new SPARQLGenerateException("Variable " + var + " is already"
                     + " bound !");
         }
+        final StringBuilder sb;
+        if(LOG.isTraceEnabled()) {
+            sb = new StringBuilder("Execution of BIND(" + expr + " AS " + var + "):");
+        } else {
+            sb = null;
+        }
         values.replaceAll((BindingHashMapOverwrite binding) -> {
             NodeValue n = ExprUtils.eval(expr, binding);
+            if(LOG.isTraceEnabled()) {
+                sb.append("\n\t").append("New binding ").append(var).append(" = ").append(n);
+            }
             return new BindingHashMapOverwrite(binding, var, n.asNode());            
         });
+        if(LOG.isTraceEnabled()) {
+            sb.setLength(sb.length() - 2);
+        }
+        LOG.trace(sb.toString());
     }
 
 }

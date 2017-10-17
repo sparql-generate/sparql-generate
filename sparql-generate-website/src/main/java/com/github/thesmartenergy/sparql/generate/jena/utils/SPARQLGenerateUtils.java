@@ -38,7 +38,7 @@ public class SPARQLGenerateUtils {
         try {
             ds.setDefaultModel(RDFDataMgr.loadModel(new File(dir, "default.ttl").toString(), Lang.TTL));
         } catch (Exception ex) {
-            LOG.error("error while loading the default graph default.ttl: " + ex.getMessage());
+            LOG.warn("error while loading the default graph default.ttl: " + ex.getMessage());
         }
 
         String query = "PREFIX lm: <http://jena.hpl.hp.com/2004/08/location-mapping#>\n"
@@ -52,11 +52,11 @@ public class SPARQLGenerateUtils {
                     Model ng = RDFDataMgr.loadModel(new File(dir, alt).toString(), Lang.TTL);
                     ds.addNamedModel(name, ng);
                 } catch (Exception ex) {  
-                    LOG.error("error while loading the default graph default.ttl: " + ex.getMessage());
+                    LOG.warn("error while loading the default graph default.ttl: " + ex.getMessage());
                 }
             });
         } catch (Exception ex) {
-            LOG.error("error while loading the dataset configuration file dataset/configuration.ttl: "  + ex.getMessage());
+            LOG.warn("error while loading the dataset configuration file dataset/configuration.ttl: "  + ex.getMessage());
         }
         return ds;
     }

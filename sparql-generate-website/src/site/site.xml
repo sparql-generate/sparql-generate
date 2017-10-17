@@ -36,7 +36,7 @@ See the License for the specific language governing permissions and
             <highlightJs>true</highlightJs>
             <highlightJsTheme>github</highlightJsTheme>
             <brand>
-                <name><![CDATA[<span class="color-highlight">SPARQL Generate</span>]]></name>
+                <name><![CDATA[<span class="color-highlight">SPARQL-Generate</span>]]></name>
                 <href>/sparql-generate/</href>
             </brand>
             <slogan>RDF Generation from heterogeneous documents.</slogan>
@@ -52,7 +52,7 @@ See the License for the specific language governing permissions and
                 <column>Contribute</column>
             </bottomNav>
             <bottomDescription>
-        <![CDATA[ SPARQL Generate is <a href="language.html">an extension of SPARQL 1.1</a> for querying not only RDF datasets but also documents in arbitrary formats. It offers a simple template-based option to generate RDF Graphs from documents.]]>
+        <![CDATA[ SPARQL-Generate is <a href="language.html">an extension of SPARQL 1.1</a> for querying not only RDF datasets but also documents in arbitrary formats. It offers a simple template-based option to generate RDF Graphs from documents.]]>
             </bottomDescription>
             <pages>
                 <markPageHeader>false</markPageHeader>
@@ -69,7 +69,7 @@ See the License for the specific language governing permissions and
                 </index>
 
                 <evaluation>
-                    <titleTemplate>SPARQL Generate - Evaluation</titleTemplate>
+                    <titleTemplate>SPARQL-Generate - Evaluation</titleTemplate>
                     <breadcrumbs>false</breadcrumbs>
                     <toc>false</toc>
                     <markPageHeader>false</markPageHeader>
@@ -79,7 +79,7 @@ See the License for the specific language governing permissions and
                     </sections>
                 </evaluation>
                 <language>
-                    <titleTemplate>SPARQL Generate - Language Overview</titleTemplate>
+                    <titleTemplate>SPARQL-Generate - Language Overview</titleTemplate>
                     <breadcrumbs>false</breadcrumbs>
                     <toc>false</toc>
                     <markPageHeader>false</markPageHeader>
@@ -91,25 +91,25 @@ See the License for the specific language governing permissions and
                     </sections>
                 </language>
                 <playground>
-                    <titleTemplate>SPARQL Generate - Playground</titleTemplate>
+                    <titleTemplate>SPARQL-Generate - Playground</titleTemplate>
                     <breadcrumbs>false</breadcrumbs>
                     <toc>false</toc>
                     <markPageHeader>false</markPageHeader>
                 </playground>
                 <language-api>
-                    <titleTemplate>SPARQL Generate - Web API</titleTemplate>
+                    <titleTemplate>SPARQL-Generate - Web API</titleTemplate>
                     <breadcrumbs>false</breadcrumbs>
                     <toc>false</toc>
                     <markPageHeader>false</markPageHeader>
                 </language-api>
                 <language-cli>
-                    <titleTemplate>SPARQL Generate - Executable JAR</titleTemplate>
+                    <titleTemplate>SPARQL-Generate - Executable JAR</titleTemplate>
                     <breadcrumbs>false</breadcrumbs>
                     <toc>false</toc>
                     <markPageHeader>false</markPageHeader>
                 </language-cli>
                 <get-started>
-                    <titleTemplate>SPARQL Generate - Java API</titleTemplate>
+                    <titleTemplate>SPARQL-Generate - Java API</titleTemplate>
                     <breadcrumbs>false</breadcrumbs>
                     <toc>false</toc>
                     <markPageHeader>false</markPageHeader>
@@ -119,7 +119,7 @@ See the License for the specific language governing permissions and
                     </sections>
                 </get-started>
                 <tests-reports>
-                    <titleTemplate>SPARQL Generate - Tests reports</titleTemplate>
+                    <titleTemplate>SPARQL-Generate - Tests reports</titleTemplate>
                     <breadcrumbs>false</breadcrumbs>
                     <toc>false</toc>
                     <markPageHeader>false</markPageHeader>

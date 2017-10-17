@@ -63,7 +63,7 @@ import org.apache.jena.sparql.util.FmtUtils;
 import org.apache.jena.vocabulary.RDF;
 
 /**
- * Extends the ARQ Element Formatter with SPARQL Generate elements.
+ * Extends the ARQ Element Formatter with SPARQL-Generate elements.
  *
  * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */

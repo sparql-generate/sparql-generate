@@ -27,7 +27,6 @@ import org.apache.jena.sparql.core.Var;
 import java.util.Objects;
 import com.github.thesmartenergy.sparql.generate.jena.engine.SourcePlan;
 import com.github.thesmartenergy.sparql.generate.jena.stream.LookUpRequest;
-import com.github.thesmartenergy.sparql.generate.jena.stream.SPARQLGenerateStreamManager;
 import org.apache.jena.atlas.web.TypedInputStream;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
@@ -82,8 +81,6 @@ public class SourcePlanImpl extends PlanBase implements SourcePlan {
         Objects.requireNonNull(node0, "Node must not be null");
         Objects.requireNonNull(var0, "Var must not be null");
         if (!node0.isURI() && !node0.isVariable()) {
-            LOG.error("Source node must be a IRI or a"
-                    + " Variable. got " + node0);
             throw new IllegalArgumentException("Source node must be a IRI or a"
                     + " Variable. got " + node0);
         }
@@ -98,10 +95,10 @@ public class SourcePlanImpl extends PlanBase implements SourcePlan {
     final public void exec(
             final List<Var> variables,
             final List<BindingHashMapOverwrite> values) {
+        LOG.debug("Exec SOURCE " + node  + (accept!=null? " ACCEPT " + accept : "" ) + " AS " + var);
+
         boolean added = variables.add(var);
         if (!added) {
-            LOG.warn("Variable " + var + " is already"
-                    + " bound !");
             throw new SPARQLGenerateException("Variable " + var + " is already"
                     + " bound !");
         }
@@ -110,11 +107,12 @@ public class SourcePlanImpl extends PlanBase implements SourcePlan {
             // generate the source URI.
             final String sourceUri = getActualSource(value);
             final String acceptHeader = getAcceptHeader(value);
+            LOG.trace("... resolved to SOURCE <" + sourceUri + "> ACCEPT " + acceptHeader + " AS " + var);
             try {
                 final LookUpRequest request = new LookUpRequest(sourceUri, acceptHeader);
                 final TypedInputStream stream = SPARQLGenerate.getStreamManager().open(request);
                 if(stream == null) {
-                    LOG.warn("Got nothing when fetching source " + sourceUri + " with " + acceptHeader);
+                    LOG.warn("Exec SOURCE <" + sourceUri + "> ACCEPT " + acceptHeader + " AS " + var + " returned nothing.");
                     return new BindingHashMapOverwrite(value, var, null);
                 }
                 final String literal = IOUtils.toString(stream.getInputStream(), "UTF-8");
@@ -125,6 +123,8 @@ public class SourcePlanImpl extends PlanBase implements SourcePlan {
                     dt = tm.getSafeTypeByName("http://www.w3.org/2001/XMLSchema#string");
                 }
                 final Node n = NodeFactory.createLiteral(literal, dt);
+                LOG.info("Exec SOURCE <" + sourceUri + "> ACCEPT " + acceptHeader + " AS " + var + " returned. Enable DEBUG level for more.");
+                LOG.debug(n.toString());
                 return new BindingHashMapOverwrite(value, var, n);
             } catch (Exception ex) {
                 LOG.warn("Exception while looking up " + sourceUri + ":", ex);

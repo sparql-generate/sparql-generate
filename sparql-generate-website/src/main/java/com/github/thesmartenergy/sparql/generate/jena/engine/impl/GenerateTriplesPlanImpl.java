@@ -16,7 +16,6 @@
 package com.github.thesmartenergy.sparql.generate.jena.engine.impl;
 
 import com.github.thesmartenergy.sparql.generate.jena.engine.GenerateTemplateElementPlan;
-import org.apache.jena.graph.Triple;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.riot.system.StreamRDF;
 import org.apache.jena.sparql.core.BasicPattern;
@@ -36,7 +35,6 @@ public class GenerateTriplesPlanImpl
      * The logger.
      */
     private static final Logger LOG = LoggerFactory.getLogger(GenerateTriplesPlanImpl.class);
-
 
     /**
      * The basic pattern.
@@ -60,11 +58,17 @@ public class GenerateTriplesPlanImpl
             final StreamRDF outputStream,
             final BindingHashMapOverwrite binding,
             final BNodeMap bNodeMap) {
-        for (Triple t : bgp.getList()) {
-            Triple t2 = TemplateLib.subst(t, binding, bNodeMap.asMap());
-            if (t2.isConcrete()) {
-                outputStream.triple(t2);
-            }
-        }
+
+        final StringBuilder sb = new StringBuilder("Output triples");
+        bgp.getList().stream()
+                .map((t) -> TemplateLib.subst(t, binding, bNodeMap.asMap()))
+                .filter((t2) -> (t2.isConcrete()))
+                .forEach((t2) -> {
+                    if (LOG.isTraceEnabled()) {
+                        sb.append("\n\t").append(t2);
+                    }
+                    outputStream.triple(t2);
+                });
+        LOG.trace(sb.toString());
     }
 }

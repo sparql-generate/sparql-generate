@@ -76,7 +76,7 @@ public class SPARQLGenerateQuery extends Query {
     }
 
     /**
-     * The query type of SPARQL Generate queries.
+     * The query type of SPARQL-Generate queries.
      */
     public static final int QueryTypeGenerate = 555;
 
@@ -86,14 +86,14 @@ public class SPARQLGenerateQuery extends Query {
     int queryType = QueryTypeUnknown;
 
     /**
-     * Specifies that the Query is a SPARQL Generate query.
+     * Specifies that the Query is a SPARQL-Generate query.
      */
     public void setQueryGenerateType() {
         queryType = QueryTypeGenerate;
     }
 
     /**
-     * Gets if the Query is a SPARQL Generate query.
+     * Gets if the Query is a SPARQL-Generate query.
      */
     public boolean isGenerateType() {
         return queryType == QueryTypeGenerate;
@@ -203,10 +203,10 @@ public class SPARQLGenerateQuery extends Query {
     
 
     /**
-     * Visits the query by a SPARQL Generate Query visitor, or throw an
+     * Visits the query by a SPARQL-Generate Query visitor, or throw an
      * exception.
-     * @param visitor must be a SPARQL Generate Query visitor.
-     * @throws IllegalArgumentException if the query is not a SPARQL Generate
+     * @param visitor must be a SPARQL-Generate Query visitor.
+     * @throws IllegalArgumentException if the query is not a SPARQL-Generate
      * Query.
      */
     @Override
@@ -216,13 +216,13 @@ public class SPARQLGenerateQuery extends Query {
         } else {
             throw new IllegalArgumentException(
                     "Only instances of SPARQLGenerateQueryVisitor can visit"
-                            + " SPARQL Generate Queries.");
+                            + " SPARQL-Generate Queries.");
         }
     }
 
     /**
-     * Visits the query by a SPARQL Generate Query visitor.
-     * @param visitor the SPARQL Generate Query visitor.
+     * Visits the query by a SPARQL-Generate Query visitor.
+     * @param visitor the SPARQL-Generate Query visitor.
      */
     public void visit(final SPARQLGenerateQueryVisitor visitor)
     {

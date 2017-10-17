@@ -18,7 +18,7 @@ package com.github.thesmartenergy.sparql.generate.jena.syntax;
 import org.apache.jena.sparql.syntax.ElementVisitor;
 
 /**
- * Extends the ARQ Element Visitor with SPARQL Generate specificities.
+ * Extends the ARQ Element Visitor with SPARQL-Generate specificities.
  * 
  * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */

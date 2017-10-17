@@ -80,15 +80,57 @@ blockquote p {
 
 @media (min-width: 800px) {
     #form {
-        margin: 1em;
+        margin: -1em;
     }   
 
     #form > div {
-        width: 47%;
+        width: 50%;
+        box-sizing: border-box;
         float:left;
         position: relative;
         min-height: 1px;
-        padding-right: 15px;
-        padding-left: 15px;
+        padding-right: 0px;
+        padding-left: 0px;
     }
+}
+
+
+input[type="range"] {
+    position: relative;
+    margin-left: 1em;
+    margin-bottom: 1.5em;
+}
+input[type="range"]:after,
+input[type="range"]:before {
+    position: absolute;
+    top: 1em;
+    color: #aaa;
+}
+input[type="range"]:before {
+    left:0em;
+    content: "none";
+}
+input[type="range"]:after {
+    right: 0em;
+    content: "all";
+}
+
+.log.TRACE {
+    color: #999999
+}
+
+.log.DEBUG {
+    color: #5e77d4
+}
+
+.log.INFO {
+    color: #33cc33
+}
+
+.log.WARN {
+    color: #ff751a
+}
+
+.log.ERROR {
+    color: #e62e00
 }

@@ -23,7 +23,7 @@ import org.apache.jena.sparql.expr.NodeValue;
 import org.apache.jena.sparql.function.FunctionEnv;
 
 /**
- * The interface of SPARQL Generate iterator functions. SPARQL Generate
+ * The interface of SPARQL-Generate iterator functions. SPARQL-Generate
  * iterators are similar to SPARQL functions, except they return a list of
  * RDF terms or SPARQL variables, instead of only one.
  */

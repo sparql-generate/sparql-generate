@@ -179,6 +179,7 @@ var init = function() {
     </div>
     <div id="log">
       <legend>Log</legend>
+      <input id="loglevel" type="range" value="5" min="0" max="5"></input>
       <pre></pre>
     </div>
   </div>
@@ -813,11 +814,28 @@ var show_nameddocument = function(doc) {
 //  result
 
 var result;
+var levels = {"TRACE": 5,
+                "DEBUG": 4,
+                "INFO": 3,
+                "WARN": 2,
+                "ERROR":1};
 
 var load_result = function() {
   result = YATE.fromTextArea(document.getElementById('result'), {
   "readOnly": true, 
   "createShareLink": false});
+  $("#loglevel").on('input propertychange', manage_log_level);
+}
+
+var manage_log_level = function() {
+    var val = $("#loglevel").val();
+    for(var level in levels) {
+        if(val >= levels[level]) {
+            $(".log." + level).show();          
+        } else {
+            $(".log." + level).hide();                        
+        }
+    }
 }
 
 ///////////////////////////////////////
@@ -864,7 +882,7 @@ var load_test = function(id) {
   
   $("#tabs").tabs("option", "active", 0);
 }
- 
+
 $(document).ready(function() {
     
     
@@ -897,10 +915,19 @@ $(document).ready(function() {
           result.setValue(result.getValue() + data.result);       
         }
         if(data.log && data.log != "") {
-          $("#log pre").append(data.log.replace(/</g, "&lt;"));
+          var span = $("<span>")
+                  .addClass("log")
+                  .append(data.log.replace(/</g, "&lt;"))
+                  .appendTo("#log pre");
+          for(var level in levels) {
+              if(data.log.includes(level)) {
+                  span.addClass(level);
+              }
+          }
         }
       }
-  }
+      manage_log_level();
+    }
    
   socket.onclose = function (event) {
       console.log("websocket closed");

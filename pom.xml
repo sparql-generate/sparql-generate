@@ -6,7 +6,7 @@
     <version>1.2.2-SNAPSHOT</version>
     <packaging>pom</packaging>
        
-    <name>SPARQL Generate</name>
+    <name>SPARQL-Generate</name>
     <description>The parent project for SPARQL-Generate over Apache Jena, and its demonstration website</description>
     <url>https://w3id.org/sparql-generate/</url>
     <inceptionYear>2016</inceptionYear>

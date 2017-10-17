@@ -18,14 +18,14 @@ package com.github.thesmartenergy.sparql.generate.jena;
 import org.apache.jena.sparql.ARQException;
 
 /**
- * The SPARQL Generate exception class.
+ * The SPARQL-Generate exception class.
  *
  * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */
 public class SPARQLGenerateException extends ARQException {
 
     /**
-     * Constructs a new SPARQL Generate Exception with the specified detail
+     * Constructs a new SPARQL-Generate Exception with the specified detail
      * message and cause.
      * <p>
      * Note that the detail message associated with cause is not automatically
@@ -41,14 +41,14 @@ public class SPARQLGenerateException extends ARQException {
     }
 
     /**
-     * Constructs a new SPARQL Generate Exception.
+     * Constructs a new SPARQL-Generate Exception.
      */
     public SPARQLGenerateException() {
         super();
     }
 
     /**
-     * Constructs a new SPARQL Generate Exception with the specified cause.
+     * Constructs a new SPARQL-Generate Exception with the specified cause.
      *
      * @param cause - the cause.
      */
@@ -57,7 +57,7 @@ public class SPARQLGenerateException extends ARQException {
     }
 
     /**
-     * Constructs a new SPARQL Generate Exception with the specified detail
+     * Constructs a new SPARQL-Generate Exception with the specified detail
      * message.
      * <p>
      * Note that the detail message associated with cause is not automatically

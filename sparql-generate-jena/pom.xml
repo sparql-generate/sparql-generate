@@ -10,7 +10,7 @@
     <artifactId>sparql-generate-jena</artifactId>
     <packaging>jar</packaging>
        
-    <name>SPARQL Generate over Apache Jena</name>
+    <name>SPARQL-Generate over Apache Jena</name>
     <description>An implementation of SPARQL-Generate over Apache Jena</description>
     <url>https://w3id.org/sparql-generate/</url>
 
@@ -129,7 +129,7 @@
                             <configuration>
                                 <transformers>
                                     <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                        <mainClass>com.github.thesmartenergy.sparql.generate.generator.CMDGenerator</mainClass>
+                                        <mainClass>com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerateCli</mainClass>
                                     </transformer>
                                 </transformers>
                             </configuration>

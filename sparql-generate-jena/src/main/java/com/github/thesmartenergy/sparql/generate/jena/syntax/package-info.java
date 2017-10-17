@@ -14,6 +14,6 @@
  * limitations under the License.
  */
 /**
- * Contains the models of elements of SPARQL Generate queries.
+ * Contains the models of elements of SPARQL-Generate queries.
  */
 package com.github.thesmartenergy.sparql.generate.jena.syntax;

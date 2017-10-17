@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 
 /**
- * Extends the ARQ Query Serializer with SPARQL Generate specificities.
+ * Extends the ARQ Query Serializer with SPARQL-Generate specificities.
  *
  * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */

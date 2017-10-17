@@ -23,6 +23,8 @@ import org.apache.jena.query.QuerySolution;
 import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.engine.binding.Binding;
 import org.apache.jena.sparql.engine.binding.BindingHashMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Class to store overridable bindings efficiently.
@@ -30,6 +32,8 @@ import org.apache.jena.sparql.engine.binding.BindingHashMap;
  * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */
 public class BindingHashMapOverwrite extends PlanBase implements Binding {
+
+    private static final Logger LOG = LoggerFactory.getLogger(BindingHashMapOverwrite.class);
 
     /** The parent binding. */
     private final Binding parent;
@@ -52,6 +56,7 @@ public class BindingHashMapOverwrite extends PlanBase implements Binding {
         this.parent = parent;
         this.var = var;
         this.node = node;
+//        LOG.trace("New binding #" + System.identityHashCode(this) + " overrides " + parent + " with " + var + " = " + node);
     }
 
     /**
@@ -74,6 +79,7 @@ public class BindingHashMapOverwrite extends PlanBase implements Binding {
             }
             parent = p;
         }
+//        LOG.trace("New binding #" + System.identityHashCode(this) + " copies " + binding);
     }
 
     /**
@@ -152,6 +158,6 @@ public class BindingHashMapOverwrite extends PlanBase implements Binding {
         return varsList().isEmpty();
     }
     
-    
     //todo write equal, hash, and tostring methods.
+
 }
