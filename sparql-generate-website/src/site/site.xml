@@ -161,6 +161,7 @@ See the License for the specific language governing permissions and
         <menu name="Main" inherit="top">
             <item name="Overview" href="index.html"/>
             <item name="Playground" href="playground.html"/>
+            <item name="Tutorial" href="tutorial.html"/>
             <item name="Language" href="language.html"/>
         </menu>
         
