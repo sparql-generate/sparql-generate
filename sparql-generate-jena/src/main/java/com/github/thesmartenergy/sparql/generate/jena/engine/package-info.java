@@ -15,7 +15,7 @@
  */
 /**
  * Classes to create and execute generation plans.
- * Create an execution plan with {@link GenerationPlanFactory}, and
+ * Create an execution plan with {@link com.github.thesmartenergy.sparql.generate.jena.engine.PlanFactory}, and
  * execute it using one of the {@code exec} methods.
  *
  * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>

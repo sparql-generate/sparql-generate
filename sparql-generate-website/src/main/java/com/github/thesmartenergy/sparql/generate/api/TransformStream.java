@@ -28,6 +28,7 @@ import com.jayway.jsonpath.spi.json.JsonProvider;
 import com.jayway.jsonpath.spi.mapper.JacksonMappingProvider;
 import com.jayway.jsonpath.spi.mapper.MappingProvider;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.util.EnumSet;
 import java.util.Set;
 import java.util.UUID;
@@ -69,7 +70,7 @@ public class TransformStream {
     private static long MAX_DURATION = TimeUnit.MILLISECONDS.convert(1, TimeUnit.MINUTES);
     private static int MAX_TRIPLES = 5000;
     private static String base = "http://example.org/";
-    private final StringWriterAppender appender = (StringWriterAppender) org.apache.log4j.Logger.getRootLogger().getAppender("WEBSOCKET");
+    private final StringWriterAppender appender = (StringWriterAppender) org.apache.log4j.Logger.getRootLogger().getAppender("TRANSFORMSTREAM");
 
     @OnOpen
     public void open(Session session) {
@@ -83,11 +84,14 @@ public class TransformStream {
 
     @OnMessage
     public void handleMessage(String message, Session session) throws IOException, InterruptedException {
+
+        //todo check size of message.
         System.out.println(Thread.currentThread().getName());
         appender.putSession(Thread.currentThread(), session);
         Dataset dataset = DatasetFactory.create();
         LocatorStringMap loc = new LocatorStringMap();
         String defaultquery;
+        boolean stream = true;
         try {
             session.getBasicRemote().sendText("clear");
         } catch (IOException ex) {
@@ -119,6 +123,10 @@ public class TransformStream {
                 loc.put(doc.uri, doc.string, doc.mediatype);
             });
 
+            if (request.stream) {
+                stream = request.stream;
+            }
+
             SPARQLGenerateStreamManager sm = SPARQLGenerateStreamManager.makeStreamManager(loc);
             SPARQLGenerate.setStreamManager(sm);
         } catch (Exception ex) {
@@ -129,10 +137,18 @@ public class TransformStream {
         SPARQLGenerateQuery q = (SPARQLGenerateQuery) QueryFactory.create(defaultquery, SPARQLGenerate.SYNTAX);
         RootPlan plan = PlanFactory.create(q);
 
-        StreamRDF outputStream = new WebSocketRDF(session, q.getPrefixMapping());
-        outputStream.start();
-        plan.exec(dataset, outputStream);
-        outputStream.finish();
+        if (stream) {
+
+            StreamRDF outputStream = new WebSocketRDF(session, q.getPrefixMapping());
+            outputStream.start();
+            plan.exec(dataset, outputStream);
+        } else {
+            Model model = plan.exec(dataset);
+            StringWriter sw = new StringWriter();
+            model.write(sw, "TTL", "http://example.org/");
+            LOG.trace("end of transformation");
+            session.getBasicRemote().sendText(gson.toJson(new Response(null, sw.toString())));
+        }
         appender.removeSession(Thread.currentThread());
     }
 
@@ -151,7 +167,7 @@ public class TransformStream {
         @Override
         public void start() {
             StringBuilder sb = new StringBuilder();
-            pm.getNsPrefixMap().forEach((prefix,uri)->{
+            pm.getNsPrefixMap().forEach((prefix, uri) -> {
                 sb.append("@Prefix ").append(prefix).append(": <").append(uri).append("> .\n");
             });
             try {
@@ -172,7 +188,7 @@ public class TransformStream {
 
         @Override
         public void prefix(String prefix, String uri) {
-            if(!uri.equals(pm.getNsPrefixURI(prefix))) {
+            if (!uri.equals(pm.getNsPrefixURI(prefix))) {
                 pm.setNsPrefix(prefix, uri);
                 StringBuilder sb = new StringBuilder();
                 sb.append("@Prefix ").append(prefix).append(": <").append(uri).append("> .\n");
@@ -190,7 +206,7 @@ public class TransformStream {
                 Response response = new Response(null, FmtUtils.stringForTriple(triple, context) + " .\n");
                 session.getBasicRemote().sendText(gson.toJson(response));
             } catch (IOException ex) {
-                LOG.error("IOException ", ex); 
+                LOG.error("IOException ", ex);
             }
         }
 

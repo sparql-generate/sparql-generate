@@ -15,7 +15,7 @@
  */
 /**
  * Contains the SPARQL custom functions for extracting strings from common data
- * formats, defined by the <a href="w3id.org/sparql-generate/">SPARQL-Generate
+ * formats, defined by the <a href="http://w3id.org/sparql-generate/">SPARQL-Generate
  * specification</a>.
  */
 package com.github.thesmartenergy.sparql.generate.jena.function.library;

@@ -16,10 +16,10 @@
 package com.github.thesmartenergy.sparql.generate.jena.normalizer;
 
 import com.github.thesmartenergy.sparql.generate.jena.expr.E_URIParam;
-import com.github.thesmartenergy.sparql.generate.jena.graph.Node_X;
-import com.github.thesmartenergy.sparql.generate.jena.graph.Node_XExpr;
-import com.github.thesmartenergy.sparql.generate.jena.graph.Node_XLiteral;
-import com.github.thesmartenergy.sparql.generate.jena.graph.Node_XURI;
+import com.github.thesmartenergy.sparql.generate.jena.graph.Node_Extended;
+import com.github.thesmartenergy.sparql.generate.jena.graph.Node_Expr;
+import com.github.thesmartenergy.sparql.generate.jena.graph.Node_ExtendedLiteral;
+import com.github.thesmartenergy.sparql.generate.jena.graph.Node_ExtendedURI;
 import com.github.thesmartenergy.sparql.generate.jena.graph.SPARQLGenerateNodeVisitor;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -64,7 +64,7 @@ public class NodeExprNormalizer implements SPARQLGenerateNodeVisitor {
     /**
      * Already normalized nodes (useful when normalizing Basic Graph Patterns)
      */
-    private final Map<Node_X, Var> cache = new HashMap<>();
+    private final Map<Node_Extended, Var> cache = new HashMap<>();
 
     /**
      * Expression normalizer
@@ -132,7 +132,7 @@ public class NodeExprNormalizer implements SPARQLGenerateNodeVisitor {
      * {@inheritDoc 
      */
     @Override
-    public Object visit(Node_XExpr node) {
+    public Object visit(Node_Expr node) {
         if (cache.containsKey(node)) {
             result = cache.get(node);
             return null;
@@ -149,7 +149,7 @@ public class NodeExprNormalizer implements SPARQLGenerateNodeVisitor {
      * {@inheritDoc 
      */
     @Override
-    public Object visit(Node_XLiteral node) {
+    public Object visit(Node_ExtendedLiteral node) {
         if (cache.containsKey(node)) {
             result = cache.get(node);
             return null;
@@ -180,7 +180,7 @@ public class NodeExprNormalizer implements SPARQLGenerateNodeVisitor {
      * {@inheritDoc 
      */
     @Override
-    public Object visit(Node_XURI node) {
+    public Object visit(Node_ExtendedURI node) {
         if (cache.containsKey(node)) {
             result = cache.get(node);
             return null;

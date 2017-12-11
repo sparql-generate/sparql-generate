@@ -15,7 +15,7 @@
  */
 /**
  * Configuration classes for SPARQL-Generate over Jena.
- * A call to {@link SPARQLGenerate#init()} must be operated before
+ * A call to {@link com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate#init() init} must be operated before
  * any further operation.
  */
 package com.github.thesmartenergy.sparql.generate.jena;
