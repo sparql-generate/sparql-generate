@@ -13,6 +13,7 @@ CodeMirror.modeURL = "https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.30.0/m
 
 var valid = true;
 var open = false;
+var stream = false;
 var timers = [];
 
 var validate = function() {
@@ -30,6 +31,7 @@ var validate = function() {
     valid = false;
     defaultquery_tag.addClass("invalid");
     defaultquery_tag.children(":first").append(" <span class='invalidmsg'>This query is not valid.</span>");
+        $("#run").attr("disabled", "disabled");
   }
   for(var i=0;i<namedqueries_editors.length;i++) {
     var query = namedqueries[i];
@@ -40,12 +42,14 @@ var validate = function() {
       valid = false;
       tag.addClass("invalid");
       tag.children(":first").append(" <span class='invalidmsg'>This query is not valid.</span>");
+        $("#run").attr("disabled", "disabled");
     }
     for(var n of namedqueries) {
       if(query !== n && query.uri == n.uri && query.mediatype == n.mediatype ) {
         valid = false;
         tag.addClass("invalid");
         tag.children(":first").append(" <span class='invalidmsg'>Another query has the same URI.</span>");        
+        $("#run").attr("disabled", "disabled");
       }
     }
     for(var n of documentset) {
@@ -53,6 +57,7 @@ var validate = function() {
         valid = false;
         tag.addClass("invalid");
         tag.children(":first").append(" <span class='invalidmsg'>A document has the same URI and mediatype 'application/vnd.sparql-generate'.</span>");        
+        $("#run").attr("disabled", "disabled");
       }
     }
   }
@@ -62,6 +67,7 @@ var validate = function() {
     valid = false;
     defaultgraph_tag.addClass("invalid");
     defaultgraph_tag.children(":first").append(" <span class='invalidmsg'>This graph is not valid.</span>");
+        $("#run").attr("disabled", "disabled");
   }
   for(var i=0;i<namedgraphs_editors.length;i++) {
     var graph = namedgraphs[i];
@@ -72,12 +78,14 @@ var validate = function() {
       valid = false;
       namedgraphs_tags[i].addClass("invalid");
       namedgraphs_tags[i].children(":first").append(" <span class='invalidmsg'>This graph is not valid.</span>");
+        $("#run").attr("disabled", "disabled");
     }
     for(var n of namedgraphs) {
       if(graph !== n && graph.uri == n.uri && graph.mediatype == n.mediatype ) {
         valid = false;
         tag.addClass("invalid");
         tag.children(":first").append(" <span class='invalidmsg'>Another graph has the same URI.</span>");        
+        $("#run").attr("disabled", "disabled");
       }
     }
     for(var n of documentset) {
@@ -85,6 +93,7 @@ var validate = function() {
         valid = false;
         tag.addClass("invalid");
         tag.children(":first").append(" <span class='invalidmsg'>A document has the same URI and mediatype 'text/turtle'.</span>");        
+        $("#run").attr("disabled", "disabled");
       }
     }
   }
@@ -99,12 +108,14 @@ var validate = function() {
       valid = false;
       tag.addClass("invalid");
       tag.children(":first").append(" <span class='invalidmsg'>The mediatype is invalid.</span>");        
+        $("#run").attr("disabled", "disabled");
     }
     for(var n of namedqueries) {
       if(doc.uri == n.uri && doc.mediatype == n.mediatype ) {
         valid = false;
         tag.addClass("invalid");
         tag.children(":first").append(" <span class='invalidmsg'>A query has the same URI.</span>");        
+        $("#run").attr("disabled", "disabled");
       }
     }
     for(var n of namedgraphs) {
@@ -112,6 +123,7 @@ var validate = function() {
         valid = false;
         tag.addClass("invalid");
         tag.children(":first").append(" <span class='invalidmsg'>A graph has the same URI.</span>");        
+        $("#run").attr("disabled", "disabled");
       }
     }
     for(var n of documentset) {
@@ -119,11 +131,12 @@ var validate = function() {
         valid = false;
         tag.addClass("invalid");
         tag.children(":first").append(" <span class='invalidmsg'>Another document has the same URI and mediatype.</span>");        
+        $("#run").attr("disabled", "disabled");
       }
     }
   }
 
-  if(valid && open) {
+  if(valid && open && stream) {
     for(var timer of timers) {
       window.clearTimeout(timer);
     }
@@ -133,17 +146,43 @@ var validate = function() {
         namedqueries: namedqueries,
         defaultgraph: defaultgraph_string,
         namedgraphs: namedgraphs,
-        documentset: documentset
+        documentset: documentset,
+        stream: stream
     };
     timers.push(window.setTimeout(function(msg) {
-      console.log("sending request");
-      socket.send(JSON.stringify(msg));
-    }, 100, msg));
+      send(msg);
+    }, 500, msg));
   }
 };
 
+var run = function() {
+    var msg = {
+        defaultquery: defaultquery_string,
+        namedqueries: namedqueries,
+        defaultgraph: defaultgraph_string,
+        namedgraphs: namedgraphs,
+        documentset: documentset,
+        stream: stream
+    };
+    send(msg);
+}
+
+var send = function(msg) {
+    console.log("sending request");
+    $("#run").delay(50).animate({
+        "box-shadow": "none"
+    }, 50, function () {
+        $("#run").animate({
+            "box-shadow": "0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19)"
+        }, 50);
+    });
+    socket.send(JSON.stringify(msg));
+}
+
+
 var resetErrors = function() {
   $(".invalid").removeClass("invalid");
+  $("#run").removeAttr("disabled");
   $(".invalidmsg").remove();
 };
 
@@ -174,7 +213,8 @@ var init = function() {
 <div class="col-lg-6">
   <div class="fieldset">
     <div id="result_list">
-      <legend>Result</legend>
+      <legend><button id="run">Run Query</button>
+      <label id="stream"><input type="checkbox" id="autocheck" /> <span>auto</span></label></legend>
       <textarea id="result"> </textarea>
     </div>
     <div id="log">
@@ -821,11 +861,26 @@ var levels = {"TRACE": 5,
                 "ERROR":1};
 
 var load_result = function() {
+  $('#run').on('click',function() { 
+    if(!stream) {
+        run();
+    }
+  });
+  $('#autocheck').change(function () {
+    if ($("#autocheck").is(":checked")) {
+        stream = true;
+    } else {
+        stream = false;
+    }
+  });
   result = YATE.fromTextArea(document.getElementById('result'), {
   "readOnly": true, 
   "createShareLink": false});
   $("#loglevel").on('input propertychange', manage_log_level);
+  result.setValue("");
+  $("#log pre").empty();
 }
+
 
 var manage_log_level = function() {
     var val = $("#loglevel").val();
@@ -896,7 +951,7 @@ $(document).ready(function() {
   init();
   load_tests();
 
-  var websocketurl = "wss://" + window.location.hostname + (window.location.port!="" ? ":" + window.location.port : "") + "/sparql-generate-test/transformStream";
+  var websocketurl = "wss://" + window.location.hostname + (window.location.port!="" ? ":" + window.location.port : "") + "/sparql-generate/transformStream";
   socket = new WebSocket(websocketurl);
  
   socket.onopen = function (event) {
@@ -906,24 +961,23 @@ $(document).ready(function() {
   };
    
   socket.onmessage = function (event) {
-      if(event.data == "clear") {
+      var data = JSON.parse(event.data);
+      if(data.clear === true) {
         result.setValue("");
         $("#log pre").empty();
-      } else {
-        var data = JSON.parse(event.data);
-        if(data.result && data.result != "") {
-          result.setValue(result.getValue() + data.result);       
-        }
-        if(data.log && data.log != "") {
-          var span = $("<span>")
-                  .addClass("log")
-                  .append(data.log.replace(/</g, "&lt;"))
-                  .appendTo("#log pre");
-          for(var level in levels) {
-              if(data.log.includes(level)) {
-                  span.addClass(level);
-              }
-          }
+      } 
+      if(data.result && data.result != "") {
+        result.setValue(result.getValue() + data.result);       
+      }
+      if(data.log && data.log != "") {
+        var span = $("<span>")
+                .addClass("log")
+                .append(data.log.replace(/</g, "&lt;"))
+                .appendTo("#log pre");
+        for(var level in levels) {
+            if(data.log.includes(level)) {
+                span.addClass(level);
+            }
         }
       }
       manage_log_level();

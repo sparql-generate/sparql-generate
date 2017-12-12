@@ -60,7 +60,7 @@ public class StringWriterAppender extends AppenderSkeleton {
         Session session = sessions.get(event.getThreadName());
         if (session != null) {
             try {
-                session.getBasicRemote().sendText(gson.toJson(new Response(message, null)));
+                session.getBasicRemote().sendText(gson.toJson(new Response(message, "", false)));
             } catch (IOException ex) {
                 System.err.println("IOException " + ex.getMessage());
             }
@@ -78,10 +78,5 @@ public class StringWriterAppender extends AppenderSkeleton {
     public boolean requiresLayout() {
         return true;
     }
-
-//    public String getName() {
-//        return ";
-//    }
-
     
 }

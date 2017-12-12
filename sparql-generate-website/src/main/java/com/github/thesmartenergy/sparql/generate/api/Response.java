@@ -22,9 +22,11 @@ package com.github.thesmartenergy.sparql.generate.api;
 public class Response {
     String log;
     String result;
+    boolean clear;
 
-    public Response(String log, String result) {
+    public Response(String log, String result, boolean clear) {
         this.log = log;
         this.result = result;
+        this.clear = clear;
     }
 }

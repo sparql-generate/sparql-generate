@@ -96,6 +96,12 @@ See the License for the specific language governing permissions and
                     <toc>false</toc>
                     <markPageHeader>false</markPageHeader>
                 </playground>
+                <tutorial>
+                    <titleTemplate>SPARQL-Generate - Tutorial</titleTemplate>
+                    <breadcrumbs>false</breadcrumbs>
+                    <toc>false</toc>
+                    <markPageHeader>false</markPageHeader>
+                </tutorial>
                 <language-api>
                     <titleTemplate>SPARQL-Generate - Web API</titleTemplate>
                     <breadcrumbs>false</breadcrumbs>
@@ -155,6 +161,7 @@ See the License for the specific language governing permissions and
         <links>
             <item name="Overview" href="index.html"/>
             <item name="Playground" href="playground.html"/>
+            <item name="Tutorial" href="tutorial.html"/>
             <item name="Language" href="language.html"/>
         </links>
 

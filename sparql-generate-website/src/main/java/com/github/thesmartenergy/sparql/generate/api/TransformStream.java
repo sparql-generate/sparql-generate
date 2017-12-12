@@ -31,9 +31,11 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.EnumSet;
 import java.util.Set;
-import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import javax.annotation.PostConstruct;
+import java.util.concurrent.TimeoutException;
 import javax.websocket.OnClose;
 import javax.websocket.OnMessage;
 import javax.websocket.OnOpen;
@@ -70,8 +72,10 @@ public class TransformStream {
     private static long MAX_DURATION = TimeUnit.MILLISECONDS.convert(1, TimeUnit.MINUTES);
     private static int MAX_TRIPLES = 5000;
     private static String base = "http://example.org/";
-    private final StringWriterAppender appender = (StringWriterAppender) org.apache.log4j.Logger.getRootLogger().getAppender("TRANSFORMSTREAM");
+    private final StringWriterAppender appender = (StringWriterAppender) org.apache.log4j.Logger.getRootLogger().getAppender("WEBSOCKET");
 
+    private Thread thread;
+    
     @OnOpen
     public void open(Session session) {
         LOG.info("Establishing connection");
@@ -84,23 +88,30 @@ public class TransformStream {
 
     @OnMessage
     public void handleMessage(String message, Session session) throws IOException, InterruptedException {
-
         //todo check size of message.
         System.out.println(Thread.currentThread().getName());
         appender.putSession(Thread.currentThread(), session);
-        Dataset dataset = DatasetFactory.create();
-        LocatorStringMap loc = new LocatorStringMap();
-        String defaultquery;
-        boolean stream = true;
         try {
-            session.getBasicRemote().sendText("clear");
+            session.getBasicRemote().sendText(gson.toJson(new Response("", "", true)));
         } catch (IOException ex) {
             java.util.logging.Logger.getLogger(TransformStream.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+
+        if (message.getBytes().length > 2 * Math.pow(2, 20)) {
+            LOG.error("In this web interface request size cannot exceed 2 MB. Please use the executable jar instead.");
+            appender.removeSession(Thread.currentThread());
+            return;
+        }
+
+        Dataset dataset = DatasetFactory.create();
+        LocatorStringMap loc = new LocatorStringMap();
+        String defaultquery;
+        boolean stream;
         try {
             Request request = gson.fromJson(message, Request.class);
 
             defaultquery = request.defaultquery;
+            stream = request.stream;
 
             request.namedqueries.forEach((nq) -> {
                 loc.put(nq.uri, nq.string, nq.mediatype);
@@ -123,10 +134,6 @@ public class TransformStream {
                 loc.put(doc.uri, doc.string, doc.mediatype);
             });
 
-            if (request.stream) {
-                stream = request.stream;
-            }
-
             SPARQLGenerateStreamManager sm = SPARQLGenerateStreamManager.makeStreamManager(loc);
             SPARQLGenerate.setStreamManager(sm);
         } catch (Exception ex) {
@@ -134,21 +141,42 @@ public class TransformStream {
             return;
         }
 
-        SPARQLGenerateQuery q = (SPARQLGenerateQuery) QueryFactory.create(defaultquery, SPARQLGenerate.SYNTAX);
-        RootPlan plan = PlanFactory.create(q);
+        final ExecutorService service = Executors.newSingleThreadExecutor();
 
-        if (stream) {
+        try {
+            final Future f = service.submit(() -> {
+                thread = Thread.currentThread();
+                appender.putSession(thread, session);
+                SPARQLGenerateQuery q = (SPARQLGenerateQuery) QueryFactory.create(defaultquery, SPARQLGenerate.SYNTAX);
+                RootPlan plan = PlanFactory.create(q);
 
-            StreamRDF outputStream = new WebSocketRDF(session, q.getPrefixMapping());
-            outputStream.start();
-            plan.exec(dataset, outputStream);
-        } else {
-            Model model = plan.exec(dataset);
-            StringWriter sw = new StringWriter();
-            model.write(sw, "TTL", "http://example.org/");
-            LOG.trace("end of transformation");
-            session.getBasicRemote().sendText(gson.toJson(new Response(null, sw.toString())));
+                if (stream) {
+                    StreamRDF outputStream = new WebSocketRDF(session, q.getPrefixMapping());
+                    outputStream.start();
+                    plan.exec(dataset, outputStream);
+                } else {
+                    Model model = plan.exec(dataset);
+                    StringWriter sw = new StringWriter();
+                    model.write(sw, "TTL", "http://example.org/");
+                    LOG.trace("end of transformation");
+                    try {
+                        session.getBasicRemote().sendText(gson.toJson(new Response("", sw.toString(), false)));
+                    } catch (Exception ex) {
+                        System.out.println("error while sending result: " + ex.getMessage());
+                    }
+                }
+            });
+            f.get(10, TimeUnit.SECONDS);
+        } catch (final TimeoutException ex) {
+            LOG.error("In this web interface requests cannot exceed 10 s. Please use the executable jar instead.");
+        } catch (final Exception ex) {
+            LOG.error("An exception occurred:" + ex.getMessage());
+            throw new RuntimeException(ex);
+        } finally {
+            appender.removeSession(thread);
+            service.shutdown();
         }
+
         appender.removeSession(Thread.currentThread());
     }
 
@@ -171,7 +199,7 @@ public class TransformStream {
                 sb.append("@Prefix ").append(prefix).append(": <").append(uri).append("> .\n");
             });
             try {
-                session.getBasicRemote().sendText(gson.toJson(new Response(null, sb.toString() + "\n")));
+                session.getBasicRemote().sendText(gson.toJson(new Response("", sb.toString() + "\n", false)));
             } catch (IOException ex) {
                 LOG.error("IOException ", ex);
             }
@@ -180,7 +208,7 @@ public class TransformStream {
         @Override
         public void base(String string) {
             try {
-                session.getBasicRemote().sendText(gson.toJson(new Response(null, "@base <" + string + ">\n")));
+                session.getBasicRemote().sendText(gson.toJson(new Response("", "@base <" + string + ">\n", false)));
             } catch (IOException ex) {
                 LOG.error("IOException ", ex);
             }
@@ -193,7 +221,7 @@ public class TransformStream {
                 StringBuilder sb = new StringBuilder();
                 sb.append("@Prefix ").append(prefix).append(": <").append(uri).append("> .\n");
                 try {
-                    session.getBasicRemote().sendText(gson.toJson(new Response(null, sb.toString())));
+                    session.getBasicRemote().sendText(gson.toJson(new Response("", sb.toString(), false)));
                 } catch (IOException ex) {
                     LOG.error("IOException ", ex);
                 }
@@ -203,7 +231,7 @@ public class TransformStream {
         @Override
         public void triple(Triple triple) {
             try {
-                Response response = new Response(null, FmtUtils.stringForTriple(triple, context) + " .\n");
+                Response response = new Response("", FmtUtils.stringForTriple(triple, context) + " .\n", false);
                 session.getBasicRemote().sendText(gson.toJson(response));
             } catch (IOException ex) {
                 LOG.error("IOException ", ex);
@@ -243,4 +271,5 @@ public class TransformStream {
             }
         });
     }
+
 }
