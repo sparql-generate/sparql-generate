@@ -15,14 +15,14 @@
  */
 package com.github.thesmartenergy.sparql.generate.jena;
 
-import com.github.thesmartenergy.sparql.generate.jena.function.library.FN_BNode2;
-import com.github.thesmartenergy.sparql.generate.jena.function.library.FN_CBOR;
-import com.github.thesmartenergy.sparql.generate.jena.function.library.FN_CSV;
-import com.github.thesmartenergy.sparql.generate.jena.function.library.FN_CustomCSV;
-import com.github.thesmartenergy.sparql.generate.jena.function.library.FN_DateTime;
-import com.github.thesmartenergy.sparql.generate.jena.function.library.FN_HTMLAttribute;
-import com.github.thesmartenergy.sparql.generate.jena.function.library.FN_HTMLTag;
-import com.github.thesmartenergy.sparql.generate.jena.function.library.FN_HTMLTagElement;
+import com.github.thesmartenergy.sparql.generate.jena.function.library.FUN_bnode;
+import com.github.thesmartenergy.sparql.generate.jena.function.library.FUN_CBOR;
+import com.github.thesmartenergy.sparql.generate.jena.function.library.FUN_CSV;
+import com.github.thesmartenergy.sparql.generate.jena.function.library.FUN_CustomCSV;
+import com.github.thesmartenergy.sparql.generate.jena.function.library.FUN_dateTime;
+import com.github.thesmartenergy.sparql.generate.jena.function.library.FUN_HTMLAttribute;
+import com.github.thesmartenergy.sparql.generate.jena.function.library.FUN_HTMLTag;
+import com.github.thesmartenergy.sparql.generate.jena.function.library.FUN_HTMLTagElement;
 import org.apache.jena.query.Syntax;
 import org.apache.jena.sparql.function.FunctionRegistry;
 import org.apache.jena.sparql.lang.SPARQLParser;
@@ -30,26 +30,26 @@ import org.apache.jena.sparql.lang.SPARQLParserFactory;
 import org.apache.jena.sparql.lang.SPARQLParserRegistry;
 import org.apache.jena.sparql.util.Symbol;
 import org.apache.jena.sparql.util.TranslationTable;
-import com.github.thesmartenergy.sparql.generate.jena.function.library.FN_JSONPath;
-import com.github.thesmartenergy.sparql.generate.jena.function.library.FN_Regex;
-import com.github.thesmartenergy.sparql.generate.jena.function.library.FN_SplitAtPostion;
-import com.github.thesmartenergy.sparql.generate.jena.function.library.FN_XPath;
+import com.github.thesmartenergy.sparql.generate.jena.function.library.FUN_JSONPath;
+import com.github.thesmartenergy.sparql.generate.jena.function.library.FUN_regex;
+import com.github.thesmartenergy.sparql.generate.jena.function.library.FUN_SplitAtPostion;
+import com.github.thesmartenergy.sparql.generate.jena.function.library.FUN_XPath;
 import com.github.thesmartenergy.sparql.generate.jena.lang.ParserSPARQLGenerate;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.IteratorFunctionRegistry;
-import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITE_CBOR;
-import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITE_CSSPath;
-import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITE_CSV;
-import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITE_CSVFirstRow;
-import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITE_CSVWrapped;
-import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITE_CSVHeaders;
-import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITE_CSVStream;
-import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITE_CustomCSV;
-import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITE_JSONListElement;
-import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITE_JSONListKeys;
-import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITE_JSONPath;
-import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITE_Regex;
-import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITE_Split;
-import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITE_XPath;
+import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITER_CBOR;
+import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITER_CSSPath;
+import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITER_CSV;
+import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITER_CSVFirstRow;
+import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITER_CSVWrapped;
+import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITER_CSVHeaders;
+import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITER_CSVStream;
+import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITER_CustomCSV;
+import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITER_JSONElement;
+import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITER_JSONListKeys;
+import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITER_JSONPath;
+import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITER_regex;
+import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITER_Split;
+import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITER_XPath;
 import com.github.thesmartenergy.sparql.generate.jena.serializer.SPARQLGenerateQuerySerializer;
 import com.github.thesmartenergy.sparql.generate.jena.stream.SPARQLGenerateStreamManager;
 import java.util.HashMap;
@@ -103,7 +103,7 @@ public final class SPARQLGenerate {
     /**
      * The namespace of SPARQL-Generate functions.
      */
-    public static final String FN = NS + "fn/";
+    public static final String FUN = NS + "fn/";
 
     /**
      * The namespace of SPARQL-Generate iterator functions.
@@ -139,35 +139,35 @@ public final class SPARQLGenerate {
         SYNTAX = new SPARQLGenerateSyntax(SYNTAX_URI);
 
         FunctionRegistry fnreg = FunctionRegistry.get();
-        fnreg.put(FN_JSONPath.URI, FN_JSONPath.class);
-        fnreg.put(FN_XPath.URI, FN_XPath.class);
-        fnreg.put(FN_CSV.URI, FN_CSV.class);
-        fnreg.put(FN_CustomCSV.URI, FN_CustomCSV.class);
-        fnreg.put(FN_SplitAtPostion.URI, FN_SplitAtPostion.class);
-        fnreg.put(FN_HTMLTag.URI, FN_HTMLTag.class);
-        fnreg.put(FN_HTMLAttribute.URI, FN_HTMLAttribute.class);
-        fnreg.put(FN_CBOR.URI, FN_CBOR.class);
-        fnreg.put(FN_Regex.URI, FN_Regex.class);
-        fnreg.put(FN_BNode2.URI, FN_BNode2.class);
-        fnreg.put(FN_HTMLTagElement.URI, FN_HTMLTagElement.class);
-        fnreg.put(FN_DateTime.URI, FN_DateTime.class);
+        fnreg.put(FUN_JSONPath.URI, FUN_JSONPath.class);
+        fnreg.put(FUN_XPath.URI, FUN_XPath.class);
+        fnreg.put(FUN_CSV.URI, FUN_CSV.class);
+        fnreg.put(FUN_CustomCSV.URI, FUN_CustomCSV.class);
+        fnreg.put(FUN_SplitAtPostion.URI, FUN_SplitAtPostion.class);
+        fnreg.put(FUN_HTMLTag.URI, FUN_HTMLTag.class);
+        fnreg.put(FUN_HTMLAttribute.URI, FUN_HTMLAttribute.class);
+        fnreg.put(FUN_CBOR.URI, FUN_CBOR.class);
+        fnreg.put(FUN_regex.URI, FUN_regex.class);
+        fnreg.put(FUN_bnode.URI, FUN_bnode.class);
+        fnreg.put(FUN_HTMLTagElement.URI, FUN_HTMLTagElement.class);
+        fnreg.put(FUN_dateTime.URI, FUN_dateTime.class);
 
         
         IteratorFunctionRegistry itereg = IteratorFunctionRegistry.get();
-        itereg.put(ITE_JSONPath.URI, ITE_JSONPath.class);
-        itereg.put(ITE_JSONListKeys.URI, ITE_JSONListKeys.class);
-        itereg.put(ITE_JSONListElement.URI, ITE_JSONListElement.class);
-        itereg.put(ITE_Regex.URI, ITE_Regex.class);
-        itereg.put(ITE_XPath.URI, ITE_XPath.class);
-        itereg.put(ITE_Split.URI, ITE_Split.class);
-        itereg.put(ITE_CSV.URI, ITE_CSV.class);
-        itereg.put(ITE_CustomCSV.URI, ITE_CustomCSV.class);
-        itereg.put(ITE_CSVFirstRow.URI, ITE_CSVFirstRow.class);
-        itereg.put(ITE_CSVWrapped.URI, ITE_CSVWrapped.class);
-        itereg.put(ITE_CSSPath.URI, ITE_CSSPath.class);
-        itereg.put(ITE_CBOR.URI, ITE_CBOR.class);
-        itereg.put(ITE_CSVHeaders.URI, ITE_CSVHeaders.class);
-        itereg.put(ITE_CSVStream.URI, ITE_CSVStream.class);
+        itereg.put(ITER_JSONPath.URI, ITER_JSONPath.class);
+        itereg.put(ITER_JSONListKeys.URI, ITER_JSONListKeys.class);
+        itereg.put(ITER_JSONElement.URI, ITER_JSONElement.class);
+        itereg.put(ITER_regex.URI, ITER_regex.class);
+        itereg.put(ITER_XPath.URI, ITER_XPath.class);
+        itereg.put(ITER_Split.URI, ITER_Split.class);
+        itereg.put(ITER_CSV.URI, ITER_CSV.class);
+        itereg.put(ITER_CustomCSV.URI, ITER_CustomCSV.class);
+        itereg.put(ITER_CSVFirstRow.URI, ITER_CSVFirstRow.class);
+        itereg.put(ITER_CSVWrapped.URI, ITER_CSVWrapped.class);
+        itereg.put(ITER_CSSPath.URI, ITER_CSSPath.class);
+        itereg.put(ITER_CBOR.URI, ITER_CBOR.class);
+        itereg.put(ITER_CSVHeaders.URI, ITER_CSVHeaders.class);
+        itereg.put(ITER_CSVStream.URI, ITER_CSVStream.class);
 
         SPARQLParserRegistry.get()
                 .add(SYNTAX, new SPARQLParserFactory() {

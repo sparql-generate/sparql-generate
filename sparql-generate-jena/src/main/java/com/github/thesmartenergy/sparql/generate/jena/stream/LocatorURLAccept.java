@@ -58,6 +58,8 @@ public class LocatorURLAccept extends LocatorAcceptBase {
         try {
             URL url = new URL(source);
             URLConnection conn = (URLConnection) url.openConnection();
+            conn.setConnectTimeout(200);
+            conn.setReadTimeout(500);
             String userInfo = url.getUserInfo();
             if (userInfo != null && !userInfo.isEmpty()) {
                 String encodedUserInfo = new String(Base64.encodeBase64(userInfo.getBytes("UTF-8")));
@@ -80,6 +82,9 @@ public class LocatorURLAccept extends LocatorAcceptBase {
             return null;
         } catch (java.net.SocketException ex) {
             log.debug("SocketException " + source);
+            return null;
+        } catch (java.net.SocketTimeoutException ex) {
+            log.debug("SocketTimeoutException: " + source + "  " + ex.getMessage());
             return null;
         } catch (IOException ex) {
             log.debug("I/O Exception opening URL: " + source + "  " + ex.getMessage());

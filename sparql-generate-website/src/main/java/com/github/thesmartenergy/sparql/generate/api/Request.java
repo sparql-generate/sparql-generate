@@ -27,5 +27,6 @@ public class Request {
     String defaultgraph;
     List<Document> namedgraphs;
     List<Document> documentset;
+    boolean stream;
     
 }

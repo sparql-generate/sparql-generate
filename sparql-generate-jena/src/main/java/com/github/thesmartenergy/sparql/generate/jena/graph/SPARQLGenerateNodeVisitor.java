@@ -24,9 +24,9 @@ import org.apache.jena.graph.NodeVisitor;
  */
 public interface SPARQLGenerateNodeVisitor extends NodeVisitor {
 
-    Object visit(Node_XExpr node);
+    Object visit(Node_Expr node);
 
-    Object visit(Node_XLiteral node);
+    Object visit(Node_ExtendedLiteral node);
 
-    Object visit(Node_XURI node);
+    Object visit(Node_ExtendedURI node);
 }

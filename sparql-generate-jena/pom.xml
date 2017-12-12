@@ -256,6 +256,7 @@
                             <link>https://jena.apache.org/documentation/javadoc/arq/</link>
                             <link>https://jena.apache.org/documentation/javadoc/jena/</link>
                         </links>
+                        <excludePackageNames>com.github.thesmartenergy.sparql.generate.jena.engine.impl</excludePackageNames>
                     </configuration>
                 </plugin>
 

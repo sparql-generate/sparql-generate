@@ -16,10 +16,10 @@
 package com.github.thesmartenergy.sparql.generate.jena.normalizer;
 
 import com.github.thesmartenergy.sparql.generate.jena.expr.E_URIParam;
-import com.github.thesmartenergy.sparql.generate.jena.graph.Node_X;
-import com.github.thesmartenergy.sparql.generate.jena.graph.Node_XExpr;
-import com.github.thesmartenergy.sparql.generate.jena.graph.Node_XLiteral;
-import com.github.thesmartenergy.sparql.generate.jena.graph.Node_XURI;
+import com.github.thesmartenergy.sparql.generate.jena.graph.Node_Extended;
+import com.github.thesmartenergy.sparql.generate.jena.graph.Node_Expr;
+import com.github.thesmartenergy.sparql.generate.jena.graph.Node_ExtendedLiteral;
+import com.github.thesmartenergy.sparql.generate.jena.graph.Node_ExtendedURI;
 import java.util.List;
 import org.apache.jena.graph.Node;
 import org.apache.jena.sparql.core.Var;
@@ -49,7 +49,7 @@ public class ExprNormalizer {
 
     /**
      * normalizes an expression, substituting every instance of NodeValueNode
-     * whose node is a Node_X with the associated expression of that Node_X.
+ whose node is a Node_Extended with the associated expression of that Node_Extended.
      *
      * @param expr expression to normalize
      * @return 
@@ -123,36 +123,36 @@ public class ExprNormalizer {
 
     /**
      * get a normalized expression for the node given as input, returns either
-     * the expression of a expression node (Node_X), or a NodeValueNode whose
-     * node is the input node.
+ the expression of a expression node (Node_Extended), or a NodeValueNode whose
+ node is the input node.
      *
      * @param n node (potentially expression node) to get an expression from
      * @return 
      */
     public Expr normalize(Node n) {
-        if (n instanceof Node_X) {
-            return normalize((Node_X) n);
+        if (n instanceof Node_Extended) {
+            return normalize((Node_Extended) n);
         }
         return new NodeValueNode(n);
     }
 
-    private Expr normalize(Node_X n) {
-        if (n instanceof Node_XExpr) {
-            return normalize((Node_XExpr) n);
-        } else if (n instanceof Node_XURI) {
-            return normalize((Node_XURI) n);
-        } else if (n instanceof Node_XLiteral) {
-            return normalize((Node_XLiteral) n);
+    private Expr normalize(Node_Extended n) {
+        if (n instanceof Node_Expr) {
+            return normalize((Node_Expr) n);
+        } else if (n instanceof Node_ExtendedURI) {
+            return normalize((Node_ExtendedURI) n);
+        } else if (n instanceof Node_ExtendedLiteral) {
+            return normalize((Node_ExtendedLiteral) n);
         }
         throw new NullPointerException();
     }
 
-    private Expr normalize(Node_XExpr n) {
+    private Expr normalize(Node_Expr n) {
         Expr expr = normalize(n.getExpr());
         return expr;
     }
 
-    private Expr normalize(Node_XURI n) {
+    private Expr normalize(Node_ExtendedURI n) {
         ExprList args = new ExprList();
         List<Expr> components = n.getComponents();
         for (Expr e : components) {
@@ -163,7 +163,7 @@ public class ExprNormalizer {
         return expr;
     }
 
-    private Expr normalize(Node_XLiteral n) {
+    private Expr normalize(Node_ExtendedLiteral n) {
         ExprList args = new ExprList();
         List<Expr> components = n.getComponents();
         for (Expr e : components) {

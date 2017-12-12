@@ -966,7 +966,7 @@ Node XExpr() : { Expr expr; }
   expr = Expression()
   <RBRACE>
   {asSPARQLGenerateQuery().hasEmbeddedExpressions(true);}
-  { return new Node_XExpr(expr); }
+  { return new Node_Expr(expr); }
 }
 Node XTerm() : { Node n ; }
 {
@@ -1292,7 +1292,7 @@ Expr XiriOrFunction() : { Node iri ; ExprList a = null ;
     }
     String i = ((Node_URI) iri).getURI();
     if ( AggregateRegistry.isRegistered(i) ) {
-        if ( iri instanceof Node_XURI ) {
+        if ( iri instanceof Node_ExtendedURI ) {
           throwParseException("Custom expressions not legal at this point :   "+iri, -1, -1) ;
         }
          if ( ! allowAggregatesInExpressions )
@@ -1315,7 +1315,7 @@ Node RDFLiteral() : { Token t ; String lex = null ; }
   )?
     { return createLiteral(lex, lang, uri) ; }
 }
-Node XRDFLiteral() : { Token t ; Node_XLiteral.Builder n = new Node_XLiteral.Builder(); }
+Node XRDFLiteral() : { Token t ; Node_ExtendedLiteral.Builder n = new Node_ExtendedLiteral.Builder(); }
 {
   XString(n)
   { String lang = null ; Node xiri = null ; }
@@ -1370,7 +1370,7 @@ String String() : { Token t ; String lex ; }
       return lex ;
     }
 }
-void XString( Node_XLiteral.Builder n ) : { }
+void XString( Node_ExtendedLiteral.Builder n ) : { }
 {
   ( XString_Literal1( n )
   | XString_Literal2( n )
@@ -1378,7 +1378,7 @@ void XString( Node_XLiteral.Builder n ) : { }
   | XString_Literal_Long2( n )
   )
 }
-void XString_Literal1( Node_XLiteral.Builder n ) : { Token t; }
+void XString_Literal1( Node_ExtendedLiteral.Builder n ) : { Token t; }
 {
   ( t = <STRING_LITERAL1> 
     { String lex = stripQuotes(t.image) ;
@@ -1390,7 +1390,7 @@ void XString_Literal1( Node_XLiteral.Builder n ) : { Token t; }
     XString_Literal1_Sub( n )
   )
 }
-void XString_Literal1_Sub( Node_XLiteral.Builder n ) : { Token t; Expr e; }
+void XString_Literal1_Sub( Node_ExtendedLiteral.Builder n ) : { Token t; Expr e; }
 { 
   {SetState(DEFAULT);}
   e = Expression() { n.add( e );}
@@ -1407,7 +1407,7 @@ void XString_Literal1_Sub( Node_XLiteral.Builder n ) : { Token t; Expr e; }
   )
   {SetState(DEFAULT);}
 }
-void XString_Literal2(Node_XLiteral.Builder n) : { Token t; }
+void XString_Literal2(Node_ExtendedLiteral.Builder n) : { Token t; }
 {
   ( t = <STRING_LITERAL2> 
     { String lex = stripQuotes(t.image) ;
@@ -1419,7 +1419,7 @@ void XString_Literal2(Node_XLiteral.Builder n) : { Token t; }
     XString_Literal2_Sub( n )
   )
 }
-void XString_Literal2_Sub(Node_XLiteral.Builder n) : { Token t; Expr e; }
+void XString_Literal2_Sub(Node_ExtendedLiteral.Builder n) : { Token t; Expr e; }
 { 
   {SetState(DEFAULT);}
   e = Expression() { n.add( e ); }
@@ -1433,7 +1433,7 @@ void XString_Literal2_Sub(Node_XLiteral.Builder n) : { Token t; Expr e; }
   )
   {SetState(DEFAULT);}
 }
-void XString_Literal_Long1( Node_XLiteral.Builder n ) : { Token t; }
+void XString_Literal_Long1( Node_ExtendedLiteral.Builder n ) : { Token t; }
 {
   ( t = <STRING_LITERAL_LONG1> 
     { String lex = stripQuotes3(t.image) ;
@@ -1445,7 +1445,7 @@ void XString_Literal_Long1( Node_XLiteral.Builder n ) : { Token t; }
     XString_Literal_Long1_Sub( n )
   )
 }
-void XString_Literal_Long1_Sub(Node_XLiteral.Builder n) : { Token t; Expr e; }
+void XString_Literal_Long1_Sub(Node_ExtendedLiteral.Builder n) : { Token t; Expr e; }
 { 
   {SetState(DEFAULT);}
   e = Expression() { n.add( e ); }
@@ -1462,7 +1462,7 @@ void XString_Literal_Long1_Sub(Node_XLiteral.Builder n) : { Token t; Expr e; }
   )
   {SetState(DEFAULT);}
 }
-void XString_Literal_Long2( Node_XLiteral.Builder n ) : { Token t; }
+void XString_Literal_Long2( Node_ExtendedLiteral.Builder n ) : { Token t; }
 {
   ( t = <STRING_LITERAL_LONG2> 
     { String lex = stripQuotes3(t.image) ;
@@ -1474,7 +1474,7 @@ void XString_Literal_Long2( Node_XLiteral.Builder n ) : { Token t; }
     XString_Literal_Long2_Sub( n )
   )
 }
-void XString_Literal_Long2_Sub(Node_XLiteral.Builder n) : { Token t; Expr e; }
+void XString_Literal_Long2_Sub(Node_ExtendedLiteral.Builder n) : { Token t; Expr e; }
 {  
   {SetState(DEFAULT);}
   e = Expression() { n.add( e ); }
@@ -1524,7 +1524,7 @@ Node Xiri() : { String s; Token t;}
   s = iri()
   { return createNode( s ); }
  |
-  { Node_XURI.Builder iri = new Node_XURI.Builder(); }
+  { Node_ExtendedURI.Builder iri = new Node_ExtendedURI.Builder(); }
   t = <XIRIref_START>
   { iri.add( stripQuotes(t.image) ); }
   XIRIREF_Sub( iri )
@@ -1532,7 +1532,7 @@ Node Xiri() : { String s; Token t;}
   { return iri.build() ; }
  )
 }
-void XIRIREF_Sub(Node_XURI.Builder iri) : {Token t; Expr e;}
+void XIRIREF_Sub(Node_ExtendedURI.Builder iri) : {Token t; Expr e;}
 {
   {SetState(DEFAULT);} 
   e = Expression() { iri.add( e ); }

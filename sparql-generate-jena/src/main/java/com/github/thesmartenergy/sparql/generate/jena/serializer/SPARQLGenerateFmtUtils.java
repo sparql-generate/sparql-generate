@@ -15,9 +15,9 @@
  */
 package com.github.thesmartenergy.sparql.generate.jena.serializer;
 
-import com.github.thesmartenergy.sparql.generate.jena.graph.Node_XExpr;
-import com.github.thesmartenergy.sparql.generate.jena.graph.Node_XLiteral;
-import com.github.thesmartenergy.sparql.generate.jena.graph.Node_XURI;
+import com.github.thesmartenergy.sparql.generate.jena.graph.Node_Expr;
+import com.github.thesmartenergy.sparql.generate.jena.graph.Node_ExtendedLiteral;
+import com.github.thesmartenergy.sparql.generate.jena.graph.Node_ExtendedURI;
 import org.apache.jena.atlas.io.IndentedWriter;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.Triple;
@@ -54,15 +54,15 @@ public class SPARQLGenerateFmtUtils {
     }
 
     public static void printNode(IndentedWriter out, Node n, SerializationContext context) {
-        if (n instanceof Node_XExpr) {
+        if (n instanceof Node_Expr) {
             SPARQLGenerateFmtExprSPARQL v = new SPARQLGenerateFmtExprSPARQL(out, context);
-            Node_XExpr n2 = (Node_XExpr) n;
+            Node_Expr n2 = (Node_Expr) n;
             out.print("?{ ");
             v.format(n2.getExpr());
             out.print(" }");
-        } else if (n instanceof Node_XLiteral) {
+        } else if (n instanceof Node_ExtendedLiteral) {
             SPARQLGenerateFmtExprSPARQL v = new SPARQLGenerateFmtExprSPARQL(out, context);
-            Node_XLiteral n2 = (Node_XLiteral) n;
+            Node_ExtendedLiteral n2 = (Node_ExtendedLiteral) n;
             out.print("\"");
             for (Expr component : n2.getComponents()) {
                 if (component instanceof NodeValueString) {
@@ -87,9 +87,9 @@ public class SPARQLGenerateFmtUtils {
                 out.print("^^");
                 printNode(out, n2.getDatatype(), context);
             }
-        } else if (n instanceof Node_XURI) {
+        } else if (n instanceof Node_ExtendedURI) {
             SPARQLGenerateFmtExprSPARQL v = new SPARQLGenerateFmtExprSPARQL(out, context);
-            Node_XURI n2 = (Node_XURI) n;
+            Node_ExtendedURI n2 = (Node_ExtendedURI) n;
             out.print("<");
             for (Expr component : n2.getComponents()) {
                 if (component instanceof NodeValueString) {
