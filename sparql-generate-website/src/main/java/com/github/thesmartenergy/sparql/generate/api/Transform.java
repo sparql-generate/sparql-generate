@@ -15,11 +15,8 @@
  */
 package com.github.thesmartenergy.sparql.generate.api;
 
-import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
 import com.github.thesmartenergy.sparql.generate.jena.engine.PlanFactory;
 import com.github.thesmartenergy.sparql.generate.jena.engine.RootPlan;
-import com.github.thesmartenergy.sparql.generate.jena.query.SPARQLGenerateQuery;
-import com.google.gson.Gson;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.net.HttpURLConnection;
@@ -29,7 +26,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.logging.Logger;
 import javax.servlet.http.HttpServlet;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.FormParam;
@@ -39,9 +35,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
-import org.apache.jena.query.QueryFactory;
 import org.apache.jena.rdf.model.Model;
-import org.apache.jena.riot.system.StreamRDF;
 
 /**
  *
