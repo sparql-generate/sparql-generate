@@ -1,5 +1,5 @@
-PREFIX sgfn:   <http://w3id.org/sparql-generate/fn/>
-PREFIX sgiter: <http://w3id.org/sparql-generate/iter/>
+PREFIX fun:   <http://w3id.org/sparql-generate/fn/>
+PREFIX iter: <http://w3id.org/sparql-generate/iter/>
 PREFIX rdfs:   <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX ex:     <http://example.org/>
 PREFIX dcterms:    <http://purl.org/dc/terms/> 
@@ -13,7 +13,7 @@ GENERATE {
 
   <{ ?name }> 
     rdfs:label "{ ?name }"@en ;
-    rdfs:comment  "{ sgfn:XPath(?property,"/PropertyDef/Definition/text()") }"@en .
+    rdfs:comment  "{ fun:XPath(?property,"/PropertyDef/Definition/text()") }"@en .
 
     GENERATE <queries/IFC4-PropertyDef-domain.rqg> .
     GENERATE <queries/IFC4-PropertyDef-nameAlias.rqg> .
@@ -23,6 +23,6 @@ GENERATE {
 
 } 
 WHERE {
-    BIND( sgfn:XPath(?property,"/PropertyDef/Name/text()") AS ?n)
+    BIND( fun:XPath(?property,"/PropertyDef/Name/text()") AS ?n)
     BIND( concat( lcase(substr(?n,1,1)), substr(?n,2) )  AS ?name)
 }

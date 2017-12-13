@@ -1,11 +1,11 @@
 BASE <http://example.org/>
-PREFIX sgfn: <http://w3id.org/sparql-generate/fn/>
-PREFIX sgiter: <http://w3id.org/sparql-generate/iter/>
+PREFIX fun: <http://w3id.org/sparql-generate/fn/>
+PREFIX iter: <http://w3id.org/sparql-generate/iter/>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
-ITERATE sgiter:JSONListKeys( ?message ) AS ?key 
+ITERATE iter:JSONListKeys( ?message ) AS ?key 
 WHEREVER { 
- BIND( "{ sgfn:JSONPath( ?message , "$.{ ?key }" )  }"^^xsd:decimal AS ?valuedec )
+ BIND( "{ fun:JSONPath( ?message , "$.{ ?key }" )  }"^^xsd:decimal AS ?valuedec )
  FILTER( ?valuedec > 3 )
 }
 CONSTRUCT {

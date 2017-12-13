@@ -1,5 +1,5 @@
-PREFIX sgiter: <http://w3id.org/sparql-generate/iter/>
-PREFIX sgfn: <http://w3id.org/sparql-generate/fn/>
+PREFIX iter: <http://w3id.org/sparql-generate/iter/>
+PREFIX fun: <http://w3id.org/sparql-generate/fn/>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> 
 PREFIX foaf: <http://xmlns.com/foaf/0.1/>
 PREFIX schema: <http://schema.org/>
@@ -16,14 +16,14 @@ GENERATE {
             schema:weight ?weight .
 }
 SOURCE <XXXpersons> AS ?persons
-ITERATOR sgiter:CSV(?persons) AS ?person
+ITERATOR iter:CSV(?persons) AS ?person
 WHERE {
-    BIND( sgfn:CSV(?person, "PersonId" ) AS ?personId )
+    BIND( fun:CSV(?person, "PersonId" ) AS ?personId )
     BIND( URI(CONCAT("http://example.com/person/",?personId)) AS ?personIRI )
-    BIND( sgfn:CSV(?person, "Name" ) AS ?name )
-    BIND( URI( CONCAT( "tel:", sgfn:CSV(?person, "Phone" ) ) ) AS ?phone )
-    BIND( URI( CONCAT( "mailto:", sgfn:CSV(?person, "Email" ) ) ) AS ?email )
-    BIND( xsd:dateTime( sgfn:CSV(?person, "Birthdate" ) ) AS ?birthdate )
-    BIND( xsd:decimal( sgfn:CSV(?person, "Height" ) ) AS ?height )
-    BIND( xsd:decimal( sgfn:CSV(?person, "Weight" ) ) AS ?weight )
+    BIND( fun:CSV(?person, "Name" ) AS ?name )
+    BIND( URI( CONCAT( "tel:", fun:CSV(?person, "Phone" ) ) ) AS ?phone )
+    BIND( URI( CONCAT( "mailto:", fun:CSV(?person, "Email" ) ) ) AS ?email )
+    BIND( xsd:dateTime( fun:CSV(?person, "Birthdate" ) ) AS ?birthdate )
+    BIND( xsd:decimal( fun:CSV(?person, "Height" ) ) AS ?height )
+    BIND( xsd:decimal( fun:CSV(?person, "Weight" ) ) AS ?weight )
 }

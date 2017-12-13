@@ -1,7 +1,7 @@
 @prefix schema: <http://schema.org/> .
-@prefix sgiter: <http://w3id.org/sparql-generate/iter/> .
+@prefix iter: <http://w3id.org/sparql-generate/iter/> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
-@prefix sgfn:  <http://w3id.org/sparql-generate/fn/> .
+@prefix fun:  <http://w3id.org/sparql-generate/fn/> .
 @prefix foaf:  <http://xmlns.com/foaf/0.1/> .
 
 <http://example.com/person/41>

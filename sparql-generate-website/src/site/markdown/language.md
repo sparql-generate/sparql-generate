@@ -15,24 +15,13 @@ WHERE clause                    -- same as SPARQL 1.1
 Solution modifiers              -- group by, order by, limit, offset,... same as SPARQL 1.1
 ```
 
-We allow for an alternative, more intuitive, structure:
-
-```
-PREFIX declarations             -- same as SPARQL 1.1
-FROM and FROM NAMED clauses     -- same as SPARQL 1.1
-ITERATE, LOOK UP, BIND clauses  -- see below
-WHEREVER clause                 -- same as SPARQL 1.1
-Solution modifiers              -- group by, order by, limit, offset,... same as SPARQL 1.1
-CONSTRUCT template              -- replaces and extends SPARQL 1.1 CONSTRUCT
-```
-
 The syntax of the **`ITERATE` (or `ITERATOR`) clause** is the following:  
 
 ```
 ITERATOR <iterator>(args) AS ?var
 ```
 
-Where `<iterator>` is the IRI of the SPARQL-Generate *iterator function*, which is similar to a SPARQL 1.1 Function, except it *returns a list of RDF Terms* instead of just one. ?var` will be bound to every RDF Term in the list returned by the evaluation of the iterator function over the arguments `args`.
+Where `<iterator>` is the IRI of the SPARQL-Generate *iterator function*, which is similar to a SPARQL 1.1 Function, except it *returns a list of RDF Terms* instead of just one. `?var` will be bound to every RDF Term in the list returned by the evaluation of the iterator function over the arguments `args`.
 
 
 The **`LOOK UP` (or `SOURCE`) clause** enables to bind a named document to a variable. Its syntax is as follows:
@@ -56,13 +45,13 @@ One may **embed SPARQL expressions in nodes** (since version 2.0.0-beta) whereve
 
 `sparql-generate-jena` provides a set of SPARQL binding functions and SPARQL-Generate iterator functions that enable to generate RDF from JSON, XML, HTML, CSV, and plain text.
 
-Custom SPARQL binding functions all take a set of RDF terms as input, and output zero or one RDF term. They all have namespace `http://w3id.org/sparql-generate/fn/` with preferred prefix `sgfn`.
+Custom SPARQL binding functions all take a set of RDF terms as input, and output zero or one RDF term. They all have namespace `http://w3id.org/sparql-generate/fn/` with preferred prefix `fun`.
 
-Iterator functions are used in the `ITERATOR` clause. They all take a set of RDF terms as input, and output zero or more RDF terms. They all have namespace `http://w3id.org/sparql-generate/iter/` with preferred prefix `sgiter`.
+Iterator functions are used in the `ITERATOR` clause. They all take a set of RDF terms as input, and output zero or more RDF terms. They all have namespace `http://w3id.org/sparql-generate/iter/` with preferred prefix `iter`.
 
 ```
-PREFIX sgfn: <http://w3id.org/sparql-generate/fn/>
-PREFIX sgiter: <http://w3id.org/sparql-generate/iter/>
+PREFIX fun: <http://w3id.org/sparql-generate/fn/>
+PREFIX iter: <http://w3id.org/sparql-generate/iter/>
 ```
 
 In this document, we solely describe one iterator function, and one custom binding function. All the other functions are described in the javadoc:
@@ -70,12 +59,12 @@ In this document, we solely describe one iterator function, and one custom bindi
 * documentation for the [iterator functions](apidocs/com/github/thesmartenergy/sparql/generate/jena/iterator/library/package-summary.html)
 * documentation for the [custom SPARQL functions](apidocs/com/github/thesmartenergy/sparql/generate/jena/function/library/package-summary.html).
 
-**Example 1: iterator function sgiter:JSONPath **
+**Example 1: iterator function iter:JSONPath**
 
 A SPARQL Iterator function that extracts a list of sub-JSON documents of a JSON document, according to a JSONPath expression.
 
 ```
-set of literals sgiter:JSONPath( xsd:string message, xsd:string json_path_jayway )
+set of literals iter:JSONPath( xsd:string message, xsd:string json_path_jayway )
 ```
 
 For example, let be the following partial solution binding:
@@ -96,7 +85,7 @@ Then iterator clause `ITERATOR iter:JSONPath( ?message, "$.x[1:4]" ) AS ?value` 
 This iterator function uses library [JsonPath from GitHub user jayway](https://github.com/jayway/JsonPath).
 
 
-**Example 2: custom binding function sgfn:TMLTagElement **
+**Example 2: custom binding function fun:HTMLTagElement**
 
 A SPARQL function that extracts the text from an HTML element. It takes two parameters as input:
 
@@ -106,7 +95,7 @@ A SPARQL function that extracts the text from an HTML element. It takes two para
 It returns a RDF Literal with datatype URI `xsd:string` for the text of the element .
 
 ```
-xsd:string sgfn:JSONPath( xsd:string message, xsd:string tagname )
+xsd:string fun:JSONPath( xsd:string message, xsd:string tagname )
 ```
 
 ---

@@ -1,13 +1,13 @@
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> 
 PREFIX owl: <http://www.w3.org/2002/07/owl#>
 PREFIX dcterms: <http://purl.org/dc/terms/>
-PREFIX sgiter: <http://w3id.org/sparql-generate/iter/>
-PREFIX sgfn: <http://w3id.org/sparql-generate/fn/>
+PREFIX iter: <http://w3id.org/sparql-generate/iter/>
+PREFIX fun: <http://w3id.org/sparql-generate/fn/>
 
 GENERATE { 
-  <http://ex.org/project/{ sgfn:CustomCSV( ?project, "Ref", '"' , "," , "\n" , true ) }>
-    dcterms:title "{ sgfn:CustomCSV( ?project, "Titre du projet", '"' , "," , "\n" , true ) }"@en ;
-    dcterms:description "{ sgfn:CustomCSV( ?project, "Description du projet", '"' , "," , "\n" , true ) }"@en .
+  <http://ex.org/project/{ fun:CustomCSV( ?project, "Ref", '"' , "," , "\n" , true ) }>
+    dcterms:title "{ fun:CustomCSV( ?project, "Titre du projet", '"' , "," , "\n" , true ) }"@en ;
+    dcterms:description "{ fun:CustomCSV( ?project, "Description du projet", '"' , "," , "\n" , true ) }"@en .
 }
 SOURCE <http://w3id.org/sparql-generate/example/source/design> AS ?source
-ITERATOR sgiter:CustomCSV( ?source , '"' , "," , "\n" , true ) AS ?project
+ITERATOR iter:CustomCSV( ?source , '"' , "," , "\n" , true ) AS ?project

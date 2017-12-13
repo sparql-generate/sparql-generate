@@ -1,5 +1,5 @@
-PREFIX sgfn:   <http://w3id.org/sparql-generate/fn/>
-PREFIX sgiter: <http://w3id.org/sparql-generate/iter/>
+PREFIX fun:   <http://w3id.org/sparql-generate/fn/>
+PREFIX iter: <http://w3id.org/sparql-generate/iter/>
 PREFIX rdfs:   <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX ex:     <http://example.org/>
 PREFIX dcterms:    <http://purl.org/dc/terms/> 
@@ -16,7 +16,7 @@ GENERATE {
     rdfs:range ?range .
   
 } WHERE {
-  BIND( substr( sgfn:XPath(?property,"/PropertyDef/PropertyType/TypePropertySingleValue/DataType/@type") , 4 ) AS ?type)
+  BIND( substr( fun:XPath(?property,"/PropertyDef/PropertyType/TypePropertySingleValue/DataType/@type") , 4 ) AS ?type)
   FILTER( bound(?type) )
   BIND( IF( ?type = "Text" || ?type = "Label" || ?type = "Identifier" , xsd:string , 
         IF( ?type = "Boolean" || ?type = "Logical" , xsd:boolean , 

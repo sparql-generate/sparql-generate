@@ -1,5 +1,5 @@
-PREFIX sgfn:   <http://w3id.org/sparql-generate/fn/>
-PREFIX sgiter: <http://w3id.org/sparql-generate/iter/>
+PREFIX fun:   <http://w3id.org/sparql-generate/fn/>
+PREFIX iter: <http://w3id.org/sparql-generate/iter/>
 PREFIX rdfs:   <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX ex:     <http://example.org/>
 PREFIX dcterms:    <http://purl.org/dc/terms/> 
@@ -10,6 +10,6 @@ PREFIX schema: <http://schema.org/>
 BASE <https://w3id.org/product/props/>
 
 GENERATE {
-  <{ ?name }> rdfs:comment ?{ strlang( sgfn:XPath(?nameAlias,"/DefinitionAlias/text()") ,  sgfn:XPath(?nameAlias,"/DefinitionAlias/@lang")  ) } .
+  <{ ?name }> rdfs:comment ?{ strlang( fun:XPath(?nameAlias,"/DefinitionAlias/text()") ,  fun:XPath(?nameAlias,"/DefinitionAlias/@lang")  ) } .
 } 
-ITERATOR sgiter:XPath(?property, "/PropertyDef/DefinitionAliases/DefinitionAlias" ) AS ?nameAlias 
+ITERATOR iter:XPath(?property, "/PropertyDef/DefinitionAliases/DefinitionAlias" ) AS ?nameAlias 

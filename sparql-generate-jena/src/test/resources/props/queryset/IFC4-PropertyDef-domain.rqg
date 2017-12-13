@@ -1,5 +1,5 @@
-PREFIX sgfn:   <http://w3id.org/sparql-generate/fn/>
-PREFIX sgiter: <http://w3id.org/sparql-generate/iter/>
+PREFIX fun:   <http://w3id.org/sparql-generate/fn/>
+PREFIX iter: <http://w3id.org/sparql-generate/iter/>
 PREFIX rdfs:   <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX ex:     <http://example.org/>
 PREFIX dcterms:    <http://purl.org/dc/terms/> 
@@ -23,7 +23,7 @@ GENERATE {
               || ?pset = "Pset_SpaceLightingRequirements"
               || ?pset = "Pset_SpaceOccupancyRequirements"
               || ?pset = "Pset_SpaceThermalRequirements" ) )
-    BIND( substr( replace( sgfn:XPath(?source,"/PropertySetDef/ApplicableClasses/ClassName/text()") , " " , "") , 4) AS ?className ) 
+    BIND( substr( replace( fun:XPath(?source,"/PropertySetDef/ApplicableClasses/ClassName/text()") , " " , "") , 4) AS ?className ) 
 
     BIND( IF( contains( ?className , "/" ) , 
               <https://w3id.org/product/{ strbefore( ?className , "/" ) }#{ strafter( ?className , "/")}> ,

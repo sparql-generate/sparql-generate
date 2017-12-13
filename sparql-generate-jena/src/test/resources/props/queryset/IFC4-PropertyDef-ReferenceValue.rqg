@@ -1,5 +1,5 @@
-PREFIX sgfn:   <http://w3id.org/sparql-generate/fn/>
-PREFIX sgiter: <http://w3id.org/sparql-generate/iter/>
+PREFIX fun:   <http://w3id.org/sparql-generate/fn/>
+PREFIX iter: <http://w3id.org/sparql-generate/iter/>
 PREFIX rdfs:   <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX ex:     <http://example.org/>
 PREFIX dcterms:    <http://purl.org/dc/terms/> 
@@ -33,7 +33,7 @@ GENERATE {
 
 
 } WHERE {
-  BIND( substr( sgfn:XPath(?property,"/PropertyDef/PropertyType/TypePropertyReferenceValue/@reftype") , 4 ) AS ?measureType)
+  BIND( substr( fun:XPath(?property,"/PropertyDef/PropertyType/TypePropertyReferenceValue/@reftype") , 4 ) AS ?measureType)
   BIND( IF( ?measureType = "Text" || ?measureType = "Label" || ?measureType = "Identifier" , xsd:string , 
         IF( ?measureType = "Boolean" || ?measureType = "Logical" , xsd:boolean , 
         IF( ?measureType = "Integer" , xsd:int , 
@@ -44,7 +44,7 @@ GENERATE {
         IF( ?measureType = "Duration" , xsd:duration , 
                 <https://w3id.org/measurement/{  concat( lcase( substr( ?measureType, 1, 1) ) , replace( substr( ?measureType, 2 ) , "Measure" , "" ) ) }> ) ) ) ) ) ) ) ) AS ?itemType ) 
 
-  BIND( substr( sgfn:XPath(?property,"/PropertyDef/PropertyType/TypePropertyReferenceValue/DataType/@type") , 4 ) AS ?dttype)
+  BIND( substr( fun:XPath(?property,"/PropertyDef/PropertyType/TypePropertyReferenceValue/DataType/@type") , 4 ) AS ?dttype)
   BIND( IF( ?dttype = "Organization" , foaf:Organization , 
         IF( ?dttype = "Person" , foaf:Person , 
         IF( ?dttype = "TimeSeries" ,  <https://w3id.org/measurement/TimeSeries> , 

@@ -115,6 +115,11 @@ input[type="range"]:after {
     content: "all";
 }
 
+#log pre {
+    max-height: 400px;
+    overflow: auto;
+}
+
 .log.TRACE {
     color: #999999
 }

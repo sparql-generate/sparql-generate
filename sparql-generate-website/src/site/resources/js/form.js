@@ -220,7 +220,7 @@ var init = function() {
         <div id="log">
           <legend>Log</legend>
           <input id="loglevel" type="range" value="5" min="0" max="5"></input>
-          <pre style="max-height:400px"></pre>
+          <pre></pre>
         </div>
       </div>
     </div>`);
@@ -263,19 +263,19 @@ var load_queryset = function() {
   // load default query
   defaultquery_string = localStorage.getItem('defaultquery');
   if(defaultquery_string == null) {
-    defaultquery_string = `PREFIX sgiter: <http://w3id.org/sparql-generate/iter/>
+    defaultquery_string = `PREFIX iter: <http://w3id.org/sparql-generate/iter/>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
-PREFIX sgfn: <http://w3id.org/sparql-generate/fn/> 
+PREFIX fun: <http://w3id.org/sparql-generate/fn/> 
 LOOK UP <https://ci.mines-stetienne.fr/sparql-generate/cities.json> AS ?message
-ITERATE sgiter:JSONListKeys( ?message ) AS ?cityName 
+ITERATE iter:JSONListKeys( ?message ) AS ?cityName 
 WHEREVER { 
   FILTER( STRSTARTS( ?cityName , "New" ) ) 
-  BIND( sgfn:JSONPath( ?message, "$.['{ ?cityName }']" ) AS  ?city )
+  BIND( fun:JSONPath( ?message, "$.['{ ?cityName }']" ) AS  ?city )
 } 
 CONSTRUCT {
-  ITERATE sgiter:JSONListKeys( ?city ) AS ?key  
+  ITERATE iter:JSONListKeys( ?city ) AS ?key  
   CONSTRUCT {
-    <city/{ ?cityName }> <{ ?key }> "{ sgfn:JSONPath( ?message , "$.['{ ?cityName }']['{ ?key }']" )  }"@en . 
+    <city/{ ?cityName }> <{ ?key }> "{ fun:JSONPath( ?message , "$.['{ ?cityName }']['{ ?key }']" )  }"@en . 
   } .
 }`;
     localStorage.setItem('defaultquery', defaultquery_string);
@@ -326,11 +326,11 @@ CONSTRUCT {
     var nq = {
       uri: "http://example.org/query#" + namedqueries.length,
       mediatype: "application/vnd.sparql-generate",
-      string: `PREFIX sgiter: <http://w3id.org/sparql-generate/iter/>
-PREFIX sgfn: <http://w3id.org/sparql-generate/fn/> 
+      string: `PREFIX iter: <http://w3id.org/sparql-generate/iter/>
+PREFIX fun: <http://w3id.org/sparql-generate/fn/> 
 
 LOOK UP <> AS ?message
-ITERATE sgiter:XPath( ?message ) AS ?var 
+ITERATE iter:XPath( ?message ) AS ?var 
 WHEREVER {  } 
 CONSTRUCT {  }`
     };
@@ -891,6 +891,7 @@ var manage_log_level = function() {
             $(".log." + level).hide();                        
         }
     }
+    $("#log pre").scrollTop($("#log pre")[0].scrollHeight);
 }
 
 ///////////////////////////////////////
@@ -974,6 +975,7 @@ $(document).ready(function() {
                 .addClass("log")
                 .append(data.log.replace(/</g, "&lt;"))
                 .appendTo("#log pre");
+        $("#log pre").scrollTop($("#log pre")[0].scrollHeight);
         for(var level in levels) {
             if(data.log.includes(level)) {
                 span.addClass(level);
