@@ -2,6 +2,8 @@
 
 ---
 
+SPARQL-Generate is a language for expressing transformations from arbitrary data formats to RDF. In this tutorial, we show how to transform XML to RDF, but SPARQL-Generate has features for transforming JSON, CSV, CBOR, HTML, and more.
+
 ## A beginner's example
 
 Let us assume we have an XML file at URL `http://opendata.domain.com/locations.xml` containing the following:
@@ -44,6 +46,9 @@ In general, if an XML file follows the same schema as the one used above, then t
 where the variables `?location_uri`, `?name`, `?lat`, and `?long` should be replaced by values constructed from selected content in the XML file. This is precisely how we specify the output in a SPARQL-Generate transformation, using the `GENERATE` clause:
 
 ```
+PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
 GENERATE {
    ?location_uri
       a  geo:SpatialThing;
@@ -56,6 +61,9 @@ GENERATE {
 We now need to specify how the values of the variables will be constructed. First, we need to specify from which source file we will extract data. This is done with the `SOURCE` clause that appears after the `GENERATE` clause:
 
 ```
+PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
 GENERATE {
    ?location_uri
       a  geo:SpatialThing;
@@ -72,9 +80,13 @@ A source must be associated with a variable in order to refer to the content lat
 /location/name/text()
 ```
 
-In order to bind the result of this XPath expression to the variable `?name`, we make use of the SPARQL clause `BIND` inside a `WHERE` claude:
+In order to bind the result of this XPath expression to the variable `?name`, we make use of the SPARQL clause `BIND` inside a `WHERE` clause:
 
 ```
+PREFIX fun: <http://w3id.org/sparql-generate/fn/>
+PREFIX geo: <http://www.opengis.net/ont/geosparql#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
 GENERATE {
    ?location_uri
       a  geo:SpatialThing;
@@ -103,6 +115,11 @@ Note that we are using a function that takes as a first parameter a piece of XML
 The first parameter of `STRDT` is a character string that corresponds to the encoding of the value for the datatype (the *lexical form* of the literal) and the second parameter is a URI (not a character string). The complete query is as follows:
 
 ```
+PREFIX fun: <http://w3id.org/sparql-generate/fn/>
+PREFIX geo: <http://www.opengis.net/ont/geosparql#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
 GENERATE {
    ?location_uri
       a  geo:SpatialThing;
@@ -137,6 +154,11 @@ WHERE {
 Web developers are often dealing with URLs that have to follow a certain pattern, such as `http://api.myservice.com/things/{id}`. In SPARQL-Generate, it is possible to use a similar scheme in URIs as well as in literals. The transformation above can be rewritten into:
 
 ```
+PREFIX fun: <http://w3id.org/sparql-generate/fn/>
+PREFIX geo: <http://www.opengis.net/ont/geosparql#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
 GENERATE {
    <http://example.com/locations/{?l_id}>
       a  geo:SpatialThing;
@@ -174,9 +196,14 @@ In our example so far, the XML file only had one `location` element, which made 
 </locations>
 ```
 
-In this case, the XPath expressions return multiple values, which is a problem since we must assign the correct identifier to the correct name and geocoordinates. SPARQL-Generate has a special clause to split the document into subparts that are process iteratively: the `ITERATOR` clause that makes use of special iteration functions:
+In this case, the XPath expressions return multiple values, which is a problem since we must assign the correct identifier to the correct name and geocoordinates. SPARQL-Generate has a special clause to split the document into subparts that are processed iteratively: the `ITERATOR` clause that makes use of special iterator functions:
 
 ```
+PREFIX fun: <http://w3id.org/sparql-generate/fn/>
+PREFIX geo: <http://www.opengis.net/ont/geosparql#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
 GENERATE {
    <http://example.com/locations/{?l_id}>
       a  geo:SpatialThing;
@@ -216,7 +243,7 @@ and:
 </location>
 ```
 
-on which the variable bindings can be set unambiguously. The `GENERATE` clause in this case is process as any times as there are results in the iteration, leading to an RDF graph as follows:
+on which the variable bindings can be set unambiguously. The `GENERATE` clause in this case is processed as many times as there are results in the iteration, leading to an RDF graph as follows:
 
 ```
 PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#>
@@ -237,4 +264,8 @@ PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
 ## Towards more complex expressions
 
-The expressions used in a `BIND` clause can combine arithmetics, boolean comparators, string operations, etc. as defined in [SPARQL 1.1](https://www.w3.org/TR/sparql11-query/#SparqlOps).
+The expressions used in a `BIND` clause can combine arithmetics, boolean comparators, string operations, etc. as defined in [SPARQL 1.1](https://www.w3.org/TR/sparql11-query/#SparqlOps). Additionally, we provide a few extra functions that can help common processing of typical data structures (e.g., date conversions).
+
+## Other supported formats and functions
+
+Processing JSON is possible using the `iter:JSONPath` iterator function, or `fun:JSONPath` selection function. These functions are similar to their counterpart for XML, but use JSONPath instead of XPath. Processing CSV can be done using `iter:CSV` and `fun:CSV` for simple comma-separated values with no headers. Other CSV-specific functions exist to deal with all variations of the CSV family of formats (tab-separated, semi-colon-separated, etc.). HTML files can be processed using `iter:CSSPath` or XPath functions.
