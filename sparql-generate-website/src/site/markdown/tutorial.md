@@ -2,6 +2,8 @@
 
 ---
 
+SPARQL-Generate is a language for expressing transformations from arbitrary data formats to RDF. In this tutorial, we show how to transform XML to RDF, but SPARQL-Generate has features for transforming JSON, CSV, CBOR, HTML, and more.
+
 ## A beginner's example
 
 Let us assume we have an XML file at URL `http://opendata.domain.com/locations.xml` containing the following:
@@ -174,7 +176,7 @@ In our example so far, the XML file only had one `location` element, which made 
 </locations>
 ```
 
-In this case, the XPath expressions return multiple values, which is a problem since we must assign the correct identifier to the correct name and geocoordinates. SPARQL-Generate has a special clause to split the document into subparts that are process iteratively: the `ITERATOR` clause that makes use of special iteration functions:
+In this case, the XPath expressions return multiple values, which is a problem since we must assign the correct identifier to the correct name and geocoordinates. SPARQL-Generate has a special clause to split the document into subparts that are processed iteratively: the `ITERATOR` clause that makes use of special iterator functions:
 
 ```
 GENERATE {
@@ -216,7 +218,7 @@ and:
 </location>
 ```
 
-on which the variable bindings can be set unambiguously. The `GENERATE` clause in this case is process as any times as there are results in the iteration, leading to an RDF graph as follows:
+on which the variable bindings can be set unambiguously. The `GENERATE` clause in this case is processed as many times as there are results in the iteration, leading to an RDF graph as follows:
 
 ```
 PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#>
@@ -237,4 +239,8 @@ PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
 ## Towards more complex expressions
 
-The expressions used in a `BIND` clause can combine arithmetics, boolean comparators, string operations, etc. as defined in [SPARQL 1.1](https://www.w3.org/TR/sparql11-query/#SparqlOps). Additionally, we provide a few extra functions that can 
+The expressions used in a `BIND` clause can combine arithmetics, boolean comparators, string operations, etc. as defined in [SPARQL 1.1](https://www.w3.org/TR/sparql11-query/#SparqlOps). Additionally, we provide a few extra functions that can help common processing of typical data structures (e.g., date conversions).
+
+## Other supported formats and functions
+
+Processing JSON is possible using the `iter:JSONPath` iterator function, or `fun:JSONPath` selection function. These functions are similar to their counterpart for XML, but use JSONPath instead of XPath. Processing CSV can be done using `iter:CSV` and `fun:CSV` for simple comma-separated values with no headers. Other CSV-specific functions exist to deal with all variations of the CSV family of formats (tab-separated, semi-colon-separated, etc.). HTML files can be processed using `iter:CSSPath` or XPath functions.
