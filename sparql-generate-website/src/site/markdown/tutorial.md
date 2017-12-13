@@ -72,7 +72,7 @@ A source must be associated with a variable in order to refer to the content lat
 /location/name/text()
 ```
 
-In order to bind the result of this XPath expression to the variable `?name`, we make use of the SPARQL clause `BIND` inside a `WHERE` claude:
+In order to bind the result of this XPath expression to the variable `?name`, we make use of the SPARQL clause `BIND` inside a `WHERE` clause:
 
 ```
 GENERATE {
@@ -237,4 +237,4 @@ PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
 ## Towards more complex expressions
 
-The expressions used in a `BIND` clause can combine arithmetics, boolean comparators, string operations, etc. as defined in [SPARQL 1.1](https://www.w3.org/TR/sparql11-query/#SparqlOps).
+The expressions used in a `BIND` clause can combine arithmetics, boolean comparators, string operations, etc. as defined in [SPARQL 1.1](https://www.w3.org/TR/sparql11-query/#SparqlOps). Additionally, we provide a few extra functions that can 
