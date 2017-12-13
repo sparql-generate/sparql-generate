@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 /**
- * Contains the SPARQL custom functions for extracting strings from common data
- * formats, defined by the <a href="http://w3id.org/sparql-generate/">SPARQL-Generate
- * specification</a>.
+ * Defines some <a href="<a href="/sparql-generate/apidocs/com/github/thesmartenergy/sparql/generate/jena/function/library/package-summary.html">binding
+ * functions</a> for extracting strings from common data formats.
  */
 package com.github.thesmartenergy.sparql.generate.jena.function.library;

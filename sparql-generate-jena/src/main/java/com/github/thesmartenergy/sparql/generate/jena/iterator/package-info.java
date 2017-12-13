@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 /**
- * Contains the model for <a href="w3id.org/sparql-generate/">SPARQL-Generate
- * iterator functions</a>. SPARQL-Generate iterator functions are similar
- * to SPARQL functions,  except they return a list of RDF terms or SPARQL
- * variables, instead of only one.
+ * Interfaces and abstract classes for 
+ * <a href="/sparql-generate/apidocs/com/github/thesmartenergy/sparql/generate/jena/iterator/library/package-summary.html">
+ * iterator functions</a>, which are similar to binding functions, except they
+ * return a list of RDF terms or SPARQL variables, instead of only one.
  */
 package com.github.thesmartenergy.sparql.generate.jena.iterator;

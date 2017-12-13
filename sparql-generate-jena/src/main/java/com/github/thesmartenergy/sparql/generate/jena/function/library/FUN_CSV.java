@@ -66,23 +66,15 @@ public class FUN_CSV extends FunctionBase2 {
         try {
 
             String sourceCSV = String.valueOf(csv.asNode().getLiteralLexicalForm());
-
             InputStream is = new ByteArrayInputStream(sourceCSV.getBytes("UTF-8"));
             BufferedReader br = new BufferedReader(new InputStreamReader(is, "UTF-8"));
-
-            //ICsvListReader listReader = null;
-            //listReader = new CsvListReader(br, CsvPreference.STANDARD_PREFERENCE);
-            //listReader.getHeader(true);
             CsvMapReader mapReader = new CsvMapReader(br, CsvPreference.STANDARD_PREFERENCE);
-            String headers_str[] = mapReader.getHeader(true);
-            Map<String, String> headers = mapReader.read(headers_str);
+            String header[] = mapReader.getHeader(true);
+            Map<String, String> row = mapReader.read(header);
 
-            //return new NodeValueString(headers.get(path.asNode().getLiteralValue()));
             String columnName = (String) column.asNode().getLiteralValue();
-
-            String value = headers.get(columnName);
+            String value = row.get(columnName);
             if (value == null) {
-                throw new NullPointerException("No column " + columnName);
             }
             NodeValue node = new NodeValueString(value);
             return node;

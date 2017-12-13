@@ -134,6 +134,9 @@ public class LocatorURLAccept extends LocatorAcceptBase {
                 }
             }
         } while (redir);
+        if(contentType==null) {
+            contentType = "text/plain";
+        }
         return new TypedInputStream(in, contentType, contentEncoding);
     }
 

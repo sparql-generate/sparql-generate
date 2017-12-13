@@ -67,10 +67,6 @@ public class TransformStream {
 
     private static final Logger LOG = LoggerFactory.getLogger(TransformStream.class);
     private static final Gson gson = new Gson();
-
-//    private Appender appender;
-    private static long MAX_DURATION = TimeUnit.MILLISECONDS.convert(1, TimeUnit.MINUTES);
-    private static int MAX_TRIPLES = 5000;
     private static String base = "http://example.org/";
     private final StringWriterAppender appender = (StringWriterAppender) org.apache.log4j.Logger.getRootLogger().getAppender("WEBSOCKET");
 

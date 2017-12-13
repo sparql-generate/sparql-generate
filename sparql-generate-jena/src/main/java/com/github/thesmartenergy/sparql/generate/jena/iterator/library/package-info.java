@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 /**
- * Contains the SPARQL-Generate iterator functions from common data formats,
- * defined by the <a href="w3id.org/sparql-generate/">SPARQL-Generate
- * specification</a>.
+ * Defines common
+ * <a href="/sparql-generate/apidocs/com/github/thesmartenergy/sparql/generate/jena/iterator/library/package-summary.html">
+ * iterator functions</a> for common data formats.
  */
 package com.github.thesmartenergy.sparql.generate.jena.iterator.library;

@@ -241,8 +241,8 @@ public class SPARQLGenerateCli {
         public static Options getCMDOptions() {
             Options opt = new Options()
                     .addOption("h", "help", false, "Show help")
-                    .addOption("d", "dir", true, "Location of the directory with the queries, documentset, dataset, and configuration files as explained in https://w3id.org/sparql-generate/language-cli.html. Default value is .")
-                    .addOption("q", "query-file", true, "Name of the query file in the directory. Default value is query.rqg")
+                    .addOption("d", "dir", true, "Location of the directory with the queryset, documentset, dataset, and configuration files as explained in https://w3id.org/sparql-generate/language-cli.html. Default value is . (the current folder)")
+                    .addOption("q", "query-file", true, "Name of the query file in the directory. Default value is ./query.rqg")
                     .addOption("o", "output", true, "Location where the output is to be stored. No value means output goes to the console.")
                     .addOption("l", "log-level", true, "Set log level, acceptable values are TRACE < DEBUG < INFO < WARN < ERROR < FATAL < OFF. No value or unrecognized value results in level DEBUG")
                     .addOption("f", "log-file", true, "Location where the log is to be stored. No value means output goes to the console.");

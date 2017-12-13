@@ -24,7 +24,7 @@ import org.glassfish.jersey.server.ResourceConfig;
  */
 @ApplicationPath("api")
 public class JerseyApp extends ResourceConfig {
-    
+
     public JerseyApp() {
         packages("com.github.thesmartenergy.sparql.generate.api");
     }

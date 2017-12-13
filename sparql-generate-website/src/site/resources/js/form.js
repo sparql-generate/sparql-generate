@@ -189,41 +189,41 @@ var resetErrors = function() {
 var init = function() { 
   $("#form").empty();
   $("#form").append(`
-<div class="col-lg-6">
-  <div id="queryset" class="fieldset">
-    <legend>SPARQL-Generate Queries</legend>
-    <p>See <a href="functions.html">our predefined SPARQL binding functions and SPARQL-Generate iterator functions</a>.</p>
-    <div id="queryset_drop_zone" class="drop_zone">
-      <strong>Click here to add a new named query, you can also drag SPARQL-Generate documents to load them ...</strong>
-    </div>
-  </div>
-  <div id="documentset_list" class="fieldset">
-    <legend>Documentset</legend>
-    <div id="documentset_drop_zone" class="drop_zone">
-      <strong>Click here to add a new document, you can also drag one or more files to load them ...</strong>
-    </div>
-    <div id="dataset" class="fieldset">
-      <legend>Dataset</legend>
-      <div id="dataset_drop_zone" class="drop_zone">
-        <strong>Click here to add a new graph, you can also drag turtle documents to load them ...</strong>
+    <div class="col-lg-6">
+      <div id="queryset" class="fieldset">
+        <legend>SPARQL-Generate Queries</legend>
+        <p>See the documentation for our predefined <a href="apidocs/com/github/thesmartenergy/sparql/generate/jena/iterator/library/package-summary.html">iterator functions</a> and <a href="apidocs/com/github/thesmartenergy/sparql/generate/jena/function/library/package-summary.html">binding functions</a>.</p>
+        <div id="queryset_drop_zone" class="drop_zone">
+          <strong>Click here to add a new named query, you can also drag SPARQL-Generate documents to load them ...</strong>
+        </div>
+      </div>
+      <div id="documentset_list" class="fieldset">
+        <legend>Documentset</legend>
+        <div id="documentset_drop_zone" class="drop_zone">
+          <strong>Click here to add a new document, you can also drag one or more files to load them ...</strong>
+        </div>
+      </div>
+      <div id="dataset" class="fieldset">
+        <legend>Dataset</legend>
+        <div id="dataset_drop_zone" class="drop_zone">
+          <strong>Click here to add a new graph, you can also drag turtle documents to load them ...</strong>
+        </div>
       </div>
     </div>
-  </div>
-</div>
-<div class="col-lg-6">
-  <div class="fieldset">
-    <div id="result_list">
-      <legend><button id="run">Run Query</button>
-      <label id="stream"><input type="checkbox" id="autocheck" /> <span>auto</span></label></legend>
-      <textarea id="result"> </textarea>
-    </div>
-    <div id="log">
-      <legend>Log</legend>
-      <input id="loglevel" type="range" value="5" min="0" max="5"></input>
-      <pre></pre>
-    </div>
-  </div>
-</div>`);
+    <div class="col-lg-6">
+      <div class="fieldset">
+        <div id="result_list">
+          <legend><button id="run">Run Query</button>
+          <label id="stream"><input type="checkbox" id="autocheck" /> <span>auto</span></label></legend>
+          <textarea id="result"> </textarea>
+        </div>
+        <div id="log">
+          <legend>Log</legend>
+          <input id="loglevel" type="range" value="5" min="0" max="5"></input>
+          <pre style="max-height:400px"></pre>
+        </div>
+      </div>
+    </div>`);
     
     
   namedqueries = [],

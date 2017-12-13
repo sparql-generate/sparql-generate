@@ -46,7 +46,7 @@ public class FunctionFilter implements Filter {
         String requestURI = req.getRequestURI();
         String resourcePath = requestURI.substring(contextPath.length());
         String functionName = resourcePath.substring(3);
-        String redirection = "/apidocs/com/github/thesmartenergy/sparql/generate/jena/function/library/FUN_"+functionName+".html";
+        String redirection = contextPath+"/apidocs/com/github/thesmartenergy/sparql/generate/jena/function/library/FUN_"+functionName+".html";
         HttpServletResponse res = (HttpServletResponse) response;
         res.setHeader("Location", redirection);
         res.setStatus(HttpServletResponse.SC_SEE_OTHER); 

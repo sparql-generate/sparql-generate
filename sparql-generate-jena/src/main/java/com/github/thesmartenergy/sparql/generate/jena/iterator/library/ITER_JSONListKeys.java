@@ -42,8 +42,6 @@ import org.slf4j.Logger;
  *
  * <ul>
  * <li>Param 1: (json): a JSON object.</li>
- * <li>Param 2: (jsonPath) the JSONPath query. See
- * https://github.com/json-path/JsonPath for the syntax specification;</li>
  * </ul>
  *
  * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
