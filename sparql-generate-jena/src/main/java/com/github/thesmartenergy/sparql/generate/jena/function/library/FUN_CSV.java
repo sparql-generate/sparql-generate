@@ -74,9 +74,12 @@ public class FUN_CSV extends FunctionBase2 {
 
             String columnName = (String) column.asNode().getLiteralValue();
             String value = row.get(columnName);
+            NodeValue node;
             if (value == null) {
+                node = new NodeValueString("");
+            } else {
+                node = new NodeValueString(value);
             }
-            NodeValue node = new NodeValueString(value);
             return node;
         } catch (Exception ex) {
             LOG.debug("No evaluation for " + csv + ", " + column, ex);
