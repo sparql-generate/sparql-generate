@@ -13,20 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.thesmartenergy.sparql.generate.api;
-
-import java.util.List;
+package com.github.thesmartenergy.sparql.generate.jena.cli;
 
 /**
  *
  * @author maxime.lefrancois
  */
-public class Request {
-    String defaultquery;
-    List<Document> namedqueries;
-    String defaultgraph;
-    List<Document> namedgraphs;
-    List<Document> documentset;
-    boolean stream;
-    
+public class Response {
+    public String log;
+    public String result;
+    public boolean clear;
+
+    public Response(String log, String result, boolean clear) {
+        this.log = log;
+        this.result = result;
+        this.clear = clear;
+    }
 }

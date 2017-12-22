@@ -15,6 +15,8 @@
  */
 package com.github.thesmartenergy.sparql.generate.api;
 
+import com.github.thesmartenergy.sparql.generate.jena.cli.Response;
+import com.github.thesmartenergy.sparql.generate.jena.cli.Request;
 import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
 import com.github.thesmartenergy.sparql.generate.jena.engine.PlanFactory;
 import com.github.thesmartenergy.sparql.generate.jena.engine.RootPlan;

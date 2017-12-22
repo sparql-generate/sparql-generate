@@ -15,6 +15,8 @@
  */
 package com.github.thesmartenergy.sparql.generate.api;
 
+import com.github.thesmartenergy.sparql.generate.jena.cli.Document;
+import com.github.thesmartenergy.sparql.generate.jena.cli.Request;
 import com.google.gson.Gson;
 import java.io.File;
 import java.io.FileInputStream;

@@ -13,29 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.thesmartenergy.sparql.generate.api;
+package com.github.thesmartenergy.sparql.generate.jena.cli;
+
+import java.util.List;
 
 /**
  *
  * @author maxime.lefrancois
  */
-public class Document {
+public class Request {
+    public String defaultquery;
+    public List<Document> namedqueries;
+    public String defaultgraph;
+    public List<Document> namedgraphs;
+    public List<Document> documentset;
+    public boolean stream;
     
-    String uri;
-    String string;
-    String mediatype;
-    
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("Document(")
-            .append("uri: \"")
-            .append(uri)
-            .append("\", mediatype: \"")
-            .append(mediatype)
-            .append("\", string: \"")
-            .append(string)
-            .append("\")");
-        return sb.toString();
-    }
 }

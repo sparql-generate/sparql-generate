@@ -239,3 +239,8 @@ input:checked + .slider:before {
   font-size: .7em;
   color:white;
 }
+
+/* fix for https://stackoverflow.com/questions/17579750/drop-down-menu-not-working-on-mobile-devices */
+.dropdown-backdrop{
+position: static;
+}

@@ -46,7 +46,12 @@ public class IteratorFilter implements Filter {
         String requestURI = req.getRequestURI();
         String resourcePath = requestURI.substring(contextPath.length());
         String functionName = resourcePath.substring(5);
-        String redirection = contextPath+"apidocs/com/github/thesmartenergy/sparql/generate/jena/iterator/library/ITER_"+functionName+".html";
+        String redirection;
+        if(functionName.equals("")) {
+            redirection = contextPath+"apidocs/com/github/thesmartenergy/sparql/generate/jena/iterator/library/package-summary.html";
+        } else {
+            redirection = contextPath+"apidocs/com/github/thesmartenergy/sparql/generate/jena/iterator/library/ITER_"+functionName+".html";
+        }
         HttpServletResponse res = (HttpServletResponse) response;
         res.setHeader("Location", redirection);
         res.setStatus(HttpServletResponse.SC_SEE_OTHER); 

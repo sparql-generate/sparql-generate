@@ -935,8 +935,6 @@ var load_test = function(id) {
         localStorage.setItem('documentset', JSON.stringify(data.documentset));
         init();
       });
-  
-  $("#tabs").tabs("option", "active", 0);
 }
 
 $(document).ready(function() {

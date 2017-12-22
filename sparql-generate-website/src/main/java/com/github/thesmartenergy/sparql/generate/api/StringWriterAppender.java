@@ -15,6 +15,7 @@
  */
 package com.github.thesmartenergy.sparql.generate.api;
 
+import com.github.thesmartenergy.sparql.generate.jena.cli.Response;
 import com.google.gson.Gson;
 import java.io.IOException;
 import java.util.HashMap;

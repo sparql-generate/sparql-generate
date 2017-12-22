@@ -19,7 +19,6 @@ package com.github.thesmartenergy.sparql.generate.jena;
  *
  * @author Noorani Bakerally <noorani.bakerally at emse.fr>
  */
-import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
 import com.github.thesmartenergy.sparql.generate.jena.engine.PlanFactory;
 import com.github.thesmartenergy.sparql.generate.jena.engine.RootPlan;
 import com.github.thesmartenergy.sparql.generate.jena.query.SPARQLGenerateQuery;

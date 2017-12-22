@@ -37,7 +37,7 @@ See the License for the specific language governing permissions and
             <highlightJsTheme>github</highlightJsTheme>
             <brand>
                 <name><![CDATA[<span class="color-highlight">SPARQL-Generate</span>]]></name>
-                <href>/sparql-generate/</href>
+                <href>https://w3id.org/sparql-generate/</href>
             </brand>
             <slogan>RDF Generation from heterogeneous documents.</slogan>
             <titleTemplate>%2$s | %1$s</titleTemplate>
