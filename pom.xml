@@ -16,6 +16,9 @@
 
     <!-- command to deploy to maven: -->
     <!--mvn clean scm:checkin release:prepare release:perform -Dmessage=""-->
+    
+    <!-- cancel last commit -->
+    <!-- git reset - -soft HEAD^ && git push -f -->
 
     <modules>
         <module>sparql-generate-jena</module>
@@ -72,7 +75,7 @@
         <url>https://${repository.domain}/${repository.user}/${repository.name}</url>
         <developerConnection>scm:git:https://${repository.domain}/${repository.user}/${repository.name}.git
         </developerConnection>
-    <tag>HEAD</tag>
+    <tag>1.2.2</tag>
   </scm>
     
     <issueManagement>
@@ -192,6 +195,7 @@
                             <exclude>**/dependency-reduced-pom.xml</exclude>
                             <exclude>**/*.csv</exclude>
                             <exclude>**/*.rqg</exclude>
+                            <exclude>**/java.nio.file.spi.FileTypeDetector</exclude>
                         </excludes>
                     </configuration>
                 </plugin>
