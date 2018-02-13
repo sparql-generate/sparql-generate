@@ -66,7 +66,7 @@ public class TestBase {
 
     private final File exampleDir;
     
-    private static final String pattern = "";
+    private static final String pattern = "simplecsv";
 
     
     public TestBase(Logger log, File exampleDir, String name) {
@@ -187,7 +187,7 @@ public class TestBase {
             File[] files = tests.listFiles();
             Arrays.sort(files);
             for (File exampleDir : files) {
-                if(!exampleDir.getName().matches(".*" + pattern + ".*")){
+                if(!exampleDir.getName().matches(pattern)){
                     continue;
                 }
                 if (exampleDir.isDirectory() && !exampleDir.getName().equals("com")) {
