@@ -84,19 +84,24 @@ public class ITER_CSV extends IteratorFunctionBase1 {
             listReader = new CsvListReader(br, CsvPreference.STANDARD_PREFERENCE);
             
             List<String> header = listReader.read();
-            System.out.println("header: " + header);
+            LOG.trace("header: " + header);
             List<NodeValue> nodeValues = new ArrayList<>();
 
-            while (listReader.read() != null) {
+            while (true) {
+                List<String> row = listReader.read();
+                if(row==null) {
+                    break;
+                }
+
                 StringWriter sw = new StringWriter(); 
 
                 CsvListWriter listWriter = new CsvListWriter(sw, CsvPreference.STANDARD_PREFERENCE);
                 listWriter.write(header);
-                listWriter.write(listReader.read());
+                listWriter.write(row);
                 listWriter.close();
 
                 String lexicalForm = sw.toString();
-                System.out.println(sw);
+                LOG.trace(lexicalForm);
                 Node node = NodeFactory.createLiteral(lexicalForm, dt);
                 NodeValueNode nodeValue = new NodeValueNode(node);
                 nodeValues.add(nodeValue);

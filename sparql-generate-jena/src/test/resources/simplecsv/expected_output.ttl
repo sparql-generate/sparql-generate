@@ -13,3 +13,17 @@
         transit:route   "25"^^xsd:int ;
         wgs84_pos:lat   "50.901389" ;
         wgs84_pos:long  "4.484444" .
+
+
+<http://airport.example.com/7001>
+        a               transit:Stop ;
+        transit:route   "41"^^xsd:int ;
+        wgs84_pos:lat   "57.901389" ;
+        wgs84_pos:long  "5.584444" .
+
+
+<http://airport.example.com/7002>
+        a               transit:Stop ;
+        transit:route   "42"^^xsd:int ;
+        wgs84_pos:lat   "58.901389" ;
+        wgs84_pos:long  "6.584444" .
