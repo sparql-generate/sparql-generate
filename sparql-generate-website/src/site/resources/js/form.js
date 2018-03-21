@@ -937,6 +937,31 @@ var load_test = function(id) {
       });
 }
 
+var processMessage = function(responses) {
+    for(var i= 0; i<responses.length; i++) {
+      data = responses[i];
+      if(data.clear === true) {
+        result.setValue("");
+        $("#log pre").empty();
+      } 
+      if(data.result && data.result != "") {
+        result.replaceRange(data.result, CodeMirror.Pos(result.lastLine()));
+      }
+      if(data.log && data.log != "") {
+        var span = $("<span>")
+                .addClass("log")
+                .append(data.log.replace(/</g, "&lt;"))
+                .appendTo("#log pre");
+        for(var level in levels) {
+            if(data.log.includes(level)) {
+                span.addClass(level);
+            }
+        }
+      }
+    }
+    $("#log pre").scrollTop($("#log pre")[0].scrollHeight);
+}
+
 $(document).ready(function() {
     
     
@@ -960,27 +985,8 @@ $(document).ready(function() {
   };
    
   socket.onmessage = function (event) {
-      var data = JSON.parse(event.data);
-      if(data.clear === true) {
-        result.setValue("");
-        $("#log pre").empty();
-      } 
-      if(data.result && data.result != "") {
-        result.setValue(result.getValue() + data.result);       
-      }
-      if(data.log && data.log != "") {
-        var span = $("<span>")
-                .addClass("log")
-                .append(data.log.replace(/</g, "&lt;"))
-                .appendTo("#log pre");
-        $("#log pre").scrollTop($("#log pre")[0].scrollHeight);
-        for(var level in levels) {
-            if(data.log.includes(level)) {
-                span.addClass(level);
-            }
-        }
-      }
-      manage_log_level();
+      console.log("received")
+      processMessage(JSON.parse(event.data));
     }
    
   socket.onclose = function (event) {

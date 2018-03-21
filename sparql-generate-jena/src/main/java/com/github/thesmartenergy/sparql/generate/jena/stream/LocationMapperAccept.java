@@ -63,7 +63,7 @@ public class LocationMapperAccept extends LocationMapper {
                 media = (result.getLiteral("media") == null ? null : result.getLiteral("media").getString());
                 altLocations.put(new LookUpRequest(name, media), new LookUpRequest(altName, media));
             } catch (Exception ex) {
-                log.warn("Error while reading mapping in configuration model for name " + name + ", alt " + altName + ", media " + media,ex);
+                log.debug("Error while reading mapping in configuration model for name " + name + ", alt " + altName + ", media " + media,ex);
             }
         });
     }

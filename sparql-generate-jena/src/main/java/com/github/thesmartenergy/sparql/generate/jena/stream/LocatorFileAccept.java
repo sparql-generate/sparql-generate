@@ -143,6 +143,9 @@ public class LocatorFileAccept extends LocatorAcceptBase {
     @Override
     public TypedInputStream open(LookUpRequest request) {
         String filenameIRI = request.getFilenameOrURI();
+        if(filenameIRI.startsWith("http") || filenameIRI.startsWith("coap")) {
+            return null;
+        }
         String fn = toFileName(filenameIRI);
         if (fn == null) {
             log.debug("Cannot find a proper filename: " + filenameIRI);

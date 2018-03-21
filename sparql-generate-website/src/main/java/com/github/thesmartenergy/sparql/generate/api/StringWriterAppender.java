@@ -17,10 +17,8 @@ package com.github.thesmartenergy.sparql.generate.api;
 
 import com.github.thesmartenergy.sparql.generate.jena.cli.Response;
 import com.google.gson.Gson;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import javax.websocket.Session;
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.spi.ErrorCode;
 import org.apache.log4j.spi.LoggingEvent;
@@ -38,9 +36,9 @@ public class StringWriterAppender extends AppenderSkeleton {
     private static final Logger LOG = LoggerFactory.getLogger(StringWriterAppender.class);
     private static final Gson gson = new Gson();
 
-    private final Map<String,Session> sessions = new HashMap<>();
+    private final Map<String,SessionManager> sessions = new HashMap<>();
     
-    public void putSession(Thread thread, Session session) {
+    public void putSession(Thread thread, SessionManager session) {
         this.sessions.put(thread.getName(), session);
     }
 
@@ -58,15 +56,9 @@ public class StringWriterAppender extends AppenderSkeleton {
             return;
         }
         String message = this.layout.format(event);
-        Session session = sessions.get(event.getThreadName());
+        SessionManager session = sessions.get(event.getThreadName());
         if (session != null) {
-            try {
-                session.getBasicRemote().sendText(gson.toJson(new Response(message, "", false)));
-            } catch (IOException ex) {
-                System.err.println("IOException " + ex.getMessage());
-            }
-        } else {
-            System.err.println("No session found for thread " + event.getThreadName());
+            session.appendResponse(new Response(message, "", false));
         }
     }
 

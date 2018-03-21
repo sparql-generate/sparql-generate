@@ -86,7 +86,7 @@ public class FUN_XPath extends FunctionBase2 {
         if (xml.getDatatypeURI() != null
                 && !xml.getDatatypeURI().equals(datatypeUri)
                 && !xml.getDatatypeURI().equals("http://www.w3.org/2001/XMLSchema#string")) {
-            LOG.warn("The URI of NodeValue1 MUST be <" + datatypeUri + ">"
+            LOG.debug("The URI of NodeValue1 MUST be <" + datatypeUri + ">"
                     + " or <http://www.w3.org/2001/XMLSchema#string>. Got "
                     + xml.getDatatypeURI());
         }

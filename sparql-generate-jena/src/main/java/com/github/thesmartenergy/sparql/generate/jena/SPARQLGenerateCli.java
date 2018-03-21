@@ -38,6 +38,7 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.io.IOUtils;
 import org.apache.jena.graph.Triple;
 import org.apache.jena.query.Dataset;
+import org.apache.jena.query.DatasetFactory;
 import org.apache.jena.query.QueryFactory;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
@@ -58,8 +59,9 @@ import org.apache.log4j.PatternLayout;
 
 /**
  *
- * @author Noorani Bakerally <noorani.bakerally at emse.fr>, Maxime Lefrançois <maxime.lefrancois at emse.fr>
- * 
+ * @author Noorani Bakerally <noorani.bakerally at emse.fr>, Maxime Lefrançois
+ * <maxime.lefrancois at emse.fr>
+ *
  */
 public class SPARQLGenerateCli {
 
@@ -90,15 +92,13 @@ public class SPARQLGenerateCli {
         try {
             conf.add(RDFDataMgr.loadModel(new File(dir, "queryset/configuration.ttl").toString(), Lang.TTL));
         } catch (Exception ex) {
-            LOG.error("Error while loading the location mapping model for the queryset.", ex);
-            return;
+            LOG.warn("Error while loading the location mapping model for the queryset. No named queries will be used");
         }
 
         try {
             conf.add(RDFDataMgr.loadModel(new File(dir, "documentset/configuration.ttl").toString(), Lang.TTL));
         } catch (Exception ex) {
-            LOG.error("Error while loading the location mapping model for the documentset.", ex);
-            return;
+            LOG.warn("Error while loading the location mapping model for the documentset. No named document will be used");
         }
 
         // initialize stream manager
@@ -135,26 +135,51 @@ public class SPARQLGenerateCli {
         try {
             ds = SPARQLGenerateUtils.loadDataset(dir);
         } catch (Exception ex) {
-            LOG.error("Error while loading the dataset.", ex);
-            return;
+            LOG.warn("Error while loading the dataset, no dataset will be used.");
+            ds = DatasetFactory.create();
         }
 
         String output = cl.getOptionValue("o");
-        StreamRDF outputRDF;
-        if (output == null) {
-            outputRDF = new ConsoleStreamRDF(System.out, q.getPrefixMapping());
-        } else {
-            try {
-                outputRDF = new ConsoleStreamRDF(new PrintStream(new FileOutputStream(output, false)), q.getPrefixMapping());
-            } catch (IOException ex) {
-                LOG.error("Error while opening the output file.", ex);
-                return;
+
+        boolean stream = cl.hasOption("s");
+        System.out.println("is Stream " + stream);
+        if (stream) {
+
+            StreamRDF outputRDF;
+            if (output == null) {
+                outputRDF = new ConsoleStreamRDF(System.out, q.getPrefixMapping());
+            } else {
+                try {
+                    outputRDF = new ConsoleStreamRDF(new PrintStream(new FileOutputStream(output, false)), q.getPrefixMapping());
+                } catch (IOException ex) {
+                    LOG.error("Error while opening the output file.", ex);
+                    return;
+                }
             }
-        }
-        try {
-            plan.exec(ds, outputRDF);
-        } catch (Exception ex) {
-            LOG.error("Error while executing the plan.", ex);
+            try {
+                plan.exec(ds, outputRDF);
+            } catch (Exception ex) {
+                LOG.error("Error while executing the plan.", ex);
+            }
+
+        } else {
+
+            try {
+                Model model = plan.exec(ds);
+                if (output == null) {
+                    model.write(System.out, "TTL");
+                } else {
+                    try {
+                        model.write(new FileOutputStream(output, false), "TTL");
+                    } catch (IOException ex) {
+                        LOG.error("Error while opening the output file.", ex);
+                        return;
+                    }
+                }
+            } catch (Exception ex) {
+                LOG.error("Error while executing the plan.", ex);
+            }
+
         }
     }
 
@@ -174,7 +199,7 @@ public class SPARQLGenerateCli {
         @Override
         public void start() {
             pm.getNsPrefixMap().forEach((prefix, uri) -> {
-                out.append("@Prefix ").append(prefix).append(": <").append(uri).append("> .\n");
+                out.append("@prefix ").append(prefix).append(": <").append(uri).append("> .\n");
             });
         }
 
@@ -185,7 +210,7 @@ public class SPARQLGenerateCli {
 
         @Override
         public void prefix(String prefix, String uri) {
-            out.append("@Prefix ").append(prefix).append(": <").append(uri).append("> .\n");
+            out.append("@prefix ").append(prefix).append(": <").append(uri).append("> .\n");
         }
 
         @Override
@@ -204,8 +229,12 @@ public class SPARQLGenerateCli {
     }
 
     private static void setLogging(CommandLine cl) {
-        Level level = Level.toLevel(cl.getOptionValue("l"), Level.TRACE);
-        rootLogger.setLevel(level);
+        try {
+            Level level = Level.toLevel(cl.getOptionValue("l"), Level.DEBUG);
+            rootLogger.setLevel(level);
+        } catch (Exception ex) {
+            rootLogger.setLevel(Level.DEBUG);
+        }
 
         String logPath = cl.getOptionValue("f");
         if (logPath == null) {
@@ -244,7 +273,8 @@ public class SPARQLGenerateCli {
                     .addOption("q", "query-file", true, "Name of the query file in the directory. Default value is ./query.rqg")
                     .addOption("o", "output", true, "Location where the output is to be stored. No value means output goes to the console.")
                     .addOption("l", "log-level", true, "Set log level, acceptable values are TRACE < DEBUG < INFO < WARN < ERROR < FATAL < OFF. No value or unrecognized value results in level DEBUG")
-                    .addOption("f", "log-file", true, "Location where the log is to be stored. No value means output goes to the console.");
+                    .addOption("f", "log-file", true, "Location where the log is to be stored. No value means output goes to the console.")
+                    .addOption("s", "stream", false, "Generate output as stream.");
             return opt;
         }
 

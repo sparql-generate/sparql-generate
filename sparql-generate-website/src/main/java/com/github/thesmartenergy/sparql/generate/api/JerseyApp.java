@@ -16,6 +16,7 @@
 package com.github.thesmartenergy.sparql.generate.api;
 
 import javax.ws.rs.ApplicationPath;
+import org.apache.jena.sparql.expr.NodeValue;
 import org.glassfish.jersey.server.ResourceConfig;
 
 /**
@@ -27,5 +28,8 @@ public class JerseyApp extends ResourceConfig {
 
     public JerseyApp() {
         packages("com.github.thesmartenergy.sparql.generate.api");
+        NodeValue.VerboseExceptions = true;
+        NodeValue.VerboseWarnings = false;
+        
     }
 }

@@ -40,7 +40,6 @@ public class IteratorPlanImpl extends PlanBase implements IteratorPlan {
      */
     private static final Logger LOG = LoggerFactory.getLogger(IteratorPlanImpl.class);
 
-
     /**
      * The SPARQL-Generate iterator.
      */
@@ -61,10 +60,10 @@ public class IteratorPlanImpl extends PlanBase implements IteratorPlan {
      * The constructor.
      *
      * @param s - The SPARQL-Generate iterator function.
-     * @param e - The list of expressions on which to evaluate the
-     * iterator function.
+     * @param e - The list of expressions on which to evaluate the iterator
+     * function.
      * @param v - The variable that will be bound to each result of the iterator
-     *  function evaluation.
+     * function evaluation.
      */
     public IteratorPlanImpl(
             final IteratorFunction s,
@@ -82,7 +81,7 @@ public class IteratorPlanImpl extends PlanBase implements IteratorPlan {
     final public void exec(
             final List<Var> variables,
             final List<BindingHashMapOverwrite> values,
-            final Consumer<List<BindingHashMapOverwrite>> bindingStream ) {
+            final Consumer<List<BindingHashMapOverwrite>> bindingStream) {
 
         boolean added = variables.add(var);
         if (!added) {
@@ -91,13 +90,13 @@ public class IteratorPlanImpl extends PlanBase implements IteratorPlan {
 
         ensureNotEmpty(variables, values);
         final StringBuilder sb;
-        if(LOG.isTraceEnabled()) {
+        if (LOG.isTraceEnabled()) {
             sb = new StringBuilder("Execution of " + iterator + " " + exprList + " AS  " + var + ":\n");
         } else {
             sb = null;
         }
         values.forEach((binding) -> {
-            List<BindingHashMapOverwrite> newValues= new ArrayList();
+            List<BindingHashMapOverwrite> newValues = new ArrayList();
             try {
                 iterator.exec(binding, exprList, null, (nodeValues) -> {
                     if (nodeValues == null || nodeValues.isEmpty()) {
@@ -111,12 +110,12 @@ public class IteratorPlanImpl extends PlanBase implements IteratorPlan {
                         bindingStream.accept(newValues);
                     }
                 });
-        if(LOG.isTraceEnabled()) {
-            sb.setLength(sb.length() - 2);
-        }
-        LOG.trace(sb.toString());
+                if (LOG.isTraceEnabled()) {
+                    sb.setLength(sb.length() - 2);
+                    LOG.trace(sb.toString());
+                }
             } catch (ExprEvalException ex) {
-                LOG.debug("Iterator execution failed: ", ex);
+                LOG.debug("Iterator execution failed due to " + ex.getClass().getSimpleName() + " - " + ex.getMessage());
                 newValues.add(new BindingHashMapOverwrite(binding, var, null));
             }
         });

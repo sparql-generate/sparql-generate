@@ -16,13 +16,15 @@ java -jar sparql-generate-jena.jar [arguments]
 * `-o,--output <arg>` Location where the output is to be stored. No value means output goes to the console.
 * `-l,--log-level <arg>` Set log level, acceptable values are TRACE < DEBUG < INFO < WARN < ERROR < FATAL < OFF. No value or unrecognized value results in level DEBUG
 * `-f,--log-file <arg>` Location where the log is to be stored. No value means output goes to the console.
+* `-s,--stream` Generate output as stream.
 
 
-##### Directory structure
 
-The directory with the queryset, documentset, dataset, and configuration files contains three subfolders as follows.
+##### Directory structure (optional)
 
-*The `queryset` subfolder* contains named queries and a configuration file `configuration.ttl` whose typical content is as follows:
+Optionally, the query may be run in a directory with a queryset and/or documentset and/or dataset specified as follows:
+
+The queryset is specified in a subfolder `queryset` that contains named queries and a configuration file `configuration.ttl` whose typical content is as follows:
 
 ```
 @prefix lm: <http://jena.hpl.hp.com/2004/08/location-mapping#> .
@@ -34,8 +36,7 @@ _:mapping lm:mapping [ lm:name "..." ; lm:altName "..." ; lm:media "..." ] .
 Here, `https://example.org/query` is the name of the SPARQL-Generate query, `application/vnd.sparql-generate` is the SPARQL-Generate media type, and this query may be found at `queryset/query.rqg`.
 
 
-
-*The `dataset` subfolder* contains named graphs and a configuration file `configuration.ttl` whose typical content is as follows:
+The dataset is specified in a subfolder `dataset` that contains named graphs and a configuration file `configuration.ttl` whose typical content is as follows:
 
 ```
 @prefix lm: <http://jena.hpl.hp.com/2004/08/location-mapping#> .
@@ -48,8 +49,7 @@ Here, `https://example.org/graph` is the name of the graph, `text/turtle` is the
 
 
 
-
-*The `documentset` subfolder* contains named documents and a configuration file `configuration.ttl` whose typical content is as follows:
+The documentset is specified in a subfolder `documentset` that contains named documents and a configuration file `configuration.ttl` whose typical content is as follows:
 
 ```
 @prefix lm: <http://jena.hpl.hp.com/2004/08/location-mapping#> .

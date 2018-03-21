@@ -150,7 +150,7 @@ public class ITER_CSVStream extends IteratorStreamFunctionBase4 {
             if (!maxValue.isInteger()) {
                 String msg = "The maximal number of lines per batch MUST be an integer,"
                         + " Got " + maxValue + ". Returning null.";
-                LOG.warn(msg);
+                LOG.debug(msg);
                 throw new ExprEvalException(msg);
             } else {
                 return maxValue.getInteger().intValue();
@@ -169,7 +169,7 @@ public class ITER_CSVStream extends IteratorStreamFunctionBase4 {
         if (!csv.isIRI()) {
             String msg = "The URI of NodeValue1 MUST be a URI, Got "
                     + csv + ". Returning null.";
-            LOG.warn(msg);
+            LOG.debug(msg);
             throw new ExprEvalException(msg);
         }
         return csv.asNode().getURI();

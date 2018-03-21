@@ -50,7 +50,7 @@ public class FUN_HTMLAttribute extends FunctionBase2 {
         if (html.getDatatypeURI() != null
                 && !html.getDatatypeURI().equals(datatypeUri)
                 && !html.getDatatypeURI().equals("http://www.w3.org/2001/XMLSchema#string")) {
-            LOG.warn("The URI of NodeValue1 MUST be <" + datatypeUri + ">"
+            LOG.debug("The URI of NodeValue1 MUST be <" + datatypeUri + ">"
                     + "or <http://www.w3.org/2001/XMLSchema#string>."
             );
         }

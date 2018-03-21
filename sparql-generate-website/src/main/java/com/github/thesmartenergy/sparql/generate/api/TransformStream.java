@@ -73,7 +73,7 @@ public class TransformStream {
     private final StringWriterAppender appender = (StringWriterAppender) org.apache.log4j.Logger.getRootLogger().getAppender("WEBSOCKET");
 
     private Thread thread;
-    
+
     @OnOpen
     public void open(Session session) {
         LOG.info("Establishing connection");
@@ -87,14 +87,11 @@ public class TransformStream {
     @OnMessage
     public void handleMessage(String message, Session session) throws IOException, InterruptedException {
         //todo check size of message.
-        System.out.println(Thread.currentThread().getName());
-        appender.putSession(Thread.currentThread(), session);
-        try {
-            session.getBasicRemote().sendText(gson.toJson(new Response("", "", true)));
-        } catch (IOException ex) {
-            java.util.logging.Logger.getLogger(TransformStream.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
 
+        SessionManager sessionManager = new SessionManager(session);
+
+        appender.putSession(Thread.currentThread(), sessionManager);
+        sessionManager.appendResponse(new Response("", "", true));
         if (message.getBytes().length > 2 * Math.pow(2, 20)) {
             LOG.error("In this web interface request size cannot exceed 2 MB. Please use the executable jar instead.");
             appender.removeSession(Thread.currentThread());
@@ -136,6 +133,11 @@ public class TransformStream {
             SPARQLGenerate.setStreamManager(sm);
         } catch (Exception ex) {
             System.out.println("error while reading parameters: " + ex.getMessage());
+            if(thread != null) {
+                appender.removeSession(thread);
+            }
+            appender.removeSession(Thread.currentThread());
+            sessionManager.stop();
             return;
         }
 
@@ -144,12 +146,12 @@ public class TransformStream {
         try {
             final Future f = service.submit(() -> {
                 thread = Thread.currentThread();
-                appender.putSession(thread, session);
+                appender.putSession(thread, sessionManager);
                 SPARQLGenerateQuery q = (SPARQLGenerateQuery) QueryFactory.create(defaultquery, SPARQLGenerate.SYNTAX);
                 RootPlan plan = PlanFactory.create(q);
 
                 if (stream) {
-                    StreamRDF outputStream = new WebSocketRDF(session, q.getPrefixMapping());
+                    StreamRDF outputStream = new WebSocketRDF(sessionManager, q.getPrefixMapping());
                     outputStream.start();
                     plan.exec(dataset, outputStream);
                 } else {
@@ -157,11 +159,7 @@ public class TransformStream {
                     StringWriter sw = new StringWriter();
                     model.write(sw, "TTL", "http://example.org/");
                     LOG.trace("end of transformation");
-                    try {
-                        session.getBasicRemote().sendText(gson.toJson(new Response("", sw.toString(), false)));
-                    } catch (Exception ex) {
-                        System.out.println("error while sending result: " + ex.getMessage());
-                    }
+                    sessionManager.appendResponse(new Response("", sw.toString(), false));
                 }
             });
             f.get(10, TimeUnit.SECONDS);
@@ -169,22 +167,24 @@ public class TransformStream {
             LOG.error("In this web interface requests cannot exceed 10 s. Please use the executable jar instead.");
         } catch (final Exception ex) {
             LOG.error("An exception occurred:" + ex.getMessage());
-            throw new RuntimeException(ex);
         } finally {
-            appender.removeSession(thread);
-            service.shutdown();
+            if(thread != null) {
+                appender.removeSession(thread);
+            }
+            appender.removeSession(Thread.currentThread());
+            sessionManager.stop();
+            service.awaitTermination(100, TimeUnit.MILLISECONDS);
         }
 
-        appender.removeSession(Thread.currentThread());
     }
 
     private static class WebSocketRDF implements StreamRDF {
 
-        private final Session session;
+        private final SessionManager session;
         private final PrefixMapping pm;
         private final SerializationContext context;
 
-        public WebSocketRDF(Session session, PrefixMapping pm) {
+        public WebSocketRDF(SessionManager session, PrefixMapping pm) {
             this.session = session;
             this.pm = pm;
             context = new SerializationContext(pm);
@@ -196,20 +196,12 @@ public class TransformStream {
             pm.getNsPrefixMap().forEach((prefix, uri) -> {
                 sb.append("@Prefix ").append(prefix).append(": <").append(uri).append("> .\n");
             });
-            try {
-                session.getBasicRemote().sendText(gson.toJson(new Response("", sb.toString() + "\n", false)));
-            } catch (IOException ex) {
-                LOG.error("IOException ", ex);
-            }
+            session.appendResponse(new Response("", sb.toString() + "\n", false));
         }
 
         @Override
         public void base(String string) {
-            try {
-                session.getBasicRemote().sendText(gson.toJson(new Response("", "@base <" + string + ">\n", false)));
-            } catch (IOException ex) {
-                LOG.error("IOException ", ex);
-            }
+            session.appendResponse(new Response("", "@base <" + string + ">\n", false));
         }
 
         @Override
@@ -218,22 +210,14 @@ public class TransformStream {
                 pm.setNsPrefix(prefix, uri);
                 StringBuilder sb = new StringBuilder();
                 sb.append("@Prefix ").append(prefix).append(": <").append(uri).append("> .\n");
-                try {
-                    session.getBasicRemote().sendText(gson.toJson(new Response("", sb.toString(), false)));
-                } catch (IOException ex) {
-                    LOG.error("IOException ", ex);
-                }
+                session.appendResponse(new Response("", sb.toString(), false));
             }
         }
 
         @Override
         public void triple(Triple triple) {
-            try {
-                Response response = new Response("", FmtUtils.stringForTriple(triple, context) + " .\n", false);
-                session.getBasicRemote().sendText(gson.toJson(response));
-            } catch (IOException ex) {
-                LOG.error("IOException ", ex);
-            }
+            Response response = new Response("", FmtUtils.stringForTriple(triple, context) + " .\n", false);
+            session.appendResponse(response);
         }
 
         @Override

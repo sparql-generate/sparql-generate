@@ -93,8 +93,8 @@ public class BindPlanImpl extends PlanBase implements SourcePlan {
         });
         if(LOG.isTraceEnabled()) {
             sb.setLength(sb.length() - 2);
+            LOG.trace(sb.toString());
         }
-        LOG.trace(sb.toString());
     }
 
 }

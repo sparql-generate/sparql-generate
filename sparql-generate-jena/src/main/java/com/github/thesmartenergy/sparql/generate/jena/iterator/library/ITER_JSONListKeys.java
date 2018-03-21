@@ -83,7 +83,7 @@ public class ITER_JSONListKeys extends IteratorFunctionBase1 {
         if (json.getDatatypeURI() != null
                 && !json.getDatatypeURI().equals(datatypeUri)
                 && !json.getDatatypeURI().equals("http://www.w3.org/2001/XMLSchema#string")) {
-            LOG.warn("The URI of NodeValue1 MUST have been"
+            LOG.debug("The URI of NodeValue1 MUST have been"
                     + " <" + datatypeUri + "> or"
                     + " <http://www.w3.org/2001/XMLSchema#string>."
                     + " Got <" + json.getDatatypeURI() + ">"

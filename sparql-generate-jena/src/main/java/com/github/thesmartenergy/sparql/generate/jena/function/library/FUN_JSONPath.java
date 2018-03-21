@@ -85,7 +85,7 @@ public final class FUN_JSONPath extends FunctionBase2 {
         if (json.getDatatypeURI() != null
                 && !json.getDatatypeURI().equals(datatypeUri)
                 && !json.getDatatypeURI().equals("http://www.w3.org/2001/XMLSchema#string")) {
-            LOG.warn("The URI of NodeValue1 MUST be <" + datatypeUri + ">"
+            LOG.debug("The URI of NodeValue1 MUST be <" + datatypeUri + ">"
                     + " or <http://www.w3.org/2001/XMLSchema#string>. Got "
                     + json.getDatatypeURI());
         }

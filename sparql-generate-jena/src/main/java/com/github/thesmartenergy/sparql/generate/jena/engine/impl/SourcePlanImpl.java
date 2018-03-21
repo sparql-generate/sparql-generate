@@ -112,7 +112,7 @@ public class SourcePlanImpl extends PlanBase implements SourcePlan {
                 final LookUpRequest request = new LookUpRequest(sourceUri, acceptHeader);
                 final TypedInputStream stream = SPARQLGenerate.getStreamManager().open(request);
                 if(stream == null) {
-                    LOG.warn("Exec SOURCE <" + sourceUri + "> ACCEPT " + acceptHeader + " AS " + var + " returned nothing.");
+                    LOG.info("Exec SOURCE <" + sourceUri + "> ACCEPT " + acceptHeader + " AS " + var + " returned nothing.");
                     return new BindingHashMapOverwrite(value, var, null);
                 }
                 final String literal = IOUtils.toString(stream.getInputStream(), "UTF-8");
@@ -124,7 +124,13 @@ public class SourcePlanImpl extends PlanBase implements SourcePlan {
                 }
                 final Node n = NodeFactory.createLiteral(literal, dt);
                 LOG.info("Exec SOURCE <" + sourceUri + "> ACCEPT " + acceptHeader + " AS " + var + " returned. Enable DEBUG level for more.");
-                LOG.debug(n.toString());
+                if(LOG.isDebugEnabled()) {
+                    String out = n.toString();
+                    if(out.length()>200) {
+                        out = out.substring(0, 120) + "\n ... \n" + out.substring(out.length()-80);
+                    }
+                    LOG.debug(out);
+                }
                 return new BindingHashMapOverwrite(value, var, n);
             } catch (Exception ex) {
                 LOG.warn("Exception while looking up " + sourceUri + ":", ex);

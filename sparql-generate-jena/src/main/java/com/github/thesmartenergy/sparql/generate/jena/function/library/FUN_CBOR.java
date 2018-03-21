@@ -69,7 +69,7 @@ public final class FUN_CBOR extends FunctionBase2 {
         if (cbor.getDatatypeURI() != null
                 && !cbor.getDatatypeURI().equals(datatypeUri)
                 && !cbor.getDatatypeURI().equals("http://www.w3.org/2001/XMLSchema#string")) {
-            LOG.warn("The URI of NodeValue1 MUST be <" + datatypeUri + ">"
+            LOG.debug("The URI of NodeValue1 MUST be <" + datatypeUri + ">"
                     + "or <http://www.w3.org/2001/XMLSchema#string>."
             );
         }

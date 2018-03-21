@@ -134,7 +134,7 @@ public class PlanFactory {
      * @return the RootPlan.
      */
     private static RootPlan make(final SPARQLGenerateQuery query) {
-        return make(query, false);
+        return make(query, true, false);
     }
 
     /**
@@ -145,6 +145,7 @@ public class PlanFactory {
      * @return the RootPlan.
      */
     private static RootPlan make(final SPARQLGenerateQuery query,
+            final boolean initial,
             final boolean distant) {
         Objects.requireNonNull(query, "The query must not be null");
         
@@ -152,7 +153,7 @@ public class PlanFactory {
             SPARQLGenerateQuery q = query.normalize();
             LOG.debug("Query has been normalized");
             LOG.trace(q.toString());
-            return make(q, distant);
+            return make(q, initial, distant);
         }
 
         List<IteratorOrSourcePlan> iteratorAndSourcePlans = new ArrayList<>();
@@ -190,7 +191,7 @@ public class PlanFactory {
         }
         return new RootPlanImpl(
                 iteratorAndSourcePlans, selectPlan,
-                generatePlan, query.getPrefixMapping(), distant);
+                generatePlan, query.getPrefixMapping(), initial, distant);
     }
 
     /**
@@ -305,7 +306,7 @@ public class PlanFactory {
             SPARQLGenerateQuery q
                     = (SPARQLGenerateQuery) QueryFactory.create(qString,
                             SPARQLGenerate.SYNTAX);
-            return make(q, true);
+            return make(q, false, true);
         } catch (NullPointerException ex) {
             LOG.error("NullPointerException while loading the query"
                     + " file " + query.getGenerateURI() + ": " + ex.getMessage());
@@ -344,7 +345,7 @@ public class PlanFactory {
                 plan = new GenerateTriplesPlanImpl(sub.getPattern());
             } else if (elem instanceof ElementSubGenerate) {
                 ElementSubGenerate sub = (ElementSubGenerate) elem;
-                plan = make(sub.getQuery());
+                plan = make(sub.getQuery(), false, false);
             } else {
                 throw new SPARQLGenerateException("should not reach this"
                         + " point");

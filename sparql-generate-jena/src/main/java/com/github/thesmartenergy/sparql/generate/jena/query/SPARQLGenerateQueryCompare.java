@@ -47,7 +47,7 @@ public class SPARQLGenerateQueryCompare implements SPARQLGenerateQueryVisitor {
         try {
             query2.visit(visitor);
         } catch (ComparisonException ex) {
-            LOG.warn("",ex);
+            LOG.debug("",ex);
             return false;
         }
         return visitor.isTheSame();
@@ -104,14 +104,14 @@ public class SPARQLGenerateQueryCompare implements SPARQLGenerateQueryVisitor {
             try {
                 check("Generate pattern URIs", b1);
             } catch(Exception e) {
-                LOG.warn("",e);
+                LOG.debug("",e);
             } 
         } else if (query.hasGenerateTemplate()) {
             boolean b2 = query.getGenerateTemplate().equals(query2.getGenerateTemplate());
             try {
                 check("Generate pattern URIs", b2);
             } catch(Exception e) {
-                LOG.warn("",e);
+                LOG.debug("",e);
             } 
         }
     }
@@ -122,7 +122,7 @@ public class SPARQLGenerateQueryCompare implements SPARQLGenerateQueryVisitor {
         try {
             check("Iterators and sources", b1);
         } catch(Exception e) {
-            LOG.warn("",e);
+            LOG.debug("",e);
         } 
     }
 

@@ -75,6 +75,11 @@ public final class RootPlanImpl extends PlanBase implements RootPlan,
     private final PrefixMapping prefixMapping;
 
     /**
+     * true if the query is not a sub-query.
+     */
+    private final boolean initial;
+    
+    /**
      * true if the query generate template is specified by a URI.
      */
     private final boolean distant;
@@ -122,6 +127,7 @@ public final class RootPlanImpl extends PlanBase implements RootPlan,
      * @param selectPlan
      * @param generatePlan
      * @param prefixMapping
+     * @param initial
      * @param distant
      */
     public RootPlanImpl(
@@ -129,6 +135,7 @@ public final class RootPlanImpl extends PlanBase implements RootPlan,
             final SelectPlan selectPlan,
             final GeneratePlan generatePlan,
             final PrefixMapping prefixMapping,
+            final boolean initial,
             final boolean distant) {
         Objects.requireNonNull(iteratorAndSourcePlans, "iterator and source"
                 + " plans may be empty, but not null.");
@@ -136,6 +143,7 @@ public final class RootPlanImpl extends PlanBase implements RootPlan,
         this.selectPlan = selectPlan;
         this.generatePlan = generatePlan;
         this.prefixMapping = prefixMapping;
+        this.initial = initial;
         this.distant = distant;
     }
 
@@ -300,8 +308,11 @@ public final class RootPlanImpl extends PlanBase implements RootPlan,
         Objects.requireNonNull(values, "values must not be null.");
         Objects.requireNonNull(bNodeMap, "bNodeMap must not be null.");
 
-        for (String prefix : prefixMapping.getNsPrefixMap().keySet()) {
-            outputStream.prefix(prefix, prefixMapping.getNsPrefixURI(prefix));
+        if(initial) {
+            // generate prefixes only once
+            for (String prefix : prefixMapping.getNsPrefixMap().keySet()) {
+                outputStream.prefix(prefix, prefixMapping.getNsPrefixURI(prefix));
+            }            
         }
 
         Iterator<IteratorOrSourcePlan> it = iteratorAndSourcePlans.iterator();
