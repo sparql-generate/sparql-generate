@@ -155,8 +155,8 @@ public class ElementNormalizer implements ElementVisitor {
                     n.visitWith(nenzer);
                     binding.add(v, nenzer.getResult());
                 }
-                nzed.add(binding);
             });
+            nzed.add(binding);
         });
         endVisit(nzed, nenzer);
     }
