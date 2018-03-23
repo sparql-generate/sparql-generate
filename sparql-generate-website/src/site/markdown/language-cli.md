@@ -1,6 +1,6 @@
 # SPARQL-Generate Executable JAR
 
-[![Download button](download.gif)](sparql-generate-jena.jar)
+[![Download button](download.png)](sparql-generate-jena.jar)
 
 This executable JAR requires Java JRE 1.8 or above. The default template for calling SPARQL-Generate is as follows:
 
