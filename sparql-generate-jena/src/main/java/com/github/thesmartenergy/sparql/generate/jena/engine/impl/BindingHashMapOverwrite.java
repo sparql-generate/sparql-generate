@@ -15,6 +15,7 @@
  */
 package com.github.thesmartenergy.sparql.generate.jena.engine.impl;
 
+import com.github.thesmartenergy.sparql.generate.jena.engine.ExecutionContext;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -63,8 +64,11 @@ public class BindingHashMapOverwrite extends PlanBase implements Binding {
      * Constructs a new binding from a query solution.
      *
      * @param binding -
+     * @param context -
      */
-    public BindingHashMapOverwrite(final QuerySolution binding) {
+    public BindingHashMapOverwrite(
+            final QuerySolution binding, 
+            final ExecutionContext context) {
         var = null;
         node = null;
         if (binding == null) {
@@ -74,7 +78,7 @@ public class BindingHashMapOverwrite extends PlanBase implements Binding {
             for (Iterator<String> it = binding.varNames(); it.hasNext();) {
                 final String varName = it.next();
                 if (binding.get(varName) != null) {
-                    p.add(Var.alloc(varName), binding.get(varName).asNode());
+                    p.add(context.allocVar(varName), binding.get(varName).asNode());
                 }
             }
             parent = p;

@@ -44,6 +44,7 @@ public interface GeneratePlan {
      * across solutions, while other blank nodes will be mapped to a different
      * blank node for each solution. This map holds the information of the first
      * category.
+     * @param context the execution context
      * @throws IllegalArgumentException if the {@code outputStream} is null.
      */
     void exec(
@@ -51,6 +52,7 @@ public interface GeneratePlan {
         final StreamRDF outputStream,
         final List<Var> variables,
         final List<BindingHashMapOverwrite> values,
-        final BNodeMap bNodeMap);
+        final BNodeMap bNodeMap,
+        final ExecutionContext context);
 
 }

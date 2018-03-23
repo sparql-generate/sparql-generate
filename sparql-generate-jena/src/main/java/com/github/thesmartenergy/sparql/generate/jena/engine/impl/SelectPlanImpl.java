@@ -16,6 +16,7 @@
 package com.github.thesmartenergy.sparql.generate.jena.engine.impl;
 
 import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerateException;
+import com.github.thesmartenergy.sparql.generate.jena.engine.ExecutionContext;
 import com.github.thesmartenergy.sparql.generate.jena.engine.SelectPlan;
 import java.util.ArrayList;
 import java.util.List;
@@ -67,7 +68,8 @@ public class SelectPlanImpl extends PlanBase implements SelectPlan {
     final public void exec(
             final Dataset inputDataset,
             final List<Var> variables,
-            final List<BindingHashMapOverwrite> values) {
+            final List<BindingHashMapOverwrite> values,
+            final ExecutionContext context) {
 
         Query q = select.cloneQuery();
         
@@ -96,10 +98,10 @@ public class SelectPlanImpl extends PlanBase implements SelectPlan {
             List<Var> newVariables = new ArrayList<>();
             List<Binding> newValues = new ArrayList<>();
             for (String var : results.getResultVars()) {
-                newVariables.add(Var.alloc(var));
+                newVariables.add(context.allocVar(var));
             }
             while (results.hasNext()) {
-                newValues.add(new BindingHashMapOverwrite(results.next()));
+                newValues.add(new BindingHashMapOverwrite(results.next(), context));
             }
             
             variables.clear();

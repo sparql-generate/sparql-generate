@@ -110,8 +110,8 @@ public class SPARQLGenerateCli {
         String query;
         try {
             query = IOUtils.toString(SPARQLGenerate.getStreamManager().open(new LookUpRequest(queryPath, SPARQLGenerate.MEDIA_TYPE)), "UTF-8");
-        } catch (IOException ex) {
-            LOG.error("There should be a file named query.rqg in the directory that contains the query to be executed.", ex);
+        } catch (IOException | NullPointerException ex) {
+            LOG.error("There should be a file named query.rqg in the directory that contains the query to be executed.");
             return;
         }
 
@@ -142,7 +142,6 @@ public class SPARQLGenerateCli {
         String output = cl.getOptionValue("o");
 
         boolean stream = cl.hasOption("s");
-        System.out.println("is Stream " + stream);
         if (stream) {
 
             StreamRDF outputRDF;
@@ -189,6 +188,8 @@ public class SPARQLGenerateCli {
         private final SerializationContext context;
 
         private PrintStream out;
+        
+        int  i = 0;
 
         public ConsoleStreamRDF(PrintStream out, PrefixMapping pm) {
             this.out = out;
@@ -216,6 +217,11 @@ public class SPARQLGenerateCli {
         @Override
         public void triple(Triple triple) {
             out.append(FmtUtils.stringForTriple(triple, context)).append(" .\n");
+            i++;
+            if(i>1000) {
+                i=0;
+                out.flush();
+            }
         }
 
         @Override

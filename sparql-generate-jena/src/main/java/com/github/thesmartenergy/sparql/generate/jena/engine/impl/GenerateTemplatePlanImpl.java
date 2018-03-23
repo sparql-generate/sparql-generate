@@ -16,6 +16,7 @@
 package com.github.thesmartenergy.sparql.generate.jena.engine.impl;
 
 import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerateException;
+import com.github.thesmartenergy.sparql.generate.jena.engine.ExecutionContext;
 import com.github.thesmartenergy.sparql.generate.jena.engine.GeneratePlan;
 import com.github.thesmartenergy.sparql.generate.jena.engine.GenerateTemplateElementPlan;
 import java.util.List;
@@ -73,7 +74,8 @@ public class GenerateTemplatePlanImpl extends PlanBase implements GeneratePlan {
             final StreamRDF outputStream,
             final List<Var> variables,
             final List<BindingHashMapOverwrite> values,
-            final BNodeMap bNodeMap) {
+            final BNodeMap bNodeMap,
+            final ExecutionContext context) {
         values.forEach((binding) -> {
             BNodeMap bNodeMap2 = new BNodeMap(bNodeMap, binding);
             templateElementPlans.forEach((el) -> {
@@ -101,7 +103,7 @@ public class GenerateTemplatePlanImpl extends PlanBase implements GeneratePlan {
                         }
                     });
                     LOG.trace("Entering sub SPARQL-Generate with \n\t" + b);
-                    rootPlan.exec(inputDataset, b, outputStream, bNodeMap2);
+                    rootPlan.exec(inputDataset, b, outputStream, bNodeMap2, context);
                 } else {
                     throw new SPARQLGenerateException("should not reach this"
                             + " point");
