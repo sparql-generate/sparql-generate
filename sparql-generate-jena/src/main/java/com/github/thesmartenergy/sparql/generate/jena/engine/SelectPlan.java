@@ -33,10 +33,12 @@ public interface SelectPlan {
      * query.
      * @param variables the set of bound variables.
      * @param values the set of bindings.
+     * @param context the execution context.
      */
     void exec(
             final Dataset inputDataset,
             final List<Var> variables,
-            final List<BindingHashMapOverwrite> values);
+            final List<BindingHashMapOverwrite> values,
+            final ExecutionContext context);
     
 }
