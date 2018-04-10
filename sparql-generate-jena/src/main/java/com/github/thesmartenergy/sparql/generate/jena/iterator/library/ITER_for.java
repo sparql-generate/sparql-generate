@@ -18,7 +18,9 @@ package com.github.thesmartenergy.sparql.generate.jena.iterator.library;
 import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
 import java.util.ArrayList;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.IteratorFunctionBase3;
+import java.math.BigDecimal;
 import java.util.List;
+import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.NodeValue;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueDecimal;
 import org.slf4j.LoggerFactory;
@@ -40,40 +42,37 @@ import org.slf4j.Logger;
  */
 public class ITER_for extends IteratorFunctionBase3 {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ITER_regex.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ITER_for.class);
     public static final String URI = SPARQLGenerate.ITER + "for";
 
     public ITER_for() {
     }
 
     @Override
-    public List<NodeValue> exec(NodeValue start, NodeValue incr, NodeValue end) {
+    public List<NodeValue> exec(NodeValue start, NodeValue incr, NodeValue stop) {
+
+        // the initial value
+        BigDecimal value = start.getDecimal();
 
         // the size of the increment
-        BigDecimal increment = incr.getDecimal();
+        BigDecimal incrV = incr.getDecimal();
         
         // the increment must not be zero
-        if (increment.equals(BigDecimal.ZERO)) {
+        if (incrV.equals(BigDecimal.ZERO)) {
             LOG.debug("Increment value must be non zero.");
             throw new ExprEvalException("Increment value must be non zero.");
         }
 
-        // the initial value
-        BigDecimal value = start.getDecimal();
-        
         // the threshold above/under which it stops
-        BigDecimal end = stop.getDecimal(); 
-        
-        // this is used to take care of both increasing and decreasing sequences with the same ending condition
-        BigDecimal stop = end.multiply(increment);
+        BigDecimal stopV = stop.getDecimal(); 
         
         // the list that will contain the final result
         List<NodeValue> nodeValues = new ArrayList<>();
 
-        while (value.mutiply(incr).compareTo(stop) < 0) {
+        while ( stopV.subtract(value).multiply(incrV).compareTo(BigDecimal.ZERO)>0 ) {
             NodeValue nodeValue = new NodeValueDecimal(value);
             nodeValues.add(nodeValue);
-            value = value.add(increment);
+            value = value.add(incrV);
         }
         return nodeValues;
     }

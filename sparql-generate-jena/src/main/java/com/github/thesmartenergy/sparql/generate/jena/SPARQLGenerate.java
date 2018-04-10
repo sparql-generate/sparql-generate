@@ -50,6 +50,7 @@ import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITER_JSON
 import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITER_regex;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITER_Split;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITER_XPath;
+import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITER_for;
 import com.github.thesmartenergy.sparql.generate.jena.serializer.SPARQLGenerateQuerySerializer;
 import com.github.thesmartenergy.sparql.generate.jena.stream.SPARQLGenerateStreamManager;
 import java.util.HashMap;
@@ -168,6 +169,7 @@ public final class SPARQLGenerate {
         itereg.put(ITER_CBOR.URI, ITER_CBOR.class);
         itereg.put(ITER_CSVHeaders.URI, ITER_CSVHeaders.class);
         itereg.put(ITER_CSVStream.URI, ITER_CSVStream.class);
+        itereg.put(ITER_for.URI, ITER_for.class);
 
         SPARQLParserRegistry.get()
                 .add(SYNTAX, new SPARQLParserFactory() {
