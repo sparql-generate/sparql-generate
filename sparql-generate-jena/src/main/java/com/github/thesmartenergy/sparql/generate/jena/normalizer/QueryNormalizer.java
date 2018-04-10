@@ -114,7 +114,8 @@ public class QueryNormalizer implements SPARQLGenerateQueryVisitor {
                 group.addElement(nzed);
             } else if (element instanceof ElementSubGenerate) {
                 ElementSubGenerate el = (ElementSubGenerate) element;
-                SPARQLGenerateQuery nzed = el.getQuery().normalize();
+                SPARQLGenerateQuery nzed = el.getQuery();
+                nzed.normalize();
                 group.addElement(new ElementSubGenerate(nzed));
             } else {
                 throw new NullPointerException("Should not reach this point");

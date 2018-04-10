@@ -222,7 +222,8 @@ public class ElementNormalizer implements ElementVisitor {
     @Override
     public void visit(ElementSubQuery el) {
         SPARQLGenerateQuery query = (SPARQLGenerateQuery) el.getQuery();
-        result = new ElementSubQuery(query.normalize());
+        query.normalize();
+        result = new ElementSubQuery(query);
     }
 
     private void endVisit(Element nzed, NodeExprNormalizer nenzer) {

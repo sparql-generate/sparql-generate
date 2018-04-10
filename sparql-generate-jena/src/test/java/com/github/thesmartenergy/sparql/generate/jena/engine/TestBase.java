@@ -17,7 +17,6 @@ package com.github.thesmartenergy.sparql.generate.jena.engine;
 
 import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
 import com.github.thesmartenergy.sparql.generate.jena.query.SPARQLGenerateQuery;
-import com.github.thesmartenergy.sparql.generate.jena.stream.LocationMapperAccept;
 import com.github.thesmartenergy.sparql.generate.jena.stream.LocatorFileAccept;
 import com.github.thesmartenergy.sparql.generate.jena.stream.LookUpRequest;
 import com.github.thesmartenergy.sparql.generate.jena.stream.SPARQLGenerateStreamManager;
@@ -32,19 +31,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.logging.Level;
-import java.util.regex.Pattern;
 import org.apache.commons.io.IOUtils;
 import org.apache.jena.query.Dataset;
-import org.apache.jena.query.DatasetFactory;
-import org.apache.jena.query.QueryExecutionFactory;
 import org.apache.jena.query.QueryFactory;
-import org.apache.jena.query.QuerySolutionMap;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
-import org.apache.jena.riot.system.stream.LocatorFile;
-import org.apache.jena.riot.system.stream.StreamManager;
 import static org.junit.Assert.assertTrue;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
@@ -66,7 +59,7 @@ public class TestBase {
 
     private final File exampleDir;
     
-    private static final String pattern = "simplecsv";
+    private static final String pattern = "*";
 
     
     public TestBase(Logger log, File exampleDir, String name) {

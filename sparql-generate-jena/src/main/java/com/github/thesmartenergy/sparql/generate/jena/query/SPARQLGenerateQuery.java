@@ -22,7 +22,6 @@ import org.apache.jena.sparql.syntax.ElementGroup;
 import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
 import com.github.thesmartenergy.sparql.generate.jena.normalizer.QueryNormalizer;
 import java.util.List;
-import org.apache.jena.query.QueryFactory;
 import org.apache.jena.sparql.syntax.Element;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
@@ -185,20 +184,16 @@ public class SPARQLGenerateQuery extends Query {
     }
     
     /**
-     * Return a new query semantically equivalent to this one, but with no
+     * Change this query to a semantically equivalent one, but with no
      * embedded expressions.
      * 
-     * @return 
      */
-    public SPARQLGenerateQuery normalize() {
+    public void normalize() {
         if(!hasEmbeddedExpressions) {
-            return this;
+            return;
         }
-        String qs = this.toString();
-        SPARQLGenerateQuery query = (SPARQLGenerateQuery) QueryFactory.create(qs, getSyntax()) ;
         QueryNormalizer normalizer = new QueryNormalizer();
-        query.visit(normalizer);
-        return query;
+        visit(normalizer);
     }
     
 
@@ -214,9 +209,8 @@ public class SPARQLGenerateQuery extends Query {
         if (visitor instanceof SPARQLGenerateQueryVisitor) {
             visit((SPARQLGenerateQueryVisitor) visitor);
         } else {
-            throw new IllegalArgumentException(
-                    "Only instances of SPARQLGenerateQueryVisitor can visit"
-                            + " SPARQL-Generate Queries.");
+            SPARQLGenerateQueryVisitor visitor2 = new SPARQLGenerateQueryVisitorDelegate(visitor);
+            visit((SPARQLGenerateQueryVisitor) visitor2);
         }
     }
 

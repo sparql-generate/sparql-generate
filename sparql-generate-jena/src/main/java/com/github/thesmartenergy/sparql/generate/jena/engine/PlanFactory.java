@@ -150,10 +150,12 @@ public class PlanFactory {
         Objects.requireNonNull(query, "The query must not be null");
         
         if (query.hasEmbeddedExpressions()) {
-            SPARQLGenerateQuery q = query.normalize();
+            String qs = query.toString();
+            SPARQLGenerateQuery query2 = (SPARQLGenerateQuery) QueryFactory.create(qs, SPARQLGenerate.SYNTAX) ;
+            query2.normalize();
             LOG.debug("Query has been normalized");
-            LOG.trace(q.toString());
-            return make(q, initial, distant);
+            LOG.trace(query2.toString());
+            return make(query2, initial, distant);
         }
 
         List<IteratorOrSourcePlan> iteratorAndSourcePlans = new ArrayList<>();
