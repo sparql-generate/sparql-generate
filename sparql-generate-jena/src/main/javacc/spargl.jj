@@ -88,17 +88,21 @@ void GenerateUnit(): { }
 {
   ByteOrderMark()
   { startQuery() ; }
-  Generate() <EOF>
+  Query() <EOF>
   { finishQuery() ; }
 }
-void Generate() : { }
+void Query() : { }
 {
   Prologue()
-  ( GenerateQuery1() 
-  | GenerateQuery2()
-  | SelectQuery() )
+  ( SelectQuery()
+  | ConstructQuery()
+  | DescribeQuery()
+  | AskQuery()
+  | GenerateQuery()
+  )
+  ValuesClause()
 }
-void GenerateQuery1() : { }
+void GenerateQuery() : { }
 {
   <GENERATE>
     { asSPARQLGenerateQuery().setQueryGenerateType() ; }
@@ -113,22 +117,6 @@ void GenerateQuery1() : { }
   {  asSPARQLGenerateQuery().setIteratorsAndSources(list);}
   ( WhereClause() )?
   SolutionModifier()
-}
-void GenerateQuery2() : { }
-{
-  ( DatasetClause() )*
-  {  List<Element> list = new ArrayList<Element> ();}
-  ( IteratorOrSourceClause(list) )*
-  {  asSPARQLGenerateQuery().setIteratorsAndSources(list);}
-  ( WhereClause() )?
-  SolutionModifier()
-  <CONSTRUCT>
-  { asSPARQLGenerateQuery().setQueryGenerateType() ; }
-  ( 
-    { String generateUri; } generateUri = SourceSelector() { asSPARQLGenerateQuery().setGenerateURI(generateUri); }
-  | 
-    GenerateTemplate() 
-  )
 }
 void GenerateTemplate() : { }
 {
@@ -147,8 +135,7 @@ ElementGroup GenerateTemplateSub() : {  ElementGroup elg = new ElementGroup();}
   )?
   ( 
     { startSubGenerate() ; Token t = null;}
-    ( t = SubGenerateQuery1()
-    | t = SubGenerateQuery2() )
+    t = SubGenerateQuery()
       { int beginLine = t.beginLine; int beginColumn = t.beginColumn; t = null; }
       { SPARQLGenerateQuery q = endSubGenerate(beginLine, beginColumn) ; } 
       { elg.addElement( new ElementSubGenerate(q) ) ; }
@@ -192,7 +179,7 @@ ElementSource SourceClause() : {}
     var = Var()
     { return new ElementSource(source, accept, var);} 
 }
-Token SubGenerateQuery1( ) : { Token t;}
+Token SubGenerateQuery( ) : { Token t;}
 {
   t = <GENERATE>
     { asSPARQLGenerateQuery().setQueryGenerateType() ; }
@@ -206,23 +193,6 @@ Token SubGenerateQuery1( ) : { Token t;}
   {  asSPARQLGenerateQuery().setIteratorsAndSources(list);}
   ( WhereClause() )?
   SolutionModifier()
-  <DOT>
-  { return t; }
-}
-Token SubGenerateQuery2( ) : { Token t;}
-{
-  {  List<Element> list = new LinkedList<Element> ();}
-  ( IteratorOrSourceClause(list) )*
-  {  asSPARQLGenerateQuery().setIteratorsAndSources(list);}
-  ( WhereClause() )?
-  SolutionModifier()
-  t = <CONSTRUCT>
-    { asSPARQLGenerateQuery().setQueryGenerateType() ; }
-  ( 
-    { String generateUri; } generateUri = SourceSelector() { asSPARQLGenerateQuery().setGenerateURI(generateUri); }
-  | 
-    GenerateTemplate() 
-  )
   <DOT>
   { return t; }
 }
@@ -285,6 +255,56 @@ void SelectClause() : { Var v ; Expr expr ; Node n ; }
     <STAR> { getQuery().setQueryResultStar(true) ; }
   )
   { allowAggregatesInExpressions = false ; }
+}
+void ConstructQuery() : { Template t ;
+                          TripleCollectorBGP acc = new TripleCollectorBGP() ; }
+{
+ <CONSTRUCT>
+   { getQuery().setQueryConstructType() ; }
+ (
+    t = ConstructTemplate()
+      { getQuery().setConstructTemplate(t) ; }
+    ( DatasetClause() )*
+    WhereClause()
+    SolutionModifier()
+ |
+    ( DatasetClause() )*
+    <WHERE>
+    <LBRACE>
+    (TriplesTemplate(acc))?
+    <RBRACE>
+    SolutionModifier()
+    {
+      t = new Template(acc.getBGP()) ;
+      getQuery().setConstructTemplate(t) ;
+      ElementPathBlock epb = new ElementPathBlock(acc.getBGP()) ;
+      ElementGroup elg = new ElementGroup() ;
+      elg.addElement(epb) ;
+      getQuery().setQueryPattern(elg) ;
+    }
+ )
+}
+void DescribeQuery() : { Node n ; }
+{
+  <DESCRIBE>
+    { getQuery().setQueryDescribeType() ; }
+  (
+    ( n = VarOrXIri() { getQuery().addDescribeNode(n) ; } )+
+    { getQuery().setQueryResultStar(false) ; }
+  |
+    <STAR>
+    { getQuery().setQueryResultStar(true) ; }
+  )
+  ( DatasetClause() )*
+  ( WhereClause() )?
+  SolutionModifier()
+}
+void AskQuery() : {}
+{
+  <ASK> { getQuery().setQueryAskType() ; }
+  ( DatasetClause() )*
+  WhereClause()
+  SolutionModifier()
 }
 void DatasetClause() : {}
 {
@@ -644,6 +664,16 @@ ExprList ArgList() : { Expr expr ; boolean distinct = false ;
     <RPAREN>
    )
     { return args ; }
+}
+Template ConstructTemplate() : { TripleCollectorBGP acc = new TripleCollectorBGP();
+                                 Template t = new Template(acc.getBGP()) ; }
+{
+    { setInConstructTemplate(true) ; }
+  <LBRACE>
+    (ConstructTriples(acc))?
+  <RBRACE>
+    { setInConstructTemplate(false) ;
+      return t ; }
 }
 ExprList ExpressionList() : { Expr expr = null ; ExprList args = new ExprList() ;}
 {

@@ -59,7 +59,7 @@ public class TestBase {
 
     private final File exampleDir;
     
-    private static final String pattern = "*";
+    private static final String pattern = "";
 
     
     public TestBase(Logger log, File exampleDir, String name) {

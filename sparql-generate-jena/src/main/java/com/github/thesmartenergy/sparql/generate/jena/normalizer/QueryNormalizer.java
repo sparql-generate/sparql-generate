@@ -35,6 +35,7 @@ import org.apache.jena.sparql.expr.Expr;
 import org.apache.jena.sparql.syntax.Element;
 import org.apache.jena.sparql.syntax.ElementBind;
 import org.apache.jena.sparql.syntax.ElementGroup;
+import org.apache.jena.sparql.syntax.Template;
 
 /**
  * Class used to normalize SPARQL-Generate queries, i.e. output an equivalent 
@@ -157,17 +158,32 @@ public class QueryNormalizer implements SPARQLGenerateQueryVisitor {
 
     @Override
     public void visitConstructResultForm(Query query) {
-        throw new NullPointerException("should not reach this point");
+        if (!query.isConstructType()) {
+            return;
+        }
+        final NodeExprNormalizer nenzer = new NodeExprNormalizer();
+        final BasicPattern bgp = query.getConstructTemplate().getBGP();
+        final BasicPattern nzed = new BasicPattern();
+        bgp.forEach((t) -> {
+            t.getSubject().visitWith(nenzer);
+            Node s = nenzer.getResult();
+            t.getPredicate().visitWith(nenzer);
+            Node p = nenzer.getResult();
+            t.getObject().visitWith(nenzer);
+            Node o = nenzer.getResult();
+            nzed.add(new Triple(s, p, o));
+        });
+        query.setConstructTemplate(new Template(nzed));
+        appendBindings(query, nenzer);
     }
 
     @Override
     public void visitDescribeResultForm(Query query) {
-        throw new NullPointerException("should not reach this point");
+        throw new NullPointerException("not implemented yet");
     }
 
     @Override
     public void visitAskResultForm(Query query) {
-        throw new NullPointerException("should not reach this point");
     }
 
     @Override
