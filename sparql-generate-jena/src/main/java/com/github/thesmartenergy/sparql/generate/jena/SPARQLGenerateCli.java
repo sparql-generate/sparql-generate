@@ -15,10 +15,7 @@
  */
 package com.github.thesmartenergy.sparql.generate.jena;
 
-/**
- *
- * @author Noorani Bakerally <noorani.bakerally at emse.fr>
- */
+import com.github.thesmartenergy.sparql.generate.jena.cli.Request;
 import com.github.thesmartenergy.sparql.generate.jena.engine.PlanFactory;
 import com.github.thesmartenergy.sparql.generate.jena.engine.RootPlan;
 import com.github.thesmartenergy.sparql.generate.jena.query.SPARQLGenerateQuery;
@@ -26,10 +23,14 @@ import com.github.thesmartenergy.sparql.generate.jena.stream.LocatorFileAccept;
 import com.github.thesmartenergy.sparql.generate.jena.stream.LookUpRequest;
 import com.github.thesmartenergy.sparql.generate.jena.stream.SPARQLGenerateStreamManager;
 import com.github.thesmartenergy.sparql.generate.jena.utils.SPARQLGenerateUtils;
+import com.google.gson.Gson;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -66,6 +67,7 @@ import org.apache.log4j.PatternLayout;
 public class SPARQLGenerateCli {
 
     private static final Logger LOG = LoggerFactory.getLogger(SPARQLGenerateCli.class);
+    private static final Gson gson = new Gson();
 
     private static final Layout layout = new PatternLayout("%5p [%t] (%F:%L) - %m%n");
     private static final Appender consoleAppender = new ConsoleAppender(layout);
@@ -87,23 +89,19 @@ public class SPARQLGenerateCli {
 
         SPARQLGenerate.init();
 
-        // read location-mapping
-        Model conf = ModelFactory.createDefaultModel();
+        // read sparql-generate-conf.json
+        Request request;
         try {
-            conf.add(RDFDataMgr.loadModel(new File(dir, "queryset/configuration.ttl").toString(), Lang.TTL));
-        } catch (Exception ex) {
+            String conf = IOUtils.toString(new FileInputStream(new File(dir, "sparql-generate-conf.json")), "utf-8");
+            request = gson.fromJson(conf, Request.class);
+        } catch(Exception ex) {
             LOG.warn("Error while loading the location mapping model for the queryset. No named queries will be used");
+            request = Request.DEFAULT;
         }
-
-        try {
-            conf.add(RDFDataMgr.loadModel(new File(dir, "documentset/configuration.ttl").toString(), Lang.TTL));
-        } catch (Exception ex) {
-            LOG.warn("Error while loading the location mapping model for the documentset. No named document will be used");
-        }
-
+        
         // initialize stream manager
         SPARQLGenerateStreamManager sm = SPARQLGenerateStreamManager.makeStreamManager(new LocatorFileAccept(dir.toURI().getPath()));
-        sm.setLocationMapper(conf);
+        sm.setLocationMapper(request.asLocationMapper());
         SPARQLGenerate.setStreamManager(sm);
 
         String queryPath = cl.getOptionValue("q", "query.rqg");
@@ -111,7 +109,7 @@ public class SPARQLGenerateCli {
         try {
             query = IOUtils.toString(SPARQLGenerate.getStreamManager().open(new LookUpRequest(queryPath, SPARQLGenerate.MEDIA_TYPE)), "UTF-8");
         } catch (IOException | NullPointerException ex) {
-            LOG.error("There should be a file named query.rqg in the directory that contains the query to be executed.");
+            LOG.error("No file named " + queryPath + " was found in the directory that contains the query to be executed.");
             return;
         }
 
@@ -133,7 +131,7 @@ public class SPARQLGenerateCli {
 
         Dataset ds;
         try {
-            ds = SPARQLGenerateUtils.loadDataset(dir);
+            ds = SPARQLGenerateUtils.loadDataset(dir, request);
         } catch (Exception ex) {
             LOG.warn("Error while loading the dataset, no dataset will be used.");
             ds = DatasetFactory.create();
@@ -290,4 +288,5 @@ public class SPARQLGenerateCli {
             System.exit(1);
         }
     }
+
 }

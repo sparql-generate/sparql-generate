@@ -15,18 +15,64 @@
  */
 package com.github.thesmartenergy.sparql.generate.jena.cli;
 
+import com.github.thesmartenergy.sparql.generate.jena.utils.LM;
+import java.util.ArrayList;
 import java.util.List;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.rdf.model.Property;
+import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.rdf.model.ResourceFactory;
 
-/**
+/** 
  *
  * @author maxime.lefrancois
  */
 public class Request {
-    public String defaultquery;
+
+    public static Request DEFAULT = new Request();
+
+    static {
+        DEFAULT.query = "query.rqg";
+        DEFAULT.defaultquery = null;
+        DEFAULT.namedqueries = new ArrayList<>();
+        DEFAULT.graph = "dataset/default.ttl";
+        DEFAULT.defaultgraph = null;
+        DEFAULT.namedgraphs = new ArrayList<>();
+        DEFAULT.documentset = new ArrayList<>();
+        DEFAULT.stream = false;
+    }
+
+    public String query; // chemin
+    public String defaultquery; // contenu 
     public List<Document> namedqueries;
-    public String defaultgraph;
+    public String graph; // chemin
+    public String defaultgraph; // contenu
     public List<Document> namedgraphs;
     public List<Document> documentset;
     public boolean stream;
-    
+
+    public Model asLocationMapper() {
+        Model model = ModelFactory.createDefaultModel();
+        if (namedqueries != null) {
+            namedqueries.forEach((doc) -> {
+                addMap(model, doc);
+            });
+        }
+        if (documentset != null) {
+            documentset.forEach((doc) -> {
+                addMap(model, doc);
+            });
+        }
+        return model;
+    }
+
+    private void addMap(Model model, Document doc) {
+        Resource bn = model.createResource();
+        Resource mapping = model.createResource();
+        model.add(bn, LM.mapping, mapping);
+        model.add(mapping, LM.name, doc.uri);
+        model.add(mapping, LM.altName, doc.path);
+        model.add(mapping, LM.media, doc.mediatype);
+    }
 }

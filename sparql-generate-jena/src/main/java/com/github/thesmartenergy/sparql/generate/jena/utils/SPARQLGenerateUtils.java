@@ -15,6 +15,7 @@
  */
 package com.github.thesmartenergy.sparql.generate.jena.utils;
 
+import com.github.thesmartenergy.sparql.generate.jena.cli.Request;
 import java.io.File;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetFactory;
@@ -33,31 +34,27 @@ public class SPARQLGenerateUtils {
     
     private static final Logger LOG = LoggerFactory.getLogger(SPARQLGenerateUtils.class);
     
-    public static Dataset loadDataset(File dir) {
+    public static Dataset loadDataset(File dir, Request request) {
         Dataset ds = DatasetFactory.create();
+        String dgfile = request.graph != null ? request.graph : "dataset/default.ttl";
         try {
-            ds.setDefaultModel(RDFDataMgr.loadModel(new File(dir, "default.ttl").toString(), Lang.TTL));
+            ds.setDefaultModel(RDFDataMgr.loadModel(new File(dir, dgfile).toString(), Lang.TTL));
         } catch (Exception ex) {
-            LOG.debug("error while loading the default graph default.ttl: " + ex.getMessage());
+            LOG.debug("error while loading the default graph " + dgfile + ": " + ex.getMessage());
         }
 
-        String query = "PREFIX lm: <http://jena.hpl.hp.com/2004/08/location-mapping#>\n"
-                + "SELECT * WHERE { [] lm:name ?name ; lm:altName ?alt .}" ;
-        try {
-            Model conf = RDFDataMgr.loadModel(new File(dir, "dataset/configuration.ttl").toString(), Lang.TTL);
-            QueryExecutionFactory.create(query, conf).execSelect().forEachRemaining((sol)-> {
-                try {
-                    String name = sol.getLiteral("name").getString();
-                    String alt = sol.getLiteral("alt").getString();
-                    Model ng = RDFDataMgr.loadModel(new File(dir, alt).toString(), Lang.TTL);
-                    ds.addNamedModel(name, ng);
-                } catch (Exception ex) {  
-                    LOG.debug("error while loading the default graph default.ttl: " + ex.getMessage());
-                }
-            });
-        } catch (Exception ex) {
-            LOG.debug("error while loading the dataset configuration file dataset/configuration.ttl: "  + ex.getMessage());
-        }
+        if(request.namedgraphs == null)
+            return ds;
+        
+        request.namedgraphs.forEach((ng)->  {
+            try {
+                Model model = RDFDataMgr.loadModel(new File(dir, ng.path).toString(), Lang.TTL);
+                ds.addNamedModel(ng.uri, model);
+            } catch (Exception ex) {  
+                LOG.debug("error while loading the default graph default.ttl: " + ex.getMessage());
+            }
+        });
+            
         return ds;
     }
 }

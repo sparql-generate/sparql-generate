@@ -16,12 +16,15 @@
 package com.github.thesmartenergy.sparql.generate.jena.engine;
 
 import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
+import com.github.thesmartenergy.sparql.generate.jena.cli.Request;
 import com.github.thesmartenergy.sparql.generate.jena.query.SPARQLGenerateQuery;
 import com.github.thesmartenergy.sparql.generate.jena.stream.LocatorFileAccept;
 import com.github.thesmartenergy.sparql.generate.jena.stream.LookUpRequest;
 import com.github.thesmartenergy.sparql.generate.jena.stream.SPARQLGenerateStreamManager;
 import com.github.thesmartenergy.sparql.generate.jena.utils.SPARQLGenerateUtils;
+import com.google.gson.Gson;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringWriter;
@@ -54,12 +57,14 @@ import org.junit.runners.Parameterized.Parameters;
 public class TestBase {
 
     private static final Logger LOG = LoggerFactory.getLogger(TestBase.class);
+    private static final Gson gson = new Gson();
 
     private final Logger log;
 
     private final File exampleDir;
+    private Request request;
     
-    private static final String pattern = "";
+    private static final String pattern = "capital2";
 
     
     public TestBase(Logger log, File exampleDir, String name) {
@@ -70,21 +75,30 @@ public class TestBase {
 
         SPARQLGenerate.init();
                 
-        // read location-mapping
-        Model conf = ModelFactory.createDefaultModel();
-        conf.add(RDFDataMgr.loadModel(new File(exampleDir, "queryset/configuration.ttl").toString(), Lang.TTL));
-        conf.add(RDFDataMgr.loadModel(new File(exampleDir, "documentset/configuration.ttl").toString(), Lang.TTL));
+        // read sparql-generate-conf.json
+        
+        try {
+            String conf = IOUtils.toString(new FileInputStream(new File(exampleDir, "sparql-generate-conf.json")), "utf-8");
+            request = gson.fromJson(conf, Request.class);
+            if(request.query == null) 
+                request.query = "query.rqg";
+            if(request.graph == null) 
+                request.graph = "graph.ttl";
+        } catch(Exception ex) {
+            LOG.warn("Error while loading the location mapping model for the queryset. No named queries will be used");
+            request = Request.DEFAULT;
+        }
 
         // initialize stream manager
         SPARQLGenerateStreamManager sm = SPARQLGenerateStreamManager.makeStreamManager(new LocatorFileAccept(exampleDir.toURI().getPath()));
-        sm.setLocationMapper(conf);
+        sm.setLocationMapper(request.asLocationMapper());
         SPARQLGenerate.setStreamManager(sm);
     }
 
     @Test
     public void testPlanExecution() throws Exception {
         
-        String query = IOUtils.toString(SPARQLGenerate.getStreamManager().open(new LookUpRequest("query.rqg", SPARQLGenerate.MEDIA_TYPE)), "UTF-8");
+        String query = IOUtils.toString(SPARQLGenerate.getStreamManager().open(new LookUpRequest(request.query, SPARQLGenerate.MEDIA_TYPE)), "UTF-8");
         
         long start0 = System.currentTimeMillis();
         long start = start0;
@@ -96,7 +110,7 @@ public class TestBase {
         // create generation plan
         PlanFactory factory = new PlanFactory();
         RootPlan plan = factory.create(q);        
-        Dataset ds = SPARQLGenerateUtils.loadDataset(exampleDir);
+        Dataset ds = SPARQLGenerateUtils.loadDataset(exampleDir, request);
         
         now = System.currentTimeMillis();
         log.info("needed " + (now - start) + " to get ready");
