@@ -23,6 +23,7 @@ public class Document {
     
     public String uri;
     public String string;
+    public String path;
     public String mediatype;
     
     @Override
@@ -31,6 +32,8 @@ public class Document {
         sb.append("Document(")
             .append("uri: \"")
             .append(uri)
+            .append("\", path: \"")
+            .append(path)
             .append("\", mediatype: \"")
             .append(mediatype)
             .append("\", string: \"")

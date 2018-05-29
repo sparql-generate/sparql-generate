@@ -1,5 +1,0 @@
-@prefix lm: <http://jena.hpl.hp.com/2004/08/location-mapping#> .
-
-[] lm:mapping
-   [ lm:name "http://country.io/capital.json" ; lm:altName "documentset/capital.json" ; lm:media "application/json" ] 
-   .

@@ -58,8 +58,8 @@ public class LocatorURLAccept extends LocatorAcceptBase {
         try {
             URL url = new URL(source);
             URLConnection conn = (URLConnection) url.openConnection();
-            conn.setConnectTimeout(200);
-            conn.setReadTimeout(500);
+//            conn.setConnectTimeout(200);
+//            conn.setReadTimeout(500);
             String userInfo = url.getUserInfo();
             if (userInfo != null && !userInfo.isEmpty()) {
                 String encodedUserInfo = new String(Base64.encodeBase64(userInfo.getBytes("UTF-8")));
