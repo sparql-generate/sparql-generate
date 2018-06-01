@@ -1,9 +1,0 @@
-@prefix lm: <http://jena.hpl.hp.com/2004/08/location-mapping#> .
-
-[] lm:mapping
-   [ lm:name "http://ceur-ws.org/Vol-1128/index.html" ; lm:altName "documentset/doc.html" ; lm:media "text/html" ] 
-   .
-
-
-
-

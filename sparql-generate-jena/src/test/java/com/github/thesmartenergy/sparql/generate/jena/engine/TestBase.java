@@ -64,7 +64,7 @@ public class TestBase {
     private final File exampleDir;
     private Request request;
     
-    private static final String pattern = "capital2";
+    private static final String pattern = "xsparql2";
 
     
     public TestBase(Logger log, File exampleDir, String name) {

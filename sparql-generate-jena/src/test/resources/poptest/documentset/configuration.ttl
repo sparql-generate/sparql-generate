@@ -1,8 +1,0 @@
-@prefix lm: <http://jena.hpl.hp.com/2004/08/location-mapping#> .
-
-[] lm:mapping
-   [ lm:name "http://example.com/continent.json" ; lm:altName "documentset/continent.json" ; lm:media "application/json" ] ,
-   [ lm:name "http://example.com/country-names.json" ; lm:altName "documentset/country-names.json" ; lm:media "application/json" ] ,
-   [ lm:name "http://example.com/country-population.json" ; lm:altName "documentset/country-population.json" ; lm:media "application/json" ] ,
-   [ lm:name "http://example.com/continentnames.json" ; lm:altName "documentset/continentnames.json" ; lm:media "application/json" ] 
-   .

@@ -1,0 +1,10 @@
+{
+    "documentset": [
+        {
+            "mediatype": "application/json",
+            "path": "documentset/list.json",
+            "uri": "http://example.com/list.json"
+        }
+    ],
+    "query": "query.rqg"
+}

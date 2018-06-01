@@ -1,0 +1,10 @@
+{
+    "documentset": [
+        {
+            "mediatype": "application/json",
+            "path": "documentset/airport.csv",
+            "uri": "http://example.com/airport.csv"
+        }
+    ],
+    "query": "query.rqg"
+}

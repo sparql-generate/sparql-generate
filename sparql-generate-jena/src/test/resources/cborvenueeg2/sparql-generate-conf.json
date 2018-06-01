@@ -1,0 +1,10 @@
+{
+    "documentset": [
+        {
+            "mediatype": "application/cbor",
+            "path": "documentset/venue.cbor",
+            "uri": "http://example.com/venue.cbor"
+        }
+    ],
+    "query": "query.rqg"
+}

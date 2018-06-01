@@ -1,0 +1,10 @@
+{
+    "documentset": [
+        {
+            "mediatype": "application/xml",
+            "path": "documentset/chargingplan.xml",
+            "uri": "http://cnr-seas.cloudapp.net/scp/rest/ChargingPlan/1fc4ltccsrsun9mdijrgaruhe5"
+        }
+    ],
+    "query": "query.rqg"
+}

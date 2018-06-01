@@ -1,0 +1,10 @@
+{
+    "documentset": [
+        {
+            "mediatype": "text/csv",
+            "path": "documentset/design.csv",
+            "uri": "http://w3id.org/sparql-generate/example/source/design"
+        }
+    ],
+    "query": "query.rqg"
+}

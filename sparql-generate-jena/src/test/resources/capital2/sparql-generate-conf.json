@@ -1,0 +1,10 @@
+{
+    "documentset": [
+        {
+            "mediatype": "application/json",
+            "path": "documentset/capital.json",
+            "uri": "http://country.io/capital.json"
+        }
+    ],
+    "query": "query.rqg"
+}

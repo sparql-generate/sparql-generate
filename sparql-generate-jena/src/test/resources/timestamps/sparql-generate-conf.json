@@ -1,0 +1,10 @@
+{
+    "documentset": [
+        {
+            "mediatype": "application/json",
+            "path": "documentset/message.json",
+            "uri": "http://example.com/smartmeters/elecW6labs.json"
+        }
+    ],
+    "query": "query.rqg"
+}
