@@ -1,6 +1,6 @@
 BASE <http://example.com/> 
-PREFIX iter: <http://w3id.org/sparql-generate/iter/>
-PREFIX fn: <http://w3id.org/sparql-generate/fn/>
+PREFIX ite: <http://w3id.org/sparql-generate/iter/>
+PREFIX fun: <http://w3id.org/sparql-generate/fn/>
 PREFIX country:<http://loc.example.com/city/>
 PREFIX schema: <http://schema.org/>
 PREFIX wgs84_pos: <http://www.w3.org/2003/01/geo/wgs84_pos#>
@@ -28,10 +28,10 @@ GENERATE {
                       ex:id ?busStopIdStr .
 
       }
-      ITERATOR iter:XPath(?sourcetransport, CONCAT("//bus[@id=",?busId,"]//stop") ) AS ?busStop
+      ITERATOR ite:XPath(?sourcetransport, CONCAT("//bus[@id=",?busId,"]//stop") ) AS ?busStop
       WHERE {
-          BIND( fn:XPath(?busStop,"/stop/@id"  ) AS ?busStopId )
-          BIND( fn:XPath(?busStop,"/stop/text()"  ) AS ?busStopLabel )
+          BIND( fun:XPath(?busStop,"/stop/@id"  ) AS ?busStopId )
+          BIND( fun:XPath(?busStop,"/stop/text()"  ) AS ?busStopLabel )
           BIND (STRDT(?busStopId,xsd:int) as ?busStopIdStr)
           BIND( URI(CONCAT( "http://trans.example.com/stop/",?busStopId)) AS ?busStopIRI )
 
@@ -41,8 +41,8 @@ GENERATE {
     SOURCE <http://example.com/transport.xml> AS ?sourcetransport
     WHERE {
       BIND ( CONCAT("//bus[@id=",?stop,"]") as ?busQuery )
-      BIND( fn:XPath(?sourcetransport,CONCAT(?busQuery,"/@id")  ) AS ?busId )
-      BIND( URI(CONCAT("http://trans.example.com/vehicle/",fn:XPath(?sourcetransport,CONCAT(?busQuery,"/@type")))) AS ?vehicleType )
+      BIND( fun:XPath(?sourcetransport,CONCAT(?busQuery,"/@id")  ) AS ?busId )
+      BIND( URI(CONCAT("http://trans.example.com/vehicle/",fun:XPath(?sourcetransport,CONCAT(?busQuery,"/@type")))) AS ?vehicleType )
       BIND( URI( CONCAT( "http://trans.example.com/bus/",?busId ) ) AS ?busIRI )
     }.
 
@@ -56,22 +56,22 @@ GENERATE {
     SOURCE <http://example.com/venue.json> AS ?sourcevenue
     WHERE {
       BIND (CONCAT("$..venue[?(@.location.city=='",?city,"')]") as ?cityQuery )
-      BIND(fn:JSONPath(?sourcevenue, ?cityQuery ) AS ?cityObject)
-      BIND(fn:JSONPath(?cityObject, "$.location.city" ) AS ?cityName)
-      BIND(fn:JSONPath(?cityObject, "$.location.country" ) AS ?countryCode)
-      BIND(fn:JSONPath(?cityObject, "$.location.continent" ) AS ?continentCode)
+      BIND(fun:JSONPath(?sourcevenue, ?cityQuery ) AS ?cityObject)
+      BIND(fun:JSONPath(?cityObject, "$.location.city" ) AS ?cityName)
+      BIND(fun:JSONPath(?cityObject, "$.location.country" ) AS ?countryCode)
+      BIND(fun:JSONPath(?cityObject, "$.location.continent" ) AS ?continentCode)
       BIND(URI(CONCAT("http://loc.example.com/city/",?cityName)) AS ?cityURI)
     }.
   
 }
 SOURCE <http://example.com/airport.csv> AS ?source
-ITERATOR iter:CSV(?source) AS ?airport
+ITERATOR ite:CSV(?source) AS ?airport
 WHERE {
-    BIND( fn:CSV(?airport, "id" ) AS ?id )
-    BIND( fn:CSV(?airport, "city" ) AS ?city )
-    BIND( fn:CSV(?airport, "stop" ) AS ?stop )
-    BIND( fn:CSV(?airport, "longitude" ) AS ?long )
-    BIND( fn:CSV(?airport, "latitude" ) AS ?lat )
+    BIND( fun:CSV(?airport, "id" ) AS ?id )
+    BIND( fun:CSV(?airport, "city" ) AS ?city )
+    BIND( fun:CSV(?airport, "stop" ) AS ?stop )
+    BIND( fun:CSV(?airport, "longitude" ) AS ?long )
+    BIND( fun:CSV(?airport, "latitude" ) AS ?lat )
     BIND (URI(CONCAT("http://airport.example.com/",?id)) AS ?airportURI)
     BIND (URI(CONCAT("http://loc.example.com/latlong/",?lat,",",?long)) AS ?latlongURI)
 }

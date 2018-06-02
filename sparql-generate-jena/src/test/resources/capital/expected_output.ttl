@@ -1,5 +1,5 @@
-@prefix fn:    <http://w3id.org/sparql-generate/fn/> .
-@prefix iter:  <http://w3id.org/sparql-generate/iter/> .
+@prefix fun:    <http://w3id.org/sparql-generate/fn/> .
+@prefix ite:  <http://w3id.org/sparql-generate/iter/> .
 
 [ a                             <http://example.com/Country> ;
   <http://example.com/capital>  "Helsinki" ;

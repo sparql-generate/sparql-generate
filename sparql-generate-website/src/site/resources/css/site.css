@@ -58,3 +58,11 @@ h3, h4, h5, h6 {
     top: 55px;
   }
 }
+
+#readme {
+    margin-bottom: 15px;
+}
+
+.CodeMirror-fullscreen {
+  margin-top: 40px;
+}

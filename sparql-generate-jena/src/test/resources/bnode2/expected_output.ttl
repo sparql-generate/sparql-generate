@@ -1,5 +1,5 @@
-@prefix fn:    <http://w3id.org/sparql-generate/fn/> .
-@prefix iter:  <http://w3id.org/sparql-generate/iter/> .
+@prefix fun:    <http://w3id.org/sparql-generate/fn/> .
+@prefix ite:  <http://w3id.org/sparql-generate/iter/> .
 
 [ <http://example.com/p_1>   "bn before" ;
   <http://example.com/p_11>  _:b0 ;

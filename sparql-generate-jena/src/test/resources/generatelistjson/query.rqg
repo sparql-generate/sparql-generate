@@ -1,6 +1,6 @@
 BASE <http://example.com/> 
-PREFIX iter: <http://w3id.org/sparql-generate/iter/>
-PREFIX fn: <http://w3id.org/sparql-generate/fn/>
+PREFIX ite: <http://w3id.org/sparql-generate/iter/>
+PREFIX fun: <http://w3id.org/sparql-generate/fn/>
 PREFIX country:<http://loc.example.com/city/>
 PREFIX schema: <http://schema.org/>
 PREFIX wgs84_pos: <http://www.w3.org/2003/01/geo/wgs84_pos#>
@@ -13,12 +13,12 @@ GENERATE {
     ?this2 a rdf:List;rdf:first ?att2;rdf:rest ?rest2 .
 }
 SOURCE <http://example.com/list.json> AS ?source
-ITERATOR iter:JSONElement(?source,"$.att[*]") AS ?key
+ITERATOR ite:JSONElement(?source,"$.att[*]") AS ?key
 WHERE {
-    BIND(xsd:decimal(fn:JSONPath(?key, "$.position" )) AS ?position)
-    BIND(xsd:boolean(fn:JSONPath(?key, "$.hasNext" )) AS ?hasNext)
-    BIND(fn:JSONPath(?key, "$.element.att1" ) AS ?att1)
-    BIND(fn:JSONPath(?key, "$.element.att2" ) AS ?att2)
+    BIND(xsd:decimal(fun:JSONPath(?key, "$.position" )) AS ?position)
+    BIND(xsd:boolean(fun:JSONPath(?key, "$.hasNext" )) AS ?hasNext)
+    BIND(fun:JSONPath(?key, "$.element.att1" ) AS ?att1)
+    BIND(fun:JSONPath(?key, "$.element.att2" ) AS ?att2)
     BIND( IF( 0 = ?position , <myURI> , IRI( CONCAT( "e_1_" , STR(?position) ) ) ) AS ?this1 )
     BIND( IF( 0 = ?position , <myURI> , IRI( CONCAT( "e_2_" , STR(?position) ) ) ) AS ?this2 )
     BIND( STR( ?position + 1) as ?nextPosition)

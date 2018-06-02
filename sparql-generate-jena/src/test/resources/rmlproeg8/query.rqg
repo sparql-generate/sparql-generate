@@ -1,6 +1,6 @@
 BASE <http://example.com/> 
-PREFIX iter: <http://w3id.org/sparql-generate/iter/>
-PREFIX fn: <http://w3id.org/sparql-generate/fn/>
+PREFIX ite: <http://w3id.org/sparql-generate/iter/>
+PREFIX fun: <http://w3id.org/sparql-generate/fn/>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> 
 PREFIX ex: <http://example.com/>
 PREFIX simmodel: <http://www.lbl.gov/namespaces/Sim/Model/>
@@ -20,15 +20,15 @@ GENERATE {
            simres:LibraryName ?libName .
 }
 SOURCE <http://example.com/simergy.xml> AS ?source
-ITERATOR iter:XPath(?source, "//*[local-name()='SimAppLibraryDefault_AppLibraryDefault_GlobalLibrary' and namespace-uri()='http://www.lbl.gov/namespaces/Sim/Model/']" ) AS ?model
+ITERATOR ite:XPath(?source, "//*[local-name()='SimAppLibraryDefault_AppLibraryDefault_GlobalLibrary' and namespace-uri()='http://www.lbl.gov/namespaces/Sim/Model/']" ) AS ?model
 WHERE {
-    BIND( fn:XPath(?model,"/*[local-name()='SimAppLibraryDefault_AppLibraryDefault_GlobalLibrary' and namespace-uri()='http://www.lbl.gov/namespaces/Sim/Model/']/@*[local-name()='RefId' ]" ) AS ?refId )
-    BIND( fn:XPath(?model,"/*[local-name()='SimAppLibraryDefault_AppLibraryDefault_GlobalLibrary' and namespace-uri()='http://www.lbl.gov/namespaces/Sim/Model/']/*[local-name()='SimModelType' and namespace-uri()='http://www.lbl.gov/namespaces/Sim/ResourcesGeneral']/text()" ) AS ?type )
-    BIND( fn:XPath(?model,"/*[local-name()='SimAppLibraryDefault_AppLibraryDefault_GlobalLibrary' and namespace-uri()='http://www.lbl.gov/namespaces/Sim/Model/']/*[local-name()='SimModelSubtype' and namespace-uri()='http://www.lbl.gov/namespaces/Sim/ResourcesGeneral']/text()" ) AS ?subType )
-    BIND( fn:XPath(?model,"/*[local-name()='SimAppLibraryDefault_AppLibraryDefault_GlobalLibrary' and namespace-uri()='http://www.lbl.gov/namespaces/Sim/Model/']/*[local-name()='SimModelName' and namespace-uri()='http://www.lbl.gov/namespaces/Sim/ResourcesGeneral']/text()" ) AS ?name )
-    BIND( fn:XPath(?model,"/*[local-name()='SimAppLibraryDefault_AppLibraryDefault_GlobalLibrary' and namespace-uri()='http://www.lbl.gov/namespaces/Sim/Model/']/*[local-name()='SourceModelSchema' and namespace-uri()='http://www.lbl.gov/namespaces/Sim/ResourcesGeneral']/text()" ) AS ?sourceSchema )
-    BIND( fn:XPath(?model,"/*[local-name()='SimAppLibraryDefault_AppLibraryDefault_GlobalLibrary' and namespace-uri()='http://www.lbl.gov/namespaces/Sim/Model/']/*[local-name()='DefaultPreferenceIndex' and namespace-uri()='http://www.lbl.gov/namespaces/Sim/ResourcesGeneral']/text()" ) AS ?defPrefInd )
-    BIND( fn:XPath(?model,"/*[local-name()='SimAppLibraryDefault_AppLibraryDefault_GlobalLibrary' and namespace-uri()='http://www.lbl.gov/namespaces/Sim/Model/']/*[local-name()='LibraryLocation' and namespace-uri()='http://www.lbl.gov/namespaces/Sim/ResourcesGeneral']/text()" ) AS ?libLoc )
-    BIND( fn:XPath(?model,"/*[local-name()='SimAppLibraryDefault_AppLibraryDefault_GlobalLibrary' and namespace-uri()='http://www.lbl.gov/namespaces/Sim/Model/']/*[local-name()='LibraryName' and namespace-uri()='http://www.lbl.gov/namespaces/Sim/ResourcesGeneral']/text()" ) AS ?libName )
+    BIND( fun:XPath(?model,"/*[local-name()='SimAppLibraryDefault_AppLibraryDefault_GlobalLibrary' and namespace-uri()='http://www.lbl.gov/namespaces/Sim/Model/']/@*[local-name()='RefId' ]" ) AS ?refId )
+    BIND( fun:XPath(?model,"/*[local-name()='SimAppLibraryDefault_AppLibraryDefault_GlobalLibrary' and namespace-uri()='http://www.lbl.gov/namespaces/Sim/Model/']/*[local-name()='SimModelType' and namespace-uri()='http://www.lbl.gov/namespaces/Sim/ResourcesGeneral']/text()" ) AS ?type )
+    BIND( fun:XPath(?model,"/*[local-name()='SimAppLibraryDefault_AppLibraryDefault_GlobalLibrary' and namespace-uri()='http://www.lbl.gov/namespaces/Sim/Model/']/*[local-name()='SimModelSubtype' and namespace-uri()='http://www.lbl.gov/namespaces/Sim/ResourcesGeneral']/text()" ) AS ?subType )
+    BIND( fun:XPath(?model,"/*[local-name()='SimAppLibraryDefault_AppLibraryDefault_GlobalLibrary' and namespace-uri()='http://www.lbl.gov/namespaces/Sim/Model/']/*[local-name()='SimModelName' and namespace-uri()='http://www.lbl.gov/namespaces/Sim/ResourcesGeneral']/text()" ) AS ?name )
+    BIND( fun:XPath(?model,"/*[local-name()='SimAppLibraryDefault_AppLibraryDefault_GlobalLibrary' and namespace-uri()='http://www.lbl.gov/namespaces/Sim/Model/']/*[local-name()='SourceModelSchema' and namespace-uri()='http://www.lbl.gov/namespaces/Sim/ResourcesGeneral']/text()" ) AS ?sourceSchema )
+    BIND( fun:XPath(?model,"/*[local-name()='SimAppLibraryDefault_AppLibraryDefault_GlobalLibrary' and namespace-uri()='http://www.lbl.gov/namespaces/Sim/Model/']/*[local-name()='DefaultPreferenceIndex' and namespace-uri()='http://www.lbl.gov/namespaces/Sim/ResourcesGeneral']/text()" ) AS ?defPrefInd )
+    BIND( fun:XPath(?model,"/*[local-name()='SimAppLibraryDefault_AppLibraryDefault_GlobalLibrary' and namespace-uri()='http://www.lbl.gov/namespaces/Sim/Model/']/*[local-name()='LibraryLocation' and namespace-uri()='http://www.lbl.gov/namespaces/Sim/ResourcesGeneral']/text()" ) AS ?libLoc )
+    BIND( fun:XPath(?model,"/*[local-name()='SimAppLibraryDefault_AppLibraryDefault_GlobalLibrary' and namespace-uri()='http://www.lbl.gov/namespaces/Sim/Model/']/*[local-name()='LibraryName' and namespace-uri()='http://www.lbl.gov/namespaces/Sim/ResourcesGeneral']/text()" ) AS ?libName )
     BIND( IRI(CONCAT("http://www.lbl.gov/namespaces/Sim/Model/",?refId)) as ?modelIRI)
 }

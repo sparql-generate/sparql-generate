@@ -1,0 +1,35 @@
+{
+    "status": "ok",
+    "data": {
+        "aqi": 28.0,
+        "idx": 25.0,
+        "attributions": [
+            {
+                "url": "http://www.airqualityontario.com/",
+                "name": "Air Quality Ontario - the Ontario Ministry of the Environment and Climate Change"
+            }
+        ],
+        "city": {
+            "geo": [
+                -77.441194,
+                45.996722
+            ],
+            "name": "Petawawa, Ontario",
+            "url": "http://aqicn.org/city/canada/ontario/petawawa/"
+        },
+        "dominentpol": "o3",
+        "iaqi": {
+            "o3": {
+                "v": 28.1
+            },
+            "pm25": {
+                "v": 9.0
+            }
+        },
+        "time": {
+            "s": "2018-05-24 10:00:00",
+            "tz": "-05:00",
+            "v": 1.527156E9
+        }
+    }
+}

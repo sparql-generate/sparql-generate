@@ -15,39 +15,47 @@
  */
 package com.github.thesmartenergy.sparql.generate.jena.cli;
 
+import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerateCli;
 import com.github.thesmartenergy.sparql.generate.jena.utils.LM;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.io.IOUtils;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
-import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.Resource;
-import org.apache.jena.rdf.model.ResourceFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/** 
+/**
  *
  * @author maxime.lefrancois
  */
 public class Request {
 
+    private static final Logger LOG = LoggerFactory.getLogger(Request.class);
     public static Request DEFAULT = new Request();
 
-    static {
-        DEFAULT.query = "query.rqg";
-        DEFAULT.defaultquery = null;
-        DEFAULT.namedqueries = new ArrayList<>();
-        DEFAULT.graph = "dataset/default.ttl";
-        DEFAULT.defaultgraph = null;
-        DEFAULT.namedgraphs = new ArrayList<>();
-        DEFAULT.documentset = new ArrayList<>();
-        DEFAULT.stream = false;
+    public Request() {
+        readme = "";
+        query = "query.rqg";
+        defaultquery = "";
+        namedqueries = new ArrayList<>();
+        graph = "dataset/default.ttl";
+        defaultgraph = "";
+        namedgraphs = new ArrayList<>();
+        documentset = new ArrayList<>();
+        stream = false;
     }
 
-    public String query; // chemin
-    public String defaultquery; // contenu 
+    public String readme; // html 
+    public String query; // path
+    public String defaultquery; // content
     public List<Document> namedqueries;
-    public String graph; // chemin
-    public String defaultgraph; // contenu
+    public String graph; // path
+    public String defaultgraph; // content
     public List<Document> namedgraphs;
     public List<Document> documentset;
     public boolean stream;
@@ -65,6 +73,51 @@ public class Request {
             });
         }
         return model;
+    }
+
+    public void loadStrings(File dir) {
+        try {
+            readme = IOUtils.toString(new FileReader(new File(dir, "readme.html")));
+        } catch (IOException ex) {
+            readme = "";
+            LOG.debug("no readme", ex);
+        }
+        try {
+            defaultquery = IOUtils.toString(new FileReader(new File(dir, query)));
+        } catch (IOException ex) {
+            defaultquery = "";
+            LOG.debug("no readme", ex);
+        }
+        namedqueries.stream().forEach((nq) -> {
+            try {
+                nq.string = IOUtils.toString(new FileReader(new File(dir, nq.path)));
+            } catch (IOException ex) {
+                nq.string = "";
+                LOG.debug("no namedquery", ex);
+            }
+        });
+        try {
+            defaultgraph = IOUtils.toString(new FileReader(new File(dir, graph)));
+        } catch (IOException ex) {
+            defaultgraph = "";
+            LOG.debug("no readme", ex);
+        }
+        namedgraphs.stream().forEach((ng) -> {
+            try {
+                ng.string = IOUtils.toString(new FileReader(new File(dir, ng.path)));
+            } catch (IOException ex) {
+                ng.string = "";
+                LOG.debug("no namedgraph", ex);
+            }
+        });
+        documentset.stream().forEach((doc) -> {
+            try {
+                doc.string = IOUtils.toString(new FileReader(new File(dir, doc.path)));
+            } catch (IOException ex) {
+                doc.string = "";
+                LOG.debug("no document", ex);
+            }
+        });
     }
 
     private void addMap(Model model, Document doc) {

@@ -1,7 +1,7 @@
 @prefix spc:   <http://semweb.mmlab.be/ns/spc/> .
-@prefix fn:    <http://w3id.org/sparql-generate/fn/> .
+@prefix fun:    <http://w3id.org/sparql-generate/fn/> .
 @prefix dcterms: <http://purl.org/dc/terms/> .
-@prefix iter:  <http://w3id.org/sparql-generate/iter/> .
+@prefix ite:  <http://w3id.org/sparql-generate/iter/> .
 @prefix bibo:  <http://purl.org/ontology/bibo/> .
 @prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
 

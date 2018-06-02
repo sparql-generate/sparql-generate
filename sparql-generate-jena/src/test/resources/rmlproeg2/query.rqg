@@ -1,6 +1,6 @@
 BASE <http://example.com/> 
-PREFIX iter: <http://w3id.org/sparql-generate/iter/>
-PREFIX fn: <http://w3id.org/sparql-generate/fn/>
+PREFIX ite: <http://w3id.org/sparql-generate/iter/>
+PREFIX fun: <http://w3id.org/sparql-generate/fn/>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> 
 PREFIX mail: <http://example.com/mail#>
 PREFIX note: <http://example.com/note/>
@@ -21,19 +21,19 @@ GENERATE {
     ?noteIRI mail:when ?dmy .
 }
 SOURCE <http://example.com/example2.xml> AS ?source
-ITERATOR iter:XPath(?source, "//note" ) AS ?note 
+ITERATOR ite:XPath(?source, "//note" ) AS ?note 
 WHERE {
-     BIND( fn:XPath(?note,"/note/@id"  ) AS ?noteId )
-     BIND( fn:XPath(?note,"/note/@day"  ) AS ?day )
-     BIND( fn:XPath(?note,"/note/@month"  ) AS ?month )
-     BIND( fn:XPath(?note,"/note/@year"  ) AS ?year )
+     BIND( fun:XPath(?note,"/note/@id"  ) AS ?noteId )
+     BIND( fun:XPath(?note,"/note/@day"  ) AS ?day )
+     BIND( fun:XPath(?note,"/note/@month"  ) AS ?month )
+     BIND( fun:XPath(?note,"/note/@year"  ) AS ?year )
      BIND (STRDT(?year,xsd:gYear) as ?gYear )
      BIND (STRDT(?month,xsd:gMonth) as ?gMonth )
      BIND (STRDT(?day,xsd:gDay) as ?gDay )
-     BIND( fn:XPath(?note,"/note/from/text()"  ) AS ?from )
-     BIND( fn:XPath(?note,"/note/to/text()"  ) AS ?to )
-     BIND( fn:XPath(?note,"/note/heading/text()"  ) AS ?heading )
-     BIND( fn:XPath(?note,"/note/body/text()"  ) AS ?body )
+     BIND( fun:XPath(?note,"/note/from/text()"  ) AS ?from )
+     BIND( fun:XPath(?note,"/note/to/text()"  ) AS ?to )
+     BIND( fun:XPath(?note,"/note/heading/text()"  ) AS ?heading )
+     BIND( fun:XPath(?note,"/note/body/text()"  ) AS ?body )
      BIND(IRI(CONCAT("http://example.com/note/",?noteId)) as ?noteIRI)
      BIND(IRI(CONCAT("http://example.com/DateTime/",?year,"/",?month,"/",?day)) as ?dmy)
 

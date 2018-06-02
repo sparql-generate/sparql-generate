@@ -1,7 +1,7 @@
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> 
 PREFIX owl: <http://www.w3.org/2002/07/owl#>
 PREFIX dcterms: <http://purl.org/dc/terms/>
-PREFIX iter: <http://w3id.org/sparql-generate/iter/>
+PREFIX ite: <http://w3id.org/sparql-generate/iter/>
 PREFIX fun: <http://w3id.org/sparql-generate/fn/>
 
 GENERATE { 
@@ -10,4 +10,4 @@ GENERATE {
     dcterms:description "{ fun:CustomCSV( ?project, "Description du projet", '"' , "," , "\n" , true ) }"@en .
 }
 SOURCE <http://w3id.org/sparql-generate/example/source/design> AS ?source
-ITERATOR iter:CustomCSV( ?source , '"' , "," , "\n" , true ) AS ?project
+ITERATOR ite:CustomCSV( ?source , '"' , "," , "\n" , true ) AS ?project

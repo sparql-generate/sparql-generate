@@ -64,7 +64,8 @@ public class TestBase {
     private final File exampleDir;
     private Request request;
     
-    private static final String pattern = "xsparql2";
+    private static final String pattern = "";
+//    private static final String pattern = ".*";
 
     
     public TestBase(Logger log, File exampleDir, String name) {
@@ -144,7 +145,7 @@ public class TestBase {
         Model expectedOutput = RDFDataMgr.loadModel(expectedOutputUri.toString(), Lang.TTL);
         StringWriter sw = new StringWriter();
         expectedOutput.write(sw, "TTL");
-        assertTrue(output.isIsomorphicWith(expectedOutput));
+        assertTrue("Error with test " + exampleDir, output.isIsomorphicWith(expectedOutput));
     }
 
     void testQuerySerialization() throws Exception {

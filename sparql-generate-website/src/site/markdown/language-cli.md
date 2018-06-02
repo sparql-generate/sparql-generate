@@ -20,43 +20,42 @@ java -jar sparql-generate-jena.jar [arguments]
 
 
 
-##### Directory structure (optional)
+##### Configuration file (optional)
 
-Optionally, the query may be run in a directory with a queryset and/or documentset and/or dataset specified as follows:
-
-The queryset is specified in a subfolder `queryset` that contains named queries and a configuration file `configuration.ttl` whose typical content is as follows:
+Optionally, the query may be run in a directory with a configuration file `sparql-generate-conf.json` that describes the queryset and/or documentset and/or dataset as follows:
 
 ```
-@prefix lm: <http://jena.hpl.hp.com/2004/08/location-mapping#> .
-_:mapping lm:mapping [ lm:name "https://example.org/query" ; lm:altName "queryset/query.rqg" ; lm:media "application/vnd.sparql-generate" ] .
-_:mapping lm:mapping [ lm:name "..." ; lm:altName "..." ; lm:media "..." ] .
-...
+{
+  "query": "query.rqg",
+  "namedqueries": [
+    {
+      "uri": "http://example.org/query#0",
+      "path": "queryset/query0.rqg"
+    }
+  ],
+  "graph": "dataset/default.ttl",
+  "namedgraphs": [
+    {
+      "uri": "http://example.org/graph#0",
+      "path": "dataset/graph0.ttl"
+    }
+  ],
+  "documentset": [
+    {
+      "uri": "http://example.org/document#0",
+      "mediatype": "text/plain",
+      "path": "documentset/document0.txt"
+    }
+  ],
+  "log": "5"
+}
 ```
 
-Here, `https://example.org/query` is the name of the SPARQL-Generate query, `application/vnd.sparql-generate` is the SPARQL-Generate media type, and this query may be found at `queryset/query.rqg`.
+- `query` specifies the path to the file that contains the default query in UTF-8 encoding (`query.rqg` is the default value).
+- `namedqueries` is a table specifying named queries. For each of the named queries, `uri` is its URI and `path` is the path to the file that contains the query in UTF-8 encoding.
+- `graph` specifies the path to the file that contains the default graph in UTF-8 encoding (`dataset/default.ttl` is the default value).
+- `namedgraphs` is a table specifying named graphs. For each of the named graphs, `uri` is its URI and `path` is the path to the file that contains the graph in UTF-8 encoding.
+- `documentset` is a table specifying named documents. For each of the named documents, `uri` is its URI, `path` is the path to the file that contains the document in UTF-8 encoding, and `mediatype` is the media type of the document.
+- `log` is the default log level (`{ "0": "OFF", "1": "ERROR", "2": "WARN", "3": "INFO", "4": "DEBUG", "5": "TRACE"} `)
 
-
-The dataset is specified in a subfolder `dataset` that contains named graphs and a configuration file `configuration.ttl` whose typical content is as follows:
-
-```
-@prefix lm: <http://jena.hpl.hp.com/2004/08/location-mapping#> .
-_:mapping lm:mapping [ lm:name "https://example.org/graph" ; lm:altName "dataset/graph.ttl" ; lm:media "text/turtle" ] .
-_:mapping lm:mapping [ lm:name "..." ; lm:altName "..." ; lm:media "..." ] .
-...
-```
-
-Here, `https://example.org/graph` is the name of the graph, `text/turtle` is the type of its serialization, and this graph may be loaded from `dataset/graph.ttl`.
-
-
-
-The documentset is specified in a subfolder `documentset` that contains named documents and a configuration file `configuration.ttl` whose typical content is as follows:
-
-```
-@prefix lm: <http://jena.hpl.hp.com/2004/08/location-mapping#> .
-_:mapping lm:mapping [ lm:name "https://example.org/doc.json" ; lm:altName "documentset/doc.json" ; lm:media "application/json" ] .
-_:mapping lm:mapping [ lm:name "..." ; lm:altName "..." ; lm:media "..." ] .
-...
-```
-
-Here, `https://example.org/doc.json` is the name of the document, `application/json` is its type, and this document may be loaded at `documentset/doc.json`.
 

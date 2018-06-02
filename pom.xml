@@ -195,6 +195,7 @@
                             <exclude>**/dependency-reduced-pom.xml</exclude>
                             <exclude>**/*.csv</exclude>
                             <exclude>**/*.rqg</exclude>
+                            <exclude>**/*.ttl</exclude>
                             <exclude>**/java.nio.file.spi.FileTypeDetector</exclude>
                         </excludes>
                     </configuration>

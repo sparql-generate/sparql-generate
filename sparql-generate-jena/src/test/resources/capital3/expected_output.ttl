@@ -1,17 +1,14 @@
-@prefix fn:    <http://w3id.org/sparql-generate/fn/> .
-@prefix iter:  <http://w3id.org/sparql-generate/iter/> .
+<http://example.org/city/New%20Orleans>
+        <http://example.org/country>  "USA" ;
+        <http://example.org/population>
+                "391000" .
 
-[ a                             <http://example.com/Country> ;
-  <http://example.com/capital>  "Helsinki" ;
-  <http://example.com/code>     "FI"
-] .
+<http://example.org/city/New%20Delhi>
+        <http://example.org/country>  "India" ;
+        <http://example.org/population>
+                "21750000" .
 
-[ a                             <http://example.com/Country> ;
-  <http://example.com/capital>  "Suva" ;
-  <http://example.com/code>     "FJ"
-] .
-
-[ a                             <http://example.com/Country> ;
-  <http://example.com/capital>  "Stanley" ;
-  <http://example.com/code>     "FK"
-] .
+<http://example.org/city/New%20York>
+        <http://example.org/country>  "USA" ;
+        <http://example.org/population>
+                "8538000" .

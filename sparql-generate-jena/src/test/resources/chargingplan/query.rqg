@@ -19,7 +19,7 @@ PREFIX owl: <http://www.w3.org/2002/07/owl#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 PREFIX seas: <https://w3id.org/seas/ontology/all#>
 PREFIX rqg-ite: <http://w3id.org/sparql-generate/iter/>
-PREFIX rqg-fn: <http://w3id.org/sparql-generate/fn/>
+PREFIX rqg-fun: <http://w3id.org/sparql-generate/fn/>
 PREFIX foaf: <http://xmlns.com/foaf/0.1/>
 PREFIX dc: <http://purl.org/dc/elements/1.1/>
 
@@ -44,15 +44,15 @@ GENERATE {
 
         } ITERATOR rqg-ite:XPath(?chargingPlan, "//Order") AS ?order
         WHERE {
-            BIND( strdt( rqg-fn:XPath(?order, "//DateDebut/text()"), xsd:dateTime ) AS ?start )
-            BIND( strdt( rqg-fn:XPath(?order, "//DateFin/text()"), xsd:dateTime ) AS ?end )
-            BIND( xsd:decimal( rqg-fn:XPath(?order, "//Puissance/text()") ) AS ?power )
+            BIND( strdt( rqg-fun:XPath(?order, "//DateDebut/text()"), xsd:dateTime ) AS ?start )
+            BIND( strdt( rqg-fun:XPath(?order, "//DateFin/text()"), xsd:dateTime ) AS ?end )
+            BIND( xsd:decimal( rqg-fun:XPath(?order, "//Puissance/text()") ) AS ?power )
         
         } .
 
     } ITERATOR rqg-ite:XPath(?message, "//ChargingPlan") AS ?chargingPlan
     WHERE  {
-        BIND( rqg-fn:XPath(?chargingPlan, "//IdCharge/text()") AS ?idCharge )
+        BIND( rqg-fun:XPath(?chargingPlan, "//IdCharge/text()") AS ?idCharge )
         BIND( IRI( CONCAT ("Charge/" , ?idCharge ) ) AS ?charge )
     } .
 

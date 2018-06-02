@@ -1,6 +1,6 @@
 BASE <http://example.com/> 
-PREFIX iter: <http://w3id.org/sparql-generate/iter/>
-PREFIX fn: <http://w3id.org/sparql-generate/fn/>
+PREFIX ite: <http://w3id.org/sparql-generate/iter/>
+PREFIX fun: <http://w3id.org/sparql-generate/fn/>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> 
 PREFIX ex: <http://example.com/>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> 
@@ -16,13 +16,13 @@ GENERATE {
             gn:countryCode ?country .
 }
 SOURCE <http://example.com/venue.json> AS ?source
-ITERATOR iter:JSONPath(?source,"$[*]") AS ?venue
+ITERATOR ite:JSONPath(?source,"$[*]") AS ?venue
 WHERE {
-    BIND(fn:JSONPath(?venue, "$.city" ) AS ?city)
-    BIND(fn:JSONPath(?venue, "$.continent" ) AS ?continent)
-    BIND(fn:JSONPath(?venue, "$.country" ) AS ?country)
-    BIND(fn:JSONPath(?venue, "$.venue.latitude" ) AS ?latitude)
-    BIND(fn:JSONPath(?venue, "$.venue.longitude" ) AS ?longitude)
+    BIND(fun:JSONPath(?venue, "$.city" ) AS ?city)
+    BIND(fun:JSONPath(?venue, "$.continent" ) AS ?continent)
+    BIND(fun:JSONPath(?venue, "$.country" ) AS ?country)
+    BIND(fun:JSONPath(?venue, "$.venue.latitude" ) AS ?latitude)
+    BIND(fun:JSONPath(?venue, "$.venue.longitude" ) AS ?longitude)
     BIND(IRI(CONCAT("http://loc.example.com/city/",?city)) as ?cityIRI)
 
 }

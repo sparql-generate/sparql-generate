@@ -15,7 +15,6 @@
  */
 package com.github.thesmartenergy.sparql.generate.api;
 
-import com.github.thesmartenergy.sparql.generate.jena.cli.Document;
 import com.github.thesmartenergy.sparql.generate.jena.cli.Request;
 import com.google.gson.Gson;
 import java.io.File;
@@ -31,12 +30,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.input.BOMInputStream;
-import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.ModelFactory;
-import org.apache.jena.rdf.model.ResIterator;
-import org.apache.jena.rdf.model.Resource;
-import org.apache.jena.rdf.model.ResourceFactory;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 
@@ -44,7 +37,7 @@ import org.slf4j.Logger;
  *
  * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */
-@Path("/list")
+@Path("/tests")
 public class ListTests extends HttpServlet {
     
     private static final Logger LOG = LoggerFactory.getLogger(ListTests.class);
@@ -54,16 +47,17 @@ public class ListTests extends HttpServlet {
     public Response doGet() throws IOException, URISyntaxException {
         File tests = new File(ListTests.class.getClassLoader().getResource("tests").toURI());
 
-        StringBuilder sb = new StringBuilder();
         File[] files = tests.listFiles();
         Arrays.sort(files);
+
+        List<String> names = new ArrayList<>();
         for (File test : files) {
             if (test.isDirectory()) {
-                sb.append(test.getName() + "\n");
+                names.add(test.getName());
             }
         }
 
-        Response.ResponseBuilder res = Response.ok(sb.toString(), "text/plain");
+        Response.ResponseBuilder res = Response.ok(gson.toJson(names), "application/json");
         return res.build();
 
     }
@@ -71,57 +65,23 @@ public class ListTests extends HttpServlet {
     @GET
     @Path("/{id}")
     public Response doGet(@PathParam("id") String id) throws IOException, URISyntaxException, Exception {
-        File test = new File(ListTests.class.getClassLoader().getResource("tests/" + id).toURI());
+        File dir = new File(ListTests.class.getClassLoader().getResource("tests/" + id).toURI());
 
-        Request request = new Request();
-
+        // read sparql-generate-conf.json
+        Request request;
         try {
-            request.defaultquery = IOUtils.toString(new BOMInputStream(new FileInputStream(new File(test, "query.rqg"))), "UTF-8");
-        } catch (Exception ex) {
-            request.defaultquery = "";
-            LOG.warn(ex.getMessage());
+            String conf = IOUtils.toString(new FileInputStream(new File(dir, "sparql-generate-conf.json")), "utf-8");
+            request = gson.fromJson(conf, Request.class);
+        } catch(Exception ex) {
+            LOG.warn("Error while loading the location mapping model for the queryset. No named queries will be used");
+            request = Request.DEFAULT;
         }
-        request.namedqueries = getDocuments(test, "queryset");
-        try {
-            request.defaultgraph = IOUtils.toString(new BOMInputStream(new FileInputStream(new File(test, "default.ttl"))), "UTF-8");
-        } catch (Exception ex) {
-            request.defaultgraph = "";
-            LOG.warn(ex.getMessage());
-        }
-        request.namedgraphs = getDocuments(test, "dataset");
-        request.documentset = getDocuments(test, "documentset");
 
+        // load strings
+        request.loadStrings(dir);
+        
         Response.ResponseBuilder res = Response.ok(gson.toJson(request), "application/json");
         return res.build();
-    }
-
-    private List<Document> getDocuments(File test, String dirname) {
-        File dir = new File(test, dirname);
-        List<Document> documents = new ArrayList<>();
-
-        try {
-
-            Model conf = ModelFactory.createDefaultModel();
-            conf.read(new FileInputStream(new File(dir, "configuration.ttl")), "http://example.org", "TTL");
-
-            ResIterator resit = conf.listSubjectsWithProperty(ResourceFactory.createProperty("http://jena.hpl.hp.com/2004/08/location-mapping#name"));
-            while (resit.hasNext()) {
-                Resource subject = resit.next();
-                Document document = new Document();
-                document.uri = subject.getProperty(ResourceFactory.createProperty("http://jena.hpl.hp.com/2004/08/location-mapping#name")).getString();
-                document.mediatype = subject.getProperty(ResourceFactory.createProperty("http://jena.hpl.hp.com/2004/08/location-mapping#media")).getString();
-                String altName = subject.getProperty(ResourceFactory.createProperty("http://jena.hpl.hp.com/2004/08/location-mapping#altName")).getString();
-                try {
-                    document.string = IOUtils.toString(new BOMInputStream(new FileInputStream(new File(test, altName))), "UTF-8");
-                } catch (Exception ex) {
-                    LOG.warn(ex.getMessage());
-                }
-                documents.add(document);
-            }
-        } catch (Exception ex) {
-            LOG.warn(ex.getMessage());
-        }
-        return documents;
     }
 
 }

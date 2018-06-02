@@ -114,6 +114,12 @@ See the License for the specific language governing permissions and
                     <toc>false</toc>
                     <markPageHeader>false</markPageHeader>
                 </language-cli>
+                <standalone-app>
+                    <titleTemplate>SPARQL-Generate - Standalone Application</titleTemplate>
+                    <breadcrumbs>false</breadcrumbs>
+                    <toc>false</toc>
+                    <markPageHeader>false</markPageHeader>
+                </standalone-app>
                 <get-started>
                     <titleTemplate>SPARQL-Generate - Java API</titleTemplate>
                     <breadcrumbs>false</breadcrumbs>
@@ -173,6 +179,7 @@ See the License for the specific language governing permissions and
         </menu>
         
         <menu name="Documentation">
+            <item name="Standalone App" href="standalone-app.html" />  
             <item name="Executable JAR" href="language-cli.html" />  
             <item name="Web API" href="language-api.html" />
             <item name="Java Library Overview" href="get-started.html"/>
@@ -180,7 +187,6 @@ See the License for the specific language governing permissions and
         </menu>
 
         <menu name="About">
-            <item name="Summary" href="project-summary.html"/>
             <item name="Team" href="team-list.html"/>
             <item name="License" href="license.html" />  
         </menu>
