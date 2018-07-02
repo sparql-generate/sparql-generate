@@ -1,0 +1,21 @@
+<p>This query demonstrates that SPARQL-Generate can use a RDF Dataset to parametrize the generation of RDF. <b>Check out below what the default graph of the Dataset contains</b>.</p>
+
+<p>The general structure of a SPARQL-Generate query is as follows:</p>
+<div class="source"> 
+ <pre>PREFIX declarations             -- same as SPARQL 1.1
+FROM and FROM NAMED clauses     -- same as SPARQL 1.1
+GENERATE template               -- replaces and extends SPARQL 1.1 CONSTRUCT
+ITERATOR, SOURCE, BIND clauses  -- see below
+WHERE clause                    -- same as SPARQL 1.1
+Solution modifiers              -- group by, order by, limit, offset,... same as SPARQL 1.1
+</pre> 
+</div>
+
+<p>To put it simply, the execution of a SPARQL-Generate is defined as follows:</p> 
+ <ol style="list-style-type: decimal"> 
+  <li>clauses <tt>ITERATOR</tt> and <tt>SOURCE</tt> are processed in order, and one constructs a <a class="externalLink" href="https://www.w3.org/TR/sparql11-query/#inline-data">SPARQL 1.1 VALUES</a> data block.</li> 
+  <li>one constructs a SPARQL 1.1 <tt>SELECT *</tt> query from the SPARQL-Generate <tt>WHERE</tt> clause, and add the data block at the beginning of the <tt>WHERE</tt> clause.</li> 
+  <li>this SPARQL 1.1 SELECT query is evaluated on the SPARQL dataset, and produces a set of solution bindings.</li> 
+  <li>for each of these solution bindings, and for each element in the GENERATE template, one either produce triples, or execute the embedded query.</li> 
+ </ol>  
+

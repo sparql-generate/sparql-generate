@@ -1,5 +1,5 @@
 BASE <http://example.com/> 
-PREFIX ite: <http://w3id.org/sparql-generate/iter/>
+PREFIX iter: <http://w3id.org/sparql-generate/iter/>
 PREFIX fun: <http://w3id.org/sparql-generate/fn/>
 
 GENERATE { 
@@ -8,7 +8,7 @@ GENERATE {
     <capital> ?capital.
 }
 SOURCE <http://absolutely.unexistent/capital.json> AS ?source
-ITERATOR ite:JSONListKeys(?source) AS ?key
+ITERATOR iter:JSONListKeys(?source) AS ?key
 WHERE {
    FILTER(STRSTARTS(?key,"F"))
    BIND(fun:JSONPath(?source, '$.{?key}' ) AS ?capital)

@@ -1,0 +1,9 @@
+{
+  "stream": false,
+  "query": "query.rqg",
+  "namedqueries": [],
+  "graph": "dataset/default.ttl",
+  "namedgraphs": [],
+  "documentset": [],
+  "log": "5"
+}

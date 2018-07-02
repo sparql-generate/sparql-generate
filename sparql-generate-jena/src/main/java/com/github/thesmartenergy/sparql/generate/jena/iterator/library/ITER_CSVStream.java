@@ -47,10 +47,10 @@ import org.slf4j.Logger;
  * processes CSV documents and iterates over the lines, a few lines at a time.
  *
  * <ul>
- * <li>Param 1 (csv) is the CSV document with a header line;</li>
+ * <li>Param 1 (csv) is the URI of the CSV document;</li>
  * <li>Param 2 (headerValue) is true if the CSV document contains a header;</li>
  * <li>Param 3 (maxValue) is the number of lines for each batch processing
- * executions;</li>
+ * execution;</li>
  * <li>Param 4 (recurrenceValue) is the number of seconds between successive
  * batch processing executions;</li>
  * </ul>

@@ -196,6 +196,7 @@
                             <exclude>**/*.csv</exclude>
                             <exclude>**/*.rqg</exclude>
                             <exclude>**/*.ttl</exclude>
+                            <exclude>**/*.xml</exclude>
                             <exclude>**/java.nio.file.spi.FileTypeDetector</exclude>
                         </excludes>
                     </configuration>

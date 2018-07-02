@@ -64,7 +64,7 @@ public class TestBase {
     private final File exampleDir;
     private Request request;
     
-    private static final String pattern = "";
+    private static final String pattern = "csvmultiline";
 //    private static final String pattern = ".*";
 
     

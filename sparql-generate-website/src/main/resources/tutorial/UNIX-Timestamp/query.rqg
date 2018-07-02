@@ -1,0 +1,7 @@
+BASE <http://example.com/>
+PREFIX fun: <http://w3id.org/sparql-generate/fn/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+GENERATE{
+  <s> <p> ${ fun:dateTime( 1453508109000 ) } .
+}
