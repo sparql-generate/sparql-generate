@@ -1,0 +1,20 @@
+BASE <http://example.com/> 
+PREFIX iter: <http://w3id.org/sparql-generate/iter/>
+PREFIX fun: <http://w3id.org/sparql-generate/fn/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+PREFIX wkt: <http://www.opengis.net/ont/geosparql#>
+
+PREFIX ex: <http://example.com/>
+
+GENERATE {
+	?drawingIRI a ex:Drawing;
+		wkt:asWKT ?geometricCoordinates .
+}
+SOURCE <https://raw.githubusercontent.com/filosganga/geogson/master/core/src/test/resources/feature-collection.json> AS ?source
+ITERATOR iter:GeoJSONFeatures(?source) AS ?drawing
+WHERE {
+	BIND (IRI(fun:JSONPath(?drawing,"$.id")) as ?drawingIRI)
+	BIND (fun:GeoJSONGeometry(?drawing) AS ?geometricCoordinates)
+}

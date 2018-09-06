@@ -38,7 +38,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Iterator function
+ * Iterator function XXX
  * <a href="http://w3id.org/sparql-generate/iter/CSVMultipleOutputs">iter:CSVMultipleOutputs</a>
  * iterates over the rows of a CSV document.
  * In each iteration, it corresponds each designated variable to the given cell identified by the column name contained in the arguments

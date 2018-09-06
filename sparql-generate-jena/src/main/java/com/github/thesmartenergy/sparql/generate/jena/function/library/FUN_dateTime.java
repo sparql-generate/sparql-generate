@@ -41,9 +41,9 @@ import java.util.List;
  * <ul>
  * <li>args contains the supplied arguments such that
  * <ul>
- * <li>the first argument is either a datetime or a UNIX timestap (in milliseconds;</li>
- * <li>to parse the date string given as the first argument, the second argument must contain the parsing format string in the <a href="https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html#iso8601timezone">ISO 8601</a> format according to universal time a datetime value;</li>
- * <li>to parse a UNIX timestamp (in milliseconds), there is no second argument.</li>
+ * <li>the first argument is either a datetime or a UNIX timestamp (in milliseconds);</li>
+ * <li>the second argument is optional, and (if provided) contains the parsing format string in the <a href="https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html#iso8601timezone">ISO 8601</a> format according to universal time;</li>
+ * <li>if there is no second argument, the first argument is considered as a UNIX timestamp (in milliseconds), .</li>
  * </ul>
  * </li>
  * <li>Result is a xsd:dateTime.</li>
@@ -52,8 +52,8 @@ import java.util.List;
  * <b>Examples: </b>
  * <pre>
  * {@code
- * fun:dateTime(1453508109000) => "2016-01-23T01:15:09Z"^^http://www.w3.org/2001/XMLSchema#dateTime
- * BIND(fun:dateTime("04/09/2018","dd/MM/yyyy") AS ?date1) => "2018-09-04T00:00:00Z"^^http://www.w3.org/2001/XMLSchema#dateTime
+ * fun:dateTime("1453508109000") => "2016-01-23T01:15:09Z"^^http://www.w3.org/2001/XMLSchema#dateTime
+ * fun:dateTime("04/09/2018","dd/MM/yyyy") => "2018-09-04T00:00:00Z"^^http://www.w3.org/2001/XMLSchema#dateTime
  * }
  * </pre>
  *
