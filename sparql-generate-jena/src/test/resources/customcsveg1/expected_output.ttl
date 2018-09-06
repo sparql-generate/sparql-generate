@@ -1,8 +1,0 @@
-@prefix transit: <http://vocab.org/transit/terms/> .
-@prefix wgs84_pos: <http://www.w3.org/2003/01/geo/wgs84_pos#> .
-
-<http://airport.example.com/6523>
-        a                transit:Stop ;
-        transit:service  "25" ;
-        wgs84_pos:lat    "50.901389" ;
-        wgs84_pos:long   "4.484444" .

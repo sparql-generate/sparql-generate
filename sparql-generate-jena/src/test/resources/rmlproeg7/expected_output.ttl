@@ -1,5 +1,0 @@
-@prefix transit: <http://vocab.org/transit/terms/> .
-
-<http://airport.example.com/6523>
-        a                transit:Stop ;
-        transit:service  "25" .
