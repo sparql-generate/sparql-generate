@@ -18,6 +18,8 @@ package com.github.thesmartenergy.sparql.generate.jena.iterator.library;
 import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
 import java.util.ArrayList;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.IteratorFunctionBase2;
+
+import java.util.Collections;
 import java.util.List;
 import org.apache.jena.sparql.expr.NodeValue;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueString;
@@ -56,7 +58,7 @@ public class ITER_Split extends IteratorFunctionBase2 {
      * @return a list of RDF Literal with datatype {@code xsd:string}
      */
     @Override
-    public List<NodeValue> exec(NodeValue stringValue, NodeValue delimeterValue) {
+    public List<List<NodeValue>> exec(NodeValue stringValue, NodeValue delimeterValue) {
         try {
             String string = stringValue.asNode().getLiteralLexicalForm();
             String delimeter = delimeterValue.asNode().getLiteralLexicalForm();
@@ -69,7 +71,7 @@ public class ITER_Split extends IteratorFunctionBase2 {
                 NodeValue nodeValue = new NodeValueString(split);
                 nodeValues.add(nodeValue);
             }
-            return nodeValues;
+            return new ArrayList<>(Collections.singletonList(nodeValues));
         } catch (Exception ex) {
             LOG.debug("No evaluation for " + stringValue + ", " + delimeterValue, ex);
             throw new ExprEvalException("No evaluation for " + stringValue + ", " + delimeterValue, ex);

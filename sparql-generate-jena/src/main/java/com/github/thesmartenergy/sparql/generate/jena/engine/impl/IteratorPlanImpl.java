@@ -16,17 +16,17 @@
 package com.github.thesmartenergy.sparql.generate.jena.engine.impl;
 
 import com.github.thesmartenergy.sparql.generate.jena.engine.IteratorPlan;
-import java.util.List;
+import com.github.thesmartenergy.sparql.generate.jena.iterator.IteratorFunction;
+import org.apache.jena.graph.Node;
 import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.ExprList;
-import org.apache.jena.sparql.expr.NodeValue;
-import com.github.thesmartenergy.sparql.generate.jena.iterator.IteratorFunction;
-import java.util.ArrayList;
-import java.util.function.Consumer;
-import org.apache.jena.sparql.expr.VariableNotBoundException;
-import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * Executes a {@code ITERATOR <iterator>(<expreList>) AS <var>} clause.
@@ -54,24 +54,24 @@ public class IteratorPlanImpl extends PlanBase implements IteratorPlan {
      * The variable that will be bound to each result of the iterator
      * evaluation.
      */
-    private final Var var;
+    private final List<Var> vars;
 
     /**
      * The constructor.
      *
-     * @param s - The SPARQL-Generate iterator function.
-     * @param e - The list of expressions on which to evaluate the iterator
-     * function.
-     * @param v - The variable that will be bound to each result of the iterator
-     * function evaluation.
+     * @param s    - The SPARQL-Generate iterator function.
+     * @param e    - The list of expressions on which to evaluate the iterator
+     *             function.
+     * @param vars - The list of variables that will be bound to each result of the iterator
+     *             function evaluation.
      */
     public IteratorPlanImpl(
             final IteratorFunction s,
             final ExprList e,
-            final Var v) {
+            final List<Var> vars) {
         this.iterator = s;
         this.exprList = e;
-        this.var = v;
+        this.vars = vars;
     }
 
     /**
@@ -83,15 +83,15 @@ public class IteratorPlanImpl extends PlanBase implements IteratorPlan {
             final List<BindingHashMapOverwrite> values,
             final Consumer<List<BindingHashMapOverwrite>> bindingStream) {
 
-        boolean added = variables.add(var);
+        boolean added = variables.addAll(vars);
         if (!added) {
-            LOG.debug("Bindings of variable " + var + " will be overriden");
+            LOG.debug("Bindings of variables " + vars + " will be overriden");
         }
 
         ensureNotEmpty(variables, values);
         final StringBuilder sb;
         if (LOG.isTraceEnabled()) {
-            sb = new StringBuilder("Execution of " + iterator + " " + exprList + " AS  " + var + ":\n");
+            sb = new StringBuilder("Execution of " + iterator + " " + exprList + " AS  " + vars + ":\n");
         } else {
             sb = null;
         }
@@ -100,13 +100,20 @@ public class IteratorPlanImpl extends PlanBase implements IteratorPlan {
             try {
                 iterator.exec(binding, exprList, null, (nodeValues) -> {
                     if (nodeValues == null || nodeValues.isEmpty()) {
-                        newValues.add(new BindingHashMapOverwrite(binding, var, null));
+                        for (Var v : vars) {
+                            newValues.add(new BindingHashMapOverwrite(binding, v, null));
+                        }
                     } else {
-                        nodeValues.forEach((nodeValue) -> {
-                            newValues.add(
-                                    new BindingHashMapOverwrite(
-                                            binding, var, nodeValue.asNode()));
-                        });
+                        int nbIterables = nodeValues.get(0).size();
+                        for (int j = 0; j < nbIterables; j++) {
+                            BindingHashMapOverwrite bindingHashMapOverwrite = new BindingHashMapOverwrite(binding, null, null);
+                            for (int i = 0; i < vars.size(); i++) {
+                                Var v = vars.get(i);
+                                Node n = nodeValues.get(i).get(j).asNode();
+                                bindingHashMapOverwrite.add(v, n);
+                            }
+                            newValues.add(bindingHashMapOverwrite);
+                        }
                         bindingStream.accept(newValues);
                     }
                 });
@@ -116,7 +123,7 @@ public class IteratorPlanImpl extends PlanBase implements IteratorPlan {
                 }
             } catch (ExprEvalException ex) {
                 LOG.debug("Iterator execution failed due to " + ex.getClass().getSimpleName() + " - " + ex.getMessage());
-                newValues.add(new BindingHashMapOverwrite(binding, var, null));
+                //newValues.add(new BindingHashMapOverwrite(binding, vars, null));
             }
         });
     }

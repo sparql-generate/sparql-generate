@@ -16,6 +16,7 @@
 package com.github.thesmartenergy.sparql.generate.jena.serializer;
 
 import org.apache.jena.atlas.io.IndentedWriter;
+import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.serializer.QuerySerializerFactory;
 import org.apache.jena.sparql.serializer.SerializationContext;
 import org.apache.jena.sparql.serializer.SerializerRegistry;
@@ -172,7 +173,10 @@ public class SPARQLGenerateFormatterElement extends SPARQLGenerateFormatterBase 
         SPARQLGenerateFmtExprSPARQL v = new SPARQLGenerateFmtExprSPARQL(out, context);
         out.print("ITERATOR ");
         v.format(el.getExpr());
-        out.print(" AS " + el.getVar());
+        out.print(" AS");
+        for (Var var : el.getVars()) {
+            out.print(" " + var);
+        }
     }
 
     @Override

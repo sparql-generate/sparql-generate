@@ -19,6 +19,7 @@ import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
 import java.util.ArrayList;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.IteratorFunctionBase3;
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.List;
 import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.NodeValue;
@@ -49,7 +50,7 @@ public class ITER_for extends IteratorFunctionBase3 {
     }
 
     @Override
-    public List<NodeValue> exec(NodeValue start, NodeValue incr, NodeValue stop) {
+    public List<List<NodeValue>> exec(NodeValue start, NodeValue incr, NodeValue stop) {
 
         // the initial value
         BigDecimal value = start.getDecimal();
@@ -74,7 +75,7 @@ public class ITER_for extends IteratorFunctionBase3 {
             nodeValues.add(nodeValue);
             value = value.add(incrV);
         }
-        return nodeValues;
+        return new ArrayList<>(Collections.singletonList(nodeValues));
     }
 
 }

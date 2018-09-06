@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.IteratorFunctionBase5;
 import java.io.BufferedReader;
 import java.io.StringWriter;
+import java.util.Collections;
 import java.util.List;
 import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.NodeValue;
@@ -58,7 +59,7 @@ public class ITER_CustomCSV extends IteratorFunctionBase5 {
     private static final String datatypeUri = "http://www.iana.org/assignments/media-types/text/csv";
 
     @Override
-    public List<NodeValue> exec(NodeValue csv, NodeValue quoteChar, NodeValue delimiterChar, NodeValue endOfLineSymbols, NodeValue header) {
+    public List<List<NodeValue>> exec(NodeValue csv, NodeValue quoteChar, NodeValue delimiterChar, NodeValue endOfLineSymbols, NodeValue header) {
         if (csv.getDatatypeURI() != null
                 && !csv.getDatatypeURI().equals(datatypeUri)
                 && !csv.getDatatypeURI().equals("http://www.w3.org/2001/XMLSchema#string")) {
@@ -102,7 +103,7 @@ public class ITER_CustomCSV extends IteratorFunctionBase5 {
                 nodeValues.add(nodeValue);
             }
 
-            return nodeValues;
+            return new ArrayList<>(Collections.singletonList(nodeValues));
         } catch (Exception ex) {
             LOG.debug("No evaluation for " + csv, ex);
             throw new ExprEvalException("No evaluation for " + csv, ex);

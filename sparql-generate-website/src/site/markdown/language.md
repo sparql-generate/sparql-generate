@@ -18,10 +18,10 @@ Solution modifiers              -- group by, order by, limit, offset,... same as
 The syntax of the **`ITERATOR` clause** is the following:  
 
 ```
-ITERATOR <iterator>(args) AS ?var
+ITERATOR <iterator>(args) AS ?var_1 ?var_2 ?var_3 ... ?var_n 
 ```
 
-Where `<iterator>` is the IRI of the SPARQL-Generate *iterator function*, which is similar to a SPARQL 1.1 Function, except it *returns a list of RDF Terms* instead of just one. `?var` will be bound to every RDF Term in the list returned by the evaluation of the iterator function over the arguments `args`.
+Where `<iterator>` is the IRI of the SPARQL-Generate *iterator function*, which is similar to a SPARQL 1.1 Function, except it *returns a list of lists of RDF Terms* instead of just one. Each list `?var_x` contains a list that will be bound to every RDF Term in the list returned by the evaluation of the iterator function over the arguments `args`.
 
 
 The **`SOURCE` clause** enables to bind a named document to a variable. Its syntax is as follows:

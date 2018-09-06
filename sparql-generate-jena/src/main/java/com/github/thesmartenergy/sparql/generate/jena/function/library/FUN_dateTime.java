@@ -16,63 +16,109 @@
 package com.github.thesmartenergy.sparql.generate.jena.function.library;
 
 import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
-import org.apache.jena.sparql.expr.NodeValue;
-import java.math.BigInteger;
-import java.sql.Timestamp;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import org.apache.jena.datatypes.xsd.XSDDatatype;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
+import org.apache.jena.query.QueryBuildException;
 import org.apache.jena.sparql.expr.ExprEvalException;
+import org.apache.jena.sparql.expr.ExprList;
+import org.apache.jena.sparql.expr.NodeValue;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueNode;
-import org.apache.jena.sparql.function.FunctionBase1;
-import org.slf4j.LoggerFactory;
+import org.apache.jena.sparql.function.FunctionBase;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Binding function
  * <a href="http://w3id.org/sparql-generate/fn/dateTime">fun:dateTime</a>
- * converts a UNIX timestamp to an xsd:dateTime.
+ * converts a given datetime or a UNIX timestamp in milliseconds to an xsd:dateTime.
  * <ul>
- * <li>Param 1 (timeStampValue) is a UNIX timestamp;</li>
+ * <li>args contains the supplied arguments such that
+ * <ul>
+ * <li>the first argument is either a datetime or a UNIX timestamp (in milliseconds);</li>
+ * <li>the second argument is optional, and (if provided) contains the parsing format string in the <a href="https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html#iso8601timezone">ISO 8601</a> format according to universal time;</li>
+ * <li>if there is no second argument, the first argument is considered as a UNIX timestamp (in milliseconds), .</li>
+ * </ul>
+ * </li>
  * <li>Result is a xsd:dateTime.</li>
  * </ul>
  *
- * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
+ * <b>Examples: </b>
+ * <pre>
+ * {@code
+ * fun:dateTime("1453508109000") => "2016-01-23T01:15:09Z"^^http://www.w3.org/2001/XMLSchema#dateTime
+ * fun:dateTime("04/09/2018","dd/MM/yyyy") => "2018-09-04T00:00:00Z"^^http://www.w3.org/2001/XMLSchema#dateTime
+ * }
+ * </pre>
+ *
+ * @author El Mehdi Khalfi <el-mehdi.khalfi at emse.fr>
+ * @since 2018-09-05
  */
-public final class FUN_dateTime extends FunctionBase1 {
+public final class FUN_dateTime extends FunctionBase {
+    /**
+     * The default xsd:dateTime format matching ISO 8601.
+     */
+    static DateFormat defaultFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 
-    static DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-
+    /**
+     * The logger.
+     */
     private static final Logger LOG = LoggerFactory.getLogger(FUN_dateTime.class);
 
+    /**
+     * The SPARQL function URI.
+     */
     public static final String URI = SPARQLGenerate.FUN + "dateTime";
 
     @Override
-    public NodeValue exec(NodeValue timeStampValue) {
+    public NodeValue exec(List<NodeValue> args) {
 
-        BigInteger timeStamp;
-        if (timeStampValue == null || !timeStampValue.isInteger()) {
-            throw new ExprEvalException("The NodeValue " + timeStampValue + " MUST be an integer."
-            );
-        } else {
-            timeStamp = timeStampValue.getInteger();
+        NodeValue dt = args.get(0);
+        String dateTimeString = dt.getString();
+
+        if (dt == null || dt.getString().isEmpty()) {
+            LOG.debug("The NodeValue is Null");
+            throw new ExprEvalException("The NodeValue is Null");
         }
 
-        if (timeStamp.compareTo(BigInteger.valueOf(Long.MAX_VALUE)) != -1) {
-            throw new ExprEvalException("The NodeValue " + timeStamp + " MUST be less than the biggest long value."
-            );
-        } else if (timeStamp.signum() != 1) {
-            throw new ExprEvalException("The NodeValue " + timeStamp + " MUST be positive."
-            );
+        Date date = null;
+        if (args.size() == 2) {
+            NodeValue df = args.get(1);
+            DateFormat parseFormat = defaultFormat;
+            if (df != null && !df.getString().isEmpty()) {
+                parseFormat = new SimpleDateFormat(df.getString());
+            }
+            try {
+                date = parseFormat.parse(dateTimeString);
+            } catch (ParseException e) {
+                LOG.debug("The NodeValue " + dt + " MUST correspond to the format " + df + " .");
+                throw new ExprEvalException("The NodeValue " + dt + " MUST correspond to the format " + df + " on in milliseconds.");
+            }
+        } else if (args.size() == 1) {
+            //https://docs.oracle.com/javase/7/docs/api/java/util/Date.html#Date(long)
+            try {
+                long miliSeconds = Long.parseLong(dateTimeString);
+                date = new Date(miliSeconds);
+            } catch (NumberFormatException ex) {
+                LOG.debug("The NodeValue " + dt + " MUST be an integer.");
+                throw new ExprEvalException("The NodeValue " + dt + " MUST be an integer.");
+            }
         }
-
-        Timestamp stamp = new Timestamp(timeStamp.longValue());
-        Date date = new Date(stamp.getTime());
-
-        Node node = NodeFactory.createLiteral(df.format(date), XSDDatatype.XSDdateTime);
+        Node node = NodeFactory.createLiteral(defaultFormat.format(date), XSDDatatype.XSDdateTime);
         return new NodeValueNode(node);
+    }
+
+    @Override
+    public void checkBuild(String uri, ExprList args) {
+        if (args.size() == 0 || args.size() > 2) {
+            throw new QueryBuildException("Function '"
+                    + this.getClass().getName() + "' takes up to two argument");
+        }
     }
 }

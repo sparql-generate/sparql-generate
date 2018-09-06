@@ -1,0 +1,15 @@
+BASE <http://example.com/> 
+PREFIX iter: <http://w3id.org/sparql-generate/iter/>
+PREFIX fun: <http://w3id.org/sparql-generate/fn/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX ex: <http://example.com/>
+
+GENERATE { 
+  ?earthquakeIRI a ex:Earthquake;
+            rdfs:label ?coordinates .
+    	?earthquakeIRI spatial:nearby (51.3000 -2.71000) .
+
+}
+SOURCE <https://storage.googleapis.com/mapsdevsite/json/google.json> AS ?source
+ITERATOR iter:GeoJSONFeatures(?source) AS ?feature

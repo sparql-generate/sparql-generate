@@ -21,30 +21,32 @@ import org.apache.jena.sparql.syntax.Element;
 import org.apache.jena.sparql.syntax.ElementVisitor;
 import org.apache.jena.sparql.util.NodeIsomorphismMap;
 
+import java.util.List;
+
 /**
  * A SPARQL-Generate {@code ITERATOR} clause.
- * 
+ *
  * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */
 public class ElementIterator extends Element {
-    
-    private Var var;
+
+    private List<Var> vars;
 
     private Expr expr;
 
-    public ElementIterator(Expr expr, Var var) {
-        this.var = var;
+    public ElementIterator(Expr expr, List<Var> vars) {
+        this.vars = vars;
         this.expr = expr;
     }
 
-    public Var getVar() {
-        return var;
+    public List<Var> getVars() {
+        return vars;
     }
-    
+
     public Expr getExpr() {
         return expr;
     }
-    
+
     @Override
     public void visit(ElementVisitor v) {
         if (v instanceof SPARQLGenerateElementVisitor) {
@@ -54,7 +56,7 @@ public class ElementIterator extends Element {
 
     @Override
     public int hashCode() {
-        return getVar().hashCode() ^ getExpr().hashCode();
+        return getVars().hashCode() ^ getExpr().hashCode();
     }
 
     @Override
@@ -66,7 +68,7 @@ public class ElementIterator extends Element {
             return false;
         }
         ElementIterator iter2 = (ElementIterator) el2;
-        if (!this.getVar().equals(iter2.getVar())) {
+        if (!this.getVars().equals(iter2.getVars())) {
             return false;
         }
         if (!this.getExpr().equals(iter2.getExpr())) {
@@ -74,5 +76,5 @@ public class ElementIterator extends Element {
         }
         return true;
     }
-    
+
 }

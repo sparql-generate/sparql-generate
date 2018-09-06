@@ -19,5 +19,4 @@ WHERE {
     BIND(fun:regex(?student,?regex,4) as ?dobday)
     BIND(fun:regex(?student,?regex,5) as ?dobmonth)
     BIND(fun:regex(?student,?regex,6) as ?dobyear)
-
 }

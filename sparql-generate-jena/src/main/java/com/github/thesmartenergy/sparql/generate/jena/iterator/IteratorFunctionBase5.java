@@ -42,7 +42,7 @@ public abstract class IteratorFunctionBase5 extends IteratorFunctionBase {
      * {@inheritDoc}
      */
     @Override
-    public final List<NodeValue> exec(List<NodeValue> args) {
+    public final List<List<NodeValue>> exec(List<NodeValue> args) {
         if (args == null) {
             throw new ARQInternalErrorException(this.getClass().getName()
                     + ": Null args list");
@@ -63,5 +63,5 @@ public abstract class IteratorFunctionBase5 extends IteratorFunctionBase {
     /**
      * {@inheritDoc}
      */
-    public abstract List<NodeValue> exec(NodeValue v1, NodeValue v2,NodeValue v3,NodeValue v4,NodeValue v5);
+    public abstract List<List<NodeValue>> exec(NodeValue v1, NodeValue v2,NodeValue v3,NodeValue v4,NodeValue v5);
 }

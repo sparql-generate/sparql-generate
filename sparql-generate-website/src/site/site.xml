@@ -44,9 +44,10 @@ See the License for the specific language governing permissions and
             <!-- Use Table of Contents at the top of the page (max 6 elements) -->
             <toc>top</toc>
             <tocTopMax>6</tocTopMax>-->
-            <topNav>Documentation|About|Contribute</topNav>-->
+            <topNav>Language|Documentation|About|Contribute</topNav>-->
             <bottomNav>
                 <column>Main</column>
+                <column>Language</column>
                 <column>Documentation</column>
                 <column>About</column>
                 <column>Contribute</column>
@@ -90,6 +91,12 @@ See the License for the specific language governing permissions and
                         <body />
                     </sections>
                 </language>
+                <grammar>
+                    <titleTemplate>SPARQL-Generate - Grammar in EBNF notation</titleTemplate>
+                    <breadcrumbs>false</breadcrumbs>
+                    <toc>false</toc>
+                    <markPageHeader>false</markPageHeader>
+                </grammar>
                 <playground>
                     <titleTemplate>SPARQL-Generate - Playground</titleTemplate>
                     <breadcrumbs>false</breadcrumbs>
@@ -168,16 +175,17 @@ See the License for the specific language governing permissions and
             <item name="Overview" href="index.html"/>
             <item name="Playground" href="playground.html"/>
             <item name="Tutorial" href="tutorial.html"/>
-            <item name="Language" href="language.html"/>
         </links>
 
         <menu name="Main" inherit="top">
             <item name="Overview" href="index.html"/>
             <item name="Playground" href="playground.html"/>
             <item name="Tutorial" href="tutorial.html"/>
-            <item name="Language" href="language.html"/>
         </menu>
-        
+        <menu name="Language">
+            <item name="Overview" href="language.html"/>
+            <item name="Grammar" href="grammar.html"/>
+        </menu>
         <menu name="Documentation">
             <item name="Standalone App" href="standalone-app.html" />  
             <item name="Executable JAR" href="language-cli.html" />  

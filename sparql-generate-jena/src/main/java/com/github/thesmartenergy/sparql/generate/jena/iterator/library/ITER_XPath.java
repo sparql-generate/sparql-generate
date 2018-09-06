@@ -20,6 +20,7 @@ import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.IteratorFunctionBase2;
 import java.io.StringWriter;
+import java.util.Collections;
 import java.util.List;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -71,7 +72,7 @@ public class ITER_XPath extends IteratorFunctionBase2 {
     private static final String datatypeUri = "http://www.iana.org/assignments/media-types/application/xml";
 
     @Override
-    public List<NodeValue> exec(NodeValue xml, NodeValue v2) {
+    public List<List<NodeValue>> exec(NodeValue xml, NodeValue v2) {
         if (xml.getDatatypeURI() != null
                 && !xml.getDatatypeURI().equals(datatypeUri)
                 && !xml.getDatatypeURI().equals("http://www.w3.org/2001/XMLSchema#string")) {
@@ -139,7 +140,7 @@ public class ITER_XPath extends IteratorFunctionBase2 {
                 nodeValues.add(nodeValue);
             }
             LOG.trace("Evaluation of " + v2 + ": " + nodeValues.size() + " values");
-            return nodeValues;
+            return new ArrayList<>(Collections.singletonList(nodeValues));
         } catch (Exception ex) {
             LOG.debug("No evaluation for " + xml + ", " + v2, ex);
             throw new ExprEvalException("No evaluation for " + v2, ex);

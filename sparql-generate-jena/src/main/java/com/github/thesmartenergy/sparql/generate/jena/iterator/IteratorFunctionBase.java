@@ -25,8 +25,8 @@ import org.apache.jena.sparql.expr.NodeValue;
 public abstract class IteratorFunctionBase extends IteratorStreamFunctionBase {
 
     @Override
-    public final void exec(List<NodeValue> args, Consumer<List<NodeValue>> nodeValuesStream) {
-        List<NodeValue> nodeValues = exec(args);
+    public final void exec(List<NodeValue> args, Consumer<List<List<NodeValue>>> nodeValuesStream) {
+        List<List<NodeValue>> nodeValues = exec(args);
         nodeValuesStream.accept(nodeValues);
     }
 
@@ -35,6 +35,6 @@ public abstract class IteratorFunctionBase extends IteratorStreamFunctionBase {
      * @param args -
      * @return -
      */
-    public abstract List<NodeValue> exec(List<NodeValue> args);
+    public abstract List<List<NodeValue>> exec(List<NodeValue> args);
 
 }
