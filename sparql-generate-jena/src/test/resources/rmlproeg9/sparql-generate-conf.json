@@ -1,0 +1,10 @@
+{
+    "documentset": [
+        {
+            "mediatype": "text/html",
+            "path": "documentset/doc.html",
+            "uri": "http://ceur-ws.org/Vol-1128/index.html"
+        }
+    ],
+    "query": "query.rqg"
+}

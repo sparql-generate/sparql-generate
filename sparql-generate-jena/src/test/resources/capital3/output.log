@@ -1,0 +1,297 @@
+DEBUG [qtp1451270520-19] (LockMRSW.java:57) - Lock : qtp1451270520-19
+DEBUG [qtp1451270520-19] (LockMRSW.java:57) - Lock : qtp1451270520-19
+TRACE [qtp1451270520-19] (SPARQLGenerate.java:296) - Using stream manager for Thread[qtp1451270520-19,5,main]
+DEBUG [qtp1451270520-19] (SPARQLGenerateStreamManager.java:120) - Locator LocatorFileAccept(/C:/Users/maxime.lefrancois/netbeansprojects/sparql-generate/sparql-generate/sparql-generate-jena/src/test/resources/capital3) found: query.rqg with accept: application/vnd.sparql-generate
+DEBUG [qtp1451270520-19] (PlanFactory.java:156) - Query has been normalized
+TRACE [qtp1451270520-19] (PlanFactory.java:157) - BASE    <http://example.org/>
+PREFIX  xsd:  <http://www.w3.org/2001/XMLSchema#>
+PREFIX  ite:  <http://w3id.org/sparql-generate/iter/>
+PREFIX  fun:  <http://w3id.org/sparql-generate/fn/>
+
+GENERATE 
+  {   GENERATE 
+        { ?5ec59e39  ?8ebbc28e  ?a73e4317 }
+      ITERATOR ite:JSONListKeys(?city) AS ?key
+      WHERE
+        { BIND(iri(concat("city/", encode_for_uri(?cityName))) AS ?5ec59e39)
+          BIND(iri(concat(encode_for_uri(?key))) AS ?8ebbc28e)
+          BIND(concat(fun:JSONPath(?message, concat("$.['", ?cityName, "']['", ?key, "']"))) AS ?a73e4317)
+        }
+       .
+  }
+SOURCE <https://ci.mines-stetienne.fr/sparql-generate/cities.json> AS ?message
+ITERATOR ite:JSONListKeys(?message) AS ?cityName
+WHERE
+  { FILTER strstarts(?cityName, "New")
+    BIND(fun:JSONPath(?message, concat("$.['", ?cityName, "']")) AS ?city)
+  }
+
+DEBUG [qtp1451270520-19] (LockMRSW.java:57) - Lock : qtp1451270520-19
+DEBUG [qtp1451270520-19] (LockMRSW.java:57) - Lock : qtp1451270520-19
+DEBUG [qtp1451270520-19] (SPARQLGenerateStreamManager.java:120) - Locator LocatorFileAccept(/C:/Users/maxime.lefrancois/netbeansprojects/sparql-generate/sparql-generate/sparql-generate-jena/src/test/resources/capital3) found: C:\Users\maxime.lefrancois\netbeansprojects\sparql-generate\sparql-generate\sparql-generate-jena\src\test\resources\capital3\dataset\default.ttl with accept: */*
+DEBUG [qtp1451270520-19] (SPARQLGenerateStreamManager.java:120) - Locator LocatorFileAccept(/C:/Users/maxime.lefrancois/netbeansprojects/sparql-generate/sparql-generate/sparql-generate-jena/src/test/resources/capital3) found: C:\Users\maxime.lefrancois\netbeansprojects\sparql-generate\sparql-generate\sparql-generate-jena\src\test\resources\capital3\dataset\graph0.ttl with accept: */*
+DEBUG [qtp1451270520-19] (SourcePlanImpl.java:98) - Exec SOURCE https://ci.mines-stetienne.fr/sparql-generate/cities.json AS ?message
+TRACE [qtp1451270520-19] (SourcePlanImpl.java:110) - ... resolved to SOURCE <https://ci.mines-stetienne.fr/sparql-generate/cities.json> ACCEPT */* AS ?message
+TRACE [qtp1451270520-19] (SPARQLGenerate.java:296) - Using stream manager for Thread[qtp1451270520-19,5,main]
+DEBUG [qtp1451270520-19] (SPARQLGenerateStreamManager.java:120) - Locator LocatorURLAccept found: https://ci.mines-stetienne.fr/sparql-generate/cities.json with accept: */*
+ INFO [qtp1451270520-19] (SourcePlanImpl.java:126) - Exec SOURCE <https://ci.mines-stetienne.fr/sparql-generate/cities.json> ACCEPT */* AS ?message returned. Enable DEBUG level for more.
+DEBUG [qtp1451270520-19] (SourcePlanImpl.java:132) - "{
+	\"Paris\": {
+		\"country\": \"France\",
+		\"population\": \"2240000\"
+	},
+	\"London\": {
+		\"country\": \"Engl
+ ... 
+\"391000\"
+	}
+}"^^http://www.iana.org/assignments/media-types/application/json
+TRACE [qtp1451270520-19] (GenerateTemplatePlanImpl.java:105) - Entering sub SPARQL-Generate with 
+	( ?cityName, "New York" )( ?city, "{\"country\":\"USA\",\"population\":\"8538000\"}" )( ?message, "{\r\n\t\"Paris\": {\r\n\t\t\"country\": \"France\",\r\n\t\t\"population\": \"2240000\"\r\n\t},\r\n\t\"London\": {\r\n\t\t\"country\": \"England\",\r\n\t\t\"population\": \"8788000\"\r\n\t},\r\n\t\"New York\": {\r\n\t\t\"country\": \"USA\",\r\n\t\t\"population\": \"8538000\"\r\n\t},\r\n\t\"New Delhi\": {\r\n\t\t\"country\": \"India\",\r\n\t\t\"population\": \"21750000\"\r\n\t},\r\n\t\"New Orleans\": {\r\n\t\t\"country\": \"USA\",\r\n\t\t\"population\": \"391000\"\r\n\t}\r\n}"^^<http://www.iana.org/assignments/media-types/application/json> )
+TRACE [qtp1451270520-19] (GenerateTriplesPlanImpl.java:72) - Output triples
+	http://example.org/city/New%20York @http://example.org/country "USA"
+TRACE [qtp1451270520-19] (GenerateTriplesPlanImpl.java:72) - Output triples
+	http://example.org/city/New%20York @http://example.org/population "8538000"
+TRACE [qtp1451270520-19] (IteratorPlanImpl.java:115) - Execution of com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITER_JSONListKeys@72cade02 [?city] AS  ?key
+TRACE [qtp1451270520-19] (GenerateTemplatePlanImpl.java:105) - Entering sub SPARQL-Generate with 
+	( ?cityName, "New Delhi" )( ?city, "{\"country\":\"India\",\"population\":\"21750000\"}" )( ?message, "{\r\n\t\"Paris\": {\r\n\t\t\"country\": \"France\",\r\n\t\t\"population\": \"2240000\"\r\n\t},\r\n\t\"London\": {\r\n\t\t\"country\": \"England\",\r\n\t\t\"population\": \"8788000\"\r\n\t},\r\n\t\"New York\": {\r\n\t\t\"country\": \"USA\",\r\n\t\t\"population\": \"8538000\"\r\n\t},\r\n\t\"New Delhi\": {\r\n\t\t\"country\": \"India\",\r\n\t\t\"population\": \"21750000\"\r\n\t},\r\n\t\"New Orleans\": {\r\n\t\t\"country\": \"USA\",\r\n\t\t\"population\": \"391000\"\r\n\t}\r\n}"^^<http://www.iana.org/assignments/media-types/application/json> )
+TRACE [qtp1451270520-19] (GenerateTriplesPlanImpl.java:72) - Output triples
+	http://example.org/city/New%20Delhi @http://example.org/country "India"
+TRACE [qtp1451270520-19] (GenerateTriplesPlanImpl.java:72) - Output triples
+	http://example.org/city/New%20Delhi @http://example.org/population "21750000"
+TRACE [qtp1451270520-19] (IteratorPlanImpl.java:115) - Execution of com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITER_JSONListKeys@72cade02 [?city] AS  ?key
+TRACE [qtp1451270520-19] (GenerateTemplatePlanImpl.java:105) - Entering sub SPARQL-Generate with 
+	( ?cityName, "New Orleans" )( ?city, "{\"country\":\"USA\",\"population\":\"391000\"}" )( ?message, "{\r\n\t\"Paris\": {\r\n\t\t\"country\": \"France\",\r\n\t\t\"population\": \"2240000\"\r\n\t},\r\n\t\"London\": {\r\n\t\t\"country\": \"England\",\r\n\t\t\"population\": \"8788000\"\r\n\t},\r\n\t\"New York\": {\r\n\t\t\"country\": \"USA\",\r\n\t\t\"population\": \"8538000\"\r\n\t},\r\n\t\"New Delhi\": {\r\n\t\t\"country\": \"India\",\r\n\t\t\"population\": \"21750000\"\r\n\t},\r\n\t\"New Orleans\": {\r\n\t\t\"country\": \"USA\",\r\n\t\t\"population\": \"391000\"\r\n\t}\r\n}"^^<http://www.iana.org/assignments/media-types/application/json> )
+TRACE [qtp1451270520-19] (GenerateTriplesPlanImpl.java:72) - Output triples
+	http://example.org/city/New%20Orleans @http://example.org/country "USA"
+TRACE [qtp1451270520-19] (GenerateTriplesPlanImpl.java:72) - Output triples
+	http://example.org/city/New%20Orleans @http://example.org/population "391000"
+TRACE [qtp1451270520-19] (IteratorPlanImpl.java:115) - Execution of com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITER_JSONListKeys@72cade02 [?city] AS  ?key
+TRACE [qtp1451270520-19] (IteratorPlanImpl.java:115) - Execution of com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITER_JSONListKeys@27f2355c [?message] AS  ?cityName
+TRACE [qtp1451270520-19] (TransformStream.java:184) - end of transformation
+ INFO [qtp1451270520-20] (TransformStream.java:90) - Closing connection
+ INFO [Thread-11] (StopServlet.java:42) - Shutting down the server...
+ INFO [Thread-12] (StopServlet.java:42) - Shutting down the server...
+ INFO [Thread-11] (StopServlet.java:44) - Server has stopped.
+ INFO [Thread-12] (StopServlet.java:44) - Server has stopped.
+W.java:57) - Lock : qtp1451270520-19
+TRACE [qtp1451270520-19] (SPARQLGenerate.java:296) - Using stream manager for Thread[qtp1451270520-19,5,main]
+DEBUG [qtp1451270520-19] (SPARQLGenerateStreamManager.java:120) - Locator LocatorFileAccept(/C:/Users/maxime.lefrancois/netbeansprojects/sparql-generate/sparql-generate/sparql-generate-jena/src/test/resources/capital3) found: query.rqg with accept: application/vnd.sparql-generate
+DEBUG [qtp1451270520-19] (PlanFactory.java:156) - Query has been normalized
+TRACE [qtp1451270520-19] (PlanFactory.java:157) - BASE    <http://example.org/>
+PREFIX  xsd:  <http://www.w3.org/2001/XMLSchema#>
+PREFIX  ite:  <http://w3id.org/sparql-generate/iter/>
+PREFIX  fun:  <http://w3id.org/sparql-generate/fn/>
+
+GENERATE 
+  {   GENERATE 
+        { ?5ec59e39  ?8ebbc28e  ?a73e4317 }
+      ITERATOR ite:JSONListKeys(?city) AS ?key
+      WHERE
+        { BIND(iri(concat("city/", encode_for_uri(?cityName))) AS ?5ec59e39)
+          BIND(iri(concat(encode_for_uri(?key))) AS ?8ebbc28e)
+          BIND(concat(fun:JSONPath(?message, concat("$.['", ?cityName, "']['", ?key, "']"))) AS ?a73e4317)
+        }
+       .
+  }
+SOURCE <https://ci.mines-stetienne.fr/sparql-generate/cities.json> AS ?message
+ITERATOR ite:JSONListKeys(?message) AS ?cityName
+WHERE
+  { FILTER strstarts(?cityName, "New")
+    BIND(fun:JSONPath(?message, concat("$.['", ?cityName, "']")) AS ?city)
+  }
+
+DEBUG [qtp1451270520-19] (LockMRSW.java:57) - Lock : qtp1451270520-19
+DEBUG [qtp1451270520-19] (LockMRSW.java:57) - Lock : qtp1451270520-19
+DEBUG [qtp1451270520-19] (SPARQLGenerateStreamManager.java:120) - Locator LocatorFileAccept(/C:/Users/maxime.lefrancois/netbeansprojects/sparql-generate/sparql-generate/sparql-generate-jena/src/test/resources/capital3) found: C:\Users\maxime.lefrancois\netbeansprojects\sparql-generate\sparql-generate\sparql-generate-jena\src\test\resources\capital3\dataset\default.ttl with accept: */*
+DEBUG [qtp1451270520-19] (SPARQLGenerateStreamManager.java:120) - Locator LocatorFileAccept(/C:/Users/maxime.lefrancois/netbeansprojects/sparql-generate/sparql-generate/sparql-generate-jena/src/test/resources/capital3) found: C:\Users\maxime.lefrancois\netbeansprojects\sparql-generate\sparql-generate\sparql-generate-jena\src\test\resources\capital3\dataset\graph0.ttl with accept: */*
+DEBUG [qtp1451270520-19] (SourcePlanImpl.java:98) - Exec SOURCE https://ci.mines-stetienne.fr/sparql-generate/cities.json AS ?message
+TRACE [qtp1451270520-19] (SourcePlanImpl.java:110) - ... resolved to SOURCE <https://ci.mines-stetienne.fr/sparql-generate/cities.json> ACCEPT */* AS ?message
+TRACE [qtp1451270520-19] (SPARQLGenerate.java:296) - Using stream manager for Thread[qtp1451270520-19,5,main]
+DEBUG [qtp1451270520-19] (SPARQLGenerateStreamManager.java:120) - Locator LocatorURLAccept found: https://ci.mines-stetienne.fr/sparql-generate/cities.json with accept: */*
+ INFO [qtp1451270520-19] (SourcePlanImpl.java:126) - Exec SOURCE <https://ci.mines-stetienne.fr/sparql-generate/cities.json> ACCEPT */* AS ?message returned. Enable DEBUG level for more.
+DEBUG [qtp1451270520-19] (SourcePlanImpl.java:132) - "{
+	\"Paris\": {
+		\"country\": \"France\",
+		\"population\": \"2240000\"
+	},
+	\"London\": {
+		\"country\": \"Engl
+ ... 
+\"391000\"
+	}
+}"^^http://www.iana.org/assignments/media-types/application/json
+TRACE [qtp1451270520-19] (GenerateTemplatePlanImpl.java:105) - Entering sub SPARQL-Generate with 
+	( ?cityName, "New York" )( ?city, "{\"country\":\"USA\",\"population\":\"8538000\"}" )( ?message, "{\r\n\t\"Paris\": {\r\n\t\t\"country\": \"France\",\r\n\t\t\"population\": \"2240000\"\r\n\t},\r\n\t\"London\": {\r\n\t\t\"country\": \"England\",\r\n\t\t\"population\": \"8788000\"\r\n\t},\r\n\t\"New York\": {\r\n\t\t\"country\": \"USA\",\r\n\t\t\"population\": \"8538000\"\r\n\t},\r\n\t\"New Delhi\": {\r\n\t\t\"country\": \"India\",\r\n\t\t\"population\": \"21750000\"\r\n\t},\r\n\t\"New Orleans\": {\r\n\t\t\"country\": \"USA\",\r\n\t\t\"population\": \"391000\"\r\n\t}\r\n}"^^<http://www.iana.org/assignments/media-types/application/json> )
+TRACE [qtp1451270520-19] (GenerateTriplesPlanImpl.java:72) - Output triples
+	http://example.org/city/New%20York @http://example.org/country "USA"
+TRACE [qtp1451270520-19] (GenerateTriplesPlanImpl.java:72) - Output triples
+	http://example.org/city/New%20York @http://example.org/population "8538000"
+TRACE [qtp1451270520-19] (IteratorPlanImpl.java:115) - Execution of com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITER_JSONListKeys@72cade02 [?city] AS  ?key
+TRACE [qtp1451270520-19] (GenerateTemplatePlanImpl.java:105) - Entering sub SPARQL-Generate with 
+	( ?cityName, "New Delhi" )( ?city, "{\"country\":\"India\",\"population\":\"21750000\"}" )( ?message, "{\r\n\t\"Paris\": {\r\n\t\t\"country\": \"France\",\r\n\t\t\"population\": \"2240000\"\r\n\t},\r\n\t\"London\": {\r\n\t\t\"country\": \"England\",\r\n\t\t\"population\": \"8788000\"\r\n\t},\r\n\t\"New York\": {\r\n\t\t\"country\": \"USA\",\r\n\t\t\"population\": \"8538000\"\r\n\t},\r\n\t\"New Delhi\": {\r\n\t\t\"country\": \"India\",\r\n\t\t\"population\": \"21750000\"\r\n\t},\r\n\t\"New Orleans\": {\r\n\t\t\"country\": \"USA\",\r\n\t\t\"population\": \"391000\"\r\n\t}\r\n}"^^<http://www.iana.org/assignments/media-types/application/json> )
+TRACE [qtp1451270520-19] (GenerateTriplesPlanImpl.java:72) - Output triples
+	http://example.org/city/New%20Delhi @http://example.org/country "India"
+TRACE [qtp1451270520-19] (GenerateTriplesPlanImpl.java:72) - Output triples
+	http://example.org/city/New%20Delhi @http://example.org/population "21750000"
+TRACE [qtp1451270520-19] (IteratorPlanImpl.java:115) - Execution of com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITER_JSONListKeys@72cade02 [?city] AS  ?key
+TRACE [qtp1451270520-19] (GenerateTemplatePlanImpl.java:105) - Entering sub SPARQL-Generate with 
+	( ?cityName, "New Orleans" )( ?city, "{\"country\":\"USA\",\"population\":\"391000\"}" )( ?message, "{\r\n\t\"Paris\": {\r\n\t\t\"country\": \"France\",\r\n\t\t\"population\": \"2240000\"\r\n\t},\r\n\t\"London\": {\r\n\t\t\"country\": \"England\",\r\n\t\t\"population\": \"8788000\"\r\n\t},\r\n\t\"New York\": {\r\n\t\t\"country\": \"USA\",\r\n\t\t\"population\": \"8538000\"\r\n\t},\r\n\t\"New Delhi\": {\r\n\t\t\"country\": \"India\",\r\n\t\t\"population\": \"21750000\"\r\n\t},\r\n\t\"New Orleans\": {\r\n\t\t\"country\": \"USA\",\r\n\t\t\"population\": \"391000\"\r\n\t}\r\n}"^^<http://www.iana.org/assignments/media-types/application/json> )
+TRACE [qtp1451270520-19] (GenerateTriplesPlanImpl.java:72) - Output triples
+	http://example.org/city/New%20Orleans @http://example.org/country "USA"
+TRACE [qtp1451270520-19] (GenerateTriplesPlanImpl.java:72) - Output triples
+	http://example.org/city/New%20Orleans @http://example.org/population "391000"
+TRACE [qtp1451270520-19] (IteratorPlanImpl.java:115) - Execution of com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITER_JSONListKeys@72cade02 [?city] AS  ?key
+TRACE [qtp1451270520-19] (IteratorPlanImpl.java:115) - Execution of com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITER_JSONListKeys@27f2355c [?message] AS  ?cityName
+TRACE [qtp1451270520-19] (TransformStream.java:184) - end of transformation
+ INFO [qtp1451270520-20] (TransformStream.java:90) - Closing connection
+ INFO [Thread-11] (StopServlet.java:42) - Shutting down the server...
+ INFO [Thread-12] (StopServlet.java:42) - Shutting down the server...
+ INFO [Thread-11] (StopServlet.java:44) - Server has stopped.
+ INFO [Thread-12] (StopServlet.java:44) - Server has stopped.
+h accept: application/vnd.sparql-generate
+DEBUG [qtp1451270520-19] (PlanFactory.java:156) - Query has been normalized
+TRACE [qtp1451270520-19] (PlanFactory.java:157) - BASE    <http://example.org/>
+PREFIX  xsd:  <http://www.w3.org/2001/XMLSchema#>
+PREFIX  ite:  <http://w3id.org/sparql-generate/iter/>
+PREFIX  fun:  <http://w3id.org/sparql-generate/fn/>
+
+GENERATE 
+  {   GENERATE 
+        { ?5ec59e39  ?8ebbc28e  ?a73e4317 }
+      ITERATOR ite:JSONListKeys(?city) AS ?key
+      WHERE
+        { BIND(iri(concat("city/", encode_for_uri(?cityName))) AS ?5ec59e39)
+          BIND(iri(concat(encode_for_uri(?key))) AS ?8ebbc28e)
+          BIND(concat(fun:JSONPath(?message, concat("$.['", ?cityName, "']['", ?key, "']"))) AS ?a73e4317)
+        }
+       .
+  }
+SOURCE <https://ci.mines-stetienne.fr/sparql-generate/cities.json> AS ?message
+ITERATOR ite:JSONListKeys(?message) AS ?cityName
+WHERE
+  { FILTER strstarts(?cityName, "New")
+    BIND(fun:JSONPath(?message, concat("$.['", ?cityName, "']")) AS ?city)
+  }
+
+DEBUG [qtp1451270520-19] (LockMRSW.java:57) - Lock : qtp1451270520-19
+DEBUG [qtp1451270520-19] (LockMRSW.java:57) - Lock : qtp1451270520-19
+DEBUG [qtp1451270520-19] (SPARQLGenerateStreamManager.java:120) - Locator LocatorFileAccept(/C:/Users/maxime.lefrancois/netbeansprojects/sparql-generate/sparql-generate/sparql-generate-jena/src/test/resources/capital3) found: C:\Users\maxime.lefrancois\netbeansprojects\sparql-generate\sparql-generate\sparql-generate-jena\src\test\resources\capital3\dataset\default.ttl with accept: */*
+DEBUG [qtp1451270520-19] (SPARQLGenerateStreamManager.java:120) - Locator LocatorFileAccept(/C:/Users/maxime.lefrancois/netbeansprojects/sparql-generate/sparql-generate/sparql-generate-jena/src/test/resources/capital3) found: C:\Users\maxime.lefrancois\netbeansprojects\sparql-generate\sparql-generate\sparql-generate-jena\src\test\resources\capital3\dataset\graph0.ttl with accept: */*
+DEBUG [qtp1451270520-19] (SourcePlanImpl.java:98) - Exec SOURCE https://ci.mines-stetienne.fr/sparql-generate/cities.json AS ?message
+TRACE [qtp1451270520-19] (SourcePlanImpl.java:110) - ... resolved to SOURCE <https://ci.mines-stetienne.fr/sparql-generate/cities.json> ACCEPT */* AS ?message
+TRACE [qtp1451270520-19] (SPARQLGenerate.java:296) - Using stream manager for Thread[qtp1451270520-19,5,main]
+DEBUG [qtp1451270520-19] (SPARQLGenerateStreamManager.java:120) - Locator LocatorURLAccept found: https://ci.mines-stetienne.fr/sparql-generate/cities.json with accept: */*
+ INFO [qtp1451270520-19] (SourcePlanImpl.java:126) - Exec SOURCE <https://ci.mines-stetienne.fr/sparql-generate/cities.json> ACCEPT */* AS ?message returned. Enable DEBUG level for more.
+DEBUG [qtp1451270520-19] (SourcePlanImpl.java:132) - "{
+	\"Paris\": {
+		\"country\": \"France\",
+		\"population\": \"2240000\"
+	},
+	\"London\": {
+		\"country\": \"Engl
+ ... 
+\"391000\"
+	}
+}"^^http://www.iana.org/assignments/media-types/application/json
+TRACE [qtp1451270520-19] (GenerateTemplatePlanImpl.java:105) - Entering sub SPARQL-Generate with 
+	( ?cityName, "New York" )( ?city, "{\"country\":\"USA\",\"population\":\"8538000\"}" )( ?message, "{\r\n\t\"Paris\": {\r\n\t\t\"country\": \"France\",\r\n\t\t\"population\": \"2240000\"\r\n\t},\r\n\t\"London\": {\r\n\t\t\"country\": \"England\",\r\n\t\t\"population\": \"8788000\"\r\n\t},\r\n\t\"New York\": {\r\n\t\t\"country\": \"USA\",\r\n\t\t\"population\": \"8538000\"\r\n\t},\r\n\t\"New Delhi\": {\r\n\t\t\"country\": \"India\",\r\n\t\t\"population\": \"21750000\"\r\n\t},\r\n\t\"New Orleans\": {\r\n\t\t\"country\": \"USA\",\r\n\t\t\"population\": \"391000\"\r\n\t}\r\n}"^^<http://www.iana.org/assignments/media-types/application/json> )
+TRACE [qtp1451270520-19] (GenerateTriplesPlanImpl.java:72) - Output triples
+	http://example.org/city/New%20York @http://example.org/country "USA"
+TRACE [qtp1451270520-19] (GenerateTriplesPlanImpl.java:72) - Output triples
+	http://example.org/city/New%20York @http://example.org/population "8538000"
+TRACE [qtp1451270520-19] (IteratorPlanImpl.java:115) - Execution of com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITER_JSONListKeys@72cade02 [?city] AS  ?key
+TRACE [qtp1451270520-19] (GenerateTemplatePlanImpl.java:105) - Entering sub SPARQL-Generate with 
+	( ?cityName, "New Delhi" )( ?city, "{\"country\":\"India\",\"population\":\"21750000\"}" )( ?message, "{\r\n\t\"Paris\": {\r\n\t\t\"country\": \"France\",\r\n\t\t\"population\": \"2240000\"\r\n\t},\r\n\t\"London\": {\r\n\t\t\"country\": \"England\",\r\n\t\t\"population\": \"8788000\"\r\n\t},\r\n\t\"New York\": {\r\n\t\t\"country\": \"USA\",\r\n\t\t\"population\": \"8538000\"\r\n\t},\r\n\t\"New Delhi\": {\r\n\t\t\"country\": \"India\",\r\n\t\t\"population\": \"21750000\"\r\n\t},\r\n\t\"New Orleans\": {\r\n\t\t\"country\": \"USA\",\r\n\t\t\"population\": \"391000\"\r\n\t}\r\n}"^^<http://www.iana.org/assignments/media-types/application/json> )
+TRACE [qtp1451270520-19] (GenerateTriplesPlanImpl.java:72) - Output triples
+	http://example.org/city/New%20Delhi @http://example.org/country "India"
+TRACE [qtp1451270520-19] (GenerateTriplesPlanImpl.java:72) - Output triples
+	http://example.org/city/New%20Delhi @http://example.org/population "21750000"
+TRACE [qtp1451270520-19] (IteratorPlanImpl.java:115) - Execution of com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITER_JSONListKeys@72cade02 [?city] AS  ?key
+TRACE [qtp1451270520-19] (GenerateTemplatePlanImpl.java:105) - Entering sub SPARQL-Generate with 
+	( ?cityName, "New Orleans" )( ?city, "{\"country\":\"USA\",\"population\":\"391000\"}" )( ?message, "{\r\n\t\"Paris\": {\r\n\t\t\"country\": \"France\",\r\n\t\t\"population\": \"2240000\"\r\n\t},\r\n\t\"London\": {\r\n\t\t\"country\": \"England\",\r\n\t\t\"population\": \"8788000\"\r\n\t},\r\n\t\"New York\": {\r\n\t\t\"country\": \"USA\",\r\n\t\t\"population\": \"8538000\"\r\n\t},\r\n\t\"New Delhi\": {\r\n\t\t\"country\": \"India\",\r\n\t\t\"population\": \"21750000\"\r\n\t},\r\n\t\"New Orleans\": {\r\n\t\t\"country\": \"USA\",\r\n\t\t\"population\": \"391000\"\r\n\t}\r\n}"^^<http://www.iana.org/assignments/media-types/application/json> )
+TRACE [qtp1451270520-19] (GenerateTriplesPlanImpl.java:72) - Output triples
+	http://example.org/city/New%20Orleans @http://example.org/country "USA"
+TRACE [qtp1451270520-19] (GenerateTriplesPlanImpl.java:72) - Output triples
+	http://example.org/city/New%20Orleans @http://example.org/population "391000"
+TRACE [qtp1451270520-19] (IteratorPlanImpl.java:115) - Execution of com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITER_JSONListKeys@72cade02 [?city] AS  ?key
+TRACE [qtp1451270520-19] (IteratorPlanImpl.java:115) - Execution of com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITER_JSONListKeys@27f2355c [?message] AS  ?cityName
+TRACE [qtp1451270520-19] (TransformStream.java:184) - end of transformation
+ INFO [qtp1451270520-20] (TransformStream.java:90) - Closing connection
+ INFO [Thread-11] (StopServlet.java:42) - Shutting down the server...
+ INFO [Thread-12] (StopServlet.java:42) - Shutting down the server...
+ INFO [Thread-11] (StopServlet.java:44) - Server has stopped.
+ INFO [Thread-12] (StopServlet.java:44) - Server has stopped.
+h accept: application/vnd.sparql-generate
+DEBUG [qtp1451270520-19] (PlanFactory.java:156) - Query has been normalized
+TRACE [qtp1451270520-19] (PlanFactory.java:157) - BASE    <http://example.org/>
+PREFIX  xsd:  <http://www.w3.org/2001/XMLSchema#>
+PREFIX  ite:  <http://w3id.org/sparql-generate/iter/>
+PREFIX  fun:  <http://w3id.org/sparql-generate/fn/>
+
+GENERATE 
+  {   GENERATE 
+        { ?5ec59e39  ?8ebbc28e  ?a73e4317 }
+      ITERATOR ite:JSONListKeys(?city) AS ?key
+      WHERE
+        { BIND(iri(concat("city/", encode_for_uri(?cityName))) AS ?5ec59e39)
+          BIND(iri(concat(encode_for_uri(?key))) AS ?8ebbc28e)
+          BIND(concat(fun:JSONPath(?message, concat("$.['", ?cityName, "']['", ?key, "']"))) AS ?a73e4317)
+        }
+       .
+  }
+SOURCE <https://ci.mines-stetienne.fr/sparql-generate/cities.json> AS ?message
+ITERATOR ite:JSONListKeys(?message) AS ?cityName
+WHERE
+  { FILTER strstarts(?cityName, "New")
+    BIND(fun:JSONPath(?message, concat("$.['", ?cityName, "']")) AS ?city)
+  }
+
+DEBUG [qtp1451270520-19] (LockMRSW.java:57) - Lock : qtp1451270520-19
+DEBUG [qtp1451270520-19] (LockMRSW.java:57) - Lock : qtp1451270520-19
+DEBUG [qtp1451270520-19] (SPARQLGenerateStreamManager.java:120) - Locator LocatorFileAccept(/C:/Users/maxime.lefrancois/netbeansprojects/sparql-generate/sparql-generate/sparql-generate-jena/src/test/resources/capital3) found: C:\Users\maxime.lefrancois\netbeansprojects\sparql-generate\sparql-generate\sparql-generate-jena\src\test\resources\capital3\dataset\default.ttl with accept: */*
+DEBUG [qtp1451270520-19] (SPARQLGenerateStreamManager.java:120) - Locator LocatorFileAccept(/C:/Users/maxime.lefrancois/netbeansprojects/sparql-generate/sparql-generate/sparql-generate-jena/src/test/resources/capital3) found: C:\Users\maxime.lefrancois\netbeansprojects\sparql-generate\sparql-generate\sparql-generate-jena\src\test\resources\capital3\dataset\graph0.ttl with accept: */*
+DEBUG [qtp1451270520-19] (SourcePlanImpl.java:98) - Exec SOURCE https://ci.mines-stetienne.fr/sparql-generate/cities.json AS ?message
+TRACE [qtp1451270520-19] (SourcePlanImpl.java:110) - ... resolved to SOURCE <https://ci.mines-stetienne.fr/sparql-generate/cities.json> ACCEPT */* AS ?message
+TRACE [qtp1451270520-19] (SPARQLGenerate.java:296) - Using stream manager for Thread[qtp1451270520-19,5,main]
+DEBUG [qtp1451270520-19] (SPARQLGenerateStreamManager.java:120) - Locator LocatorURLAccept found: https://ci.mines-stetienne.fr/sparql-generate/cities.json with accept: */*
+ INFO [qtp1451270520-19] (SourcePlanImpl.java:126) - Exec SOURCE <https://ci.mines-stetienne.fr/sparql-generate/cities.json> ACCEPT */* AS ?message returned. Enable DEBUG level for more.
+DEBUG [qtp1451270520-19] (SourcePlanImpl.java:132) - "{
+	\"Paris\": {
+		\"country\": \"France\",
+		\"population\": \"2240000\"
+	},
+	\"London\": {
+		\"country\": \"Engl
+ ... 
+\"391000\"
+	}
+}"^^http://www.iana.org/assignments/media-types/application/json
+TRACE [qtp1451270520-19] (GenerateTemplatePlanImpl.java:105) - Entering sub SPARQL-Generate with 
+	( ?cityName, "New York" )( ?city, "{\"country\":\"USA\",\"population\":\"8538000\"}" )( ?message, "{\r\n\t\"Paris\": {\r\n\t\t\"country\": \"France\",\r\n\t\t\"population\": \"2240000\"\r\n\t},\r\n\t\"London\": {\r\n\t\t\"country\": \"England\",\r\n\t\t\"population\": \"8788000\"\r\n\t},\r\n\t\"New York\": {\r\n\t\t\"country\": \"USA\",\r\n\t\t\"population\": \"8538000\"\r\n\t},\r\n\t\"New Delhi\": {\r\n\t\t\"country\": \"India\",\r\n\t\t\"population\": \"21750000\"\r\n\t},\r\n\t\"New Orleans\": {\r\n\t\t\"country\": \"USA\",\r\n\t\t\"population\": \"391000\"\r\n\t}\r\n}"^^<http://www.iana.org/assignments/media-types/application/json> )
+TRACE [qtp1451270520-19] (GenerateTriplesPlanImpl.java:72) - Output triples
+	http://example.org/city/New%20York @http://example.org/country "USA"
+TRACE [qtp1451270520-19] (GenerateTriplesPlanImpl.java:72) - Output triples
+	http://example.org/city/New%20York @http://example.org/population "8538000"
+TRACE [qtp1451270520-19] (IteratorPlanImpl.java:115) - Execution of com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITER_JSONListKeys@72cade02 [?city] AS  ?key
+TRACE [qtp1451270520-19] (GenerateTemplatePlanImpl.java:105) - Entering sub SPARQL-Generate with 
+	( ?cityName, "New Delhi" )( ?city, "{\"country\":\"India\",\"population\":\"21750000\"}" )( ?message, "{\r\n\t\"Paris\": {\r\n\t\t\"country\": \"France\",\r\n\t\t\"population\": \"2240000\"\r\n\t},\r\n\t\"London\": {\r\n\t\t\"country\": \"England\",\r\n\t\t\"population\": \"8788000\"\r\n\t},\r\n\t\"New York\": {\r\n\t\t\"country\": \"USA\",\r\n\t\t\"population\": \"8538000\"\r\n\t},\r\n\t\"New Delhi\": {\r\n\t\t\"country\": \"India\",\r\n\t\t\"population\": \"21750000\"\r\n\t},\r\n\t\"New Orleans\": {\r\n\t\t\"country\": \"USA\",\r\n\t\t\"population\": \"391000\"\r\n\t}\r\n}"^^<http://www.iana.org/assignments/media-types/application/json> )
+TRACE [qtp1451270520-19] (GenerateTriplesPlanImpl.java:72) - Output triples
+	http://example.org/city/New%20Delhi @http://example.org/country "India"
+TRACE [qtp1451270520-19] (GenerateTriplesPlanImpl.java:72) - Output triples
+	http://example.org/city/New%20Delhi @http://example.org/population "21750000"
+TRACE [qtp1451270520-19] (IteratorPlanImpl.java:115) - Execution of com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITER_JSONListKeys@72cade02 [?city] AS  ?key
+TRACE [qtp1451270520-19] (GenerateTemplatePlanImpl.java:105) - Entering sub SPARQL-Generate with 
+	( ?cityName, "New Orleans" )( ?city, "{\"country\":\"USA\",\"population\":\"391000\"}" )( ?message, "{\r\n\t\"Paris\": {\r\n\t\t\"country\": \"France\",\r\n\t\t\"population\": \"2240000\"\r\n\t},\r\n\t\"London\": {\r\n\t\t\"country\": \"England\",\r\n\t\t\"population\": \"8788000\"\r\n\t},\r\n\t\"New York\": {\r\n\t\t\"country\": \"USA\",\r\n\t\t\"population\": \"8538000\"\r\n\t},\r\n\t\"New Delhi\": {\r\n\t\t\"country\": \"India\",\r\n\t\t\"population\": \"21750000\"\r\n\t},\r\n\t\"New Orleans\": {\r\n\t\t\"country\": \"USA\",\r\n\t\t\"population\": \"391000\"\r\n\t}\r\n}"^^<http://www.iana.org/assignments/media-types/application/json> )
+TRACE [qtp1451270520-19] (GenerateTriplesPlanImpl.java:72) - Output triples
+	http://example.org/city/New%20Orleans @http://example.org/country "USA"
+TRACE [qtp1451270520-19] (GenerateTriplesPlanImpl.java:72) - Output triples
+	http://example.org/city/New%20Orleans @http://example.org/population "391000"
+TRACE [qtp1451270520-19] (IteratorPlanImpl.java:115) - Execution of com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITER_JSONListKeys@72cade02 [?city] AS  ?key
+TRACE [qtp1451270520-19] (IteratorPlanImpl.java:115) - Execution of com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITER_JSONListKeys@27f2355c [?message] AS  ?cityName
+TRACE [qtp1451270520-19] (TransformStream.java:184) - end of transformation
+ INFO [qtp1451270520-20] (TransformStream.java:90) - Closing connection
+ INFO [Thread-11] (StopServlet.java:42) - Shutting down the server...
+ INFO [Thread-12] (StopServlet.java:42) - Shutting down the server...
+ INFO [Thread-11] (StopServlet.java:44) - Server has stopped.
+ INFO [Thread-12] (StopServlet.java:44) - Server has stopped.

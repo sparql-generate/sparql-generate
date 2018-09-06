@@ -1,0 +1,10 @@
+{
+    "documentset": [
+        {
+            "mediatype": "application/json",
+            "path": "documentset/venue.json",
+            "uri": "https://raw.githubusercontent.com/mmlab/RMLProcessor/master/src/test/resources/example3/Venue.json"
+        }
+    ],
+    "query": "query.rqg"
+}

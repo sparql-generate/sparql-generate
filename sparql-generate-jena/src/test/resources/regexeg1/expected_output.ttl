@@ -1,0 +1,9 @@
+@prefix ex:    <http://example.com/> .
+
+ex:2    a        ex:Student ;
+        ex:dob   "13/02/1987" ;
+        ex:name  "Sam" .
+
+ex:1    a        ex:Student ;
+        ex:dob   "12/05/1980" ;
+        ex:name  "John" .

@@ -1,0 +1,10 @@
+{
+    "documentset": [
+        {
+            "mediatype": "application/xml",
+            "path": "documentset/relations.xml",
+            "uri": "http://example.com/relations.xml"
+        }
+    ],
+    "query": "query.rqg"
+}

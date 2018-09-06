@@ -1,0 +1,26 @@
+BASE <http://example.com/> 
+PREFIX ite: <http://w3id.org/sparql-generate/iter/>
+PREFIX fun: <http://w3id.org/sparql-generate/fn/>
+
+GENERATE { 
+
+ ?bn ?p "bn before" .
+ ?bn2 ?p "bn2 before" .
+
+ GENERATE {
+  ?bn ?q "bn in" .
+  ?bn2 ?q "bn2 in" .
+ } WHERE {
+   VALUES (?j) { ( 1 ) ( 2 ) }
+   BIND( URI( CONCAT( "p_" , STR(?i) , STR(?j) ) ) AS ?q ) 
+ } .
+
+ ?bn ?p "bn after" .
+ ?bn2 ?p "bn2 after" .
+
+} WHERE {
+  VALUES (?i) { ( 1 ) ( 2 ) }
+  BIND( URI( CONCAT( "p_" , STR(?i) ) ) AS ?p ) 
+  BIND( bnode( "same" ) AS ?bn)
+  BIND(fun:bnode( "same" ) AS ?bn2)
+}

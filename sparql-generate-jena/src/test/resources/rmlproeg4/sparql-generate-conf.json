@@ -1,0 +1,10 @@
+{
+    "documentset": [
+        {
+            "mediatype": "application/json",
+            "path": "documentset/Venue4.json",
+            "uri": "http://example.com/venue.json"
+        }
+    ],
+    "query": "query.rqg"
+}

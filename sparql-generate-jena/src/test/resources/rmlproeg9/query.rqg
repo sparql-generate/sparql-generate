@@ -1,0 +1,27 @@
+BASE <http://example.com/> 
+PREFIX ite: <http://w3id.org/sparql-generate/iter/>
+PREFIX fun: <http://w3id.org/sparql-generate/fn/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX bibo:    <http://purl.org/ontology/bibo/> 
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX spc:     <http://semweb.mmlab.be/ns/spc/>
+GENERATE {  
+  ?volumeIRI a bibo:Volume;
+                dcterms:identifier ?identifier;
+                bibo:shortTitle ?shortTitle;
+                rdfs:label ?fullTitle;
+                spc:fullTitle ?fullTitle;
+                rdfs:label ?volTitle;
+                spc:volTitle ?volTitle .
+}
+SOURCE <http://ceur-ws.org/Vol-1128/index.html> AS ?source
+ITERATOR ite:CSSPath(?source, "body" ) AS ?body 
+WHERE {
+	BIND(fun:HTMLTag(?body, "span.CEURVOLNR") AS ?volume )
+        BIND ( IRI(CONCAT("http://ceur-ws.org/",?volume)) as ?volumeIRI)
+	BIND(fun:HTMLTag(?body, "span.CEURURN") AS ?identifier )
+	BIND(fun:HTMLTag(?body, "span.CEURVOLACRONYM") AS ?shortTitle )
+	BIND(fun:HTMLTag(?body, "span.CEURFULLTITLE") AS ?fullTitle )
+
+        BIND(fun:HTMLTag(?body, "span.CEURVOLTITLE") AS ?volTitle )
+}

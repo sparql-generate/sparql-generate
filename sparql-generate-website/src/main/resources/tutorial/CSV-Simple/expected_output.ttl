@@ -1,0 +1,29 @@
+@prefix transit: <http://vocab.org/transit/terms/> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix wgs84_pos: <http://www.w3.org/2003/01/geo/wgs84_pos#> .
+
+<http://airport.example.com/7000>
+        a               transit:Stop ;
+        transit:route   "40"^^xsd:int ;
+        wgs84_pos:lat   "56.901389" ;
+        wgs84_pos:long  "4.584444" .
+
+<http://airport.example.com/6523>
+        a               transit:Stop ;
+        transit:route   "25"^^xsd:int ;
+        wgs84_pos:lat   "50.901389" ;
+        wgs84_pos:long  "4.484444" .
+
+
+<http://airport.example.com/7001>
+        a               transit:Stop ;
+        transit:route   "41"^^xsd:int ;
+        wgs84_pos:lat   "57.901389" ;
+        wgs84_pos:long  "5.584444" .
+
+
+<http://airport.example.com/7002>
+        a               transit:Stop ;
+        transit:route   "42"^^xsd:int ;
+        wgs84_pos:lat   "58.901389" ;
+        wgs84_pos:long  "6.584444" .

@@ -1,0 +1,33 @@
+BASE <http://trans.example.com/>
+PREFIX ite: <http://w3id.org/sparql-generate/iter/>
+PREFIX fun: <http://w3id.org/sparql-generate/fn/>
+PREFIX country:<http://loc.example.com/city/>
+PREFIX schema: <http://schema.org/>
+PREFIX wgs84_pos: <http://www.w3.org/2003/01/geo/wgs84_pos#>
+PREFIX gn: <http://www.geonames.org/ontology#>
+PREFIX transit: <http://vocab.org/transit/terms/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> 
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> 
+GENERATE { 
+    ?busiri rdf:type transit:Bus .
+    GENERATE {
+        ?busiri transit:stop ?stopiri .
+        ?stopiri rdfs:label ?label .
+        
+    }
+    ITERATOR ite:XPath(?bus, "//stop" ) AS ?stop
+    WHERE {
+        BIND( fun:XPath(?stop,"/stop/@id"  ) AS ?stopid )
+        BIND( CONCAT( ?base,"stop/",?stopid) AS ?stopiristr )
+        BIND( fun:XPath(?stop,"/stop/text()"  ) AS ?label )
+        BIND( IRI(?stopiristr) AS ?stopiri )
+    }.
+}
+SOURCE <http://example.com/transport.xml> AS ?source
+ITERATOR ite:XPath(?source, "//bus" ) AS ?bus
+WHERE {
+    BIND( "http://trans.example.com/" AS ?base )
+    BIND( fun:XPath(?bus,"/bus/@id"  ) AS ?busid )
+    BIND( IRI( CONCAT( ?base, "bus/",?busid ) ) AS ?busiri )
+}

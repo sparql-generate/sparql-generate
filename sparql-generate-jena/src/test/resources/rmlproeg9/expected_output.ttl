@@ -1,0 +1,14 @@
+@prefix spc:   <http://semweb.mmlab.be/ns/spc/> .
+@prefix fun:    <http://w3id.org/sparql-generate/fn/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix ite:  <http://w3id.org/sparql-generate/iter/> .
+@prefix bibo:  <http://purl.org/ontology/bibo/> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+
+<http://ceur-ws.org/Vol-1128>
+        a                   bibo:Volume ;
+        rdfs:label          "15th International Configuration Workshop" , "Proceedings of the 15th International Configuration Workshop" ;
+        dcterms:identifier  "urn:nbn:de:0074-1128-8" ;
+        bibo:shortTitle     "ConfWS-2013" ;
+        spc:fullTitle       "Proceedings of the 15th International Configuration Workshop" ;
+        spc:volTitle        "15th International Configuration Workshop" .

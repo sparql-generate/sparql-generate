@@ -1,0 +1,10 @@
+{
+    "documentset": [
+        {
+            "mediatype": "application/xml",
+            "path": "documentset/transport.xml",
+            "uri": "http://example.com/transport.xml"
+        }
+    ],
+    "query": "query.rqg"
+}

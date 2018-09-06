@@ -1,0 +1,14 @@
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix crm:   <http://www.cidoc-crm.org/cidoc-crm/> .
+
+<http://ex.com/Ronald_Anderson>
+        a           crm:E21_Person ;
+        rdfs:label  "Ronald Anderson" .
+
+<http://ex.com/Robert_Theodore_McCall>
+        a           crm:E21_Person ;
+        rdfs:label  "Robert Theodore McCall" .
+
+<http://ex.com/Nahum_Ball_Onthank>
+        a           crm:E21_Person ;
+        rdfs:label  "Nahum Ball Onthank" .

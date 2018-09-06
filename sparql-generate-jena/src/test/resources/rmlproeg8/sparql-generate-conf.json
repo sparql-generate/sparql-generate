@@ -1,0 +1,9 @@
+{
+  "documentset": [
+    {
+      "mediatype": "application/xml",
+      "path": "documentset/simergy.xml",
+      "uri": "http://example.com/simergy.xml"
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+BASE <https://ci.mines-stetienne.fr/aqi/data/>
+PREFIX fun: <http://w3id.org/sparql-generate/fn/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX sosa: <http://www.w3.org/ns/sosa/>
+
+GENERATE {
+  [] a sosa:FeatureOfInterest;
+    rdfs:label ?name .
+}
+SOURCE <https://ci.mines-stetienne.fr/aqi/static/station/0> AS ?source
+WHERE {
+  BIND(fun:JSONPath(?source,"$.data.city.name") AS ?name)
+}

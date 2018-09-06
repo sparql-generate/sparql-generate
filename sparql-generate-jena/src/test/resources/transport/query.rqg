@@ -1,0 +1,17 @@
+BASE <http://example.com/> 
+PREFIX ite: <http://w3id.org/sparql-generate/iter/>
+PREFIX fun: <http://w3id.org/sparql-generate/fn/>
+PREFIX country:<http://loc.example.com/city/>
+PREFIX schema: <http://schema.org/>
+PREFIX wgs84_pos: <http://www.w3.org/2003/01/geo/wgs84_pos#>
+PREFIX gn: <http://www.geonames.org/ontology#>
+PREFIX transit: <http://vocab.org/transit/terms/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> 
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+GENERATE { 
+  [] rdfs:value ?s .
+  
+}
+SOURCE <https://dl.dropboxusercontent.com/u/108022472/parking_data/strasboug/strasboug_parking_geometry.json> AS ?source
+ITERATOR ite:JSONPath(?source, "$.s[*]" ) AS ?s
