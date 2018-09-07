@@ -153,7 +153,6 @@ public final class SPARQLGenerate {
         itereg.put(ITER_CSVMultipleOutputs.URI, ITER_CSVMultipleOutputs.class);
         itereg.put(ITER_GeoJSONFeatures.URI, ITER_GeoJSONFeatures.class);
 
-
         SPARQLParserRegistry.get()
                 .add(SYNTAX, new SPARQLParserFactory() {
                     @Override

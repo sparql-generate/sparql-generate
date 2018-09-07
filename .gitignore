@@ -1,6 +1,11 @@
 # max
 notes.txt
 
+# idea
+#git rm -rf .idea; git commit -m "delete .idea"; git push;
+#sudo rm -r .idea/
+.idea/
+
 # NetBeans
 nbactions.xml
 nb-configuration.xml
