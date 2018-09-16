@@ -18,6 +18,8 @@ package com.github.thesmartenergy.sparql.generate.jena.iterator.library;
 import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.IteratorFunctionBase1;
 import java.io.ByteArrayInputStream;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.io.BufferedReader;
 import java.io.StringWriter;
@@ -63,6 +65,8 @@ public class ITER_CSV extends IteratorFunctionBase1 {
 
     @Override
     public List<List<NodeValue>> exec(NodeValue csv) {
+        Instant start = Instant.now();
+
         if (csv.getDatatypeURI() != null
                 && !csv.getDatatypeURI().equals(datatypeUri)
                 && !csv.getDatatypeURI().equals("http://www.w3.org/2001/XMLSchema#string")) {
@@ -107,6 +111,7 @@ public class ITER_CSV extends IteratorFunctionBase1 {
                 NodeValueNode nodeValue = new NodeValueNode(node);
                 nodeValues.add(nodeValue);
             }
+            System.out.println("Sent in " + Duration.between(start, Instant.now()).toMillis() + " ms.");
 
             return new ArrayList<>(Collections.singletonList(nodeValues));
         } catch (Exception ex) {

@@ -6,11 +6,14 @@ PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
 GENERATE {
   ?airportURI a transit:Stop;
-        transit:route ?date1.
+        transit:route ?date1;
+        transit:coordinates1 ?latlong;
+        transit:coordinates2 ?geometry;
 }
 SOURCE <http://example.com/airport.csv> AS ?source
-ITERATOR ite:CSVMultipleOutputs(?source, "id","stop","date") AS ?id ?stop ?date
+ITERATOR ite:CSVMultipleOutputs(?source, "id","latitude","longitude","wkt") AS ?id ?latitude ?longitude ?geometry
 WHERE {
     BIND (URI(CONCAT("http://airport.example.com/",?id)) AS ?airportURI)
-    BIND(fun:dateTime(?date,"dd/MM/yy") AS ?date1)
+    BIND(fun:GeoCSVasWKT(?latitude,?longitude) AS ?latlong)
+    BIND(fun:GeoCSVasWKT(?geometry) AS ?geometry)
 }

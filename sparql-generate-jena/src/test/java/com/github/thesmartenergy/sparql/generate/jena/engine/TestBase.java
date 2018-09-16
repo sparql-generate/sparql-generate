@@ -61,7 +61,7 @@ public class TestBase {
     private final File exampleDir;
     private Request request;
 
-    private static final String pattern = "geojsontest";
+    private static final String pattern = "csvperformance";
 //    private static final String pattern = ".*";
 
 

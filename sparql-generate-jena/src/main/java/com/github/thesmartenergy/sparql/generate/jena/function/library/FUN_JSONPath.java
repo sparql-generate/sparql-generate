@@ -93,7 +93,6 @@ public final class FUN_JSONPath extends FunctionBase2 {
         try {
             Object value = JsonPath.parse(json.asNode().getLiteralLexicalForm())
                     .limit(1).read(jsonpath.getString());
-
             if (value instanceof String) {
                 return new NodeValueString((String) value);
             } else if (value instanceof Float) {

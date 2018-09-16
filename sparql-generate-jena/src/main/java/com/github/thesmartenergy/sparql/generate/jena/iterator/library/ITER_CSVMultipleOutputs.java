@@ -38,7 +38,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Iterator function XXX
+ * Iterator function
  * <a href="http://w3id.org/sparql-generate/iter/CSVMultipleOutputs">iter:CSVMultipleOutputs</a>
  * iterates over the rows of a CSV document.
  * In each iteration, it corresponds each designated variable to the given cell identified by the column name contained in the arguments
@@ -113,6 +113,10 @@ public class ITER_CSVMultipleOutputs extends IteratorFunctionBase {
             ICsvListReader listReader = new CsvListReader(br, CsvPreference.STANDARD_PREFERENCE);
             List<String> header = listReader.read();
 
+            for (String col : cols) {
+                int indexOfColInHeader = header.indexOf(col);
+            }
+
             while (true) {
                 List<String> row = listReader.read();
                 if (row == null) {
@@ -121,6 +125,7 @@ public class ITER_CSVMultipleOutputs extends IteratorFunctionBase {
                 int i = 0;
                 for (String col : cols) {
                     int indexOfColInHeader = header.indexOf(col);
+                    //utiliser map
                     NodeValue n = new NodeValueNode(NodeFactory.createLiteral(row.get(indexOfColInHeader), XSDDatatype.XSDstring));
                     nodeValues.get(i++).add(n);
                 }

@@ -62,8 +62,18 @@ public class FUN_HTMLTag extends FunctionBase2 {
 
         try {
             String sourceHtml = String.valueOf(html.asNode().getLiteralLexicalForm());
-            org.jsoup.nodes.Document htmldoc = Jsoup.parse(sourceHtml);
-
+            sourceHtml = "<table>" +sourceHtml + "</table>";
+            // XXX
+            //<tr>
+            // <td>Central US</td>
+            // <td>Iowa</td>
+            //</tr>
+            org.jsoup.nodes.Document htmldoc = Jsoup.parseBodyFragment(sourceHtml);
+            //<html>
+            // <head></head>
+            // <body> Central US Iowa
+            // </body>
+            //</html>
             String selectPath = String.valueOf(v2.asNode().getLiteralLexicalForm());
             Elements elements = htmldoc.select(selectPath);
             return new NodeValueString(elements.text());

@@ -1,0 +1,27 @@
+PREFIX iter: <http://w3id.org/sparql-generate/iter/>
+PREFIX fun: <http://w3id.org/sparql-generate/fn/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+PREFIX schema: <http://schema.org/>
+
+BASE <http://example.org/>
+
+GENERATE {
+ <s> <p> <o>.
+}
+
+# original csv
+#SOURCE <http://example.com/1500000Sales.csv> AS ?sales
+#ITERATOR iter:CSV(?sales) AS ?sale
+
+#new csv stream
+#ITERATOR iter:NewCSVStream("/home/local/EMSE2000/el-mehdi.khalfi/armines/sparql-generate-dev-mehdi/sparql-generate/sparql-generate-jena/src/test/resources/csvperformance/documentset/1500000Sales.csv") AS ?sale
+
+
+# multiple outputs csv stream
+#ITERATOR iter:CSVStreamMultipleOutputs("/home/local/EMSE2000/el-mehdi.khalfi/armines/sparql-generate-dev-mehdi/sparql-generate/sparql-generate-jena/src/test/resources/csvperformance/documentset/1500000Sales.csv", 1500000, "*") AS ?Region
+ITERATOR iter:CSVStreamMultipleOutputs("/home/local/EMSE2000/el-mehdi.khalfi/armines/sparql-generate-dev-mehdi/sparql-generate/sparql-generate-jena/src/test/resources/csvperformance/documentset/1500000Sales.csv", 1500000, "Order ID", "Ship Date", "Item Type", "Unit Price", "Total Profit") AS ?orderID ?shipDate ?itemType ?unitPrice ?totalProfit
+
+WHERE {
+
+}

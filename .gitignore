@@ -5,6 +5,8 @@ notes.txt
 #git rm -rf .idea; git commit -m "delete .idea"; git push;
 #sudo rm -r .idea/
 .idea/
+*.iml
+
 
 # NetBeans
 nbactions.xml

@@ -9,12 +9,17 @@ PREFIX wkt: <http://www.opengis.net/ont/geosparql#>
 PREFIX ex: <http://example.com/>
 
 GENERATE {
-	?drawingIRI a ex:Drawing;
+	?earthquakeIRI a ex:Earthquake;
 		wkt:asWKT ?geometricCoordinates .
 }
-SOURCE <https://raw.githubusercontent.com/filosganga/geogson/master/core/src/test/resources/feature-collection.json> AS ?source
-ITERATOR iter:GeoJSONFeatures(?source) AS ?drawing
+#SOURCE <https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_month.geojson> AS ?source
+#ITERATOR iter:GeoJSONFeatures(?source) AS ?drawing
+#WHERE {
+#	BIND (IRI(fun:JSONPath(?drawing,"$.id")) as ?drawingIRI)
+#	BIND (fun:GeoJSONGeometry(?drawing) AS ?geometricCoordinates)
+#}
+SOURCE <https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_month.geojson> AS ?source
+ITERATOR iter:GeoJSON(?source) AS ?geometricCoordinates ?properties
 WHERE {
-	BIND (IRI(fun:JSONPath(?drawing,"$.id")) as ?drawingIRI)
-	BIND (fun:GeoJSONGeometry(?drawing) AS ?geometricCoordinates)
+	BIND (IRI(fun:JSONPath(?properties,"$.code")) as ?earthquakeIRI)
 }

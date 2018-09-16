@@ -1,0 +1,30 @@
+{
+    "documentset": [
+        {
+            "mediatype": "text/csv",
+            "path": "documentset/airport.csv",
+            "uri": "http://example.com/airport.csv"
+        },
+        {
+            "mediatype": "text/csv",
+            "path": "documentset/1000Sales.csv",
+            "uri": "http://example.com/1000Sales.csv"
+        },
+        {
+            "mediatype": "text/csv",
+            "path": "documentset/500000Sales.csv",
+            "uri": "http://example.com/500000Sales.csv"
+        },
+        {
+            "mediatype": "text/csv",
+            "path": "documentset/1500000Sales.csv",
+            "uri": "http://example.com/1500000Sales.csv"
+        },
+        {
+            "mediatype": "text/csv",
+            "path": "documentset/persons.csv",
+            "uri": "http://example.com/persons.csv"
+        }
+    ],
+    "query": "query.rqg"
+}
