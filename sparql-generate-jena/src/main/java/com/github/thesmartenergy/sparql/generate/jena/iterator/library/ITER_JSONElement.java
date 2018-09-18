@@ -118,18 +118,12 @@ public class ITER_JSONElement extends IteratorFunctionBase2 {
             for (Object value : values) {
                 RDFDatatype dt = TypeMapper.getInstance().getSafeTypeByName(datatypeUri);
                 String jsonstring = gson.toJson(value);
-                String structure = "{\"element\":elementValue,\"position\":intPos,\"hasNext\":hasNextValue}";
-
-                structure = structure.replaceAll("intPos", String.valueOf(position));
-                if (position < values.size() - 1) {
-                    structure = structure.replaceAll("hasNextValue", "true");
-                } else {
-                    structure = structure.replaceAll("hasNextValue", "false");
-                }
-                structure = structure.replaceAll("elementValue", jsonstring);
-                jsonstring = structure;
-
-                Node node = NodeFactory.createLiteral(jsonstring, dt);
+                String structure = "{" +
+                    "\"element\":" + jsonstring + "," +
+                    "\"position\":" + String.valueOf(position) + "," +
+                    "\"hasNext\":" + (position < values.size() - 1 ? "true" : "false") +
+                "}";
+                Node node = NodeFactory.createLiteral(structure, dt);
                 NodeValue nodeValue = new NodeValueNode(node);
                 nodeValues.add(nodeValue);
 
