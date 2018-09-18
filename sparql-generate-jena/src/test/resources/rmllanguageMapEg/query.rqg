@@ -1,6 +1,6 @@
 BASE <http://example.com/> 
-PREFIX iter: <http://w3id.org/sparql-generate/iter/>
-PREFIX fn: <http://w3id.org/sparql-generate/fn/>
+PREFIX ite: <http://w3id.org/sparql-generate/iter/>
+PREFIX fun: <http://w3id.org/sparql-generate/fn/>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> 
 PREFIX ex: <http://example.com/>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> 
@@ -15,10 +15,10 @@ GENERATE {
             skos:altLabel ?altLabel .
 }
 SOURCE <http://example.com/thesaurus.xml> AS ?source
-ITERATOR iter:XPath(?source,"//Localizations") AS ?localization
+ITERATOR ite:XPath(?source,"//Localizations") AS ?localization
 WHERE {
-   BIND( STRLANG(fn:XPath(?localization,'Localizations/Localization[@Culture="nl-BE"]/Label/text()'),"en") AS ?altLabel )
-   BIND( STRLANG(fn:XPath(?localization,'Localizations/Localization[@Culture="en"]/Label/text()'),"nl") AS ?prefLabel  )
+   BIND( STRLANG(fun:XPath(?localization,'Localizations/Localization[@Culture="nl-BE"]/Label/text()'),"en") AS ?altLabel )
+   BIND( STRLANG(fun:XPath(?localization,'Localizations/Localization[@Culture="en"]/Label/text()'),"nl") AS ?prefLabel  )
 
  
 }

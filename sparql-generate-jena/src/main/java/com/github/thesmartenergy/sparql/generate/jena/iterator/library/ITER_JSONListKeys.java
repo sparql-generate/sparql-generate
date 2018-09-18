@@ -23,11 +23,9 @@ import com.jayway.jsonpath.spi.json.JacksonJsonProvider;
 import com.jayway.jsonpath.spi.json.JsonProvider;
 import com.jayway.jsonpath.spi.mapper.JacksonMappingProvider;
 import com.jayway.jsonpath.spi.mapper.MappingProvider;
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+
+import java.util.*;
+
 import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.NodeValue;
@@ -79,7 +77,7 @@ public class ITER_JSONListKeys extends IteratorFunctionBase1 {
     private static final String datatypeUri = "http://www.iana.org/assignments/media-types/application/json";
 
     @Override
-    public List<NodeValue> exec(NodeValue json) {
+    public List<List<NodeValue>> exec(NodeValue json) {
         if (json.getDatatypeURI() != null
                 && !json.getDatatypeURI().equals(datatypeUri)
                 && !json.getDatatypeURI().equals("http://www.w3.org/2001/XMLSchema#string")) {
@@ -99,7 +97,7 @@ public class ITER_JSONListKeys extends IteratorFunctionBase1 {
                         = NodeValue.makeNode(NodeFactory.createLiteral(key));
                 nodeValues.add(nodeValue);
             }
-            return nodeValues;
+            return new ArrayList<>(Collections.singletonList(nodeValues));
         } catch (Exception ex) {
             LOG.debug("No evaluation for " + json, ex);
             throw new ExprEvalException("No evaluation for " + json, ex);

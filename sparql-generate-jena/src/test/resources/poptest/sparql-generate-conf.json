@@ -1,0 +1,25 @@
+{
+    "documentset": [
+        {
+            "mediatype": "application/json",
+            "path": "documentset/continent.json",
+            "uri": "http://example.com/continent.json"
+        },
+        {
+            "mediatype": "application/json",
+            "path": "documentset/country-names.json",
+            "uri": "http://example.com/country-names.json"
+        },
+        {
+            "mediatype": "application/json",
+            "path": "documentset/continentnames.json",
+            "uri": "http://example.com/continentnames.json"
+        },
+        {
+            "mediatype": "application/json",
+            "path": "documentset/country-population.json",
+            "uri": "http://example.com/country-population.json"
+        }
+    ],
+    "query": "query.rqg"
+}

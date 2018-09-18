@@ -1,4 +1,4 @@
-@prefix fn:    <http://w3id.org/sparql-generate/fn/> .
+@prefix fun:    <http://w3id.org/sparql-generate/fn/> .
 @prefix foaf:  <http://xmlns.com/foaf/0.1/> .
 
 [ a           foaf:Person ;

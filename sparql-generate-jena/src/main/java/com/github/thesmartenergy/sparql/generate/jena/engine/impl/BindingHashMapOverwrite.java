@@ -16,9 +16,6 @@
 package com.github.thesmartenergy.sparql.generate.jena.engine.impl;
 
 import com.github.thesmartenergy.sparql.generate.jena.engine.ExecutionContext;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 import org.apache.jena.graph.Node;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.sparql.core.Var;
@@ -27,37 +24,48 @@ import org.apache.jena.sparql.engine.binding.BindingHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.*;
+
 /**
  * Class to store overridable bindings efficiently.
- * 
+ *
  * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */
 public class BindingHashMapOverwrite extends PlanBase implements Binding {
 
     private static final Logger LOG = LoggerFactory.getLogger(BindingHashMapOverwrite.class);
 
-    /** The parent binding. */
+    /**
+     * The parent binding.
+     */
     private final Binding parent;
-    /** The variable of this binding. */
-    private final Var var;
-    /** The bound node of this binding. */
-    private final Node node;
+    /**
+     * The variables and the corresponding nodes of this binding
+     */
+    private final Map<Var, Node> map = new HashMap<>();
 
     /**
      * Constructs a new binding by binding a new (or not new) variable.
      *
      * @param parent -
-     * @param var -
-     * @param node  -
+     * @param var    -
+     * @param node   -
      */
     public BindingHashMapOverwrite(
             final Binding parent,
             final Var var,
             final Node node) {
         this.parent = parent;
-        this.var = var;
-        this.node = node;
+        if (var != null)
+            map.put(var, node);
 //        LOG.trace("New binding #" + System.identityHashCode(this) + " overrides " + parent + " with " + var + " = " + node);
+    }
+
+    /**
+     * Adds a variable and its bound node to this binding.
+     */
+    public final void add(final Var var, final Node node) {
+        map.put(var, node);
     }
 
     /**
@@ -67,15 +75,13 @@ public class BindingHashMapOverwrite extends PlanBase implements Binding {
      * @param context -
      */
     public BindingHashMapOverwrite(
-            final QuerySolution binding, 
+            final QuerySolution binding,
             final ExecutionContext context) {
-        var = null;
-        node = null;
         if (binding == null) {
             parent = null;
         } else {
             final BindingHashMap p = new BindingHashMap();
-            for (Iterator<String> it = binding.varNames(); it.hasNext();) {
+            for (Iterator<String> it = binding.varNames(); it.hasNext(); ) {
                 final String varName = it.next();
                 if (binding.get(varName) != null) {
                     p.add(context.allocVar(varName), binding.get(varName).asNode());
@@ -93,16 +99,14 @@ public class BindingHashMapOverwrite extends PlanBase implements Binding {
      */
     public final List<Var> varsList() {
         List<Var> vars = new ArrayList<>();
-        if (var != null) {
-            vars.add(var);
-        }
+        vars.addAll(map.keySet());
         if (parent != null) {
-            for (Iterator<Var> it = parent.vars(); it.hasNext();) {
+            for (Iterator<Var> it = parent.vars(); it.hasNext(); ) {
                 Var v = it.next();
-                if (!v.equals(var)) {
+                if (!map.containsKey(v)) {
                     vars.add(v);
                 }
-            }   
+            }
         }
         return vars;
     }
@@ -123,7 +127,7 @@ public class BindingHashMapOverwrite extends PlanBase implements Binding {
         if (var == null) {
             return false;
         }
-        if (this.var != null && this.var.equals(var)) {
+        if (this.map.containsKey(var)) {
             return true;
         }
         if (parent != null) {
@@ -137,8 +141,8 @@ public class BindingHashMapOverwrite extends PlanBase implements Binding {
      */
     @Override
     public final Node get(final Var var) {
-        if (var != null && var.equals(this.var)) {
-            return node;
+        if (var != null && map.containsKey(var)) {
+            return map.get(var);
         }
         if (parent != null) {
             return parent.get(var);
@@ -161,7 +165,7 @@ public class BindingHashMapOverwrite extends PlanBase implements Binding {
     public final boolean isEmpty() {
         return varsList().isEmpty();
     }
-    
+
     //todo write equal, hash, and tostring methods.
 
 }

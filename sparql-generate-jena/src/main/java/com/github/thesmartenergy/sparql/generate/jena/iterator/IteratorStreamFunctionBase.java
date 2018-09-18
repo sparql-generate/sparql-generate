@@ -62,7 +62,7 @@ public abstract class IteratorStreamFunctionBase implements IteratorFunction {
 
     @Override
     public void exec(
-            Binding binding, ExprList args, FunctionEnv env, Consumer<List<NodeValue>> nodeValuesStream) {
+            Binding binding, ExprList args, FunctionEnv env, Consumer<List<List<NodeValue>>> nodeValuesStream) {
         this.env = env;
         if (args == null) {
             throw new ARQInternalErrorException("IteratorFunctionBase:"
@@ -92,6 +92,6 @@ public abstract class IteratorStreamFunctionBase implements IteratorFunction {
      * @param args -
      * @param nodeValuesStream - where to emit new values
      */
-    public abstract void exec(List<NodeValue> args, Consumer<List<NodeValue>> nodeValuesStream);
+    public abstract void exec(List<NodeValue> args, Consumer<List<List<NodeValue>>> nodeValuesStream);
 
 }

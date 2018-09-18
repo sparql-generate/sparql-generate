@@ -49,5 +49,5 @@ public interface IteratorFunction {
      * @param env The execution context
      * @param nodeValuesStream where to emit new values
      */
-    void exec(Binding binding, ExprList args, FunctionEnv env, Consumer<List<NodeValue>> nodeValuesStream);
+    void exec(Binding binding, ExprList args, FunctionEnv env, Consumer<List<List<NodeValue>>> nodeValuesStream);
 }

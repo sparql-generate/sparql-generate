@@ -63,6 +63,14 @@
                 <picUrl>http://gravatar.com/avatar/64cb7dec1965ed4fa000bd6faa30a329</picUrl>
             </properties>
         </contributor>
+        <contributor>
+            <name>El Mehdi Khalfi</name>
+            <email>el-mehdi.khalfi@emse.fr</email>
+            <url>https://github.com/infomehdi</url>
+            <organization>Ecole des mines de Saint-Etienne</organization>
+            <organizationUrl>http://www.mines-stetienne.fr/</organizationUrl>
+            <timezone>UTC+01:00</timezone>
+        </contributor>
     </contributors>
 
     <organization>
@@ -195,6 +203,8 @@
                             <exclude>**/dependency-reduced-pom.xml</exclude>
                             <exclude>**/*.csv</exclude>
                             <exclude>**/*.rqg</exclude>
+                            <exclude>**/*.ttl</exclude>
+                            <exclude>**/*.xml</exclude>
                             <exclude>**/java.nio.file.spi.FileTypeDetector</exclude>
                         </excludes>
                     </configuration>

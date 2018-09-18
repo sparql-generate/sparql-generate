@@ -15,25 +15,25 @@ WHERE clause                    -- same as SPARQL 1.1
 Solution modifiers              -- group by, order by, limit, offset,... same as SPARQL 1.1
 ```
 
-The syntax of the **`ITERATE` (or `ITERATOR`) clause** is the following:  
+The syntax of the **`ITERATOR` clause** is the following:  
 
 ```
-ITERATOR <iterator>(args) AS ?var
+ITERATOR <iterator>(args) AS ?var_1 ?var_2 ?var_3 ... ?var_n 
 ```
 
-Where `<iterator>` is the IRI of the SPARQL-Generate *iterator function*, which is similar to a SPARQL 1.1 Function, except it *returns a list of RDF Terms* instead of just one. `?var` will be bound to every RDF Term in the list returned by the evaluation of the iterator function over the arguments `args`.
+Where `<iterator>` is the IRI of the SPARQL-Generate *iterator function*, which is similar to a SPARQL 1.1 Function, except it *returns a list of lists of RDF Terms* instead of just one. Each list `?var_x` contains a list that will be bound to every RDF Term in the list returned by the evaluation of the iterator function over the arguments `args`.
 
 
-The **`LOOK UP` (or `SOURCE`) clause** enables to bind a named document to a variable. Its syntax is as follows:
+The **`SOURCE` clause** enables to bind a named document to a variable. Its syntax is as follows:
 
 ```
-LOOK UP <source_node> ACCEPT <type_uri> AS ?var
+SOURCE <source_node> ACCEPT <type_uri> AS ?var
 ``` 
 
 If `<source>` is a HTTP IRI, then the engine will operate a HTTP GET to that IRI (or use a local cache), then bind variable `?var` to the RDF Literal representation of the retrieved document. 
 `ACCEPT <type_uri>` is optional. It gives a hint to the engine about how to negotiate a representation of the resource identified by `<source>` with the server.
 
-The **`GENERATE` (or `CONSTRUCT`) template** replaces and extends the SPARQL 1.1 `CONSTRUCT` clause: one may embed other GENERATE queries in the `GENERATE` template. The `GENERATE` part of the embedded query may be a template as above, or just a URI that indicates the engine that it must fetch and execute an existing query on the web, with the current binding solutions.
+The **`GENERATE` template** replaces and extends the SPARQL 1.1 `CONSTRUCT` clause: one may embed other GENERATE queries in the `GENERATE` template. The `GENERATE` part of the embedded query may be a template as above, or just a URI that indicates the engine that it must fetch and execute an existing query on the web, with the current binding solutions.
 
 One may **embed SPARQL expressions in nodes** (since version 2.0.0-beta) wherever variables would be legal:
 
@@ -104,8 +104,8 @@ xsd:string fun:JSONPath( xsd:string message, xsd:string tagname )
 
 To put it simply, the execution of a SPARQL-Generate is defined as follows:
 
-1. clauses `ITERATE` and `LOOK UP` are processed in order, and one constructs a [SPARQL 1.1 VALUES](https://www.w3.org/TR/sparql11-query/#inline-data) data block.
-1. one constructs a SPARQL 1.1 `SELECT *` query from the SPARQL-Generate `WHEREVER` clause, and add the data block at the beginning of the `WHERE` clause.
+1. clauses `ITERATOR` and `SOURCE` are processed in order, and one constructs a [SPARQL 1.1 VALUES](https://www.w3.org/TR/sparql11-query/#inline-data) data block.
+1. one constructs a SPARQL 1.1 `SELECT *` query from the SPARQL-Generate `WHERE` clause, and add the data block at the beginning of the `WHERE` clause.
 1. this SPARQL 1.1 SELECT query is evaluated on the SPARQL dataset, and produces a set of solution bindings.
 1. for each of these solution bindings, and for each element in the GENERATE template, one either produce triples, or execute the embedded query.  
 

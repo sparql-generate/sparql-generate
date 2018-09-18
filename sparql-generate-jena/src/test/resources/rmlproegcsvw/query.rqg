@@ -1,6 +1,6 @@
 BASE <http://example.com/> 
-PREFIX iter: <http://w3id.org/sparql-generate/iter/>
-PREFIX fn: <http://w3id.org/sparql-generate/fn/>
+PREFIX ite: <http://w3id.org/sparql-generate/iter/>
+PREFIX fun: <http://w3id.org/sparql-generate/fn/>
 PREFIX country:<http://loc.example.com/city/>
 PREFIX schema: <http://schema.org/>
 PREFIX wgs84_pos: <http://www.w3.org/2003/01/geo/wgs84_pos#>
@@ -15,10 +15,10 @@ GENERATE {
        
 }
 SOURCE <http://example.com/airport.csv> AS ?source
-ITERATOR iter:CustomCSV(?source,'"',";","\n","true"^^xsd:boolean) AS ?busRow
+ITERATOR ite:CustomCSV(?source,'"',";","\n","true"^^xsd:boolean) AS ?busRow
 WHERE {
-    BIND( fn:CustomCSV(?busRow, "bus",'"',";","\n","true"^^xsd:boolean) AS ?bus )
-    BIND( fn:CustomCSV(?busRow, "city",'"',";","\n","true"^^xsd:boolean) AS ?city )
-    BIND( fn:CustomCSV(?busRow, "id",'"',";","\n","true"^^xsd:boolean) AS ?id )
+    BIND( fun:CustomCSV(?busRow, "bus",'"',";","\n","true"^^xsd:boolean) AS ?bus )
+    BIND( fun:CustomCSV(?busRow, "city",'"',";","\n","true"^^xsd:boolean) AS ?city )
+    BIND( fun:CustomCSV(?busRow, "id",'"',";","\n","true"^^xsd:boolean) AS ?id )
     BIND ( IRI(CONCAT("http://airport.example.com/",?id)) as ?airportIRI)
 }

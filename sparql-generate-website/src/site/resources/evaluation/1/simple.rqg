@@ -15,7 +15,7 @@ GENERATE {
             schema:height ?height ;
             schema:weight ?weight .
 }
-SOURCE <XXXpersons> AS ?persons
+SOURCE <persons> AS ?persons
 ITERATOR iter:CSV(?persons) AS ?person
 WHERE {
     BIND( fun:CSV(?person, "PersonId" ) AS ?personId )

@@ -45,7 +45,7 @@ public abstract class IteratorStreamFunctionBase1 extends IteratorStreamFunction
      * {@inheritDoc}
      */
     @Override
-    public final void exec(List<NodeValue> args, Consumer<List<NodeValue>> nodeValuesStream) {
+    public final void exec(List<NodeValue> args, Consumer<List<List<NodeValue>>> nodeValuesStream) {
         if (args == null) {
             throw new ARQInternalErrorException("SelectorBase1:"
                     + " Null args list");
@@ -61,5 +61,5 @@ public abstract class IteratorStreamFunctionBase1 extends IteratorStreamFunction
     /**
      * {@inheritDoc}
      */
-    public abstract void exec(NodeValue v, Consumer<List<NodeValue>> nodeValuesStream);
+    public abstract void exec(NodeValue v, Consumer<List<List<NodeValue>>> nodeValuesStream);
 }

@@ -1,0 +1,9 @@
+<p>The <b><tt>GENERATE</tt> template</b> replaces and extends the SPARQL 1.1 <tt>CONSTRUCT</tt> clause: one may embed other GENERATE queries in the <tt>GENERATE</tt> template. The <tt>GENERATE</tt> part of the embedded query may be a template as above, or just a URI that indicates the engine that it must fetch and execute an existing query on the web, with the current binding solutions. <b>Watch out, you must add a full-stop after the nested GENERATE template.</b></p>
+
+<p>SPARQL-Generate <a href="language.html#Binding_and_iterator_functions">Binding and iterator functions</a> are defined to generate RDF from JSON, XML, HTML, CSV, and plain text.</p>
+<ul>
+  <li>Custom SPARQL binding functions all take a set of RDF terms as input, and output zero or one RDF term. They all have namespace <tt>http://w3id.org/sparql-generate/fn/</tt> with preferred prefix <tt>fun</tt>.</li>
+  <li>Iterator functions are used in the <tt>ITERATOR</tt> clause. They all take a set of RDF terms as input, and output zero or more RDF terms. They all have namespace <tt>http://w3id.org/sparql-generate/iter/</tt> with preferred prefix <tt>iter</tt>.</li>
+</ul>
+
+ 

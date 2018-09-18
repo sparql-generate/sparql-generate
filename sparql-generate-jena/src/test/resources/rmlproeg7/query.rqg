@@ -1,6 +1,6 @@
 BASE <http://example.com/> 
-PREFIX iter: <http://w3id.org/sparql-generate/iter/>
-PREFIX fn: <http://w3id.org/sparql-generate/fn/>
+PREFIX ite: <http://w3id.org/sparql-generate/iter/>
+PREFIX fun: <http://w3id.org/sparql-generate/fn/>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> 
 PREFIX ex: <http://example.com/>
 PREFIX simmodel: <http://www.lbl.gov/namespaces/Sim/Model/>
@@ -16,11 +16,11 @@ GENERATE {
    
 }
 SOURCE <http://example.com/airport.csv> AS ?source
-ITERATOR iter:CSV(?source) AS ?stop
+ITERATOR ite:CSV(?source) AS ?stop
 WHERE {
-    BIND( fn:CSV(?stop, "id" ) AS ?id )
-    BIND( fn:CSV(?stop, "bus" ) AS ?bus )
-    BIND( fn:CSV(?stop, "type" ) AS ?type )
+    BIND( fun:CSV(?stop, "id" ) AS ?id )
+    BIND( fun:CSV(?stop, "bus" ) AS ?bus )
+    BIND( fun:CSV(?stop, "type" ) AS ?type )
     BIND (IRI(CONCAT("http://vocab.org/transit/terms/",?type)) AS ?typeIRI)
     BIND(IRI(CONCAT("http://airport.example.com/",?id)) as ?stopIRI)
 }

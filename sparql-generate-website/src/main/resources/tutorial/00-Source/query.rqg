@@ -1,0 +1,6 @@
+BASE <https://ci.mines-stetienne.fr/aqi/data/>
+
+GENERATE {
+  <s> <p> ?source .
+}
+SOURCE <https://ci.mines-stetienne.fr/aqi/static/station/1> AS ?source

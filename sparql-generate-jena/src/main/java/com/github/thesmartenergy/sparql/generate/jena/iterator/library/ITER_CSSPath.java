@@ -18,6 +18,8 @@ package com.github.thesmartenergy.sparql.generate.jena.iterator.library;
 import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
 import java.util.ArrayList;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.IteratorFunctionBase2;
+
+import java.util.Collections;
 import java.util.List;
 import org.apache.jena.datatypes.RDFDatatype;
 import org.apache.jena.datatypes.TypeMapper;
@@ -59,7 +61,7 @@ public class ITER_CSSPath extends IteratorFunctionBase2 {
     private static final String datatypeUri = "http://www.iana.org/assignments/media-types/text/html";
 
     @Override
-    public List<NodeValue> exec(NodeValue html, NodeValue cssSelector) {
+    public List<List<NodeValue>> exec(NodeValue html, NodeValue cssSelector) {
         if (html.getDatatypeURI() != null
                 && !html.getDatatypeURI().equals(datatypeUri)
                 && !html.getDatatypeURI().equals("http://www.w3.org/2001/XMLSchema#string")) {
@@ -91,7 +93,7 @@ public class ITER_CSSPath extends IteratorFunctionBase2 {
                 nodeValues.add(nodeValue);
             }
 
-            return nodeValues;
+            return new ArrayList<>(Collections.singletonList(nodeValues));
         } catch (Exception ex) {
             LOG.debug("No evaluation of " + html + ", " + cssSelector, ex);
             throw new ExprEvalException("No evaluation of " + html + ", " + cssSelector, ex);

@@ -15,62 +15,41 @@
  */
 package com.github.thesmartenergy.sparql.generate.jena;
 
-import com.github.thesmartenergy.sparql.generate.jena.function.library.FUN_bnode;
-import com.github.thesmartenergy.sparql.generate.jena.function.library.FUN_CBOR;
-import com.github.thesmartenergy.sparql.generate.jena.function.library.FUN_CSV;
-import com.github.thesmartenergy.sparql.generate.jena.function.library.FUN_CustomCSV;
-import com.github.thesmartenergy.sparql.generate.jena.function.library.FUN_dateTime;
-import com.github.thesmartenergy.sparql.generate.jena.function.library.FUN_HTMLAttribute;
-import com.github.thesmartenergy.sparql.generate.jena.function.library.FUN_HTMLTag;
-import com.github.thesmartenergy.sparql.generate.jena.function.library.FUN_HTMLTagElement;
+import com.github.thesmartenergy.sparql.generate.jena.function.library.*;
+import com.github.thesmartenergy.sparql.generate.jena.iterator.IteratorFunctionRegistry;
+import com.github.thesmartenergy.sparql.generate.jena.iterator.library.*;
+import com.github.thesmartenergy.sparql.generate.jena.lang.ParserSPARQLGenerate;
+import com.github.thesmartenergy.sparql.generate.jena.serializer.SPARQLGenerateQuerySerializer;
+import com.github.thesmartenergy.sparql.generate.jena.stream.SPARQLGenerateStreamManager;
+import com.github.thesmartenergy.sparql.generate.jena.utils.WktLiteral;
+import org.apache.jena.atlas.io.IndentedWriter;
+import org.apache.jena.datatypes.TypeMapper;
+import org.apache.jena.query.QueryVisitor;
 import org.apache.jena.query.Syntax;
+import org.apache.jena.riot.Lang;
+import org.apache.jena.riot.LangBuilder;
+import org.apache.jena.riot.RDFLanguages;
+import org.apache.jena.riot.system.stream.StreamManager;
+import org.apache.jena.sparql.core.Prologue;
 import org.apache.jena.sparql.function.FunctionRegistry;
 import org.apache.jena.sparql.lang.SPARQLParser;
 import org.apache.jena.sparql.lang.SPARQLParserFactory;
 import org.apache.jena.sparql.lang.SPARQLParserRegistry;
-import org.apache.jena.sparql.util.Symbol;
-import org.apache.jena.sparql.util.TranslationTable;
-import com.github.thesmartenergy.sparql.generate.jena.function.library.FUN_JSONPath;
-import com.github.thesmartenergy.sparql.generate.jena.function.library.FUN_regex;
-import com.github.thesmartenergy.sparql.generate.jena.function.library.FUN_SplitAtPostion;
-import com.github.thesmartenergy.sparql.generate.jena.function.library.FUN_XPath;
-import com.github.thesmartenergy.sparql.generate.jena.lang.ParserSPARQLGenerate;
-import com.github.thesmartenergy.sparql.generate.jena.iterator.IteratorFunctionRegistry;
-import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITER_CBOR;
-import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITER_CSSPath;
-import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITER_CSV;
-import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITER_CSVFirstRow;
-import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITER_CSVWrapped;
-import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITER_CSVHeaders;
-import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITER_CSVStream;
-import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITER_CustomCSV;
-import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITER_JSONElement;
-import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITER_JSONListKeys;
-import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITER_JSONPath;
-import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITER_regex;
-import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITER_Split;
-import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITER_XPath;
-import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITER_for;
-import com.github.thesmartenergy.sparql.generate.jena.serializer.SPARQLGenerateQuerySerializer;
-import com.github.thesmartenergy.sparql.generate.jena.stream.SPARQLGenerateStreamManager;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import org.apache.jena.atlas.io.IndentedWriter;
-import org.apache.jena.query.QueryVisitor;
-import org.apache.jena.riot.Lang;
-import org.apache.jena.riot.LangBuilder;
-import org.apache.jena.riot.RDFLanguages;
-import static org.apache.jena.riot.RDFLanguages.strLangRDFXML;
-import static org.apache.jena.riot.WebContent.contentTypeRDFXML;
-import org.apache.jena.riot.system.stream.StreamManager;
-import org.apache.jena.sparql.core.Prologue;
 import org.apache.jena.sparql.serializer.QuerySerializerFactory;
 import org.apache.jena.sparql.serializer.SerializationContext;
 import org.apache.jena.sparql.serializer.SerializerRegistry;
 import org.apache.jena.sparql.util.NodeToLabelMapBNode;
-import org.slf4j.LoggerFactory;
+import org.apache.jena.sparql.util.Symbol;
+import org.apache.jena.sparql.util.TranslationTable;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+
+import static org.apache.jena.riot.RDFLanguages.strLangRDFXML;
+import static org.apache.jena.riot.WebContent.contentTypeRDFXML;
 
 /**
  * The configuration entry point of SPARQL-Generate. Method {@link #init()} must
@@ -125,7 +104,7 @@ public final class SPARQLGenerate {
      * The SPARQL-Generate syntax.
      */
     public static final Syntax SYNTAX;
-    
+
     /**
      * Force the initialization of SPARQL-Generate.
      */
@@ -136,7 +115,7 @@ public final class SPARQLGenerate {
 
     static {
         log.trace("initializing SPARQLGenerate");
-        
+
         SYNTAX = new SPARQLGenerateSyntax(SYNTAX_URI);
 
         FunctionRegistry fnreg = FunctionRegistry.get();
@@ -152,8 +131,9 @@ public final class SPARQLGenerate {
         fnreg.put(FUN_bnode.URI, FUN_bnode.class);
         fnreg.put(FUN_HTMLTagElement.URI, FUN_HTMLTagElement.class);
         fnreg.put(FUN_dateTime.URI, FUN_dateTime.class);
+        fnreg.put(FUN_GeoJSONGeometry.URI, FUN_GeoJSONGeometry.class);
 
-        
+
         IteratorFunctionRegistry itereg = IteratorFunctionRegistry.get();
         itereg.put(ITER_JSONPath.URI, ITER_JSONPath.class);
         itereg.put(ITER_JSONListKeys.URI, ITER_JSONListKeys.class);
@@ -170,6 +150,9 @@ public final class SPARQLGenerate {
         itereg.put(ITER_CSVHeaders.URI, ITER_CSVHeaders.class);
         itereg.put(ITER_CSVStream.URI, ITER_CSVStream.class);
         itereg.put(ITER_for.URI, ITER_for.class);
+        itereg.put(ITER_CSVMultipleOutputs.URI, ITER_CSVMultipleOutputs.class);
+        itereg.put(ITER_GeoJSONFeatures.URI, ITER_GeoJSONFeatures.class);
+
 
         SPARQLParserRegistry.get()
                 .add(SYNTAX, new SPARQLParserFactory() {
@@ -207,25 +190,27 @@ public final class SPARQLGenerate {
 
         SerializerRegistry registry = SerializerRegistry.get();
         registry.addQuerySerializer(SPARQLGenerate.SYNTAX, factory);
-        
+
         RDFLanguages.unregister(Lang.RDFXML);
         RDFLanguages.register(LangBuilder.create(strLangRDFXML, contentTypeRDFXML)
-                                .addAltNames("RDFXML", "RDF/XML-ABBREV", "RDFXML-ABBREV")
-                                .addFileExtensions("rdf", "owl")
-                                .build());
+                .addAltNames("RDFXML", "RDF/XML-ABBREV", "RDFXML-ABBREV")
+                .addFileExtensions("rdf", "owl")
+                .build());
         RDFLanguages.register(LangBuilder.create("XML", "application/xml")
-                                .addFileExtensions("xml")
-                                .build());
+                .addFileExtensions("xml")
+                .build());
         RDFLanguages.register(LangBuilder.create("JSON", "application/json")
-                                .addFileExtensions("json")
-                                .build());
+                .addFileExtensions("json")
+                .build());
         RDFLanguages.register(LangBuilder.create("HTML", "text/html")
-                                .addFileExtensions("html", "xhtml")
-                                .build());
+                .addFileExtensions("html", "xhtml")
+                .build());
         RDFLanguages.register(LangBuilder.create("XHTML", "application/xhtml+xml")
-                                .addFileExtensions("xhtml")
-                                .build());
-        
+                .addFileExtensions("xhtml")
+                .build());
+
+        TypeMapper.getInstance().registerDatatype(WktLiteral.wktLiteralType);
+
         StreamManager.setGlobal(SPARQLGenerateStreamManager.makeStreamManager());
     }
 
@@ -237,7 +222,6 @@ public final class SPARQLGenerate {
     public static class SPARQLGenerateSyntax extends Syntax {
 
         /**
-         *
          * @param syntax the name of the syntax
          */
         public SPARQLGenerateSyntax(final String syntax) {
@@ -274,7 +258,7 @@ public final class SPARQLGenerate {
         /**
          * Guess the syntax (query and update) based on filename.
          *
-         * @param url the url of the syntax
+         * @param url           the url of the syntax
          * @param defaultSyntax a default syntax
          * @return an available syntax for the filename
          */
@@ -288,16 +272,16 @@ public final class SPARQLGenerate {
         }
 
     }
-    
+
     private static final Map<Thread, SPARQLGenerateStreamManager> streamManagers = new HashMap<>();
 
     public static SPARQLGenerateStreamManager getStreamManager() {
-        if(streamManagers.containsKey(Thread.currentThread())) {
+        if (streamManagers.containsKey(Thread.currentThread())) {
             log.trace("Using stream manager for " + Thread.currentThread());
             SPARQLGenerateStreamManager sm = streamManagers.get(Thread.currentThread());
             StreamManager.setGlobal(sm);
             return sm;
-        } 
+        }
         try {
             log.trace("Using default stream manager.");
             return (SPARQLGenerateStreamManager) StreamManager.get();
@@ -306,7 +290,7 @@ public final class SPARQLGenerate {
         }
         return null;
     }
-    
+
     public static void setStreamManager(SPARQLGenerateStreamManager streamManager) {
         Objects.requireNonNull(streamManager);
         streamManagers.put(Thread.currentThread(), streamManager);

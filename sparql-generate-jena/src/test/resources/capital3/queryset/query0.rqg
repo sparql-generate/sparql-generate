@@ -1,0 +1,5 @@
+PREFIX iter: <http://w3id.org/sparql-generate/iter/>
+PREFIX fun: <http://w3id.org/sparql-generate/fn/> 
+
+GENERATE { } 
+WHERE { }

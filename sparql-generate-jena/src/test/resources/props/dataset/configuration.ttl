@@ -1,5 +1,0 @@
-@prefix lm: <http://jena.hpl.hp.com/2004/08/location-mapping#> .
-
-[] lm:mapping
-   [ lm:name "https://w3id.org/product/props/graph2" ; lm:altName "dataset/graph2.ttl" ; lm:media "text/turtle" ] 
-   .

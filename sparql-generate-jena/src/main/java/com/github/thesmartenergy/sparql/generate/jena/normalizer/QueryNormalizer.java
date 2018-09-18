@@ -69,7 +69,7 @@ public class QueryNormalizer implements SPARQLGenerateQueryVisitor {
                 ElementIterator el = (ElementIterator) iteratorOrSource;
                 final ExprNormalizer enzer = new ExprNormalizer();
                 final Expr expr = enzer.normalize(el.getExpr());
-                iteratorsAndSources.add(new ElementIterator(expr, el.getVar()));
+                iteratorsAndSources.add(new ElementIterator(expr, el.getVars()));
             } else if (iteratorOrSource instanceof ElementSource) {
                 ElementSource el = (ElementSource) iteratorOrSource;
                 final NodeExprNormalizer nenzer = new NodeExprNormalizer(iteratorsAndSources);

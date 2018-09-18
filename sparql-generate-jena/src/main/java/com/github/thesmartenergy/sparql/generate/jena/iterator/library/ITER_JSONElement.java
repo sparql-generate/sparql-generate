@@ -25,10 +25,9 @@ import com.jayway.jsonpath.spi.json.JsonProvider;
 import com.jayway.jsonpath.spi.mapper.JacksonMappingProvider;
 import com.jayway.jsonpath.spi.mapper.MappingProvider;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.IteratorFunctionBase2;
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Set;
+
+import java.util.*;
+
 import org.apache.jena.datatypes.RDFDatatype;
 import org.apache.jena.datatypes.TypeMapper;
 import org.apache.jena.graph.Node;
@@ -95,7 +94,7 @@ public class ITER_JSONElement extends IteratorFunctionBase2 {
     private static final String datatypeUri = "http://www.iana.org/assignments/media-types/application/json";
 
     @Override
-    public List<NodeValue> exec(NodeValue json, NodeValue jsonquery) {
+    public List<List<NodeValue>> exec(NodeValue json, NodeValue jsonquery) {
         if (json.getDatatypeURI() != null
                 && !json.getDatatypeURI().equals(datatypeUri)
                 && !json.getDatatypeURI().equals("http://www.w3.org/2001/XMLSchema#string")) {
@@ -136,7 +135,7 @@ public class ITER_JSONElement extends IteratorFunctionBase2 {
 
                 position++;
             }
-            return nodeValues;
+            return new ArrayList<>(Collections.singletonList(nodeValues));
         } catch (Exception ex) {
             LOG.debug("No evaluation for " + json + ", " + jsonquery, ex);
             throw new ExprEvalException("No evaluation for " + json + ", " + jsonquery, ex);

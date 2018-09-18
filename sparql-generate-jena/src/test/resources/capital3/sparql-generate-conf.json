@@ -1,0 +1,26 @@
+{
+  "query": "query.rqg",
+  "namedqueries": [
+    {
+      "uri": "http://example.org/query#0",
+      "mediatype": "application/vnd.sparql-generate",
+      "path": "queryset/query0.rqg"
+    }
+  ],
+  "graph": "dataset/default.ttl",
+  "namedgraphs": [
+    {
+      "uri": "http://example.org/graph#0",
+      "mediatype": "text/turtle",
+      "path": "dataset/graph0.ttl"
+    }
+  ],
+  "documentset": [
+    {
+      "uri": "http://example.org/document#0",
+      "mediatype": "text/plain",
+      "path": "documentset/document0.txt"
+    }
+  ],
+  "log": "5"
+}

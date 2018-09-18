@@ -1,0 +1,14 @@
+{
+  "documentset": [
+    {
+      "uri": "https://ci.mines-stetienne.fr/aqi/static/station/0",
+      "mediatype": "application/json",
+      "path": "documentset/station0.txt"
+    }
+  ],
+  "query": "query.rqg",
+  "namedqueries": [],
+  "graph": "dataset/default.ttl",
+  "namedgraphs": [],
+  "log": "5"
+}

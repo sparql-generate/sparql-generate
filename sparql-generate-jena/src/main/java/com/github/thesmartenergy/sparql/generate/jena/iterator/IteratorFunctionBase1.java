@@ -44,7 +44,7 @@ public abstract class IteratorFunctionBase1 extends IteratorFunctionBase {
      * {@inheritDoc}
      */
     @Override
-    public final List<NodeValue> exec(List<NodeValue> args) {
+    public final List<List<NodeValue>> exec(List<NodeValue> args) {
         if (args == null) {
             throw new ARQInternalErrorException("SelectorBase1:"
                     + " Null args list");
@@ -60,5 +60,5 @@ public abstract class IteratorFunctionBase1 extends IteratorFunctionBase {
     /**
      * {@inheritDoc}
      */
-    public abstract List<NodeValue> exec(NodeValue v);
+    public abstract List<List<NodeValue>> exec(NodeValue v);
 }

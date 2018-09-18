@@ -4,8 +4,6 @@
 simmodel:ID28782  a                    simmodel:SimAppLibraryDefault_AppLibraryDefault_GlobalLibrary ;
         simmodel:refId                 "ID28782" ;
         simres:DefaultPreferenceIndex  "1" ;
-        simres:LibraryLocation         "" ;
-        simres:LibraryName             "" ;
         simres:SimModelName            "simAppLibraryDefault" ;
         simres:SimModelSubtype         "GlobalLibrary" ;
         simres:SourceModelSchema       "Simergy v0.9.500" ;
@@ -14,8 +12,6 @@ simmodel:ID28782  a                    simmodel:SimAppLibraryDefault_AppLibraryD
 simmodel:ID28781  a                    simmodel:SimAppLibraryDefault_AppLibraryDefault_GlobalLibrary ;
         simmodel:refId                 "ID28781" ;
         simres:DefaultPreferenceIndex  "0" ;
-        simres:LibraryLocation         "" ;
-        simres:LibraryName             "" ;
         simres:SimModelName            "simAppLibraryDefault" ;
         simres:SimModelSubtype         "GlobalLibrary" ;
         simres:SourceModelSchema       "Simergy v0.9.500" ;
@@ -24,8 +20,6 @@ simmodel:ID28781  a                    simmodel:SimAppLibraryDefault_AppLibraryD
 simmodel:ID28784  a                    simmodel:SimAppLibraryDefault_AppLibraryDefault_GlobalLibrary ;
         simmodel:refId                 "ID28784" ;
         simres:DefaultPreferenceIndex  "3" ;
-        simres:LibraryLocation         "" ;
-        simres:LibraryName             "" ;
         simres:SimModelName            "simAppLibraryDefault" ;
         simres:SimModelSubtype         "GlobalLibrary" ;
         simres:SourceModelSchema       "Simergy v0.9.500" ;
@@ -34,8 +28,6 @@ simmodel:ID28784  a                    simmodel:SimAppLibraryDefault_AppLibraryD
 simmodel:ID28783  a                    simmodel:SimAppLibraryDefault_AppLibraryDefault_GlobalLibrary ;
         simmodel:refId                 "ID28783" ;
         simres:DefaultPreferenceIndex  "2" ;
-        simres:LibraryLocation         "" ;
-        simres:LibraryName             "" ;
         simres:SimModelName            "simAppLibraryDefault" ;
         simres:SimModelSubtype         "GlobalLibrary" ;
         simres:SourceModelSchema       "Simergy v0.9.500" ;

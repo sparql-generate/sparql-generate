@@ -1,17 +1,19 @@
-PREFIX iter: <http://w3id.org/sparql-generate/iter/>
+PREFIX ite: <http://w3id.org/sparql-generate/iter/>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 PREFIX fun: <http://w3id.org/sparql-generate/fn/> 
 BASE <http://example.org/>
 
-LOOK UP <http://ci.emse.fr/sparql-generate/cities.json> AS ?message
-ITERATE iter:JSONListKeys( ?message ) AS ?cityName 
-WHEREVER { 
+GENERATE {
+
+  GENERATE {
+    <city/{ ?cityName }> <{ ?key }> "{ fun:JSONPath( ?message , "$.['{ ?cityName }']['{ ?key }']" )  }" . 
+  } 
+  ITERATOR ite:JSONListKeys( ?city ) AS ?key .
+  
+}
+SOURCE <https://ci.mines-stetienne.fr/sparql-generate/cities.json> AS ?message
+ITERATOR ite:JSONListKeys( ?message ) AS ?cityName 
+WHERE { 
   FILTER( STRSTARTS( ?cityName , "New" ) ) 
   BIND( fun:JSONPath( ?message, "$.['{ ?cityName }']" ) AS  ?city )
 } 
-CONSTRUCT {
-  ITERATE iter:JSONListKeys( ?city ) AS ?key  
-  CONSTRUCT {
-    <city/{ ?cityName }> <{ ?key }> "{ fun:JSONPath( ?message , "$.['{ ?cityName }']['{ ?key }']" )  }"@en . 
-  } .
-}

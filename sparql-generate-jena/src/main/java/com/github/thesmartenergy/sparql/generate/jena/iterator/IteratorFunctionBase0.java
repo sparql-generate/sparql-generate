@@ -17,12 +17,14 @@
  */
 package com.github.thesmartenergy.sparql.generate.jena.iterator;
 
-import java.util.List;
+
 import org.apache.jena.query.QueryBuildException;
 import org.apache.jena.sparql.ARQInternalErrorException;
 import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.ExprList;
 import org.apache.jena.sparql.expr.NodeValue;
+
+import java.util.List;
 
 /**
  * Support for a iterator function of zero arguments.
@@ -44,7 +46,7 @@ public abstract class IteratorFunctionBase0 extends IteratorFunctionBase {
      * {@inheritDoc}
      */
     @Override
-    public final List<NodeValue> exec(List<NodeValue> args) {
+    public final List<List<NodeValue>> exec(List<NodeValue> args) {
         if (args == null) {
             throw new ARQInternalErrorException("Iterator function '"
                     + this.getClass().getName() + " Null args list");
@@ -60,5 +62,5 @@ public abstract class IteratorFunctionBase0 extends IteratorFunctionBase {
     /**
      * {@inheritDoc}
      */
-    public abstract List<NodeValue> exec();
+    public abstract List<List<NodeValue>> exec();
 }

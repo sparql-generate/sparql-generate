@@ -21,6 +21,7 @@ import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.io.BufferedReader;
 import java.io.StringWriter;
+import java.util.Collections;
 import java.util.List;
 import org.apache.jena.datatypes.RDFDatatype;
 import org.apache.jena.datatypes.TypeMapper;
@@ -61,7 +62,7 @@ public class ITER_CSV extends IteratorFunctionBase1 {
     private static final String datatypeUri = "http://www.iana.org/assignments/media-types/text/csv";
 
     @Override
-    public List<NodeValue> exec(NodeValue csv) {
+    public List<List<NodeValue>> exec(NodeValue csv) {
         if (csv.getDatatypeURI() != null
                 && !csv.getDatatypeURI().equals(datatypeUri)
                 && !csv.getDatatypeURI().equals("http://www.w3.org/2001/XMLSchema#string")) {
@@ -107,7 +108,7 @@ public class ITER_CSV extends IteratorFunctionBase1 {
                 nodeValues.add(nodeValue);
             }
 
-            return nodeValues;
+            return new ArrayList<>(Collections.singletonList(nodeValues));
         } catch (Exception ex) {
             LOG.debug("No evaluation for " + csv, ex);
             throw new ExprEvalException("No evaluation for " + csv, ex);

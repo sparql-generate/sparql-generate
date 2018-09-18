@@ -18,6 +18,8 @@ package com.github.thesmartenergy.sparql.generate.jena.iterator.library;
 import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
 import java.util.ArrayList;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.IteratorFunctionBase3;
+
+import java.util.Collections;
 import java.util.List;
 import org.apache.jena.sparql.expr.NodeValue;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueString;
@@ -49,7 +51,7 @@ public class ITER_regex extends IteratorFunctionBase3 {
     }
 
     @Override
-    public List<NodeValue> exec(NodeValue stringValue, NodeValue regex, NodeValue locationV) {
+    public List<List<NodeValue>> exec(NodeValue stringValue, NodeValue regex, NodeValue locationV) {
 
         String string = stringValue.getString();
         String regexString = regex.getString();
@@ -64,7 +66,7 @@ public class ITER_regex extends IteratorFunctionBase3 {
             NodeValue nodeValue = new NodeValueString(matcher.group(location));
             nodeValues.add(nodeValue);
         }
-        return nodeValues;
+        return new ArrayList<>(Collections.singletonList(nodeValues));
     }
 
 }

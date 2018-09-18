@@ -145,10 +145,10 @@ public class PlanFactory {
      * @return the RootPlan.
      */
     private static RootPlan make(final SPARQLGenerateQuery query,
-            final boolean initial,
-            final boolean distant) {
+                                 final boolean initial,
+                                 final boolean distant) {
         Objects.requireNonNull(query, "The query must not be null");
-        
+
         if (query.hasEmbeddedExpressions()) {
             String qs = query.toString();
             SPARQLGenerateQuery query2 = (SPARQLGenerateQuery) QueryFactory.create(qs, SPARQLGenerate.SYNTAX) ;
@@ -207,10 +207,10 @@ public class PlanFactory {
             throws SPARQLGenerateException {
         Objects.requireNonNull(elementIterator, "The Iterator must not be null");
 
-        Var var = elementIterator.getVar();
+        List<Var> vars = elementIterator.getVars();
         Expr expr = elementIterator.getExpr();
 
-        Objects.requireNonNull(var, "The variable of the Iterator must not be null");
+        Objects.requireNonNull(vars, "The variables of the Iterator must not be null");
         Objects.requireNonNull(expr, "The Expr in the iterator must not be null");
         checkIsTrue(expr.isFunction(), "Iterator should be a function:"
                 + " <iri>(...) AS ?var");
@@ -225,7 +225,7 @@ public class PlanFactory {
         IteratorFunction iterator = factory.create(iri);
         ExprList exprList = new ExprList(function.getArgs());
         iterator.build(exprList);
-        return new IteratorPlanImpl(iterator, exprList, var);
+        return new IteratorPlanImpl(iterator, exprList, vars);
     }
 
     /**
@@ -307,7 +307,7 @@ public class PlanFactory {
             String qString = IOUtils.toString(in, Charset.forName("UTF-8"));
             SPARQLGenerateQuery q
                     = (SPARQLGenerateQuery) QueryFactory.create(qString,
-                            SPARQLGenerate.SYNTAX);
+                    SPARQLGenerate.SYNTAX);
             return make(q, false, true);
         } catch (NullPointerException ex) {
             LOG.error("NullPointerException while loading the query"

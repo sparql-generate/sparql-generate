@@ -1,6 +1,6 @@
 BASE <http://example.com/> 
-PREFIX iter: <http://w3id.org/sparql-generate/iter/>
-PREFIX fn: <http://w3id.org/sparql-generate/fn/>
+PREFIX ite: <http://w3id.org/sparql-generate/iter/>
+PREFIX fun: <http://w3id.org/sparql-generate/fn/>
 
 GENERATE { 
 
@@ -22,5 +22,5 @@ GENERATE {
   VALUES (?i) { ( 1 ) ( 2 ) }
   BIND( URI( CONCAT( "p_" , STR(?i) ) ) AS ?p ) 
   BIND( bnode( "same" ) AS ?bn)
-  BIND(fn:bnode( "same" ) AS ?bn2)
+  BIND(fun:bnode( "same" ) AS ?bn2)
 }

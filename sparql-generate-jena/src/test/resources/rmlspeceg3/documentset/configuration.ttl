@@ -1,9 +1,0 @@
-@prefix lm: <http://jena.hpl.hp.com/2004/08/location-mapping#> .
-
-[] lm:mapping
-   [ lm:name "https://raw.githubusercontent.com/mmlab/RMLProcessor/master/src/test/resources/example3/Venue.json" ; lm:altName "documentset/venue.json" ; lm:media "application/json" ] 
-   .
-
-
-
-

@@ -159,12 +159,12 @@ void IteratorOrSourceClause(List<Element> list) : {}
 }
 ElementIterator IteratorClause() : {}
 {
-  { Expr expr ; Var var;}
+  { Expr expr ; Var var; List<Var> vars = new ArrayList<Var>();}
   <ITERATOR>
-    expr = FunctionCall() 
-  <AS> 
-    var = Var() 
-    { return new ElementIterator(expr, var);} 
+    expr = FunctionCall()
+  <AS>
+    (var = Var() { vars.add(var); })+
+    { return new ElementIterator(expr, vars);}
 }
 ElementSource SourceClause() : {}
 {

@@ -21,6 +21,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -47,10 +48,10 @@ import org.slf4j.Logger;
  * processes CSV documents and iterates over the lines, a few lines at a time.
  *
  * <ul>
- * <li>Param 1 (csv) is the CSV document with a header line;</li>
+ * <li>Param 1 (csv) is the URI of the CSV document;</li>
  * <li>Param 2 (headerValue) is true if the CSV document contains a header;</li>
  * <li>Param 3 (maxValue) is the number of lines for each batch processing
- * executions;</li>
+ * execution;</li>
  * <li>Param 4 (recurrenceValue) is the number of seconds between successive
  * batch processing executions;</li>
  * </ul>
@@ -74,7 +75,7 @@ public class ITER_CSVStream extends IteratorStreamFunctionBase4 {
             final NodeValue headerValue,
             final NodeValue maxValue,
             final NodeValue recurrenceValue,
-            final Consumer<List<NodeValue>> nodeValuesStream) {
+            final Consumer<List<List<NodeValue>>> nodeValuesStream) {
 
         final String csvString = getCSV(csv);
         final int max = getMax(maxValue);
@@ -91,7 +92,7 @@ public class ITER_CSVStream extends IteratorStreamFunctionBase4 {
         }
     }
 
-    private void exec(final String csvString, final NodeValue headerValue, final int max, final Consumer<List<NodeValue>> nodeValuesStream, final ScheduledExecutorService scheduler) {
+    private void exec(final String csvString, final NodeValue headerValue, final int max, final Consumer<List<List<NodeValue>>> nodeValuesStream, final ScheduledExecutorService scheduler) {
         try (TypedInputStream tis = SPARQLGenerate.getStreamManager().open(csvString);
                 BufferedReader br = new BufferedReader(new InputStreamReader(tis.getInputStream(), "UTF-8"))) {
 
@@ -134,7 +135,7 @@ public class ITER_CSVStream extends IteratorStreamFunctionBase4 {
                     break;
                 }
                 LOG.trace("accept values " + nodeValues);
-                nodeValuesStream.accept(nodeValues);
+                nodeValuesStream.accept(new ArrayList<>(Collections.singletonList(nodeValues)));
             }
 
         } catch (Exception ex) {

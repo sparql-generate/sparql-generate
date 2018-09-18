@@ -2,8 +2,8 @@
 @prefix ex:    <http://example.com/> .
 @prefix mail:  <http://example.com/mail#> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
-@prefix fn:    <http://w3id.org/sparql-generate/fn/> .
-@prefix iter:   <http://w3id.org/sparql-generate/iter/> .
+@prefix fun:    <http://w3id.org/sparql-generate/fn/> .
+@prefix ite:   <http://w3id.org/sparql-generate/iter/> .
 
 <http://example.com/DateTime/2008/02/10>
         a         ex:DateTime ;

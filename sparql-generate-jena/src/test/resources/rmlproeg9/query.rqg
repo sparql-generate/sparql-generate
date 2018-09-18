@@ -1,6 +1,6 @@
 BASE <http://example.com/> 
-PREFIX iter: <http://w3id.org/sparql-generate/iter/>
-PREFIX fn: <http://w3id.org/sparql-generate/fn/>
+PREFIX ite: <http://w3id.org/sparql-generate/iter/>
+PREFIX fun: <http://w3id.org/sparql-generate/fn/>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX bibo:    <http://purl.org/ontology/bibo/> 
 PREFIX dcterms: <http://purl.org/dc/terms/>
@@ -15,13 +15,13 @@ GENERATE {
                 spc:volTitle ?volTitle .
 }
 SOURCE <http://ceur-ws.org/Vol-1128/index.html> AS ?source
-ITERATOR iter:CSSPath(?source, "body" ) AS ?body 
+ITERATOR ite:CSSPath(?source, "body" ) AS ?body 
 WHERE {
-	BIND(fn:HTMLTag(?body, "span.CEURVOLNR") AS ?volume )
+	BIND(fun:HTMLTag(?body, "span.CEURVOLNR") AS ?volume )
         BIND ( IRI(CONCAT("http://ceur-ws.org/",?volume)) as ?volumeIRI)
-	BIND(fn:HTMLTag(?body, "span.CEURURN") AS ?identifier )
-	BIND(fn:HTMLTag(?body, "span.CEURVOLACRONYM") AS ?shortTitle )
-	BIND(fn:HTMLTag(?body, "span.CEURFULLTITLE") AS ?fullTitle )
+	BIND(fun:HTMLTag(?body, "span.CEURURN") AS ?identifier )
+	BIND(fun:HTMLTag(?body, "span.CEURVOLACRONYM") AS ?shortTitle )
+	BIND(fun:HTMLTag(?body, "span.CEURFULLTITLE") AS ?fullTitle )
 
-        BIND(fn:HTMLTag(?body, "span.CEURVOLTITLE") AS ?volTitle )
+        BIND(fun:HTMLTag(?body, "span.CEURVOLTITLE") AS ?volTitle )
 }

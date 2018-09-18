@@ -58,7 +58,12 @@
             <groupId>net.sf.supercsv</groupId>
             <artifactId>super-csv</artifactId>
             <version>2.4.0</version>
-        </dependency>    
+        </dependency>
+        <dependency>
+            <groupId>com.github.filosganga</groupId>
+            <artifactId>geogson-core</artifactId>
+            <version>1.4.2</version>
+        </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.dataformat</groupId>
             <artifactId>jackson-dataformat-cbor</artifactId>
@@ -359,7 +364,11 @@
                     <skip>${skip}</skip>
                 </configuration>
             </plugin>
-
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-project-info-reports-plugin</artifactId>
+                <version>2.7</version>
+            </plugin>
             <!-- verify -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>

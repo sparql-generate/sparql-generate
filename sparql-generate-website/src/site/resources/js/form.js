@@ -16,6 +16,12 @@ var open = false;
 var stream = false;
 var timers = [];
 
+var resetErrors = function() {
+  $(".invalid").removeClass("invalid");
+  $("#run").removeAttr("disabled");
+  $(".invalidmsg").remove();
+};
+
 var validate = function() {
 
   // no two named thing with the same URI and mediatype
@@ -155,6 +161,48 @@ var validate = function() {
   }
 };
 
+///////////////////////////////////////
+///////////////////////////////////////
+///////////////////////////////////////
+///////////////////////////////////////
+///////////////////////////////////////
+// run
+
+var openSocket = function (callback) {
+  var websocketurl = "wss://" + window.location.hostname + (window.location.port!="" ? ":" + window.location.port : "") + "/sparql-generate/transformStream";
+  socket = new WebSocket(websocketurl);
+
+  socket.onopen = function (event) {
+    open = true;
+    console.log("websocket open");
+    validate();
+    if (callback) {
+        callback();
+    }
+  };
+   
+  socket.onmessage = function (event) {
+    var data = JSON.parse(event.data)
+    console.log("received", data)
+    processMessage(data);
+  }
+   
+  socket.onclose = function (event) {
+    open = false;
+    console.log("websocket closed");
+  }
+}
+
+var loglevels = {
+    "0": "OFF",
+    "1": "ERROR",
+    "2": "WARN",
+    "3": "INFO",
+    "4": "DEBUG",
+    "5": "TRACE"
+};
+
+
 var run = function() {
     var msg = {
         defaultquery: defaultquery_string,
@@ -168,7 +216,7 @@ var run = function() {
 }
 
 var send = function(msg) {
-    console.log("sending request");
+    console.log("sending ", msg);
     $("#run").delay(50).animate({
         "box-shadow": "none"
     }, 50, function () {
@@ -176,73 +224,14 @@ var send = function(msg) {
             "box-shadow": "0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19)"
         }, 50);
     });
-    socket.send(JSON.stringify(msg));
+    if (open) {
+        socket.send(JSON.stringify(msg));
+    } else {
+        openSocket(function () {
+            socket.send(JSON.stringify(msg));
+        });
+    }
 }
-
-
-var resetErrors = function() {
-  $(".invalid").removeClass("invalid");
-  $("#run").removeAttr("disabled");
-  $(".invalidmsg").remove();
-};
-
-var init = function() { 
-  $("#form").empty();
-  $("#form").append(`
-    <div class="col-lg-6">
-      <div id="queryset" class="fieldset">
-        <legend>SPARQL-Generate Queries</legend>
-        <p>See the documentation for our predefined <a href="apidocs/com/github/thesmartenergy/sparql/generate/jena/iterator/library/package-summary.html">iterator functions</a> and <a href="apidocs/com/github/thesmartenergy/sparql/generate/jena/function/library/package-summary.html">binding functions</a>.</p>
-        <div id="queryset_drop_zone" class="drop_zone">
-          <strong>Click here to add a new named query, you can also drag SPARQL-Generate documents to load them ...</strong>
-        </div>
-      </div>
-      <div id="documentset_list" class="fieldset">
-        <legend>Documentset</legend>
-        <div id="documentset_drop_zone" class="drop_zone">
-          <strong>Click here to add a new document, you can also drag one or more files to load them ...</strong>
-        </div>
-      </div>
-      <div id="dataset" class="fieldset">
-        <legend>Dataset</legend>
-        <div id="dataset_drop_zone" class="drop_zone">
-          <strong>Click here to add a new graph, you can also drag turtle documents to load them ...</strong>
-        </div>
-      </div>
-    </div>
-    <div class="col-lg-6">
-      <div class="fieldset">
-        <div id="result_list">
-          <legend><button id="run">Run Query</button>
-          <label id="stream"><input type="checkbox" id="autocheck" /> <span>auto</span></label></legend>
-          <textarea id="result"> </textarea>
-        </div>
-        <div id="log">
-          <legend>Log</legend>
-          <input id="loglevel" type="range" value="5" min="0" max="5"></input>
-          <pre></pre>
-        </div>
-      </div>
-    </div>`);
-    
-    
-  namedqueries = [],
-  namedqueries_editors = [],
-  namedqueries_tags = [];
-  namedgraphs = [],
-  namedgraphs_editors = [],
-  namedgraphs_tags = [];
-  documentset = [],
-  documentset_editors = [],
-  documentset_tags = [];
-
-  load_queryset();
-  load_dataset();
-  load_documentset();
-  load_result();
-  validate();
-}
-
 
 ///////////////////////////////////////
 ///////////////////////////////////////
@@ -901,33 +890,39 @@ var manage_log_level = function() {
 ///////////////////////////////////////
 //  tests
 
-var load_tests = function() {
-  var http = new XMLHttpRequest();
-  var url = "api/list";
-  http.open("GET", url, true);
-  http.onreadystatechange = function() {//Call a function when the state changes.
-      if(http.readyState == 4 && http.status == 200) {
-          tests = http.responseText.split("\n");
-          for(var i = 0 ; i<tests.length ;i++ ) {
-              if(tests[i]!=="") {
-                  $("#tests").append("<option value='"+tests[i]+"'>"+tests[i]+"</option>");
-              }
-          }            
-      }
-  }
-  http.send();
+var load_all = function() {
+
+  $.getJSON("api/tests", function( data ) {
+      for(var i = 0 ; i<data.length ;i++ ) {
+        $("#tests").append("<option value='"+data[i]+"'>"+data[i]+"</option>");
+      }            
+  });
 
   $("#tests").change(function() {
     var test = $("#tests")[0].value;
     if(test!=="---") {
-        load_test(test);
+        load("tests", test);
+    }
+  });
+
+  $.getJSON("api/exercises", function( data ) {
+      for(var i = 0 ; i<data.length ;i++ ) {
+        $("#exercises").append("<option value='"+data[i]+"'>"+data[i]+"</option>");
+      }            
+  });
+
+  $("#exercises").change(function() {
+    var exercise = $("#exercises")[0].value;
+    if(exercise!=="---") {
+        load("exercises", exercise);
     }
   });
 
 }
 
-var load_test = function(id) {
-  $.getJSON("api/list/"+id, function( data ) {
+var load = function(set, id) {
+  $.getJSON(`api/${set}/${id}`, function( data ) {
+        localStorage.setItem('readme', data.readme);
         localStorage.setItem('defaultquery', data.defaultquery);
         localStorage.setItem('namedqueries', JSON.stringify(data.namedqueries));
         localStorage.setItem('defaultgraph', data.defaultgraph);
@@ -962,6 +957,74 @@ var processMessage = function(responses) {
     $("#log pre").scrollTop($("#log pre")[0].scrollHeight);
 }
 
+///////////////////////////////////////
+///////////////////////////////////////
+///////////////////////////////////////
+///////////////////////////////////////
+///////////////////////////////////////
+//  init
+
+var init = function() { 
+  
+  $("#readme").empty();
+  $("#form").empty();
+  $("#form").append(`
+    <div class="col-lg-6">
+      <div id="queryset" class="fieldset">
+        <legend>SPARQL-Generate Queries</legend>
+        <p>See the documentation for our predefined <a href="apidocs/com/github/thesmartenergy/sparql/generate/jena/iterator/library/package-summary.html">iterator functions</a> and <a href="apidocs/com/github/thesmartenergy/sparql/generate/jena/function/library/package-summary.html">binding functions</a>.</p>
+        <div id="queryset_drop_zone" class="drop_zone">
+          <strong>Click here to add a new named query, you can also drag SPARQL-Generate documents to load them ...</strong>
+        </div>
+      </div>
+      <div id="documentset_list" class="fieldset">
+        <legend>Documentset</legend>
+        <div id="documentset_drop_zone" class="drop_zone">
+          <strong>Click here to add a new document, you can also drag one or more files to load them ...</strong>
+        </div>
+      </div>
+      <div id="dataset" class="fieldset">
+        <legend>Dataset</legend>
+        <div id="dataset_drop_zone" class="drop_zone">
+          <strong>Click here to add a new graph, you can also drag turtle documents to load them ...</strong>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-6">
+      <div class="fieldset">
+        <div id="result_list">
+          <legend><button id="run">Run Query</button>
+          <label id="stream"><input type="checkbox" id="autocheck" /> <span>auto</span></label></legend>
+          <textarea id="result"> </textarea>
+        </div>
+        <div id="log">
+          <legend>Log</legend>
+          <input id="loglevel" type="range" value="5" min="0" max="5"></input>
+          <pre></pre>
+        </div>
+      </div>
+    </div>`);
+    
+    
+  namedqueries = [],
+  namedqueries_editors = [],
+  namedqueries_tags = [];
+  namedgraphs = [],
+  namedgraphs_editors = [],
+  namedgraphs_tags = [];
+  documentset = [],
+  documentset_editors = [],
+  documentset_tags = [];
+
+  $("#readme").html(localStorage.getItem('readme'));
+
+  load_queryset();
+  load_dataset();
+  load_documentset();
+  load_result();
+  validate();
+}
+
 $(document).ready(function() {
     
     
@@ -969,28 +1032,13 @@ $(document).ready(function() {
   $(".main-body").parent().empty().removeClass("container").addClass("container-fluid").append(`
   <h1>SPARQL-Generate Playground</h1>
 
-  <p>You can <label for="test">load and try one of the unit tests:</label> <select name="test" id="tests"><option value="---">---</option></select></p>
+  <p>Load <label for="exercise">exercise</label> <select name="exercise" id="exercises"><option value="---">---</option></select> or <label for="test">test</label> <select name="test" id="tests"><option value="---">---</option></select></p>
 
+  <div id="readme"></div>
   <div id="form" class="row"></div>`);
   init();
-  load_tests();
-
-  var websocketurl = "wss://" + window.location.hostname + (window.location.port!="" ? ":" + window.location.port : "") + "/sparql-generate/transformStream";
-  socket = new WebSocket(websocketurl);
- 
-  socket.onopen = function (event) {
-    open = true;
-    console.log("websocket open");
-    validate();
-  };
-   
-  socket.onmessage = function (event) {
-      console.log("received")
-      processMessage(JSON.parse(event.data));
-    }
-   
-  socket.onclose = function (event) {
-      console.log("websocket closed");
-  }
+  load_all();
+  
+  openSocket();
 
 });

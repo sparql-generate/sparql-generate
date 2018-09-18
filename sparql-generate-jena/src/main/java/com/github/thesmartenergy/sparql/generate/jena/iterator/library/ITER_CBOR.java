@@ -25,11 +25,9 @@ import com.jayway.jsonpath.spi.json.JsonProvider;
 import com.jayway.jsonpath.spi.mapper.JacksonMappingProvider;
 import com.jayway.jsonpath.spi.mapper.MappingProvider;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.IteratorFunctionBase2;
-import java.util.Base64;
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Set;
+
+import java.util.*;
+
 import org.apache.jena.datatypes.RDFDatatype;
 import org.apache.jena.datatypes.TypeMapper;
 import org.apache.jena.graph.Node;
@@ -90,7 +88,7 @@ public class ITER_CBOR extends IteratorFunctionBase2 {
     private static final String datatypeUri = "http://www.iana.org/assignments/media-types/application/cbor";
 
     @Override
-    public List<NodeValue> exec(NodeValue cbor, NodeValue jsonpath) {
+    public List<List<NodeValue>> exec(NodeValue cbor, NodeValue jsonpath) {
         if (cbor.getDatatypeURI() != null
                 && !cbor.getDatatypeURI().equals(datatypeUri)
                 && !cbor.getDatatypeURI().equals("http://www.w3.org/2001/XMLSchema#string")) {
@@ -119,7 +117,7 @@ public class ITER_CBOR extends IteratorFunctionBase2 {
                 NodeValue nodeValue = new NodeValueNode(node);
                 nodeValues.add(nodeValue);
             }
-            return nodeValues;
+            return new ArrayList<>(Collections.singletonList(nodeValues));
         } catch (Exception ex) {
             LOG.debug("No evaluation of " + cbor + ", " + jsonpath, ex);
             throw new ExprEvalException("No evaluation of " + cbor + ", " + jsonpath, ex);
