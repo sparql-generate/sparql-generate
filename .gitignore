@@ -1,6 +1,10 @@
 # max
 notes.txt
 
+# idea
+.idea/
+*.iml
+
 # NetBeans
 nbactions.xml
 nb-configuration.xml
