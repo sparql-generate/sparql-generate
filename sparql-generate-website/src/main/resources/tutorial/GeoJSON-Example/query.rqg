@@ -15,10 +15,18 @@ GENERATE {
 		wkt:asWKT ?geometricCoordinates .
 }
 SOURCE <https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_month.geojson> AS ?source
-ITERATOR iter:GeoJSONFeatures(?source) AS ?earthquake
+
+#ITERATOR iter:GeoJSONFeatures(?source) AS ?earthquake
+#WHERE {
+#	BIND (fun:GeoJSONGeometry(?earthquake) AS ?geometricCoordinates)
+#	BIND (IRI(fun:JSONPath(?earthquake,"$.properties.url.value")) as ?earthquakeIRI)
+#	BIND (fun:JSONPath(?earthquake,"$.properties.place.value") AS ?place)
+#	BIND (fun:dateTime(fun:JSONPath(?earthquake,"$.properties.time.value.value")) AS ?time)
+#}
+
+ITERATOR iter:GeoJSON(?source) AS ?geometricCoordinates ?properties
 WHERE {
-	BIND (fun:GeoJSONGeometry(?earthquake) AS ?geometricCoordinates)
-	BIND (IRI(fun:JSONPath(?earthquake,"$.properties.url.value")) as ?earthquakeIRI)
-	BIND (fun:JSONPath(?earthquake,"$.properties.place.value") AS ?place)
-	BIND (fun:dateTime(fun:JSONPath(?earthquake,"$.properties.time.value.value")) AS ?time)
+	BIND (IRI(fun:JSONPath(?properties,"$.url")) as ?earthquakeIRI)
+	BIND (fun:JSONPath(?properties,"$.place") AS ?place)
+	BIND (fun:dateTime(fun:JSONPath(?properties,"$.time.value")) AS ?time)
 }

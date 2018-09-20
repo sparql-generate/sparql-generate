@@ -1,5 +1,18 @@
 <p>
-    An example showcasing how SPARQL-Generate deals with geospatial linked data, like <a href="http://geojson.org/">GeoJSON</a> geometry data.<br>
-    In this example, <code>iter:GeoJSONFeatures</code> iterates and extracts the GeoJSON <a href="https://tools.ietf.org/html/rfc7946#page-11">Features</a> from a GeoJSON object with the type < href="https://tools.ietf.org/html/rfc7946#page-12">FeatureCollection</a>.<br>
-    <code>fun:GeoJSONGeometry</code> extracts the <a href="https://tools.ietf.org/html/rfc7946#page-7">Geometry</a> member from a <a href="https://tools.ietf.org/html/rfc7946#page-11">Feature object</a> as a wktLiteral<br>
+    An example showcasing how SPARQL-Generate deals with geospatial linked data, like <a href="http://geojson.org/">GeoJSON</a> geometry data. In this example, you can iterate over a GeoJSON document in two ways, with <code>iter:GeoJSONFeatures</code> or <code>iter:GeoJSON</code>.<br>
 </p>
+<ol>
+    <li>
+        <code>iter:GeoJSONFeatures</code> iterates and extracts the GeoJSON <a href="https://tools.ietf.org/html/rfc7946#page-11">Features</a> from a GeoJSON object with the type <a href="https://tools.ietf.org/html/rfc7946#page-12">FeatureCollection</a>.
+        <ul>
+            <li><code>fun:GeoJSONGeometry</code> extracts the <a href="https://tools.ietf.org/html/rfc7946#page-7">Geometry</a> member from a <a href="https://tools.ietf.org/html/rfc7946#page-11">Feature object</a> as a wktLiteral.</li>
+        </ul>
+    </li>
+    <li>
+        <code>iter:GeoJSON</code> returns two iterators:
+        <ul>
+            <li>the <a href="https://tools.ietf.org/html/rfc7946#page-7">Geometry</a> member (as a wktLiteral) of each <a href="https://tools.ietf.org/html/rfc7946#page-11">Feature</a> object in the <a href="https://tools.ietf.org/html/rfc7946#page-12">FeatureCollection</a> GeoJSON object.</li>
+            <li>the "properties" member as a JSON object.</li>
+        </ul>
+    </li>
+</ol>

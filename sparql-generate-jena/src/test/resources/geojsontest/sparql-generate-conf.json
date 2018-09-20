@@ -14,6 +14,11 @@
             "mediatype": "application/geo+json",
             "path": "documentset/feature-collection.geojson",
             "uri": "https://raw.githubusercontent.com/filosganga/geogson/master/core/src/test/resources/feature-collection.json"
+        },
+        {
+            "mediatype": "application/geo+json",
+            "path": "documentset/World_AL6.GeoJson",
+            "uri": "https://raw.githubusercontent.com/NetTopologySuite/NetTopologySuite.IO.GeoJSON/develop/NetTopologySuite.IO.GeoJSON.Test/World_AL6.GeoJson"
         }
     ],
     "query": "query.rqg"
