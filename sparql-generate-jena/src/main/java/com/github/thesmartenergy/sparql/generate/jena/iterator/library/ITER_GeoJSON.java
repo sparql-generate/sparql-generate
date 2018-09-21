@@ -15,8 +15,6 @@
  */
 package com.github.thesmartenergy.sparql.generate.jena.iterator.library;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.filosganga.geogson.gson.GeometryAdapterFactory;
 import com.github.filosganga.geogson.model.Feature;
 import com.github.filosganga.geogson.model.FeatureCollection;
@@ -27,8 +25,6 @@ import com.github.thesmartenergy.sparql.generate.jena.iterator.IteratorFunctionB
 import com.github.thesmartenergy.sparql.generate.jena.utils.WktLiteral;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
-import com.jayway.jsonpath.JsonPath;
 import org.apache.jena.datatypes.TypeMapper;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
@@ -39,6 +35,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -133,7 +130,7 @@ import java.util.stream.Stream;
  * </pre>
  *
  * @author El Mehdi Khalfi <el-mehdi.khalfi at emse.fr>
- * @since 2018-09-04
+ * @since 2018-09-19
  */
 public class ITER_GeoJSON extends IteratorFunctionBase1 {
 
@@ -168,21 +165,22 @@ public class ITER_GeoJSON extends IteratorFunctionBase1 {
                     + " <http://www.w3.org/2001/XMLSchema#string>. Got "
                     + json.getDatatypeURI());
         }
+
         // Generate a List of (two) Lists
         // first list is for geometries
         // second list is for properties
         List<List<NodeValue>> nodeValues = Stream.generate(ArrayList<NodeValue>::new).limit(2).collect(Collectors.toList());
 
         FeatureCollection featureCollection = gson.fromJson(json.asString(), FeatureCollection.class);
-        int i = 0;
+
         for (Feature feature : featureCollection.features()) {
             Geometry g = feature.geometry();
+            // features
 
             //GeoGSON supports the following geometry types:
             // Point, LineString, Polygon, MultiPoint, MultiLineString, MultiPolygon, and GeometryCollection.
             Node n;
             if (g instanceof GeometryCollection) {
-                // GeometryCollection specification: https://tools.ietf.org/html/rfc7946#page-9
                 GeometryCollection geometryCollection = (GeometryCollection) g;
                 List<String> geomJsons = new ArrayList<>();
                 for (Geometry geom : geometryCollection.getGeometries()) {
@@ -203,8 +201,21 @@ public class ITER_GeoJSON extends IteratorFunctionBase1 {
                 n = NodeFactory.createLiteral(g.getClass().getSimpleName().toUpperCase() + " " + gString, WktLiteral.wktLiteralType);
             }
             NodeValue nodeValue = new NodeValueNode(n);
+            // Adding features iterator
             nodeValues.get(0).add(nodeValue);
-            nodeValues.get(1).add(new NodeValueNode(NodeFactory.createLiteral(gson.toJson(feature.properties()), TypeMapper.getInstance().getSafeTypeByName("http://www.iana.org/assignments/media-types/application/json"))));
+
+            // properties
+            Map<String, String> properties = feature.properties().entrySet().stream().collect(Collectors.toMap(
+                    p -> p.getKey(),
+                    //p -> p.getValue().isJsonNull() ? "" : p.getValue().toString()
+                    p -> p.getValue().isJsonNull() ? "" : p.getValue().isJsonPrimitive() ? p.getValue().getAsString() : gson.toJson(p.getValue())
+            ));
+            // Adding properties iterator
+            nodeValues.get(1).add(new NodeValueNode(
+                    NodeFactory.createLiteral(
+                            gson.toJson(properties),
+                            TypeMapper.getInstance().getSafeTypeByName("http://www.iana.org/assignments/media-types/application/json")))
+            );
         }
         return nodeValues;
     }

@@ -7,18 +7,28 @@
         },
         {
             "mediatype": "text/csv",
-            "path": "documentset/1000Sales.csv",
-            "uri": "http://example.com/1000Sales.csv"
+            "path": "documentset/100SalesRecords.csv",
+            "uri": "http://example.com/100SalesRecords.csv"
         },
         {
             "mediatype": "text/csv",
-            "path": "documentset/500000Sales.csv",
-            "uri": "http://example.com/500000Sales.csv"
+            "path": "documentset/1000SalesRecords.csv",
+            "uri": "http://example.com/1000SalesRecords.csv"
         },
         {
             "mediatype": "text/csv",
-            "path": "documentset/1500000Sales.csv",
-            "uri": "http://example.com/1500000Sales.csv"
+            "path": "documentset/50000SalesRecords.csv",
+            "uri": "http://example.com/50000SalesRecords.csv"
+        },
+        {
+            "mediatype": "text/csv",
+            "path": "documentset/500000SalesRecords.csv",
+            "uri": "http://example.com/500000SalesRecords.csv"
+        },
+        {
+            "mediatype": "text/csv",
+            "path": "documentset/1500000SalesRecords.csv",
+            "uri": "http://example.com/1500000SalesRecords.csv"
         },
         {
             "mediatype": "text/csv",

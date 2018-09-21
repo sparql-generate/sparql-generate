@@ -15,8 +15,16 @@
  */
 package com.github.thesmartenergy.sparql.generate.jena.function.library;
 
+import com.github.filosganga.geogson.gson.GeometryAdapterFactory;
+import com.github.filosganga.geogson.model.Feature;
+import com.github.filosganga.geogson.model.FeatureCollection;
+import com.github.filosganga.geogson.model.Geometry;
+import com.github.filosganga.geogson.model.Point;
 import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
 import com.github.thesmartenergy.sparql.generate.jena.utils.WktLiteral;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.query.QueryBuildException;
 import org.apache.jena.sparql.expr.ExprList;
@@ -65,6 +73,15 @@ public final class FUN_GeoCSVasWKT extends FunctionBase {
      */
     public static final String URI = SPARQLGenerate.FUN + "GeoCSVasWKT";
 
+    /**
+     * Registering the GeometryAdapterFactory.
+     * Gson TypeAdapterFactory is responsible fpr serializing/de-serializing all the {@link Geometry}, {@link Feature}
+     * and {@link FeatureCollection} instances.
+     */
+    private static Gson gson = new GsonBuilder()
+            .registerTypeAdapterFactory(new GeometryAdapterFactory())
+            .create();
+
     @Override
     public NodeValue exec(List<NodeValue> args) {
         switch (args.size()) {
@@ -82,13 +99,24 @@ public final class FUN_GeoCSVasWKT extends FunctionBase {
                 String wktGeometry = wktGeometryNode.asString();
                 return new NodeValueNode(NodeFactory.createLiteral(wktGeometry, WktLiteral.wktLiteralType));
             case 2:
-                // "7.34245,45.83736"
+                // "7.34245,45.83736" -> "POINT (7.34245 45.83736)"
+                Double lat = Double.parseDouble(args.get(0).asString());
+                Double lon = Double.parseDouble(args.get(1).asString());
 
-                break;
+                Point p = Point.from(lat, lon);
+                String pString = gson.toJson(p.positions()).
+                        replace(",", " ").
+                        replace("] [", ", ").
+                        replace("[", "(").
+                        replace("]", ")");
+                pString = p.getClass().getSimpleName().toUpperCase() + " " + pString;
+                Node n = NodeFactory.createLiteral(pString, WktLiteral.wktLiteralType);
+                return new NodeValueNode(n);
         }
 
         //Node node = NodeFactory.createLiteral(defaultFormat.format(date), XSDDatatype.XSDdateTime);
         //return new NodeValueNode(node);
+        System.out.println("NULL");
         return null;
     }
 

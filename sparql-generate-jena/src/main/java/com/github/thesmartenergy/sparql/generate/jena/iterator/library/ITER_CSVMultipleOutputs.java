@@ -46,14 +46,15 @@ import java.util.stream.Collectors;
  * <ul>
  * <li>Param 1 (args) is a list of arguments such that
  * <ul>
- *     <li>the first argument of the list corresponds to the CSV document with a header line;</li>
- *     <li>the remaining arguments correspond the specified columns names as in the CSV header</li>
+ * <li>the first argument of the list corresponds to the CSV document with a header line;</li>
+ * <li>the second argument of the list corresponds to the delimiter character separating the values in each row;</li>
+ * <li>the remaining arguments correspond the specified columns names as in the CSV header</li>
  * </ul>
  * </li>
  * </ul>
  *
  * <b>Examples: </b>
- *
+ * <p>
  * Iterating over this CSV document<br>
  * <pre>
  * id,stop,latitude,longitude,date<br>
@@ -62,7 +63,7 @@ import java.util.stream.Collectors;
  * 7001,41,57.901389,5.584444,03/03/03<br>
  * 7002,42,58.901389,6.584444,23/12/80<br>
  * </pre>
- * with <tt>ITERATOR ite:CSVMultipleOutputs(?source, "id", "stop") AS ?id ?stop ?date</tt> returns (in each iteration):<br>
+ * with <tt>ITERATOR ite:CSVMultipleOutputs(?source, ",", "id", "stop") AS ?id ?stop</tt> returns (in each iteration):<br>
  * <pre>
  *  ?id => "6523"^^xsd#string, ?stop => "25"^^xsd#string<br>
  *  ?id => "7000"^^xsd#string, ?stop => "40"^^xsd#string<br>
@@ -93,7 +94,9 @@ public class ITER_CSVMultipleOutputs extends IteratorFunctionBase {
     @Override
     public List<List<NodeValue>> exec(List<NodeValue> args) {
         NodeValue csv = args.get(0);
-        List<NodeValue> columns = args.subList(1, args.size());
+        String separator = args.get(1).asString();
+
+        List<NodeValue> columns = args.subList(2, args.size());
         if (csv.getDatatypeURI() != null
                 && !csv.getDatatypeURI().equals(datatypeUri)
                 && !csv.getDatatypeURI().equals("http://www.w3.org/2001/XMLSchema#string")) {
@@ -110,7 +113,8 @@ public class ITER_CSVMultipleOutputs extends IteratorFunctionBase {
         try {
             String sourceCSV = csv.asNode().getLiteralLexicalForm();
             BufferedReader br = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(sourceCSV.getBytes("UTF-8")), "UTF-8"));
-            ICsvListReader listReader = new CsvListReader(br, CsvPreference.STANDARD_PREFERENCE);
+            CsvPreference preference = new CsvPreference.Builder('"', separator.charAt(0), "\n").build();
+            ICsvListReader listReader = new CsvListReader(br, preference);
             List<String> header = listReader.read();
 
             for (String col : cols) {
@@ -139,9 +143,9 @@ public class ITER_CSVMultipleOutputs extends IteratorFunctionBase {
 
     @Override
     public void checkBuild(ExprList args) {
-        if (args.size() < 2 ) {
+        if (args.size() < 3) {
             throw new QueryBuildException("Function '"
-                    + this.getClass().getName() + "' takes at least a first argument (the CSV document) and one column to iterate over.");
+                    + this.getClass().getName() + "' takes at least three arguments: (1) the CSV document, (2) the separator character, and (3) at least one column to iterate over.");
         }
     }
 }

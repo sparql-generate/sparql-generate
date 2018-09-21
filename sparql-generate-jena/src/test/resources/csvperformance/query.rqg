@@ -1,27 +1,42 @@
+BASE <http://order.example.com/>
 PREFIX iter: <http://w3id.org/sparql-generate/iter/>
 PREFIX fun: <http://w3id.org/sparql-generate/fn/>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
-PREFIX foaf: <http://xmlns.com/foaf/0.1/>
-PREFIX schema: <http://schema.org/>
-
-BASE <http://example.org/>
+PREFIX ex: <http://example.org/>
 
 GENERATE {
- <s> <p> <o>.
+  <{?orderID}> a ex:Order .
+    #ex:region ?region;
+    #ex:country ?country;
+    #ex:itemType ?itemType;
+    #ex:salesChannel ?salesChannel;
+    #ex:orderPriority ?orderPriority;
+    #ex:orderDate ?orderDate;
+    #ex:shipDate ?shipDate;
+    #ex:unitsSold ?unitsSold;
+    #ex:unitPrice ?unitPrice;
+    #ex:unitCost ?unitCost;
+    #ex:totalRevenue ?totalRevenue;
+    #ex:totalCost ?totalCost;
+    #ex:totalProfit ?totalProfit.
 }
-
-# original csv
-#SOURCE <http://example.com/1500000Sales.csv> AS ?sales
+SOURCE <http://example.com/100SalesRecords.csv> AS ?sales
 #ITERATOR iter:CSV(?sales) AS ?sale
+#WHERE {
+#    BIND(fun:CSV(?sale, "Region") AS ?region)
+#    BIND(fun:CSV(?sale, "Country") AS ?country)
+#    BIND(fun:CSV(?sale, "Sales Channel") AS ?salesChannel)
+#    BIND(fun:CSV(?sale, "Order Priority") AS ?orderPriority)
+#    BIND(fun:CSV(?sale, "Order Date") AS ?orderDate)
+#    BIND(fun:CSV(?sale, "Units Sold") AS ?unitsSold)
+#    BIND(fun:CSV(?sale, "Unit Cost") AS ?unitCost)
+#    BIND(fun:CSV(?sale, "Total Revenue") AS ?totalRevenue)
+#    BIND(fun:CSV(?sale, "Order ID") AS ?orderId)
+#    BIND(fun:CSV(?sale, "Ship Date") AS ?shipDate)
+#    BIND(fun:CSV(?sale, "Item Type") AS ?itemType)
+#    BIND(fun:CSV(?sale, "Unit Price") AS ?unitPrice)
+#    BIND(fun:CSV(?sale, "Total Profit") AS ?totalProfit)
+#    BIND(fun:CSV(?sale, "Total Cost") AS ?totalCost)
+#}
 
-#new csv stream
-#ITERATOR iter:NewCSVStream("/home/local/EMSE2000/el-mehdi.khalfi/armines/sparql-generate-dev-mehdi/sparql-generate/sparql-generate-jena/src/test/resources/csvperformance/documentset/1500000Sales.csv") AS ?sale
-
-
-# multiple outputs csv stream
-#ITERATOR iter:CSVStreamMultipleOutputs("/home/local/EMSE2000/el-mehdi.khalfi/armines/sparql-generate-dev-mehdi/sparql-generate/sparql-generate-jena/src/test/resources/csvperformance/documentset/1500000Sales.csv", 1500000, "*") AS ?Region
-ITERATOR iter:CSVStreamMultipleOutputs("/home/local/EMSE2000/el-mehdi.khalfi/armines/sparql-generate-dev-mehdi/sparql-generate/sparql-generate-jena/src/test/resources/csvperformance/documentset/1500000Sales.csv", 1500000, "Order ID", "Ship Date", "Item Type", "Unit Price", "Total Profit") AS ?orderID ?shipDate ?itemType ?unitPrice ?totalProfit
-
-WHERE {
-
-}
+ITERATOR iter:CSVStreamMultipleOutputs("/home/local/EMSE2000/el-mehdi.khalfi/armines/sparql-generate-dev-mehdi/sparql-generate/sparql-generate-jena/src/test/resources/csvperformance/documentset/100SalesRecords.csv", 1, "*") AS ?region ?country ?itemType ?salesChannel ?orderPriority ?orderDate ?orderID ?shipDate ?unitsSold ?unitPrice ?unitCost ?totalRevenue ?totalCost ?totalProfit

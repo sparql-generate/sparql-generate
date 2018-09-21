@@ -73,7 +73,7 @@ public class ITER_NewCSVStream extends IteratorStreamFunctionBase1 {
 
     private void withoutStreams(NodeValue v, Consumer<List<List<NodeValue>>> nodeValuesStream) {
         String csvPath = v.asString();
-        int chunkSize = 1500000;//args.get(1).getInteger().intValue();
+        int chunkSize = 5;//args.get(1).getInteger().intValue();
         RDFDatatype dt = TypeMapper.getInstance()
                 .getSafeTypeByName(datatypeUri);
         try {

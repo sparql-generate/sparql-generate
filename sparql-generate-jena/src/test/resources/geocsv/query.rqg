@@ -1,19 +1,18 @@
 BASE <http://example.com/> 
 PREFIX ite: <http://w3id.org/sparql-generate/iter/>
 PREFIX fun: <http://w3id.org/sparql-generate/fn/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 PREFIX transit: <http://vocab.org/transit/terms/>
-PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> 
 
 GENERATE {
   ?airportURI a transit:Stop;
-        transit:route ?date1;
-        transit:coordinates1 ?latlong;
-        transit:coordinates2 ?geometry;
+        transit:coordinates1 ?geometryWkt;
+        transit:coordinates2 ?latlongWkt.
 }
 SOURCE <http://example.com/airport.csv> AS ?source
-ITERATOR ite:CSVMultipleOutputs(?source, "id","latitude","longitude","wkt") AS ?id ?latitude ?longitude ?geometry
+ITERATOR ite:CSVMultipleOutputs(?source,";","id","latitude","longitude","wkt") AS ?id ?latitude ?longitude ?geometry
 WHERE {
     BIND (URI(CONCAT("http://airport.example.com/",?id)) AS ?airportURI)
-    BIND(fun:GeoCSVasWKT(?latitude,?longitude) AS ?latlong)
-    BIND(fun:GeoCSVasWKT(?geometry) AS ?geometry)
+    BIND(fun:GeoCSVasWKT(?latitude,?longitude) AS ?latlongWkt)
+    BIND(fun:GeoCSVasWKT(?geometry) AS ?geometryWkt)
 }

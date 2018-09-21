@@ -187,6 +187,7 @@
                             <exclude>**/web.xml</exclude>
                             <exclude>**/src/site/**/*.*</exclude>
                             <exclude>**/src/main/resources/**/*.json</exclude>
+			                <exclude>**/src/main/resources/**/*.geojson</exclude>
                             <exclude>**/*.js</exclude>
                             <exclude>**/*.rqg</exclude>
                             <exclude>**/src/main/**/*.html</exclude>

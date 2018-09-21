@@ -1,0 +1,16 @@
+BASE <http://example.com/>
+PREFIX iter: <http://w3id.org/sparql-generate/iter/>
+PREFIX fun: <http://w3id.org/sparql-generate/fn/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX ex: <http://example.org/>
+
+GENERATE {
+    <{?id}> a ex:test ;
+    ex:data ?data.
+}
+ITERATOR iter:PeriodicJSON("http://localhost:3000/data",1,10,"$.randomstrings.*") AS ?randomstrings
+
+WHERE {
+       BIND(xsd:string(fun:JSONPath(?randomstrings, "$.id" )) AS ?id)
+       BIND(fun:JSONPath(?randomstrings, "$.data" ) AS ?data)
+}

@@ -37,7 +37,10 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -63,11 +66,11 @@ public class ITER_CSVStreamMultipleOutputs extends IteratorStreamFunctionBase {
         Instant start = Instant.now();
         withoutStreams(args, nodeValuesStream);
         System.out.println("Sent in " + Duration.between(start, Instant.now()).toMillis() + " ms.");
-        try {
+        /*try {
             System.in.read();
         } catch (IOException e) {
             e.printStackTrace();
-        }
+        }*/
     }
 
     public void withoutStreams(List<NodeValue> args, Consumer<List<List<NodeValue>>> nodeValuesStream) {
@@ -88,8 +91,8 @@ public class ITER_CSVStreamMultipleOutputs extends IteratorStreamFunctionBase {
                 wantedColumnsNames = args.subList(2, args.size()).stream().map(NodeValue::asString).collect(Collectors.toMap(col -> col, col -> header.indexOf(col)));
             }
 
+            int chunkNumber = 0;
             boolean endOfFileReached = false;
-            int chunkNumber = 1;
             while (true) {
                 List<List<NodeValue>> nodeValues = Stream.generate(ArrayList<NodeValue>::new).limit(wantedColumnsNames.size()).collect(Collectors.toList());
                 for (int x = 0; x < chunkSize; x++) {
@@ -98,15 +101,15 @@ public class ITER_CSVStreamMultipleOutputs extends IteratorStreamFunctionBase {
                         endOfFileReached = true;
                         break;
                     }
-                    int i = 0;
                     for (String col : wantedColumnsNames.keySet()) {
                         int indexOfColInHeader = wantedColumnsNames.get(col);
                         NodeValue n = new NodeValueNode(NodeFactory.createLiteral(row.get(indexOfColInHeader), XSDDatatype.XSDstring));
 
-                        nodeValues.get(i++).add(n);
+                        nodeValues.get(wantedColumnsNames.get(col)).add(n);
                     }
                 }
                 nodeValuesStream.accept(nodeValues);
+                //System.out.println("################################## Chunk N° " + (++chunkNumber) + " ##################################");
                 if (endOfFileReached)
                     break;
             }
