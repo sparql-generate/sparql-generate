@@ -20,6 +20,7 @@ import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.NodeValue;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueString;
 import org.apache.jena.sparql.function.FunctionBase2;
+import org.jsoup.parser.Parser;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 import org.jsoup.Jsoup;
@@ -62,7 +63,7 @@ public class FUN_HTMLTag extends FunctionBase2 {
 
         try {
             String sourceHtml = String.valueOf(html.asNode().getLiteralLexicalForm());
-            org.jsoup.nodes.Document htmldoc = Jsoup.parse(sourceHtml);
+            org.jsoup.nodes.Document htmldoc = Jsoup.parse(sourceHtml, "", Parser.xmlParser());
 
             String selectPath = String.valueOf(v2.asNode().getLiteralLexicalForm());
             Elements elements = htmldoc.select(selectPath);
