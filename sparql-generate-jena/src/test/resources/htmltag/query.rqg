@@ -1,0 +1,17 @@
+BASE <http://example.com/>
+PREFIX iter: <http://w3id.org/sparql-generate/iter/>
+PREFIX fun: <http://w3id.org/sparql-generate/fn/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX ex: <http://example.com/>
+
+GENERATE {
+<{?countryName}> a ex:Country;
+    ex:countryCode ?code.
+}
+SOURCE <https://example.countries.html> AS ?source
+ITERATOR iter:CSSPath(?source, '#countriesTable tr') AS ?table
+WHERE {
+    BIND( fun:HTMLTag(?table, "td:nth-child(1)") AS ?countryName )
+    BIND( fun:HTMLTag(?table, "td:nth-child(2)") AS ?code )
+}
