@@ -1,0 +1,10 @@
+{
+    "documentset": [
+        {
+            "uri": "https://example.countries.html",
+            "mediatype": "html/text",
+            "path": "documentset/countries.html"
+        }
+    ],
+    "query": "query.rqg"
+}
