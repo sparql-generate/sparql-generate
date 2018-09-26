@@ -32,22 +32,28 @@ import java.util.stream.Collectors;
 
 /**
  * Iterator function
- * <a href="http://w3id.org/sparql-generate/iter/regex">iter:regex</a>
- * iterates over the input subsequences captured by the ith groups of every
- * regex matches.
+ * <a href="http://w3id.org/sparql-generate/iter/regex">iter:regexgroups</a>
+ * iterates over each captured ith group matched by the regex.
  *
  * <ul>
  * <li>Param 1 is the input string;</li>
  * <li>Param 2 is a regular expression;</li>
- * <li>Param 3 is the number of the group to capture;</li>
+ * <li>The remaining parameters correspond to the captured group numbers;</li>
  * </ul>
  *
- * @author Noorani Bakerally <noorani.bakerally at emse.fr>
+ * @author El-Mehdi Khalfi <el-mehdi.khalfi at emse.fr>
+ * @since 2018-09-26
  */
 public class ITER_regexgroups extends IteratorFunctionBase {
 
+    /**
+     * The logger.
+     */
     private static final Logger LOG = LoggerFactory.getLogger(ITER_regexgroups.class);
 
+    /**
+     * The SPARQL function URI.
+     */
     public static final String URI = SPARQLGenerate.ITER + "regexgroups";
 
 
@@ -56,6 +62,7 @@ public class ITER_regexgroups extends IteratorFunctionBase {
         String string = args.get(0).asString();
         String regexString = args.get(1).asString();
         List<NodeValue> groups = args.subList(2, args.size());
+
         List<List<NodeValue>> nodeValues = new ArrayList<>();
 
         Pattern pattern = Pattern.compile(regexString);
@@ -66,8 +73,6 @@ public class ITER_regexgroups extends IteratorFunctionBase {
         for (int i = 0; i < groups.size(); i++) {
             nodeValues.add(new ArrayList<>());
         }
-
-
 
         while (matcher.find()) {
             int i = 0;
