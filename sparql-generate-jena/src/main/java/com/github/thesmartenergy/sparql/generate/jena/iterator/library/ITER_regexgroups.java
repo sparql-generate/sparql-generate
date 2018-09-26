@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 
 /**
  * Iterator function
- * <a href="http://w3id.org/sparql-generate/iter/regex">iter:regexgroups</a>
+ * <a href="http://w3id.org/sparql-generate/iter/regexgroups">iter:regexgroups</a>
  * iterates over each captured ith group matched by the regex.
  *
  * <ul>
@@ -40,6 +40,17 @@ import java.util.stream.Collectors;
  * <li>Param 2 is a regular expression;</li>
  * <li>The remaining parameters correspond to the captured group numbers;</li>
  * </ul>
+ *
+ * <b>Example: </b>
+ * <p>
+ * To iterate over the 2nd and 3rd groups of this text <pre>"1-John-12/05/1980#2-Sam-13/02/1987#3-Tim-10/06/1990"</pre> <br>matched by this regex <pre>"([0-9]+)-([a-zA-Z ]+)-(([0-9]+)/([0-9]+)/([0-9]+))"</pre><br>
+ * you can use the following iterator <pre>ITERATOR iter:regexgroups("1-John-12/05/1980#2-Sam-13/02/1987#3-Tim-10/06/1990","([0-9]+)-([a-zA-Z ]+)-(([0-9]+)/([0-9]+)/([0-9]+))",2,3) AS ?name ?birthDate</pre>
+ * wich returns (in each iteration) :
+ * <pre>
+ * ?name => "John", ?birthDate => "12/05/1980"<br>
+ * ?name => "Sam", ?birthDate => "13/02/1987"<br>
+ * ?name => "Tim", ?birthDate => "10/06/1990"<br>
+ * </pre>
  *
  * @author El-Mehdi Khalfi <el-mehdi.khalfi at emse.fr>
  * @since 2018-09-26
