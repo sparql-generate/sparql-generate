@@ -1,0 +1,54 @@
+BASE <http://example.com/>
+PREFIX iter: <http://w3id.org/sparql-generate/iter/>
+PREFIX fun: <http://w3id.org/sparql-generate/fn/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX ex: <http://example.org/>
+
+GENERATE {
+    <events/{?eventId}> a ex:Event;
+        ex:type ?type;
+        ex:happenedAt ?datetime;
+}
+ITERATOR iter:StreamWebSocket("wss://api.gemini.com/v1/marketdata/BTCUSD",10,"") AS ?events
+
+WHERE {
+       BIND(fun:JSONPath(?events, "$.type" ) AS ?type)
+       BIND(xsd:string(fun:JSONPath(?events, "$.eventId" )) AS ?eventId)
+       BIND(fun:dateTime(xsd:string(fun:JSONPath(?events, "$.timestampms" ))) AS ?datetime)
+}
+
+
+#Sample output data from wss://api.gemini.com/v1/marketdata/BTCUSD
+#{
+#  "type": "update",
+#  "eventId": 4560727130,
+#  "timestamp": 1537878043,
+#  "timestampms": 1537878043867,
+#  "socket_sequence": 35,
+#  "events": [
+#    {
+#      "type": "change",
+#      "side": "bid",
+#      "price": "6382.91",
+#      "remaining": "5.37848054",
+#      "delta": "5.37848054",
+#      "reason": "place"
+#    }
+#  ]
+#}
+
+#Sample input data from wss://ws-feed.pro.coinbase.com
+#{ "type": "subscribe", "product_ids": [ "ETH-USD", "ETH-EUR" ], "channels": [ "level2", "heartbeat", { "name": "ticker", "product_ids": [ "ETH-BTC", "ETH-USD" ] } ] }
+#Sample output data from wss://ws-feed.pro.coinbase.com
+#{
+#  "type": "l2update",
+#  "product_id": "ETH-USD",
+#  "time": "2018-09-25T12:23:09.548Z",
+#  "changes": [
+#    [
+#      "sell",
+#      "210.02000000",
+#      "10.750107"
+#    ]
+#  ]
+#}

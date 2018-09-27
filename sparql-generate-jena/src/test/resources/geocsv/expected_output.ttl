@@ -4,17 +4,21 @@
 @prefix fun:   <http://w3id.org/sparql-generate/fn/> .
 
 <http://airport.example.com/7000>
-        a              transit:Stop ;
-        transit:route  "2002-02-02T00:00:00Z"^^xsd:dateTime .
+        a                     transit:Stop ;
+        transit:coordinates1  "MULTIPOLYGON (((30 20, 10 40, 45 40, 30 20)),((15 5, 40 10, 10 20, 5 10, 15 5)))"^^<http://www.opengis.net/ont/geosparql#wktLiteral> ;
+        transit:coordinates2  "POINT (56.901389 4.584444)"^^<http://www.opengis.net/ont/geosparql#wktLiteral> .
 
 <http://airport.example.com/6523>
-        a              transit:Stop ;
-        transit:route  "2001-01-01T00:00:00Z"^^xsd:dateTime .
+        a                     transit:Stop ;
+        transit:coordinates1  "MULTILINESTRING ((10 10, 20 20, 10 40),(40 40, 30 30, 40 20, 30 10))"^^<http://www.opengis.net/ont/geosparql#wktLiteral> ;
+        transit:coordinates2  "POINT (50.901389 4.484444)"^^<http://www.opengis.net/ont/geosparql#wktLiteral> .
 
 <http://airport.example.com/7002>
-        a              transit:Stop ;
-        transit:route  "1980-12-23T00:00:00Z"^^xsd:dateTime .
+        a                     transit:Stop ;
+        transit:coordinates1  "GEOMETRYCOLLECTION(POLYGON((1 1,2 1,2 2,1 2,1 1)),POINT(2 3),LINESTRING(2 3,3 4))"^^<http://www.opengis.net/ont/geosparql#wktLiteral> ;
+        transit:coordinates2  "POINT (58.901389 6.584444)"^^<http://www.opengis.net/ont/geosparql#wktLiteral> .
 
 <http://airport.example.com/7001>
-        a              transit:Stop ;
-        transit:route  "2003-03-03T00:00:00Z"^^xsd:dateTime .
+        a                     transit:Stop ;
+        transit:coordinates1  "MULTIPOLYGON (((40 40, 20 45, 45 30, 40 40)),((20 35, 45 20, 30 5, 10 10, 10 30, 20 35),(30 20, 20 25, 20 15, 30 20)))"^^<http://www.opengis.net/ont/geosparql#wktLiteral> ;
+        transit:coordinates2  "POINT (57.901389 5.584444)"^^<http://www.opengis.net/ont/geosparql#wktLiteral> .

@@ -61,7 +61,8 @@ public class TestBase {
     private final File exampleDir;
     private Request request;
 
-    private static final String pattern = "csvperformance";
+    // test folders starting with X are to be ignored, because they are in their alpha phase, or streams that can not be tested.
+    private static final String pattern = "^[^X].*";
 //    private static final String pattern = ".*";
 
 

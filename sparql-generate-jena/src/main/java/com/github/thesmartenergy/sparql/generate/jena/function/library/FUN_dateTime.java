@@ -80,9 +80,9 @@ public final class FUN_dateTime extends FunctionBase {
     public NodeValue exec(List<NodeValue> args) {
 
         NodeValue dt = args.get(0);
-        String dateTimeString = dt.getString();
+        String dateTimeString = dt.asString();
 
-        if (dt == null || dt.getString().isEmpty()) {
+        if (dt == null || dateTimeString.isEmpty()) {
             LOG.debug("The NodeValue is Null");
             throw new ExprEvalException("The NodeValue is Null");
         }

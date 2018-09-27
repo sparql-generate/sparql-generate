@@ -1,15 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.github.thesmartenergy</groupId>
-        <artifactId>sparql-generate-parent</artifactId>    
+        <artifactId>sparql-generate-parent</artifactId>
         <version>1.2.3-SNAPSHOT</version>
     </parent>
 
     <artifactId>sparql-generate-jena</artifactId>
     <packaging>jar</packaging>
-       
+
     <name>SPARQL-Generate over Apache Jena</name>
     <description>An implementation of SPARQL-Generate over Apache Jena</description>
     <url>https://w3id.org/sparql-generate/</url>
@@ -18,14 +19,14 @@
         <jena.version>3.4.0</jena.version>
         <skip>false</skip>
     </properties>
-    
+
     <dependencies>
         <dependency>
             <groupId>org.apache.jena</groupId>
             <artifactId>jena-arq</artifactId>
             <version>${jena.version}</version>
         </dependency>
-        
+
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
@@ -75,19 +76,20 @@
             <version>2.25.1</version>
         </dependency>
         <dependency>
-            <groupId>io.vertx</groupId>
-            <artifactId>vertx-web</artifactId>
-            <version>3.5.3</version>
-        </dependency>
-        <dependency>
-            <groupId>io.vertx</groupId>
-            <artifactId>vertx-web-client</artifactId>
-            <version>3.5.3</version>
-        </dependency>
-        <dependency>
             <groupId>org.eclipse.paho</groupId>
             <artifactId>org.eclipse.paho.client.mqttv3</artifactId>
             <version>1.2.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.java-websocket</groupId>
+            <artifactId>Java-WebSocket</artifactId>
+            <version>1.3.9</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.univocity</groupId>
+            <artifactId>univocity-parsers</artifactId>
+            <version>2.7.6</version>
         </dependency>
     </dependencies>
 
@@ -120,7 +122,7 @@
                     </executions>
                 </plugin>
 
-                <!-- configure process-sources -->            
+                <!-- configure process-sources -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jxr-plugin</artifactId>
@@ -153,8 +155,10 @@
                             </goals>
                             <configuration>
                                 <transformers>
-                                    <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                        <mainClass>com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerateCli</mainClass>
+                                    <transformer
+                                            implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                        <mainClass>com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerateCli
+                                        </mainClass>
                                     </transformer>
                                 </transformers>
                             </configuration>
@@ -167,7 +171,7 @@
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>taglist-maven-plugin</artifactId>
                     <version>2.4</version>
-                    <!-- needs XRef --> 
+                    <!-- needs XRef -->
                     <inherited>true</inherited>
                     <configuration>
                         <aggregate>true</aggregate>
@@ -281,7 +285,8 @@
                             <link>https://jena.apache.org/documentation/javadoc/arq/</link>
                             <link>https://jena.apache.org/documentation/javadoc/jena/</link>
                         </links>
-                        <excludePackageNames>com.github.thesmartenergy.sparql.generate.jena.engine.impl</excludePackageNames>
+                        <excludePackageNames>com.github.thesmartenergy.sparql.generate.jena.engine.impl
+                        </excludePackageNames>
                     </configuration>
                 </plugin>
 
@@ -323,7 +328,7 @@
                                 </reports>
                             </plugin>
                         </reportPlugins>
-                    </configuration>        
+                    </configuration>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -350,7 +355,7 @@
                 <artifactId>ph-javacc-maven-plugin</artifactId>
             </plugin>
 
-            <!-- process-sources -->            
+            <!-- process-sources -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jxr-plugin</artifactId>
@@ -412,7 +417,7 @@
                 <version>2.20</version>
                 <configuration>
                     <skip>false</skip>
-                </configuration>            
+                </configuration>
             </plugin>
 
             <plugin>
@@ -422,7 +427,7 @@
                     <skip>${skip}</skip>
                 </configuration>
             </plugin>
-            
+
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
@@ -433,5 +438,5 @@
             </plugin>
         </plugins>
     </build>
-    
+
 </project>

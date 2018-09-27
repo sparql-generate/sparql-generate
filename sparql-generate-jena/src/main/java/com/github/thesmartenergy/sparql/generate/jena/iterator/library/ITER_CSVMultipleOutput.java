@@ -39,7 +39,7 @@ import java.util.stream.Collectors;
 
 /**
  * Iterator function
- * <a href="http://w3id.org/sparql-generate/iter/CSVMultipleOutputs">iter:CSVMultipleOutputs</a>
+ * <a href="http://w3id.org/sparql-generate/iter/CSVMultipleOutput">iter:CSVMultipleOutput</a>
  * iterates over the rows of a CSV document.
  * In each iteration, it corresponds each designated variable to the given cell identified by the column name contained in the arguments
  *
@@ -63,7 +63,7 @@ import java.util.stream.Collectors;
  * 7001,41,57.901389,5.584444,03/03/03<br>
  * 7002,42,58.901389,6.584444,23/12/80<br>
  * </pre>
- * with <tt>ITERATOR ite:CSVMultipleOutputs(?source, ",", "id", "stop") AS ?id ?stop</tt> returns (in each iteration):<br>
+ * with <tt>ITERATOR ite:CSVMultipleOutput(?source, ",", "id", "stop") AS ?id ?stop</tt> returns (in each iteration):<br>
  * <pre>
  *  ?id => "6523"^^xsd#string, ?stop => "25"^^xsd#string<br>
  *  ?id => "7000"^^xsd#string, ?stop => "40"^^xsd#string<br>
@@ -74,17 +74,17 @@ import java.util.stream.Collectors;
  * @author El Mehdi Khalfi <el-mehdi.khalfi at emse.fr>
  * @since 2018-09-04
  */
-public class ITER_CSVMultipleOutputs extends IteratorFunctionBase {
+public class ITER_CSVMultipleOutput extends IteratorFunctionBase {
 
     /**
      * The logger.
      */
-    private static final Logger LOG = LoggerFactory.getLogger(ITER_CSVMultipleOutputs.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ITER_CSVMultipleOutput.class);
 
     /**
      * The SPARQL function URI.
      */
-    public static final String URI = SPARQLGenerate.ITER + "CSVMultipleOutputs";
+    public static final String URI = SPARQLGenerate.ITER + "CSVMultipleOutput";
 
     /**
      * The datatype URI of the first parameter and the return literals.

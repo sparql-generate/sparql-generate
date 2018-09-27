@@ -10,7 +10,7 @@ GENERATE {
         transit:coordinates2 ?latlongWkt.
 }
 SOURCE <http://example.com/airport.csv> AS ?source
-ITERATOR ite:CSVMultipleOutputs(?source,";","id","latitude","longitude","wkt") AS ?id ?latitude ?longitude ?geometry
+ITERATOR ite:CSVMultipleOutput(?source,";","id","latitude","longitude","wkt") AS ?id ?latitude ?longitude ?geometry
 WHERE {
     BIND (URI(CONCAT("http://airport.example.com/",?id)) AS ?airportURI)
     BIND(fun:GeoCSVasWKT(?latitude,?longitude) AS ?latlongWkt)

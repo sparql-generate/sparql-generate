@@ -96,20 +96,14 @@ public class IteratorPlanImpl extends PlanBase implements IteratorPlan {
             sb = null;
         }
         values.forEach((binding) -> {
-            List<BindingHashMapOverwrite> newValues = new ArrayList();
             try {
                 iterator.exec(binding, exprList, null, (nodeValues) -> {
+                    List<BindingHashMapOverwrite> newValues = new ArrayList<>();
                     if (nodeValues == null || nodeValues.isEmpty()) {
                         for (Var v : vars) {
                             newValues.add(new BindingHashMapOverwrite(binding, v, null));
                         }
                     } else {
-                        /*int nbValues = nodeValues.size();
-                        int nbVariables = variables.size();
-                        if (nbVariables <= nbValues) {
-                            LOG.debug("The number of variables does not match the number of values provided after ?source");
-                            throw new ExprEvalException("The number of variables does not match the number of values provided after ?source");
-                        }*/
                         int nbIterables = nodeValues.get(0).size();
                         for (int j = 0; j < nbIterables; j++) {
                             BindingHashMapOverwrite bindingHashMapOverwrite = new BindingHashMapOverwrite(binding, null, null);

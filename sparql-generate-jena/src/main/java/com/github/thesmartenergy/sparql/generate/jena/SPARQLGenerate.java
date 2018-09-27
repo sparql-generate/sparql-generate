@@ -150,14 +150,13 @@ public final class SPARQLGenerate {
         itereg.put(ITER_CSVHeaders.URI, ITER_CSVHeaders.class);
         itereg.put(ITER_CSVStream.URI, ITER_CSVStream.class);
         itereg.put(ITER_for.URI, ITER_for.class);
-        itereg.put(ITER_CSVMultipleOutputs.URI, ITER_CSVMultipleOutputs.class);
+        itereg.put(ITER_CSVMultipleOutput.URI, ITER_CSVMultipleOutput.class);
         itereg.put(ITER_GeoJSONFeatures.URI, ITER_GeoJSONFeatures.class);
         itereg.put(ITER_regexgroups.URI, ITER_regexgroups.class);
-        itereg.put(ITER_CSVStreamMultipleOutputs.URI, ITER_CSVStreamMultipleOutputs.class);
-        itereg.put(ITER_NewCSVStream.URI, ITER_NewCSVStream.class);
         itereg.put(ITER_GeoJSON.URI, ITER_GeoJSON.class);
         itereg.put(ITER_PeriodicJSON.URI, ITER_PeriodicJSON.class);
         itereg.put(ITER_PeriodicMQTT.URI, ITER_PeriodicMQTT.class);
+        itereg.put(ITER_StreamWebSocket.URI, ITER_StreamWebSocket.class);
 
 
         SPARQLParserRegistry.get()

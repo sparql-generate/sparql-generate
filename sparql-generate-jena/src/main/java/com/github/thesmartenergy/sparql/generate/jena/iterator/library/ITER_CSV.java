@@ -17,14 +17,6 @@ package com.github.thesmartenergy.sparql.generate.jena.iterator.library;
 
 import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.IteratorFunctionBase1;
-import java.io.ByteArrayInputStream;
-import java.time.Duration;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.io.BufferedReader;
-import java.io.StringWriter;
-import java.util.Collections;
-import java.util.List;
 import org.apache.jena.datatypes.RDFDatatype;
 import org.apache.jena.datatypes.TypeMapper;
 import org.apache.jena.graph.Node;
@@ -32,14 +24,20 @@ import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.NodeValue;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueNode;
-import org.supercsv.io.ICsvListReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.supercsv.io.CsvListReader;
 import org.supercsv.io.CsvListWriter;
+import org.supercsv.io.ICsvListReader;
 import org.supercsv.prefs.CsvPreference;
-import org.slf4j.LoggerFactory;
-import org.slf4j.Logger;
+
+import java.io.*;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Iterator function
@@ -50,10 +48,9 @@ import org.slf4j.Logger;
  * <li>Param 1: (csv) is the CSV document with a header line.</li>
  * </ul>
  *
- * @see
- * com.github.thesmartenergy.sparql.generate.jena.function.library.FN_CustomCSV
- * for CSV document with different dialects
  * @author Noorani Bakerally <noorani.bakerally at emse.fr>
+ * @see com.github.thesmartenergy.sparql.generate.jena.function.library.FN_CustomCSV
+ * for CSV document with different dialects
  */
 public class ITER_CSV extends IteratorFunctionBase1 {
 
@@ -87,18 +84,18 @@ public class ITER_CSV extends IteratorFunctionBase1 {
             BufferedReader br = new BufferedReader(reader);
 
             listReader = new CsvListReader(br, CsvPreference.STANDARD_PREFERENCE);
-            
+
             List<String> header = listReader.read();
             LOG.trace("header: " + header);
             List<NodeValue> nodeValues = new ArrayList<>();
 
             while (true) {
                 List<String> row = listReader.read();
-                if(row==null) {
+                if (row == null) {
                     break;
                 }
 
-                StringWriter sw = new StringWriter(); 
+                StringWriter sw = new StringWriter();
 
                 CsvListWriter listWriter = new CsvListWriter(sw, CsvPreference.STANDARD_PREFERENCE);
                 listWriter.write(header);
@@ -111,8 +108,9 @@ public class ITER_CSV extends IteratorFunctionBase1 {
                 NodeValueNode nodeValue = new NodeValueNode(node);
                 nodeValues.add(nodeValue);
             }
-            System.out.println("Sent in " + Duration.between(start, Instant.now()).toMillis() + " ms.");
 
+            long millis = Duration.between(start, Instant.now()).toMillis();
+            System.out.println("ITER_CSV sent in " + String.format("%dmin, %d sec", TimeUnit.MILLISECONDS.toMinutes(millis), TimeUnit.MILLISECONDS.toSeconds(millis) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis))));
             return new ArrayList<>(Collections.singletonList(nodeValues));
         } catch (Exception ex) {
             LOG.debug("No evaluation for " + csv, ex);

@@ -1,0 +1,10 @@
+{
+    "documentset": [
+        {
+            "mediatype": "text/csv",
+            "path": "/home/local/EMSE2000/el-mehdi.khalfi/armines/project/src/main/resources/1500000Sales.csv",
+            "uri": "http://example.com/1500000SalesRecords.csv"
+        }
+    ],
+    "query": "query.rqg"
+}

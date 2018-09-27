@@ -1,0 +1,24 @@
+BASE <http://example.com/>
+PREFIX iter: <http://w3id.org/sparql-generate/iter/>
+PREFIX fun: <http://w3id.org/sparql-generate/fn/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX ex: <http://example.org/>
+
+GENERATE {
+    <{?bikeStationId}> a ex:BikeStation ;
+    ex:name ?name;
+    ex:bike_stands ?bike_stands;
+    ex:available_bike_stands ?available_bike_stands;
+    ex:available_bikes ?available_bikes;
+    ex:lastUpdate ?lastUpdate.
+}
+ITERATOR iter:PeriodicJSON("https://api.jcdecaux.com/vls/v1/stations?contract=Lyon&apiKey=0844b898118d179a48a3d95969e7444d0de26a66",2,5,"$.*") AS ?bikeStation
+
+WHERE {
+       BIND(xsd:string(fun:JSONPath(?bikeStation, "$.number" )) AS ?bikeStationId)
+       BIND(fun:JSONPath(?bikeStation, "$.name" ) AS ?name)
+       BIND(fun:JSONPath(?bikeStation, "$.bike_stands" ) AS ?bike_stands)
+       BIND(fun:JSONPath(?bikeStation, "$.available_bike_stands" ) AS ?available_bike_stands)
+       BIND(fun:JSONPath(?bikeStation, "$.available_bikes" ) AS ?available_bikes)
+       BIND(fun:dateTime(fun:JSONPath(?bikeStation, "$.last_update")) AS ?last_update)
+}

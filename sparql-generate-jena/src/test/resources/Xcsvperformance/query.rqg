@@ -1,0 +1,24 @@
+BASE <http://order.example.com/>
+PREFIX iter: <http://w3id.org/sparql-generate/iter/>
+PREFIX fun: <http://w3id.org/sparql-generate/fn/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX ex: <http://example.org/>
+
+GENERATE {
+  <{?orderID}> a ex:Order ;
+    ex:region ?region;
+    ex:country ?country;
+    ex:itemType ?itemType;
+    ex:salesChannel ?salesChannel;
+    ex:orderPriority ?orderPriority;
+    ex:orderDate ?orderDate;
+    ex:shipDate ?shipDate;
+    ex:unitsSold ?unitsSold;
+    ex:unitPrice ?unitPrice;
+    ex:unitCost ?unitCost;
+    ex:totalRevenue ?totalRevenue;
+    ex:totalCost ?totalCost;
+    ex:totalProfit ?totalProfit.
+}
+
+ITERATOR iter:CSVStream("/home/local/EMSE2000/el-mehdi.khalfi/armines/project/src/main/resources/1500000Sales.csv", 100000, "*") AS ?region ?country ?itemType ?salesChannel ?orderPriority ?orderDate ?orderID ?shipDate ?unitsSold ?unitPrice ?unitCost ?totalRevenue ?totalCost ?totalProfit
