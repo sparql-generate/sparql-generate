@@ -48,6 +48,10 @@ import java.util.concurrent.TimeUnit;
  * <li>Param 1: (csv) is the CSV document with a header line.</li>
  * </ul>
  *
+ * <p>
+ * For very large CSV files (typically above 100.000 lines), prefer <a href="http://w3id.org/sparql-generate/iter/CSVStream">CSVStream</a>.
+ * </p>
+ *
  * @author Noorani Bakerally <noorani.bakerally at emse.fr>
  * @see com.github.thesmartenergy.sparql.generate.jena.function.library.FN_CustomCSV
  * for CSV document with different dialects

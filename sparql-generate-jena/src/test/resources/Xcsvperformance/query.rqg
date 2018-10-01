@@ -21,4 +21,4 @@ GENERATE {
     ex:totalProfit ?totalProfit.
 }
 
-ITERATOR iter:CSVStream("/home/local/EMSE2000/el-mehdi.khalfi/armines/project/src/main/resources/1500000Sales.csv", 100000, "*") AS ?region ?country ?itemType ?salesChannel ?orderPriority ?orderDate ?orderID ?shipDate ?unitsSold ?unitPrice ?unitCost ?totalRevenue ?totalCost ?totalProfit
+ITERATOR iter:CSVStream("/home/local/EMSE2000/el-mehdi.khalfi/armines/project/src/main/resources/200000Sales.csv", 5000) AS ?region ?country ?itemType ?salesChannel ?orderPriority ?orderDate ?orderID ?shipDate ?unitsSold ?unitPrice ?unitCost ?totalRevenue ?totalCost ?totalProfit

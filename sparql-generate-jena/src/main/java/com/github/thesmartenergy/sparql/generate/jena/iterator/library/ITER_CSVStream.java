@@ -24,6 +24,7 @@ import com.univocity.parsers.csv.CsvParser;
 import com.univocity.parsers.csv.CsvParserSettings;
 import org.apache.jena.atlas.web.TypedInputStream;
 import org.apache.jena.query.QueryBuildException;
+import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.ExprList;
 import org.apache.jena.sparql.expr.NodeValue;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueString;
@@ -37,21 +38,26 @@ import java.util.stream.Collectors;
 /**
  * Iterator function
  * <a href="http://w3id.org/sparql-generate/iter/CSVStream">iter:CSVStream</a>
- * processes CSV documents and iterates over the rows, for a given number of rows at a time.
+ * batch-processes CSV documents and iteratively binds the content of one or multiple cells to variables.
  *
  * <ul>
- * <li>Param 1 is the URI of the CSV document;</li>
- * <li>Param 2 is number of rows to process in each batch;</li>
- * <li>the remaining arguments correspond the specified columns names as in the CSV header (to iterate over all columns, "*" can be used instead of providing all the columns names);</li>
+ * <li>Param 1: the URI of the CSV document (a String);</li>
+ * <li>Param 2: the number of rows per batch (an Integer);</li>
+ * <li>Param 3 .. <em>n</em>: the names of the columns to select (use "*" to select all the columns).</li>
  * </ul>
- *
- * In each batch, CSVStream works like a <a href="http://w3id.org/sparql-generate/iter/CSVMultipleOutput">iter:CSVMultipleOutput</a> iterator.
- * But with large files, batch processing CSV rows gives the advantage to CSVStream because we can reduce the load on the query engine. <br>
- * For instance, binding variables to columns of a 14-column/1.500.000-rows CSV document takes ~1min40sec with CSVStream while <a href="http://w3id.org/sparql-generate/iter/CSVMultipleOutput">iter:CSVMultipleOutput</a> reaches <code>java.lang.OutOfMemoryError: GC overhead limit exceeded</code>.
+ * <p>
+ * CSVStream works like a <a href="http://w3id.org/sparql-generate/iter/CSVMultipleOutput">iter:CSVMultipleOutput</a>
+ * iterator but for one chunk of the CSV document at a time.
+ * </p>
+ * <p>
+ * CSVStream yields better results for very large CSV files, typically above 100.000 lines.
+ * </p>
+ * <p>
+ * For instance, binding variables to columns of a 14-column/1.500.000-rows CSV document takes a couple of minutes with CSVStream while <a href="http://w3id.org/sparql-generate/iter/CSVMultipleOutput">iter:CSVMultipleOutput</a> reaches <code>java.lang.OutOfMemoryError: GC overhead limit exceeded</code>.
  * <p>
  * <b>Example: </b>
  * <p>
- * Iterating over this CSV document<br>
+ * <code>ITERATOR ite:CSVStream("path/to/file", 3, "PersonId", "Name") AS ?PersonId ?Name</code> iterates over the following CSV document in batches of three rows:
  * <pre>
  * PersonId,Name,Phone,Email,Birthdate,Height,Weight,Company <br>
  * 1,Jin Lott,374-5365,nonummy@nonsollicitudina.net,1990-10-23T09:39:36+01:00,166.58961852476,72.523064012179,4 <br>
@@ -65,8 +71,6 @@ import java.util.stream.Collectors;
  * 9,Hunter Howell,237-7855,augue.id.ante@tinciduntnequevitae.edu,1965-04-29T19:15:38+01:00,163.27719591459,69.74419350177,99 <br>
  * 10,Lionel Melendez,292-7586,posuere.cubilia.Curae@augue.edu,1938-06-18T17:19:01+01:00,170.29595560716,67.133894657783,76 <br>
  * </pre>
- * with <tt>ITERATOR ite:CSVStream("path/to/file", 3, "PersonId", "Name") AS ?PersonId ?Name</tt> <br>
- * runs through three rows in each batch as follows: <br>
  * batch 1
  * <pre>
  *  ?PersonId => "1", ?Name => "Jin Lott"<br>
@@ -89,6 +93,7 @@ import java.util.stream.Collectors;
  * <pre>
  *  ?PersonId => "10", ?Name => "Lionel Melendez"<br>
  * </pre>
+ *
  * @author El-Mehdi Khalfi <el-mehdi.khalfi at emse.fr>
  * @since 2018-09-26
  */
@@ -107,6 +112,19 @@ public class ITER_CSVStream extends IteratorStreamFunctionBase {
 
     @Override
     public void exec(List<NodeValue> args, Consumer<List<List<NodeValue>>> nodeValuesStream) {
+        if (!args.get(0).isString()) {
+            LOG.debug("First argument must be a string, got: " + args.get(0));
+            throw new ExprEvalException("First argument must be a string, got: " + args.get(0));
+        }
+        if (!args.get(1).isInteger() || args.get(1).getInteger().intValue() < 0) {
+            LOG.debug("Second argument must be a positive integer, got: " + args.get(1));
+            throw new ExprEvalException("Second argument must be a positive integer, got: " + args.get(1));
+        }
+        if (args.subList(2, args.size()).stream().anyMatch(col -> !col.isString())) {
+            LOG.debug("Columns names must be a string, got: " + args.subList(2, args.size()));
+            throw new ExprEvalException("Columns names must be a string, got: " + args.subList(2, args.size()));
+        }
+
         String csvPath = args.get(0).asString();
         int chunkSize = args.get(1).getInteger().intValue();
 
@@ -131,12 +149,13 @@ public class ITER_CSVStream extends IteratorStreamFunctionBase {
                         List<List<NodeValue>> nodeValues = getColumnValuesAsMapOfIndexes().values().stream().
                                 map(column -> column.stream().
                                         //convert each cell from string to a NodeValue to be fed to nodeValuesStream.accept
-                                        map(cell -> (NodeValue) new NodeValueString(cell)).
-                                        collect(Collectors.toList())).
+                                                map(cell -> (NodeValue) new NodeValueString(cell)).
+                                                collect(Collectors.toList())).
                                 collect(Collectors.toList());
                         nodeValuesStream.accept(nodeValues);
                     }
                 }
+
         );
 
         CsvParser parser = new CsvParser(parserSettings);

@@ -9,7 +9,7 @@ GENERATE {
         ex:type ?type;
         ex:happenedAt ?datetime;
 }
-ITERATOR iter:StreamWebSocket("wss://api.gemini.com/v1/marketdata/BTCUSD",10,"") AS ?events
+ITERATOR iter:StreamWebSocket("wss://api.gemini.com/v1/marketdata/BTCUSD",10) AS ?events
 
 WHERE {
        BIND(fun:JSONPath(?events, "$.type" ) AS ?type)

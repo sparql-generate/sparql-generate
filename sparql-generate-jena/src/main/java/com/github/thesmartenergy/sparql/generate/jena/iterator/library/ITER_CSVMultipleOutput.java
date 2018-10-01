@@ -41,17 +41,17 @@ import java.util.stream.Collectors;
  * Iterator function
  * <a href="http://w3id.org/sparql-generate/iter/CSVMultipleOutput">iter:CSVMultipleOutput</a>
  * iterates over the rows of a CSV document.
- * In each iteration, it corresponds each designated variable to the given cell identified by the column name contained in the arguments
+ * For each iteration, it binds the content of some cells to the given variables.
  *
  * <ul>
- * <li>Param 1 (args) is a list of arguments such that
- * <ul>
- * <li>the first argument of the list corresponds to the CSV document with a header line;</li>
- * <li>the second argument of the list corresponds to the delimiter character separating the values in each row;</li>
- * <li>the remaining arguments correspond the specified columns names as in the CSV header</li>
+ * <li>Param 1: (a String) is the CSV document with a header line;</li>
+ * <li>Param 2: (a String) is the delimiter character separating the values in each row (usually ",");</li>
+ * <li>Param 3 .. <em>n</em>: (Strings) the names of the columns to select.</li>
  * </ul>
- * </li>
- * </ul>
+ *
+ * <p>
+ * For very large CSV files (typically above 100.000 lines), prefer <a href="http://w3id.org/sparql-generate/iter/CSVStream">CSVStream</a>.
+ * </p>
  *
  * <b>Examples: </b>
  * <p>
@@ -63,7 +63,7 @@ import java.util.stream.Collectors;
  * 7001,41,57.901389,5.584444,03/03/03<br>
  * 7002,42,58.901389,6.584444,23/12/80<br>
  * </pre>
- * with <tt>ITERATOR ite:CSVMultipleOutput(?source, ",", "id", "stop") AS ?id ?stop</tt> returns (in each iteration):<br>
+ * with <tt>ITERATOR ite:CSVMultipleOutput(?source, ",", "id", "stop") AS ?id ?stop</tt> returns:<br>
  * <pre>
  *  ?id => "6523"^^xsd#string, ?stop => "25"^^xsd#string<br>
  *  ?id => "7000"^^xsd#string, ?stop => "40"^^xsd#string<br>
