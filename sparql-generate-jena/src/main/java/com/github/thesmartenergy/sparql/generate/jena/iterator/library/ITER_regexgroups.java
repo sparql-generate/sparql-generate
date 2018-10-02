@@ -41,7 +41,7 @@ import java.util.stream.Collectors;
  * <li>Param 2 is a regular expression (a String);</li>
  * <li>The remaining parameters correspond to the captured group numbers (as Integers), with 0 denoting the entire pattern.</li>
  * </ul>
- * Matching the input string and capturing groups implement Java <a href="https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html">Pattern</a> and <a href="https://docs.oracle.com/javase/8/docs/api/java/util/regex/Matcher.html">Matche</a> classes.<br>
+ * Matching the input string and capturing groups implement Java <a href="https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html">Pattern</a> and <a href="https://docs.oracle.com/javase/8/docs/api/java/util/regex/Matcher.html">Matcher</a> classes.<br>
  * <b>Example: </b>
  * <p>
  * To iterate over the 2<sup>nd</sup> and 3<sup>rd</sup> groups of this text <pre>"1-John-12/05/1980#2-Sam-13/02/1987#3-Tim-10/06/1990"</pre> <br>matched by this regex <pre>"([0-9]+)-([a-zA-Z ]+)-(([0-9]+)/([0-9]+)/([0-9]+))"</pre><br>
