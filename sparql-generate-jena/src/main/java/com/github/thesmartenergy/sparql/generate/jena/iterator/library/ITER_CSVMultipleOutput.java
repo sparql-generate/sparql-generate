@@ -40,8 +40,8 @@ import java.util.stream.Collectors;
 /**
  * Iterator function
  * <a href="http://w3id.org/sparql-generate/iter/CSVMultipleOutput">iter:CSVMultipleOutput</a>
- * iterates over the rows of a CSV document.
- * For each iteration, it binds the content of some cells to the given variables.
+ * processes CSV documents and iteratively binds the content of one or multiple
+ * cells to variables.
  *
  * <ul>
  * <li>Param 1: (a String) is the CSV document with a header line;</li>
@@ -54,25 +54,29 @@ import java.util.stream.Collectors;
  * </p>
  *
  * <b>Examples: </b>
- * <p>
- * Iterating over this CSV document<br>
+ * <p>Iterating over this CSV document</p>
  * <pre>
- * id,stop,latitude,longitude,date<br>
- * 6523,25,50.901389,4.484444,01/01/01<br>
- * 7000,40,56.901389,4.584444,02/02/02<br>
- * 7001,41,57.901389,5.584444,03/03/03<br>
- * 7002,42,58.901389,6.584444,23/12/80<br>
+ * id,stop,latitude,longitude,date
+ * 6523,25,50.901389,4.484444,01/01/01
+ * 7000,40,56.901389,4.584444,02/02/02
+ * 7001,41,57.901389,5.584444,03/03/03
+ * 7002,42,58.901389,6.584444,23/12/80
  * </pre>
- * with <tt>ITERATOR ite:CSVMultipleOutput(?source, ",", "id", "stop") AS ?id ?stop</tt> returns:<br>
+ * <p>with</p>
+ * <code>ITERATOR ite:CSVMultipleOutput(?source, ",", "id", "stop") AS 
+ * ?id ?stop</code>
+ * <p>returns:</p>
  * <pre>
- *  ?id => "6523"^^xsd#string, ?stop => "25"^^xsd#string<br>
- *  ?id => "7000"^^xsd#string, ?stop => "40"^^xsd#string<br>
- *  ?id => "7001"^^xsd#string, ?stop => "41"^^xsd#string<br>
- *  ?id => "7002"^^xsd#string, ?stop => "42"^^xsd#string<br>
+ *  ?id => "6523"^^xsd#string, ?stop => "25"^^xsd#string
+ *  ?id => "7000"^^xsd#string, ?stop => "40"^^xsd#string
+ *  ?id => "7001"^^xsd#string, ?stop => "41"^^xsd#string
+ *  ?id => "7002"^^xsd#string, ?stop => "42"^^xsd#string
  * </pre>
  *
  * @author El Mehdi Khalfi <el-mehdi.khalfi at emse.fr>
  * @since 2018-09-04
+ * @see com.github.thesmartenergy.sparql.generate.jena.function.library.ITER_CSVStream
+ * to process very large CSV files
  */
 public class ITER_CSVMultipleOutput extends IteratorFunctionBase {
 

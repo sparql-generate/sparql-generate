@@ -38,16 +38,23 @@ import java.util.List;
 /**
  * Iterator function
  * <a href="http://w3id.org/sparql-generate/iter/GeoJSONFeatures">iter:GeoJSONFeatures</a>
- * takes as input a <a href="https://tools.ietf.org/html/rfc7946">GeoJSON</a> document, decodes it,
- * and extracts a list of sub-JSON <a href="https://tools.ietf.org/html/rfc7946#page-11">Features</a> contained in the <a href="https://tools.ietf.org/html/rfc7946#page-12">FeatureCollection</a> object.
+ * takes as input a <a href="https://tools.ietf.org/html/rfc7946">GeoJSON</a>
+ * document, decodes it, and extracts a list of sub-JSON
+ * <a href="https://tools.ietf.org/html/rfc7946#page-11">Features</a> contained
+ * in the <a href="https://tools.ietf.org/html/rfc7946#page-12">FeatureCollection</a>
+ * object.
  *
  * <ul>
- * <li>Param 1: (json): a GeoJSON object with the type FeatureCollection.</li>
+ *   <li>Param 1: (json): a GeoJSON object with the type FeatureCollection.</li>
  * </ul>
+ * 
+ * <br/>
+ * <strong>Example: </strong>
  *
- * <b>Example: </b>
- *
- * Iterating over this GeoJSON document (as <tt>?source</tt>)<br>
+ * <p>The iterator clause:</p>
+ * <code>ITERATOR iter:GeoJSONFeatures(?source) AS ?earthquake</code>
+ * <p>executed when <code>?source</code> is bound to the following GeoJSON 
+ * document </p> 
  * <pre>
  * {
  *    "type":"FeatureCollection",
@@ -119,7 +126,7 @@ import java.util.List;
  *    ]
  * }
  * </pre>
- * with ITERATOR <tt>iter:GeoJSONFeatures(?source) AS ?earthquake</tt> return (in each iteration):<br>
+ * <p>returns the following bindings:</p>
  * <pre>
  * ?earthquake => { "type":"Feature", "properties":{ "place":"5km SSW of Volcano, Hawaii", "time":1528974963260, "updated":1528975327080, "url":"https://earthquake.usgs.gov/earthquakes/eventpage/hv70265026", "detail":"https://earthquake.usgs.gov/earthquakes/feed/v1.0/detail/hv70265026.geojson", "type":"earthquake" }, "geometry":{ "type":"Polygon", "coordinates":[ [ [ 30, 10 ], [ 40, 40 ], [ 20, 40 ], [ 10, 20 ], [ 30, 10 ] ] ] }, "id":"hv70265026" }
  * ?earchquake => { "type":"Feature", "properties":{ "place":"1km SSE of Volcano, Hawaii", "time":1528975443520, "updated":1528975662950, "url":"https://earthquake.usgs.gov/earthquakes/eventpage/hv70265061", "detail":"https://earthquake.usgs.gov/earthquakes/feed/v1.0/detail/hv70265061.geojson", "type":"earthquake" }, "geometry":{ "type":"Point", "coordinates":[ -155.2333374, 19.4148331, -1.07 ] }, "id":"hv70265061" }

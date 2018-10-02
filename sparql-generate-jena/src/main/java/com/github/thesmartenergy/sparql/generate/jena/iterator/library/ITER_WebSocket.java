@@ -41,20 +41,27 @@ import java.util.function.Consumer;
 
 /**
  * Iterator function
- * <a href="http://w3id.org/sparql-generate/iter/StreamWebSocket">iter:StreamWebSocket</a>
- * connects to a WebSocket server for a given amount of seconds, and iteratively binds the messages that are received.
- * Optionally, a specific message can be sent to the WebSocket server as a first step (This message is usually a query
- * that specifies which stream of data to retrieve).
+ * <a href="http://w3id.org/sparql-generate/iter/WebSocket">iter:WebSocket</a>
+ * connects to a WebSocket server for a given number of seconds, and iteratively
+ * binds the messages that are received.
+ * 
+ * Optionally, a specific message can be sent to the WebSocket server as a first
+ * step (This message is usually a query that specifies what stream of data is
+ * to be retrieved).
  *
  * <ul>
- * <li>Param 1 is the WebSocket server URI to connect to (a String);</li>
- * <li>Param 2 is the number of seconds after which the connection is closed (an Integer). If 0 then the connection is
- * never closed;</li>
- * <li>Param 3 (optional) is the message that will be first sent to the server (e.g., a json query).</li>
+ * <li>Param 1: (a String) is the WebSocket server URI to connect to;</li>
+ * <li>Param 2: (an Integer) is the number of seconds after which the connection
+ * is closed. Use 0 to never close the connection;</li>
+ * <li>Param 3: (a String, optional) is the message that will be first sent
+ * to the server (e.g., a json query).</li>
  * </ul>
  * <p>
  * <b>Example: </b><br>
- * Using <tt>ITERATOR iter:StreamWebSocket("wss://api.gemini.com/v1/marketdata/BTCUSD",10) AS ?events</tt> will connect to the Gemini WebSocket server (a cryptocurrency exchange platform) for 10 seconds and iteratively produce the following bindings:<br>
+ * <p>The clause</p>
+ * <code>ITERATOR iter:WebSocket("wss://api.gemini.com/v1/marketdata/BTCUSD",10) AS ?events</code>
+ * <p>will connect to the Gemini WebSocket server (a cryptocurrency exchange
+ * platform) for 10 seconds and iteratively produce the following bindings:</p>
  * <pre>
  * ?events => {"type":"update","eventId":4568099292,"timestamp":1537974017,"timestampms":1537974017597,"socket_sequence":1,"events":[{"type":"change","side":"ask","price":"6513.20","remaining":"0","delta":"-1.321","reason":"cancel"}]}<br>
  * ?events => {"type":"update","eventId":4568099362,"timestamp":1537974018,"timestampms":1537974018434,"socket_sequence":2,"events":[{"type":"change","side":"bid","price":"1.00","remaining":"5666.001","delta":"0.001","reason":"place"}]}<br>
@@ -74,7 +81,7 @@ import java.util.function.Consumer;
  * @since 2018-09-26
  */
 
-public class ITER_StreamWebSocket extends IteratorStreamFunctionBase {
+public class ITER_WebSocket extends IteratorStreamFunctionBase {
 
     /**
      * The logger.
@@ -84,7 +91,7 @@ public class ITER_StreamWebSocket extends IteratorStreamFunctionBase {
     /**
      * The SPARQL function URI.
      */
-    public static final String URI = SPARQLGenerate.ITER + "StreamWebSocket";
+    public static final String URI = SPARQLGenerate.ITER + "WebSocket";
 
     @Override
     public void checkBuild(ExprList args) {

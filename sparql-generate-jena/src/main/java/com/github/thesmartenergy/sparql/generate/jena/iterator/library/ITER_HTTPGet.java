@@ -39,37 +39,35 @@ import java.util.function.Consumer;
 
 /**
  * Iterator function
- * <a href="http://w3id.org/sparql-generate/iter/ITER_PeriodicHTTP">iter:ITER_PeriodicHTTP</a>
- * regularly fetches a message from a Web API .
+ * <a href="http://w3id.org/sparql-generate/iter/ITER_HTTPGet">iter:HTTPGet</a>
+ * binds the responses of regular GET operations to a HTTP(s) URL.
  *
  * <ul>
- * <li>Param 1: the Web URI to connect to (a String);</li>
- * <li>Param 2: the number of seconds between successive calls to the Web API (a positive Integer);</li>
- * <li>Param 3 (optional): the total number of calls to make (a positive Integer). If not provided, the iterator never ends.</li>
+ * <li>Param 1: (a String) the Web URI where regular GET operations are operated;</li>
+ * <li>Param 2: (a positive Integer) the number of seconds between successive 
+ * calls to the Web API;</li>
+ * <li>Param 3 (optional): the total number of calls to make (a positive
+ * Integer). If not provided, the iterator never ends.</li>
  * </ul>
  * <p>
  * <b>Example: </b><br>
- * Using <tt>ITERATOR iter:PeriodicHTTP("https://example.org/room1/temperature",60) AS ?temperature</tt> will fetch
- * every 60 seconds the temperature of room 1, forever.
+ * <p>The clause</p>
+ * <code>ITERATOR iter:HTTPGet("https://example.org/room1/temperature",60) AS ?temperature</code>
+ * <p>will fetch the temperature of room 1 every 60 seconds, indefinetely.
  *
  * @author El-Mehdi Khalfi <el-mehdi.khalfi at emse.fr>
  * @since 2018-09-27
  */
-public class ITER_PeriodicHTTP extends IteratorStreamFunctionBase {
+public class ITER_HTTPGet extends IteratorStreamFunctionBase {
     /**
      * The logger.
      */
-    private static final Logger LOG = LoggerFactory.getLogger(ITER_CSVMultipleOutput.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ITER_HTTPGet.class);
 
     /**
      * The SPARQL function URI.
      */
-    public static final String URI = SPARQLGenerate.ITER + "PeriodicHTTP";
-
-    /**
-     * The datatype URI of the first parameter and the return literals.
-     */
-    private static final String datatypeUri = "http://www.iana.org/assignments/media-types/application/json";
+    public static final String URI = SPARQLGenerate.ITER + "HTTPGet";
 
     @Override
     public void checkBuild(ExprList args) {
@@ -94,7 +92,7 @@ public class ITER_PeriodicHTTP extends IteratorStreamFunctionBase {
         String url_s = args.get(0).asString();
         int recurrenceValue = args.get(1).getInteger().intValue();
         int times = args.size() == 3 ? args.get(2).getInteger().intValue() : 0;
-
+        
         Client client = ClientBuilder.newClient();
         final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
         AtomicInteger i_call = new AtomicInteger();
