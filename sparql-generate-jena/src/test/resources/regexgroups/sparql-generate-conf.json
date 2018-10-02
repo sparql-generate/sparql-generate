@@ -1,0 +1,10 @@
+{
+    "documentset": [
+        {
+            "mediatype": "text/plain",
+            "path": "documentset/student.txt",
+            "uri": "http://example.com/student.txt"
+        }
+    ],
+    "query": "query.rqg"
+}

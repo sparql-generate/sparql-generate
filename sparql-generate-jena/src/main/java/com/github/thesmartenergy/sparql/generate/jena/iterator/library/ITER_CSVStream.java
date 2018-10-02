@@ -50,11 +50,8 @@ import java.util.stream.Collectors;
  * iterator but for one chunk of the CSV document at a time.
  * </p>
  * <p>
- * CSVStream yields better results for very large CSV files, typically above 100.000 lines.
+ * CSVStream yields better results for very large CSV files, typically above 100.000 lines (where <a href="http://w3id.org/sparql-generate/iter/CSV">iter:CSV</a> and <a href="http://w3id.org/sparql-generate/iter/CSVMultipleOutput">iter:CSVMultipleOutput</a> <code>GC overhead limit exceeded</code>).
  * </p>
- * <p>
- * For instance, binding variables to columns of a 14-column/1.500.000-rows CSV document takes a couple of minutes with CSVStream while <a href="http://w3id.org/sparql-generate/iter/CSVMultipleOutput">iter:CSVMultipleOutput</a> reaches <code>java.lang.OutOfMemoryError: GC overhead limit exceeded</code>.
- * <p>
  * <b>Example: </b>
  * <p>
  * <code>ITERATOR ite:CSVStream("path/to/file", 3, "PersonId", "Name") AS ?PersonId ?Name</code> iterates over the following CSV document in batches of three rows:
