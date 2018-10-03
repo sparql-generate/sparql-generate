@@ -27,7 +27,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.QueryFactory;
 import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
 import org.junit.Test;
@@ -61,7 +60,7 @@ public class TestBase {
     private final File exampleDir;
     private Request request;
 
-    private static final String pattern = "csvstream";
+    private static final String pattern = ".*";
 
 
     public TestBase(Logger log, File exampleDir, String name) {

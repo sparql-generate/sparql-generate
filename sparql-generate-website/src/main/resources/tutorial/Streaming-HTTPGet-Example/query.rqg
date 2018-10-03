@@ -1,0 +1,13 @@
+BASE <http://example.com/>
+PREFIX iter: <http://w3id.org/sparql-generate/iter/>
+PREFIX fun: <http://w3id.org/sparql-generate/fn/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX ex: <http://example.org/>
+
+GENERATE {
+  [] ex:time "{?time}"^^xsd:time .
+}
+ITERATOR iter:HTTPGet("https://time.is",2) AS ?time
+WHERE {
+  BIND(fun:CSS(?time_html, "#twd" ) AS ?time)
+}

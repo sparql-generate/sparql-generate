@@ -86,7 +86,7 @@ public class ITER_WebSocket extends IteratorStreamFunctionBase {
     /**
      * The logger.
      */
-    private static final Logger LOG = LoggerFactory.getLogger(ITER_CSVStream.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ITER_WebSocket.class);
 
     /**
      * The SPARQL function URI.

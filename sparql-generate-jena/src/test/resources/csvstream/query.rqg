@@ -2,8 +2,6 @@ BASE <http://example.com/>
 PREFIX iter: <http://w3id.org/sparql-generate/iter/>
 PREFIX fun: <http://w3id.org/sparql-generate/fn/>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> 
-PREFIX mail: <http://example.com/mail#>
-PREFIX note: <http://example.com/note/>
 PREFIX ex: <http://example.com/>
 
 GENERATE { 
