@@ -19,8 +19,8 @@
 mvn clean
 mvn scm:checkin -Dmessage="preparing next release"
 mvn release:prepare release:perform
-    -->
-    
+   -->
+         
     <!-- cancel last commit -->
     <!-- git reset - -soft HEAD^ && git push -f -->
 
