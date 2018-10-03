@@ -329,7 +329,6 @@
                                     <report>summary</report>
                                     <report>scm</report>
                                     <report>issue-tracking</report>
-                                    <report>mailing-list</report>
                                     <report>license</report>
                                     <report>project-team</report>
                                 </reports>
