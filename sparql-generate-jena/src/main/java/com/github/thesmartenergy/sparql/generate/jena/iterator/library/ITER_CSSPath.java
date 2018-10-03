@@ -41,13 +41,14 @@ import org.jsoup.select.Elements;
  * Iterator function
  * <a href="http://w3id.org/sparql-generate/iter/CSSPath">iter:CSSPath</a>
  * extracts a list of HTML elements from a HTML document, according to a
- * Selector CSS-like query.
+ * CSS-Selector-like query.
  *
  * <ul>
  * <li>Param 1: (html) is a literal that contains a HTML element;</li>
  * <li>Param 2: (cssSelector) is the CSS-like query. See
- * https://jsoup.org/apidocs/org/jsoup/select/Selector.html for the syntax
- * specification;</li>
+ * <a href="https://jsoup.org/apidocs/org/jsoup/select/Selector.html">
+ * https://jsoup.org/apidocs/org/jsoup/select/Selector.html</a> for the syntax
+ * specification.</li>
  * </ul>
  *
  * @author Noorani Bakerally <noorani.bakerally at emse.fr>

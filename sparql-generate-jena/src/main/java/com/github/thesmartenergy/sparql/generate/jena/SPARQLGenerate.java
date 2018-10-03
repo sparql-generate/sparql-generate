@@ -133,7 +133,6 @@ public final class SPARQLGenerate {
         fnreg.put(FUN_dateTime.URI, FUN_dateTime.class);
         fnreg.put(FUN_GeoJSONGeometry.URI, FUN_GeoJSONGeometry.class);
 
-
         IteratorFunctionRegistry itereg = IteratorFunctionRegistry.get();
         itereg.put(ITER_JSONPath.URI, ITER_JSONPath.class);
         itereg.put(ITER_JSONListKeys.URI, ITER_JSONListKeys.class);
@@ -152,10 +151,11 @@ public final class SPARQLGenerate {
         itereg.put(ITER_for.URI, ITER_for.class);
         itereg.put(ITER_CSVMultipleOutput.URI, ITER_CSVMultipleOutput.class);
         itereg.put(ITER_GeoJSONFeatures.URI, ITER_GeoJSONFeatures.class);
-        itereg.put(ITER_GeoJSON.URI, ITER_GeoJSON.class);
         itereg.put(ITER_regexgroups.URI, ITER_regexgroups.class);
-        itereg.put(ITER_PeriodicHTTP.URI, ITER_PeriodicHTTP.class);
-        itereg.put(ITER_StreamWebSocket.URI, ITER_StreamWebSocket.class);
+        itereg.put(ITER_GeoJSON.URI, ITER_GeoJSON.class);
+        itereg.put(ITER_HTTPGet.URI, ITER_HTTPGet.class);
+        itereg.put(ITER_MQTTSubscribe.URI, ITER_MQTTSubscribe.class);
+        itereg.put(ITER_WebSocket.URI, ITER_WebSocket.class);
 
 
         SPARQLParserRegistry.get()

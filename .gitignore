@@ -9,6 +9,7 @@ notes.txt
 nbactions.xml
 nb-configuration.xml
 /nbproject/
+/sparql-generate-jena/nbproject/
 
 # Eclipse
 .classpath
@@ -33,4 +34,3 @@ buildNumber.properties
 # deploy website
 .sh
 .bat
-/sparql-generate-jena/nbproject/

@@ -1,5 +1,7 @@
 # Test Reports
 
+For the exhaustive list, check out https://github.com/sparql-generate/sparql-generate/tree/master/sparql-generate-jena/src/test/resources/
+
 
 | Language | Test Name | Description | Status |
 |----------|------------------ |------------------------------------------------------------------------------ |-------- |
@@ -7,6 +9,7 @@
 | | [bnode2](https://github.com/thesmartenergy/sparql-generate/tree/master/sparql-generate-jena/src/test/resources/bnode2) | Testing the management of blank nodes | Pass |
 |CSV | [SimpleCSV](https://github.com/thesmartenergy/sparql-generate/tree/master/sparql-generate-jena/src/test/resources/simplecsv) | An example to generate RDF from a CSV file | Pass |
 |CSV | [CustomCSVEg1](https://github.com/thesmartenergy/sparql-generate/tree/master/sparql-generate-jena/src/test/resources/customcsveg1) | Simple RDF generation from CSV with different dialect | Pass |
+|CSV Streams | [CustomCSVEg1](https://github.com/thesmartenergy/sparql-generate/tree/master/sparql-generate-jena/src/test/resources/csvstream) | Simple RDF generation from CSV with different dialect | Pass |
 |XML | [XMLTest1](https://github.com/thesmartenergy/sparql-generate/tree/master/sparql-generate-jena/src/test/resources/xmltest1) | A simple example to generate RDF from a XML file | Pass |
 |XML | [charghingplan](https://github.com/thesmartenergy/sparql-generate/tree/master/sparql-generate-jena/src/test/resources/chargingplan) | A more complex example dealing with charging plans of electric vehicles | Pass |
 |JSON | [JSONTest1](https://github.com/thesmartenergy/sparql-generate/tree/master/sparql-generate-jena/src/test/resources/jsontest1) | A simple example to generate RDF from a JSON file | Pass |

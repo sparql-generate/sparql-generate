@@ -42,19 +42,22 @@ import java.util.concurrent.TimeUnit;
 /**
  * Iterator function
  * <a href="http://w3id.org/sparql-generate/iter/CSV">iter:CSV</a>
- * returns a row of a CSV document, together with the header.
+ * returns CSV documents with two rows: the header and the current row.
  *
  * <ul>
  * <li>Param 1: (csv) is the CSV document with a header line.</li>
  * </ul>
  *
  * <p>
- * For very large CSV files (typically above 100.000 lines), prefer <a href="http://w3id.org/sparql-generate/iter/CSVStream">CSVStream</a>.
+ * For very large CSV files (typically above 100.000 lines), prefer 
+ * <a href="http://w3id.org/sparql-generate/iter/CSVStream">CSVStream</a>.
  * </p>
  *
  * @author Noorani Bakerally <noorani.bakerally at emse.fr>
  * @see com.github.thesmartenergy.sparql.generate.jena.function.library.FN_CustomCSV
  * for CSV document with different dialects
+ * @see com.github.thesmartenergy.sparql.generate.jena.function.library.ITER_CSVStream
+ * to process very large CSV files
  */
 public class ITER_CSV extends IteratorFunctionBase1 {
 

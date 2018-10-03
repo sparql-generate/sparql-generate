@@ -80,8 +80,8 @@ public final class FUN_regex extends FunctionBase3 {
     @Override
     public NodeValue exec(NodeValue stringValue, NodeValue regex, NodeValue locationV) {
 
-        String string = stringValue.getString();
-        String regexString = regex.getString();
+        String string = stringValue.asString();
+        String regexString = regex.asString();
 
         int location = locationV.getInteger().intValue();
 

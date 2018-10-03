@@ -4,7 +4,7 @@ PREFIX fun: <http://w3id.org/sparql-generate/fn/>
 PREFIX gn: <http://www.geonames.org/ontology#>
 PREFIX ex: <http://example.com/> 
 GENERATE { 
-   <student/{?studentID}> a ex:Student;
+   <{?studentID}> a ex:Student;
               ex:name ?name;
               ex:dobmonth ?dobmonth;
               ex:dobday ?dobday;

@@ -53,8 +53,8 @@ public class ITER_regex extends IteratorFunctionBase3 {
     @Override
     public List<List<NodeValue>> exec(NodeValue stringValue, NodeValue regex, NodeValue locationV) {
 
-        String string = stringValue.getString();
-        String regexString = regex.getString();
+        String string = stringValue.asString();
+        String regexString = regex.asString();
 
         int location = locationV.getInteger().intValue();
         Pattern pattern = Pattern.compile(regexString, Pattern.MULTILINE);

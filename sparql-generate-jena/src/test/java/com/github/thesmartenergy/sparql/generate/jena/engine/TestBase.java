@@ -61,8 +61,7 @@ public class TestBase {
     private final File exampleDir;
     private Request request;
 
-    private static final String pattern = ".*";
-//    private static final String pattern = ".*";
+    private static final String pattern = "csvstream";
 
 
     public TestBase(Logger log, File exampleDir, String name) {

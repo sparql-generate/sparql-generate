@@ -45,7 +45,7 @@ import org.slf4j.Logger;
  * <li>Param 2: (quoteChar) is the quote character;</li>
  * <li>Param 3: (delimiterChar) is the delimiter character;</li>
  * <li>Param 4: (endOfLineSymbols) is the end of line symbol;</li>
- * <li>Param 5: (header) is true if the CSV has a header row;</li>
+ * <li>Param 5: (header) is true if the CSV has a header row.</li>
  * </ul>
  *
  * @author Noorani Bakerally <noorani.bakerally at emse.fr>

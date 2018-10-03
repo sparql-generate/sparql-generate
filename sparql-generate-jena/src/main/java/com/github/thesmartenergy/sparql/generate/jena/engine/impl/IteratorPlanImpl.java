@@ -96,9 +96,9 @@ public class IteratorPlanImpl extends PlanBase implements IteratorPlan {
             sb = null;
         }
         values.forEach((binding) -> {
-            List<BindingHashMapOverwrite> newValues = new ArrayList();
             try {
                 iterator.exec(binding, exprList, null, (nodeValues) -> {
+                    List<BindingHashMapOverwrite> newValues = new ArrayList<>();
                     if (nodeValues == null || nodeValues.isEmpty()) {
                         for (Var v : vars) {
                             newValues.add(new BindingHashMapOverwrite(binding, v, null));
@@ -109,8 +109,13 @@ public class IteratorPlanImpl extends PlanBase implements IteratorPlan {
                             BindingHashMapOverwrite bindingHashMapOverwrite = new BindingHashMapOverwrite(binding, null, null);
                             for (int i = 0; i < vars.size(); i++) {
                                 Var v = vars.get(i);
-                                Node n = nodeValues.get(i).get(j).asNode();
-                                bindingHashMapOverwrite.add(v, n);
+                                try {
+                                    Node n = nodeValues.get(i).get(j).asNode();
+                                    bindingHashMapOverwrite.add(v, n);
+                                } catch (IndexOutOfBoundsException ex) {
+                                    LOG.warn("The number of variables does not match the number of names provided to the iterator arguments");
+                                    break;
+                                }
                             }
                             newValues.add(bindingHashMapOverwrite);
                         }

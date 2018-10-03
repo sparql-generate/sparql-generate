@@ -9,18 +9,19 @@ PREFIX wkt: <http://www.opengis.net/ont/geosparql#>
 PREFIX ex: <http://example.com/>
 
 GENERATE {
-	?regionIRI a ex:Region;
+	?earthquakeIRI a ex:Earthquake;
 		wkt:asWKT ?geometricCoordinates .
 }
-SOURCE <https://raw.githubusercontent.com/NetTopologySuite/NetTopologySuite.IO.GeoJSON/develop/NetTopologySuite.IO.GeoJSON.Test/World_AL6.GeoJson> AS ?source
 
-#ITERATOR iter:GeoJSONFeatures(?source) AS ?region
+SOURCE <https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_month.geojson> AS ?source
+
+#ITERATOR iter:GeoJSONFeatures(?source) AS ?drawing
 #WHERE {
-#	BIND (IRI(CONCAT("http://region.example.com/",fun:JSONPath(?region,"$.id"))) as ?regionIRI)
-#	BIND (fun:GeoJSONGeometry(?region) AS ?geometricCoordinates)
+#	BIND (IRI(fun:JSONPath(?drawing,"$.id")) as ?drawingIRI)
+#	BIND (fun:GeoJSONGeometry(?drawing) AS ?geometricCoordinates)
 #}
 
 ITERATOR iter:GeoJSON(?source) AS ?geometricCoordinates ?properties
 WHERE {
-    BIND (URI(CONCAT("http://region.example.com/",fun:JSONPath(?properties,"$.id"))) AS ?regionIRI)
+    BIND (URI(CONCAT("http://earthquake.example.com/",fun:JSONPath(?properties,"$.code"))) AS ?earthquakeIRI)
 }

@@ -1,0 +1,406 @@
+@prefix note:  <http://example.com/note/> .
+@prefix ex:    <http://example.com/> .
+@prefix mail:  <http://example.com/mail#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix iter:  <http://w3id.org/sparql-generate/iter/> .
+@prefix fun:   <http://w3id.org/sparql-generate/fn/> .
+
+ex:C6C72914-5A3D-6E51-0801-6030231865D1
+        ex:consumption  9484 ;
+        ex:time         "2017-08-14T19:06:49-07:00"^^xsd:dateTime .
+
+ex:5DA8F176-6E42-2265-4815-379766523EBD
+        ex:consumption  12330 ;
+        ex:time         "2017-07-11T19:21:33-07:00"^^xsd:dateTime .
+
+ex:E0F2959D-3DA9-B021-7DBC-FB82F7182EFF
+        ex:consumption  10476 ;
+        ex:time         "2017-07-11T22:57:30-07:00"^^xsd:dateTime .
+
+ex:C3872C4B-EC1A-D1F2-52C5-E8CA5E2E552A
+        ex:consumption  10055 ;
+        ex:time         "2017-07-05T04:28:59-07:00"^^xsd:dateTime .
+
+ex:2E48557A-79A5-0F75-D5EE-610A13B56052
+        ex:consumption  4620 ;
+        ex:time         "2017-07-30T09:54:58-07:00"^^xsd:dateTime .
+
+ex:195487B9-324C-40D0-1EB1-0623B2452556
+        ex:consumption  899 ;
+        ex:time         "2017-06-27T01:23:57-07:00"^^xsd:dateTime .
+
+ex:BC85D554-3799-D1CA-3716-7EF0B7F14E58
+        ex:consumption  11309 ;
+        ex:time         "2017-06-27T19:49:53-07:00"^^xsd:dateTime .
+
+ex:4DF7115C-3D6D-46BB-AF78-EB00043E86E2
+        ex:consumption  7870 ;
+        ex:time         "2017-06-26T01:05:41-07:00"^^xsd:dateTime .
+
+ex:D10EC569-C44F-54AD-E2A3-8DED39997C4A
+        ex:consumption  6609 ;
+        ex:time         "2017-08-22T21:11:27-07:00"^^xsd:dateTime .
+
+ex:700F2DEE-E098-265A-B015-5364E04C7631
+        ex:consumption  2576 ;
+        ex:time         "2017-06-14T07:41:22-07:00"^^xsd:dateTime .
+
+ex:06B50E74-187C-3FC2-ED63-C37988635EEF
+        ex:consumption  25 ;
+        ex:time         "2017-07-12T17:52:08-07:00"^^xsd:dateTime .
+
+ex:4E3CE69A-F662-B9EB-3E7F-BF9FA04D83FD
+        ex:consumption  3879 ;
+        ex:time         "2017-06-30T08:09:08-07:00"^^xsd:dateTime .
+
+ex:0D053C6B-FEA5-E77C-89E0-7586A40F40EF
+        ex:consumption  6688 ;
+        ex:time         "2017-08-18T13:51:18-07:00"^^xsd:dateTime .
+
+ex:04280168-B36A-59F5-6506-8821307326A6
+        ex:consumption  6185 ;
+        ex:time         "2017-08-06T17:14:22-07:00"^^xsd:dateTime .
+
+ex:F7574AB9-429F-4AC4-D386-931915EDC90F
+        ex:consumption  7624 ;
+        ex:time         "2017-09-05T22:43:32-07:00"^^xsd:dateTime .
+
+ex:FCBB7597-D7A4-5E2C-935F-905067174E5E
+        ex:consumption  2496 ;
+        ex:time         "2017-06-11T02:09:41-07:00"^^xsd:dateTime .
+
+ex:6342C7A5-A4E0-24DC-9104-515C6B1B6CD7
+        ex:consumption  8598 ;
+        ex:time         "2017-08-31T23:30:49-07:00"^^xsd:dateTime .
+
+ex:D544CFDE-F256-A212-3C44-F4166E2D148D
+        ex:consumption  1928 ;
+        ex:time         "2017-09-05T19:06:07-07:00"^^xsd:dateTime .
+
+ex:67FED7F8-15CD-0D49-A65C-7D1AB10ECFFB
+        ex:consumption  9870 ;
+        ex:time         "2017-08-23T03:19:05-07:00"^^xsd:dateTime .
+
+ex:ED6D370B-368A-5DB6-69B4-7EC8D40C9540
+        ex:consumption  10884 ;
+        ex:time         "2017-09-18T08:24:52-07:00"^^xsd:dateTime .
+
+ex:C38252A6-E546-B2EC-880B-20B31C345D42
+        ex:consumption  12663 ;
+        ex:time         "2017-09-11T03:03:34-07:00"^^xsd:dateTime .
+
+ex:15B8D74D-5859-2B65-43A9-AE788ED74500
+        ex:consumption  1525 ;
+        ex:time         "2017-07-12T12:23:14-07:00"^^xsd:dateTime .
+
+ex:406F16A3-DF8B-3F13-E9A7-C2244F40C152
+        ex:consumption  4427 ;
+        ex:time         "2017-08-10T14:37:42-07:00"^^xsd:dateTime .
+
+ex:6D61F63D-422E-5580-A544-1DBE429446AB
+        ex:consumption  6740 ;
+        ex:time         "2017-09-11T19:13:56-07:00"^^xsd:dateTime .
+
+ex:4258FB99-BCAD-6A3E-98BF-BBDB46C78662
+        ex:consumption  3642 ;
+        ex:time         "2017-07-07T08:56:13-07:00"^^xsd:dateTime .
+
+ex:40AA41BC-4C1F-01C3-CCF9-C494C34A3855
+        ex:consumption  8278 ;
+        ex:time         "2017-06-10T12:03:44-07:00"^^xsd:dateTime .
+
+ex:7A13075E-6886-4A99-6DDF-2FCA31F0432E
+        ex:consumption  5563 ;
+        ex:time         "2017-07-29T13:10:26-07:00"^^xsd:dateTime .
+
+ex:2A761F0F-E5DC-6553-64B2-4B2054B1DC56
+        ex:consumption  3477 ;
+        ex:time         "2017-06-11T06:36:49-07:00"^^xsd:dateTime .
+
+ex:2D89D4D5-61A7-9CFF-E60D-49838A904C9C
+        ex:consumption  4088 ;
+        ex:time         "2017-07-14T10:29:29-07:00"^^xsd:dateTime .
+
+ex:194D8A0A-BB9D-E243-E496-938F3981A299
+        ex:consumption  11997 ;
+        ex:time         "2017-09-01T09:20:37-07:00"^^xsd:dateTime .
+
+ex:E9E24368-C8B3-FE9B-BD43-D03413F88D08
+        ex:consumption  8681 ;
+        ex:time         "2017-09-07T07:47:26-07:00"^^xsd:dateTime .
+
+ex:9986F84A-BAA0-4802-EDEA-2DDEA8AF0841
+        ex:consumption  6710 ;
+        ex:time         "2017-09-17T14:24:17-07:00"^^xsd:dateTime .
+
+ex:C6F08656-26C4-529F-2FE9-A579CB0ABEDC
+        ex:consumption  1471 ;
+        ex:time         "2017-09-12T10:19:13-07:00"^^xsd:dateTime .
+
+ex:0FB5BCAA-F9B5-F0F9-D8C8-09A661815B73
+        ex:consumption  6653 ;
+        ex:time         "2017-08-18T01:03:17-07:00"^^xsd:dateTime .
+
+ex:A9A35223-AEA7-C452-4174-749142097BEC
+        ex:consumption  10880 ;
+        ex:time         "2017-07-18T18:17:57-07:00"^^xsd:dateTime .
+
+ex:988257A3-023A-0908-2E56-7EA06B381384
+        ex:consumption  9277 ;
+        ex:time         "2017-07-07T12:34:46-07:00"^^xsd:dateTime .
+
+ex:51887C2D-B3A4-7265-6393-59AC056B9F40
+        ex:consumption  101 ;
+        ex:time         "2017-08-01T12:05:20-07:00"^^xsd:dateTime .
+
+ex:7A826FD3-850A-F1EC-8872-57D00B24B15E
+        ex:consumption  11724 ;
+        ex:time         "2017-08-15T03:17:09-07:00"^^xsd:dateTime .
+
+ex:BC73F105-6CA9-41FC-46EC-19760834FE77
+        ex:consumption  7263 ;
+        ex:time         "2017-09-10T10:46:35-07:00"^^xsd:dateTime .
+
+ex:08E72F0C-1347-7CA4-843A-C0F9C036F3C0
+        ex:consumption  10077 ;
+        ex:time         "2017-08-26T19:51:27-07:00"^^xsd:dateTime .
+
+ex:2992E3B9-0408-40A8-E2A7-C978D89CFF26
+        ex:consumption  5806 ;
+        ex:time         "2017-08-02T15:56:22-07:00"^^xsd:dateTime .
+
+ex:ED250C2A-472C-2354-5787-211F7CD19768
+        ex:consumption  10700 ;
+        ex:time         "2017-07-12T14:04:27-07:00"^^xsd:dateTime .
+
+ex:FDF64B3A-F638-4EB9-DCFF-267FA2D0A3E1
+        ex:consumption  6510 ;
+        ex:time         "2017-08-08T21:56:13-07:00"^^xsd:dateTime .
+
+ex:7626FC87-414B-E0B7-3325-75AB14696BF9
+        ex:consumption  6440 ;
+        ex:time         "2017-07-19T13:03:08-07:00"^^xsd:dateTime .
+
+ex:4C159551-A67B-D5EB-C972-711794B465C6
+        ex:consumption  12389 ;
+        ex:time         "2017-06-10T14:17:40-07:00"^^xsd:dateTime .
+
+ex:CD7A7C92-3400-EB93-3153-9DEA1351B43F
+        ex:consumption  5723 ;
+        ex:time         "2017-09-15T14:24:24-07:00"^^xsd:dateTime .
+
+ex:1AE3CE55-36F2-33C7-F0AC-84994E77F23D
+        ex:consumption  12481 ;
+        ex:time         "2017-08-30T00:20:07-07:00"^^xsd:dateTime .
+
+ex:068B10E1-E7D6-2170-523E-07B6D77E8A60
+        ex:consumption  12689 ;
+        ex:time         "2017-08-07T16:49:20-07:00"^^xsd:dateTime .
+
+ex:D37AD247-3C0C-88DF-F902-92A848EEB72C
+        ex:consumption  4578 ;
+        ex:time         "2017-07-24T11:37:32-07:00"^^xsd:dateTime .
+
+ex:1EB8E888-ED19-F6EA-8CE2-FEE9491A634B
+        ex:consumption  5669 ;
+        ex:time         "2017-08-27T02:41:47-07:00"^^xsd:dateTime .
+
+ex:BA062952-D372-2468-6BF2-206735EB4DA2
+        ex:consumption  12134 ;
+        ex:time         "2017-08-08T08:59:08-07:00"^^xsd:dateTime .
+
+ex:71C1D848-18F8-054B-9732-2612BF623C05
+        ex:consumption  9038 ;
+        ex:time         "2017-06-13T02:30:51-07:00"^^xsd:dateTime .
+
+ex:0AB906C7-D1AF-C3D3-9616-62ABE19DFDFB
+        ex:consumption  10526 ;
+        ex:time         "2017-08-24T12:26:39-07:00"^^xsd:dateTime .
+
+ex:7D65926F-2BF5-5745-12BE-B72DB0289583
+        ex:consumption  2213 ;
+        ex:time         "2017-08-30T22:16:49-07:00"^^xsd:dateTime .
+
+ex:51BFDF72-401E-1042-EC05-D5C3F1442E47
+        ex:consumption  1773 ;
+        ex:time         "2017-08-03T09:44:05-07:00"^^xsd:dateTime .
+
+ex:C5680B4A-3B67-9BD5-B0BD-B02FFD5D9F44
+        ex:consumption  5609 ;
+        ex:time         "2017-07-26T19:15:42-07:00"^^xsd:dateTime .
+
+ex:0B80BBAB-9461-EE6E-44F8-0ACEF8C09CCD
+        ex:consumption  2389 ;
+        ex:time         "2017-06-15T21:01:28-07:00"^^xsd:dateTime .
+
+ex:446DC487-97DC-4CFF-0064-22731437196E
+        ex:consumption  3641 ;
+        ex:time         "2017-07-06T23:11:59-07:00"^^xsd:dateTime .
+
+ex:DBB5FFE4-05FD-105D-7212-085D101F7904
+        ex:consumption  1551 ;
+        ex:time         "2017-09-04T07:36:47-07:00"^^xsd:dateTime .
+
+ex:63B3F8E0-5602-9472-565F-D8A0CB4C5CFF
+        ex:consumption  8480 ;
+        ex:time         "2017-06-23T17:16:09-07:00"^^xsd:dateTime .
+
+ex:3BAE1ECC-815B-C300-56F4-9F7C70E9C343
+        ex:consumption  12036 ;
+        ex:time         "2017-07-24T22:48:14-07:00"^^xsd:dateTime .
+
+ex:ABF3640C-196E-6208-2863-FF852F721FE4
+        ex:consumption  1852 ;
+        ex:time         "2017-07-12T14:54:15-07:00"^^xsd:dateTime .
+
+ex:F4B4888E-7571-6C3A-A67E-8D86D7924012
+        ex:consumption  11051 ;
+        ex:time         "2017-06-24T08:34:29-07:00"^^xsd:dateTime .
+
+ex:E4A667E6-0024-FCB1-9BB6-3A388C2F1CC3
+        ex:consumption  4538 ;
+        ex:time         "2017-06-27T22:41:40-07:00"^^xsd:dateTime .
+
+ex:885FF1A5-D26B-8D73-03E6-D228CA464524
+        ex:consumption  11251 ;
+        ex:time         "2017-07-13T14:36:00-07:00"^^xsd:dateTime .
+
+ex:E95631B8-4192-E22C-F8CA-E82C69BE59C7
+        ex:consumption  2423 ;
+        ex:time         "2017-09-08T22:45:42-07:00"^^xsd:dateTime .
+
+ex:811996E9-8A6B-1DDD-D0B9-8444CE120D23
+        ex:consumption  6852 ;
+        ex:time         "2017-06-20T10:31:34-07:00"^^xsd:dateTime .
+
+ex:0EA6A879-5E3D-6FF5-AC1A-19C00A46E2DE
+        ex:consumption  9646 ;
+        ex:time         "2017-09-05T13:41:55-07:00"^^xsd:dateTime .
+
+ex:CC304ECC-9253-0C22-6734-F3609ABC1A7F
+        ex:consumption  5578 ;
+        ex:time         "2017-08-20T19:05:26-07:00"^^xsd:dateTime .
+
+ex:14D02A94-6A58-8233-AB89-3BACE3302A00
+        ex:consumption  9001 ;
+        ex:time         "2017-08-25T22:24:35-07:00"^^xsd:dateTime .
+
+ex:93577829-25C6-F8C2-2C4A-AD97F241E111
+        ex:consumption  4037 ;
+        ex:time         "2017-06-23T22:12:10-07:00"^^xsd:dateTime .
+
+ex:C6FDE4C8-C7DC-0BF7-AC1D-827387FBB6EE
+        ex:consumption  7519 ;
+        ex:time         "2017-07-06T05:36:13-07:00"^^xsd:dateTime .
+
+ex:17A2655D-4ABC-FC05-AF0C-72C0D607FCB8
+        ex:consumption  6660 ;
+        ex:time         "2017-07-19T19:29:36-07:00"^^xsd:dateTime .
+
+ex:F387ADE0-D502-2834-1B09-5783A219AD3E
+        ex:consumption  1060 ;
+        ex:time         "2017-08-05T07:53:17-07:00"^^xsd:dateTime .
+
+ex:913A32D0-478E-DBC4-D843-BA0939C28681
+        ex:consumption  7838 ;
+        ex:time         "2017-08-20T05:52:48-07:00"^^xsd:dateTime .
+
+ex:DFF67753-B36D-C96B-8089-6027DFF3BFB5
+        ex:consumption  2724 ;
+        ex:time         "2017-08-23T10:01:05-07:00"^^xsd:dateTime .
+
+ex:14F310D0-4430-A01C-5D85-69A899F1DF20
+        ex:consumption  9136 ;
+        ex:time         "2017-08-03T17:18:30-07:00"^^xsd:dateTime .
+
+ex:966799AA-5B08-E7A1-165E-A71988B87DA5
+        ex:consumption  9671 ;
+        ex:time         "2017-06-14T23:20:28-07:00"^^xsd:dateTime .
+
+ex:AF742A6E-DF93-4C3B-A15B-F700A9F32A1A
+        ex:consumption  11378 ;
+        ex:time         "2017-08-12T21:54:40-07:00"^^xsd:dateTime .
+
+ex:4809D459-470D-7303-CAE9-BBEE4E8370B2
+        ex:consumption  4601 ;
+        ex:time         "2017-08-01T17:32:04-07:00"^^xsd:dateTime .
+
+ex:D8E48139-696A-CD9E-78BA-00F56FCACC96
+        ex:consumption  7457 ;
+        ex:time         "2017-07-13T13:58:56-07:00"^^xsd:dateTime .
+
+ex:76E371E3-B224-E599-3D41-3260F005FFB5
+        ex:consumption  6309 ;
+        ex:time         "2017-06-09T02:29:01-07:00"^^xsd:dateTime .
+
+ex:AAA08BB5-AC35-B502-D51A-C8D3EA037750
+        ex:consumption  8831 ;
+        ex:time         "2017-08-21T07:19:09-07:00"^^xsd:dateTime .
+
+ex:A82174FB-BA43-76DC-29E0-1F60B2E91A99
+        ex:consumption  9152 ;
+        ex:time         "2017-06-26T18:44:15-07:00"^^xsd:dateTime .
+
+ex:A61F442B-4CA2-89EB-F561-6106B5EABEB6
+        ex:consumption  2248 ;
+        ex:time         "2017-06-25T14:00:22-07:00"^^xsd:dateTime .
+
+ex:6C8AD42D-CEAF-D769-D411-FAE2411C8C37
+        ex:consumption  7708 ;
+        ex:time         "2017-09-14T19:52:37-07:00"^^xsd:dateTime .
+
+ex:C3F5B6F9-E5FB-7D29-99A1-FC72838C0F89
+        ex:consumption  6648 ;
+        ex:time         "2017-06-27T16:34:49-07:00"^^xsd:dateTime .
+
+ex:DEF2FB6B-D486-4FA2-5946-8412688CD4E5
+        ex:consumption  1725 ;
+        ex:time         "2017-08-01T13:01:57-07:00"^^xsd:dateTime .
+
+ex:504A5124-77A6-F78C-FAC6-6689A71AF879
+        ex:consumption  3116 ;
+        ex:time         "2017-09-20T08:33:44-07:00"^^xsd:dateTime .
+
+ex:216FC01D-8FC1-8D93-F169-8C3BC9740870
+        ex:consumption  5764 ;
+        ex:time         "2017-07-12T18:40:18-07:00"^^xsd:dateTime .
+
+ex:6719AE80-5AE0-52D7-38C6-5D9A10843E87
+        ex:consumption  9411 ;
+        ex:time         "2017-08-16T15:41:49-07:00"^^xsd:dateTime .
+
+ex:E6D9687C-C27A-DA87-B216-80319E787E2A
+        ex:consumption  1626 ;
+        ex:time         "2017-09-10T06:17:54-07:00"^^xsd:dateTime .
+
+ex:D7074CC0-8793-5C0A-C7CA-DFEBFC75DDB3
+        ex:consumption  8500 ;
+        ex:time         "2017-06-16T00:57:56-07:00"^^xsd:dateTime .
+
+ex:09516342-5009-744C-6375-4D649E80FF95
+        ex:consumption  2865 ;
+        ex:time         "2017-06-07T18:30:48-07:00"^^xsd:dateTime .
+
+ex:BA4AD0A9-1822-F040-8E45-9F6B70FA224B
+        ex:consumption  2328 ;
+        ex:time         "2017-08-20T21:34:32-07:00"^^xsd:dateTime .
+
+ex:5FA4670D-BFE9-892F-0927-E422B43A061E
+        ex:consumption  12133 ;
+        ex:time         "2017-09-14T05:27:15-07:00"^^xsd:dateTime .
+
+ex:E64D2246-91F4-C510-C74C-9DF4A4B2C3C6
+        ex:consumption  12549 ;
+        ex:time         "2017-08-29T15:43:38-07:00"^^xsd:dateTime .
+
+ex:539FE486-A91B-E04B-4D74-7AEB9A6FEE6F
+        ex:consumption  1583 ;
+        ex:time         "2017-06-24T11:35:04-07:00"^^xsd:dateTime .
+
+ex:277C4047-C9B6-E3DE-4111-62AFBBF92147
+        ex:consumption  5744 ;
+        ex:time         "2017-09-19T09:35:14-07:00"^^xsd:dateTime .
+
+ex:89C26157-2555-794E-8FE3-785916D9474A
+        ex:consumption  3319 ;
+        ex:time         "2017-07-08T17:10:05-07:00"^^xsd:dateTime .

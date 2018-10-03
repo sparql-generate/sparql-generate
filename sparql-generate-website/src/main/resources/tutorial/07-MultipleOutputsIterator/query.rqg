@@ -9,7 +9,7 @@ GENERATE {
         transit:route ?date1.
 }
 SOURCE <http://example.com/airport.csv> AS ?source
-ITERATOR ite:CSVMultipleOutput(?source, "id", "stop", "date") AS ?id ?stop ?date
+ITERATOR ite:CSVMultipleOutput(?source, ",", "id", "stop", "date") AS ?id ?stop ?date
 WHERE {
     BIND (URI(CONCAT("http://airport.example.com/",?id)) AS ?airportURI)
     BIND(fun:dateTime(?date,"dd/MM/yy") AS ?date1)

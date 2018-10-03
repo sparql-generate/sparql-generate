@@ -1032,7 +1032,7 @@ $(document).ready(function() {
   $(".main-body").parent().empty().removeClass("container").addClass("container-fluid").append(`
   <h1>SPARQL-Generate Playground</h1>
 
-  <p>Load <label for="exercise">exercise</label> <select name="exercise" id="exercises"><option value="---">---</option></select> or <label for="test">test</label> <select name="test" id="tests"><option value="---">---</option></select></p>
+  <p>Load <label for="exercise">example</label> <select name="exercise" id="exercises"><option value="---">---</option></select> or <label for="test">test</label> <select name="test" id="tests"><option value="---">---</option></select></p>
 
   <div id="readme"></div>
   <div id="form" class="row"></div>`);

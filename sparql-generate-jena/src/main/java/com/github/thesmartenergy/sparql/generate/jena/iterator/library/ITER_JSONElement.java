@@ -40,7 +40,7 @@ import org.slf4j.Logger;
 
 /**
  * Iterator function
- * <a href="http://w3id.org/sparql-generate/iter/JSONElement">iter:ITER_JSONElement</a>
+ * <a href="http://w3id.org/sparql-generate/iter/JSONElement">iter:JSONElement</a>
  * iterates over the results of the evaluation of a JSONPath expression, and
  * embeds every result in a JSON structure.
  *

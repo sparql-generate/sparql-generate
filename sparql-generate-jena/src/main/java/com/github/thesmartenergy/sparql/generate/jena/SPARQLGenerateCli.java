@@ -24,16 +24,7 @@ import com.github.thesmartenergy.sparql.generate.jena.stream.LookUpRequest;
 import com.github.thesmartenergy.sparql.generate.jena.stream.SPARQLGenerateStreamManager;
 import com.github.thesmartenergy.sparql.generate.jena.utils.SPARQLGenerateUtils;
 import com.google.gson.Gson;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.PrintStream;
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.*;
 import org.apache.commons.io.IOUtils;
 import org.apache.jena.graph.Triple;
 import org.apache.jena.query.Dataset;
@@ -45,19 +36,18 @@ import org.apache.jena.shared.PrefixMapping;
 import org.apache.jena.sparql.core.Quad;
 import org.apache.jena.sparql.serializer.SerializationContext;
 import org.apache.jena.sparql.util.FmtUtils;
-import org.apache.log4j.Appender;
-import org.apache.log4j.ConsoleAppender;
-import org.apache.log4j.Layout;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.*;
 import org.slf4j.Logger;
-import org.apache.log4j.Level;
-import org.apache.log4j.PatternLayout;
+import org.slf4j.LoggerFactory;
+
+import java.io.*;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.concurrent.TimeUnit;
 
 /**
- *
  * @author Noorani Bakerally <noorani.bakerally at emse.fr>, Maxime Lefrançois
  * <maxime.lefrancois at emse.fr>
- *
  */
 public class SPARQLGenerateCli {
 
@@ -69,7 +59,7 @@ public class SPARQLGenerateCli {
     private static final org.apache.log4j.Logger rootLogger = org.apache.log4j.Logger.getRootLogger();
 
     public static void main(String[] args) throws ParseException {
-
+        Instant start = Instant.now();
         CommandLine cl = CMDConfigurations.parseArguments(args);
 
         if (cl.getOptions().length == 0) {
@@ -89,11 +79,11 @@ public class SPARQLGenerateCli {
         try {
             String conf = IOUtils.toString(new FileInputStream(new File(dir, "sparql-generate-conf.json")), "utf-8");
             request = gson.fromJson(conf, Request.class);
-        } catch(Exception ex) {
+        } catch (Exception ex) {
             LOG.warn("Error while loading the location mapping model for the queryset. No named queries will be used");
             request = Request.DEFAULT;
         }
-        
+
         // initialize stream manager
         SPARQLGenerateStreamManager sm = SPARQLGenerateStreamManager.makeStreamManager(new LocatorFileAccept(dir.toURI().getPath()));
         sm.setLocationMapper(request.asLocationMapper());
@@ -173,6 +163,8 @@ public class SPARQLGenerateCli {
             }
 
         }
+        long millis = Duration.between(start, Instant.now()).toMillis();
+        System.out.println("Program finished in " + String.format("%d min, %d sec", TimeUnit.MILLISECONDS.toMinutes(millis), TimeUnit.MILLISECONDS.toSeconds(millis) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis))));
     }
 
     private static class ConsoleStreamRDF implements StreamRDF {
@@ -181,8 +173,8 @@ public class SPARQLGenerateCli {
         private final SerializationContext context;
 
         private PrintStream out;
-        
-        int  i = 0;
+
+        int i = 0;
 
         public ConsoleStreamRDF(PrintStream out, PrefixMapping pm) {
             this.out = out;
@@ -211,8 +203,8 @@ public class SPARQLGenerateCli {
         public void triple(Triple triple) {
             out.append(FmtUtils.stringForTriple(triple, context)).append(" .\n");
             i++;
-            if(i>1000) {
-                i=0;
+            if (i > 1000) {
+                i = 0;
                 out.flush();
             }
         }

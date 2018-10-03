@@ -20,11 +20,11 @@ import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.NodeValue;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueString;
 import org.apache.jena.sparql.function.FunctionBase2;
-import org.jsoup.parser.Parser;
-import org.slf4j.LoggerFactory;
-import org.slf4j.Logger;
 import org.jsoup.Jsoup;
+import org.jsoup.parser.Parser;
 import org.jsoup.select.Elements;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Binding function
@@ -67,6 +67,7 @@ public class FUN_HTMLTag extends FunctionBase2 {
 
             String selectPath = String.valueOf(v2.asNode().getLiteralLexicalForm());
             Elements elements = htmldoc.select(selectPath);
+            String x = elements.text();
             return new NodeValueString(elements.text());
         } catch (Exception ex) {
             LOG.debug("No evaluation of " + html + ", " + v2, ex);
