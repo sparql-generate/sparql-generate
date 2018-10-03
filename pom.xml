@@ -91,14 +91,6 @@ mvn release:prepare release:perform
         <system>GitHub Issues</system>
     </issueManagement>
 
-    <mailingLists>
-        <mailingList>
-            <name>Mailing list</name>
-            <post>sparql-generate-jena@googlegroups.com</post>
-            <archive>https://groups.google.com/d/forum/sparql-generate-jena</archive>
-        </mailingList>
-    </mailingLists>
-
     <licenses>
         <license>
             <name>The Apache Software License, Version 2.0</name>
