@@ -63,18 +63,18 @@ import java.util.function.Consumer;
  * <p>will connect to the Gemini WebSocket server (a cryptocurrency exchange
  * platform) for 10 seconds and iteratively produce the following bindings:</p>
  * <pre>
- * ?events => {"type":"update","eventId":4568099292,"timestamp":1537974017,"timestampms":1537974017597,"socket_sequence":1,"events":[{"type":"change","side":"ask","price":"6513.20","remaining":"0","delta":"-1.321","reason":"cancel"}]}<br>
- * ?events => {"type":"update","eventId":4568099362,"timestamp":1537974018,"timestampms":1537974018434,"socket_sequence":2,"events":[{"type":"change","side":"bid","price":"1.00","remaining":"5666.001","delta":"0.001","reason":"place"}]}<br>
- * ?events => {"type":"update","eventId":4568099456,"timestamp":1537974019,"timestampms":1537974019735,"socket_sequence":3,"events":[{"type":"change","side":"bid","price":"6504.97","remaining":"0","delta":"-1","reason":"cancel"}]}<br>
- * ?events => {"type":"update","eventId":4568099464,"timestamp":1537974019,"timestampms":1537974019919,"socket_sequence":4,"events":[{"type":"change","side":"ask","price":"6513.20","remaining":"0.104","delta":"0.104","reason":"place"}]}<br>
- * ?events => {"type":"update","eventId":4568099470,"timestamp":1537974020,"timestampms":1537974020197,"socket_sequence":5,"events":[{"type":"trade","tid":4568099470,"price":"6508.45","amount":"0.02441407","makerSide":"ask"},{"type":"change","side":"ask","price":"6508.45","remaining":"0.45117186","delta":"-0.02441407","reason":"trade"}]}<br>
- * ?events => {"type":"update","eventId":4568099488,"timestamp":1537974020,"timestampms":1537974020414,"socket_sequence":6,"events":[{"type":"change","side":"bid","price":"6492.03","remaining":"0","delta":"-0.2","reason":"cancel"}]}<br>
- * ?events => {"type":"update","eventId":4568099494,"timestamp":1537974020,"timestampms":1537974020515,"socket_sequence":7,"events":[{"type":"change","side":"ask","price":"6544.36","remaining":"0","delta":"-0.2","reason":"cancel"}]}<br>
- * ?events => {"type":"update","eventId":4568099498,"timestamp":1537974020,"timestampms":1537974020542,"socket_sequence":8,"events":[{"type":"change","side":"ask","price":"6513.20","remaining":"0","delta":"-0.104","reason":"cancel"}]}<br>
- * ?events => {"type":"update","eventId":4568099513,"timestamp":1537974020,"timestampms":1537974020623,"socket_sequence":9,"events":[{"type":"change","side":"bid","price":"6491.40","remaining":"0.2","delta":"0.2","reason":"place"}]}<br>
- * ?events => {"type":"update","eventId":4568099529,"timestamp":1537974020,"timestampms":1537974020723,"socket_sequence":10,"events":[{"type":"change","side":"ask","price":"6543.79","remaining":"0.2","delta":"0.2","reason":"place"}]}<br>
- * ?events => {"type":"update","eventId":4568099531,"timestamp":1537974020,"timestampms":1537974020726,"socket_sequence":11,"events":[{"type":"change","side":"bid","price":"1.00","remaining":"5666","delta":"-0.001","reason":"cancel"}]}<br>
- * ?events => {"type":"update","eventId":4568099631,"timestamp":1537974021,"timestampms":1537974021785,"socket_sequence":12,"events":[{"type":"change","side":"bid","price":"6504.37","remaining":"1","delta":"1","reason":"place"}]}<br>
+ * ?events => {"type":"update","eventId":4568099292,"timestamp":1537974017,"timestampms":1537974017597,"socket_sequence":1,"events":[{"type":"change","side":"ask","price":"6513.20","remaining":"0","delta":"-1.321","reason":"cancel"}]}
+ * ?events => {"type":"update","eventId":4568099362,"timestamp":1537974018,"timestampms":1537974018434,"socket_sequence":2,"events":[{"type":"change","side":"bid","price":"1.00","remaining":"5666.001","delta":"0.001","reason":"place"}]}
+ * ?events => {"type":"update","eventId":4568099456,"timestamp":1537974019,"timestampms":1537974019735,"socket_sequence":3,"events":[{"type":"change","side":"bid","price":"6504.97","remaining":"0","delta":"-1","reason":"cancel"}]}
+ * ?events => {"type":"update","eventId":4568099464,"timestamp":1537974019,"timestampms":1537974019919,"socket_sequence":4,"events":[{"type":"change","side":"ask","price":"6513.20","remaining":"0.104","delta":"0.104","reason":"place"}]}
+ * ?events => {"type":"update","eventId":4568099470,"timestamp":1537974020,"timestampms":1537974020197,"socket_sequence":5,"events":[{"type":"trade","tid":4568099470,"price":"6508.45","amount":"0.02441407","makerSide":"ask"},{"type":"change","side":"ask","price":"6508.45","remaining":"0.45117186","delta":"-0.02441407","reason":"trade"}]}
+ * ?events => {"type":"update","eventId":4568099488,"timestamp":1537974020,"timestampms":1537974020414,"socket_sequence":6,"events":[{"type":"change","side":"bid","price":"6492.03","remaining":"0","delta":"-0.2","reason":"cancel"}]}
+ * ?events => {"type":"update","eventId":4568099494,"timestamp":1537974020,"timestampms":1537974020515,"socket_sequence":7,"events":[{"type":"change","side":"ask","price":"6544.36","remaining":"0","delta":"-0.2","reason":"cancel"}]}
+ * ?events => {"type":"update","eventId":4568099498,"timestamp":1537974020,"timestampms":1537974020542,"socket_sequence":8,"events":[{"type":"change","side":"ask","price":"6513.20","remaining":"0","delta":"-0.104","reason":"cancel"}]}
+ * ?events => {"type":"update","eventId":4568099513,"timestamp":1537974020,"timestampms":1537974020623,"socket_sequence":9,"events":[{"type":"change","side":"bid","price":"6491.40","remaining":"0.2","delta":"0.2","reason":"place"}]}
+ * ?events => {"type":"update","eventId":4568099529,"timestamp":1537974020,"timestampms":1537974020723,"socket_sequence":10,"events":[{"type":"change","side":"ask","price":"6543.79","remaining":"0.2","delta":"0.2","reason":"place"}]}
+ * ?events => {"type":"update","eventId":4568099531,"timestamp":1537974020,"timestampms":1537974020726,"socket_sequence":11,"events":[{"type":"change","side":"bid","price":"1.00","remaining":"5666","delta":"-0.001","reason":"cancel"}]}
+ * ?events => {"type":"update","eventId":4568099631,"timestamp":1537974021,"timestampms":1537974021785,"socket_sequence":12,"events":[{"type":"change","side":"bid","price":"6504.37","remaining":"1","delta":"1","reason":"place"}]}
  * </pre>
  *
  * @author El-Mehdi Khalfi <el-mehdi.khalfi at emse.fr>
