@@ -106,7 +106,11 @@ public class ITER_WebSocket extends IteratorStreamFunctionBase {
         if (!args.get(0).isString()) {
             LOG.debug("First argument must be a string, got: " + args.get(0));
             throw new ExprEvalException("First argument must be a string, got: " + args.get(0));
+        } else if (args.get(0).asString().isEmpty()) {
+            LOG.debug("First argument is an empty string");
+            throw new ExprEvalException("First argument is an empty string");
         }
+
         if (!args.get(1).isInteger() || args.get(1).getInteger().intValue() < 0) {
             LOG.debug("Second argument must be a positive integer, got: " + args.get(1));
             throw new ExprEvalException("Second argument must be an integer, got: " + args.get(1));

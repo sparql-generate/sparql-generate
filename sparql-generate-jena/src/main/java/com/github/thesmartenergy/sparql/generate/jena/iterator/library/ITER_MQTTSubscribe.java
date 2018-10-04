@@ -18,19 +18,19 @@ package com.github.thesmartenergy.sparql.generate.jena.iterator.library;
 import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.IteratorStreamFunctionBase;
 import org.apache.jena.graph.NodeFactory;
+import org.apache.jena.sparql.expr.ExprEvalException;
+import org.apache.jena.sparql.expr.ExprList;
 import org.apache.jena.sparql.expr.NodeValue;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueNode;
 import org.eclipse.paho.client.mqttv3.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import org.apache.jena.sparql.expr.ExprEvalException;
-import org.apache.jena.sparql.expr.ExprList;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Iterator function
@@ -90,6 +90,9 @@ public class ITER_MQTTSubscribe extends IteratorStreamFunctionBase {
         if (!args.get(0).isString()) {
             LOG.debug("First argument must be a string, got: " + args.get(0));
             throw new ExprEvalException("First argument must be a string, got: " + args.get(0));
+        } else if (args.get(0).asString().isEmpty()) {
+            LOG.debug("First argument is an empty string");
+            throw new ExprEvalException("First argument is an empty string");
         }
         if (args.size() > 1) {
             for (int i = 1; i < args.size(); i++) {

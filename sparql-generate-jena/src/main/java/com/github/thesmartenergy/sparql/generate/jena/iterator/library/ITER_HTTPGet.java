@@ -26,9 +26,11 @@ import org.apache.jena.sparql.expr.nodevalue.NodeValueNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.ProcessingException;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -44,7 +46,7 @@ import java.util.function.Consumer;
  *
  * <ul>
  * <li>Param 1: (a String) the Web URI where regular GET operations are operated;</li>
- * <li>Param 2: (a positive Integer) the number of seconds between successive 
+ * <li>Param 2: (a positive Integer) the number of seconds between successive
  * calls to the Web API;</li>
  * <li>Param 3 (optional): the total number of calls to make (a positive
  * Integer). If not provided, the iterator never ends.</li>
@@ -79,6 +81,9 @@ public class ITER_HTTPGet extends IteratorStreamFunctionBase {
         if (!args.get(0).isString()) {
             LOG.debug("First argument must be a string, got: " + args.get(0));
             throw new ExprEvalException("First argument must be a string, got: " + args.get(0));
+        } else if (args.get(0).asString().isEmpty()) {
+            LOG.debug("First argument is an empty string");
+            throw new ExprEvalException("First argument is an empty string");
         }
         if (!args.get(1).isInteger() || args.get(1).getInteger().intValue() < 0) {
             LOG.debug("Second argument must be a positive integer, got: " + args.get(1));
@@ -92,24 +97,45 @@ public class ITER_HTTPGet extends IteratorStreamFunctionBase {
         String url_s = args.get(0).asString();
         int recurrenceValue = args.get(1).getInteger().intValue();
         int times = args.size() == 3 ? args.get(2).getInteger().intValue() : 0;
-        
-        Client client = ClientBuilder.newClient();
+
         final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
         AtomicInteger i_call = new AtomicInteger();
 
         Runnable task = () -> {
-            String message = "";
+            String message;
             try {
-                message = client.target(url_s).request().get(String.class);
+                URL url = new URL(url_s);
+                HttpURLConnection con = (HttpURLConnection) url.openConnection();
+                con.setRequestMethod("GET");
+                int status = con.getResponseCode();
+
+                if (status != 200) {
+                    LOG.debug("HTTP error " + status + " accessing " + url_s + " : " + con.getResponseMessage());
+                    con.disconnect();
+                    throw new RuntimeException("HTTP error " + status + " accessing " + url_s + " : " + con.getResponseMessage());
+                }
+
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                byte[] buffer = new byte[1024];
+                int length;
+                while ((length = con.getInputStream().read(buffer)) != -1) {
+                    baos.write(buffer, 0, length);
+                }
+                message = baos.toString();
+
                 String out = message;
                 if (out.length() > 200) {
                     out = out.substring(0, 120) + "\n ... \n" + out.substring(out.length() - 80);
                 }
                 LOG.debug("message retrieved: " + out);
-            } catch (ProcessingException ex) {
-                LOG.error(ex.getMessage());
+            } catch (MalformedURLException e) {
                 scheduler.shutdown();
-                throw new ExprEvalException("A ProcessingException occurred", ex);
+                LOG.debug("An MalformedURLException occurred", e);
+                throw new ExprEvalException("A MalformedURLException occurred", e);
+            } catch (IOException e) {
+                scheduler.shutdown();
+                LOG.debug("An IOException occurred : ", e);
+                throw new ExprEvalException("An IOException occurred", e);
             }
             NodeValue outnode = new NodeValueNode(NodeFactory.createLiteral(message));
 
