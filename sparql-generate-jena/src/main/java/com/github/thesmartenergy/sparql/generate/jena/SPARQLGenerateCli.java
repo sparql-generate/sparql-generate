@@ -22,28 +22,37 @@ import com.github.thesmartenergy.sparql.generate.jena.query.SPARQLGenerateQuery;
 import com.github.thesmartenergy.sparql.generate.jena.stream.LocatorFileAccept;
 import com.github.thesmartenergy.sparql.generate.jena.stream.LookUpRequest;
 import com.github.thesmartenergy.sparql.generate.jena.stream.SPARQLGenerateStreamManager;
+import com.github.thesmartenergy.sparql.generate.jena.syntax.ElementSource;
 import com.github.thesmartenergy.sparql.generate.jena.utils.SPARQLGenerateUtils;
 import com.google.gson.Gson;
 import org.apache.commons.cli.*;
 import org.apache.commons.io.IOUtils;
+import org.apache.jena.graph.Node;
+import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.graph.Triple;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetFactory;
 import org.apache.jena.query.QueryFactory;
 import org.apache.jena.rdf.model.Model;
+import org.apache.jena.riot.RDFLanguages;
 import org.apache.jena.riot.system.StreamRDF;
 import org.apache.jena.shared.PrefixMapping;
 import org.apache.jena.sparql.core.Quad;
 import org.apache.jena.sparql.serializer.SerializationContext;
+import org.apache.jena.sparql.syntax.Element;
 import org.apache.jena.sparql.util.FmtUtils;
 import org.apache.log4j.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.List;
+import java.util.Properties;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * @author Noorani Bakerally <noorani.bakerally at emse.fr>, Maxime Lefrançois
@@ -52,11 +61,29 @@ import java.util.concurrent.TimeUnit;
 public class SPARQLGenerateCli {
 
     private static final Logger LOG = LoggerFactory.getLogger(SPARQLGenerateCli.class);
-    private static final Gson gson = new Gson();
+    private static final Gson GSON = new Gson();
 
-    private static final Layout layout = new PatternLayout("%5p [%t] (%F:%L) - %m%n");
-    private static final Appender consoleAppender = new ConsoleAppender(layout);
-    private static final org.apache.log4j.Logger rootLogger = org.apache.log4j.Logger.getRootLogger();
+    private static final Layout LAYOUT = new PatternLayout("%5p [%t] (%F:%L) - %m%n");
+    private static final Appender CONSOLE_APPENDER = new ConsoleAppender(LAYOUT);
+    private static final org.apache.log4j.Logger ROOT_LOGGER = org.apache.log4j.Logger.getRootLogger();
+
+    private static final String ARG_HELP = "h";
+    private static final String ARG_HELP_LONG = "help";
+    private static final String ARG_DIRECTORY = "d";
+    private static final String ARG_DIRECTORY_LONG = "dir";
+    private static final String ARG_DIRECTORY_DEFAULT = ".";
+    private static final String ARG_QUERY = "q";
+    private static final String ARG_QUERY_LONG = "query-file";
+    private static final String ARG_QUERY_DEFAULT = "query.rqg";
+    private static final String ARG_OUTPUT = "o";
+    private static final String ARG_OUTPUT_LONG = "output";
+    private static final String ARG_SOURCE_LONG = "source";
+    private static final String ARG_STREAM = "s";
+    private static final String ARG_STREAM_LONG = "stream";
+    private static final String ARG_LOG_LEVEL = "l";
+    private static final String ARG_LOG_LEVEL_LONG = "log-level";
+    private static final String ARG_LOG_FILE = "f";
+    private static final String ARG_LOG_FILE_LONG = "log-file";
 
     public static void main(String[] args) throws ParseException {
         Instant start = Instant.now();
@@ -69,7 +96,7 @@ public class SPARQLGenerateCli {
 
         setLogging(cl);
 
-        String dirPath = cl.getOptionValue("d", ".");
+        String dirPath = cl.getOptionValue(ARG_DIRECTORY, ARG_DIRECTORY_DEFAULT);
         File dir = new File(dirPath);
 
         SPARQLGenerate.init();
@@ -77,24 +104,27 @@ public class SPARQLGenerateCli {
         // read sparql-generate-conf.json
         Request request;
         try {
-            String conf = IOUtils.toString(new FileInputStream(new File(dir, "sparql-generate-conf.json")), "utf-8");
-            request = gson.fromJson(conf, Request.class);
+            String conf = IOUtils.toString(
+                    new FileInputStream(new File(dir, "sparql-generate-conf.json")), StandardCharsets.UTF_8);
+            request = GSON.fromJson(conf, Request.class);
         } catch (Exception ex) {
             LOG.warn("Error while loading the location mapping model for the queryset. No named queries will be used");
             request = Request.DEFAULT;
         }
 
         // initialize stream manager
-        SPARQLGenerateStreamManager sm = SPARQLGenerateStreamManager.makeStreamManager(new LocatorFileAccept(dir.toURI().getPath()));
+        SPARQLGenerateStreamManager sm = SPARQLGenerateStreamManager
+                .makeStreamManager(new LocatorFileAccept(dir.toURI().getPath()));
         sm.setLocationMapper(request.asLocationMapper());
         SPARQLGenerate.setStreamManager(sm);
 
-        String queryPath = cl.getOptionValue("q", "query.rqg");
+        String queryPath = cl.getOptionValue(ARG_QUERY, ARG_QUERY_DEFAULT);
         String query;
         try {
-            query = IOUtils.toString(SPARQLGenerate.getStreamManager().open(new LookUpRequest(queryPath, SPARQLGenerate.MEDIA_TYPE)), "UTF-8");
+            query = IOUtils.toString(SPARQLGenerate.getStreamManager()
+                    .open(new LookUpRequest(queryPath, SPARQLGenerate.MEDIA_TYPE)), StandardCharsets.UTF_8);
         } catch (IOException | NullPointerException ex) {
-            LOG.error("No file named " + queryPath + " was found in the directory that contains the query to be executed.");
+            LOG.error("No file named {} was found in the directory that contains the query to be executed.", queryPath);
             return;
         }
 
@@ -105,6 +135,8 @@ public class SPARQLGenerateCli {
             LOG.error("Error while parsing the query to be executed.", ex);
             return;
         }
+
+        replaceSourcesIfRequested(cl, q);
 
         RootPlan plan;
         try {
@@ -122,9 +154,9 @@ public class SPARQLGenerateCli {
             ds = DatasetFactory.create();
         }
 
-        String output = cl.getOptionValue("o");
+        String output = cl.getOptionValue(ARG_OUTPUT);
 
-        boolean stream = cl.hasOption("s");
+        boolean stream = cl.hasOption(ARG_STREAM);
         if (stream) {
 
             StreamRDF outputRDF;
@@ -132,7 +164,8 @@ public class SPARQLGenerateCli {
                 outputRDF = new ConsoleStreamRDF(System.out, q.getPrefixMapping());
             } else {
                 try {
-                    outputRDF = new ConsoleStreamRDF(new PrintStream(new FileOutputStream(output, false)), q.getPrefixMapping());
+                    outputRDF = new ConsoleStreamRDF(
+                            new PrintStream(new FileOutputStream(output, false)), q.getPrefixMapping());
                 } catch (IOException ex) {
                     LOG.error("Error while opening the output file.", ex);
                     return;
@@ -149,10 +182,10 @@ public class SPARQLGenerateCli {
             try {
                 Model model = plan.exec(ds);
                 if (output == null) {
-                    model.write(System.out, "TTL");
+                    model.write(System.out, RDFLanguages.strLangTurtle);
                 } else {
                     try {
-                        model.write(new FileOutputStream(output, false), "TTL");
+                        model.write(new FileOutputStream(output, false), RDFLanguages.strLangTurtle);
                     } catch (IOException ex) {
                         LOG.error("Error while opening the output file.", ex);
                         return;
@@ -222,23 +255,49 @@ public class SPARQLGenerateCli {
     private static void setLogging(CommandLine cl) {
         try {
             Level level = Level.toLevel(cl.getOptionValue("l"), Level.DEBUG);
-            rootLogger.setLevel(level);
+            ROOT_LOGGER.setLevel(level);
         } catch (Exception ex) {
-            rootLogger.setLevel(Level.DEBUG);
+            ROOT_LOGGER.setLevel(Level.DEBUG);
         }
 
-        String logPath = cl.getOptionValue("f");
+        String logPath = cl.getOptionValue(ARG_LOG_FILE);
         if (logPath == null) {
-            rootLogger.addAppender(consoleAppender);
+            ROOT_LOGGER.addAppender(CONSOLE_APPENDER);
         } else {
             try {
-                rootLogger.addAppender(new org.apache.log4j.RollingFileAppender(layout, logPath, false));
+                ROOT_LOGGER.addAppender(new org.apache.log4j.RollingFileAppender(LAYOUT, logPath, false));
             } catch (IOException ex) {
                 System.out.println(ex.getClass() + "occurred while initializing the log file: " + ex.getMessage());
                 ex.printStackTrace();
-                return;
             }
         }
+    }
+
+    private static void replaceSourcesIfRequested(CommandLine cli, SPARQLGenerateQuery query) {
+        final Properties replacementSources = cli.getOptionProperties(ARG_SOURCE_LONG);
+
+        List<Element> updatedSources = query.getIteratorsAndSources().stream()
+                .map(element -> {
+                    if (element instanceof ElementSource) {
+                        ElementSource elementSource = (ElementSource) element;
+                        String sourceURI = elementSource.getSource().toString(query.getPrefixMapping(), false);
+
+                        if(replacementSources.containsKey(sourceURI)) {
+                            Node replacementSource = NodeFactory.createURI(replacementSources.getProperty(sourceURI));
+
+                            LOG.info("Replaced source <{}> with <{}>.", sourceURI, replacementSource);
+
+                            return new ElementSource(replacementSource,
+                                    elementSource.getAccept(),
+                                    elementSource.getVar());
+                        }
+                    }
+
+                    return element;
+                })
+                .collect(Collectors.toList());
+
+        query.setIteratorsAndSources(updatedSources);
     }
 
     private static class CMDConfigurations {
@@ -250,7 +309,7 @@ public class SPARQLGenerateCli {
 
             /*Process Options*/
             //print help menu
-            if (cl.hasOption('h')) {
+            if (cl.hasOption(ARG_HELP)) {
                 CMDConfigurations.displayHelp();
             }
 
@@ -258,14 +317,28 @@ public class SPARQLGenerateCli {
         }
 
         public static Options getCMDOptions() {
+            Option sourcesOpt = Option.builder()
+                    .numberOfArgs(2)
+                    .valueSeparator()
+                    .argName("uri=uri")
+                    .longOpt(ARG_SOURCE_LONG)
+                    .desc("Replaces <source> in a SOURCE clause with the given value, e.g. urn:sg:source=source.json.")
+                    .build();
+
             Options opt = new Options()
-                    .addOption("h", "help", false, "Show help")
-                    .addOption("d", "dir", true, "Location of the directory with the queryset, documentset, dataset, and configuration files as explained in https://w3id.org/sparql-generate/language-cli.html. Default value is . (the current folder)")
-                    .addOption("q", "query-file", true, "Name of the query file in the directory. Default value is ./query.rqg")
-                    .addOption("o", "output", true, "Location where the output is to be stored. No value means output goes to the console.")
-                    .addOption("l", "log-level", true, "Set log level, acceptable values are TRACE < DEBUG < INFO < WARN < ERROR < FATAL < OFF. No value or unrecognized value results in level DEBUG")
-                    .addOption("f", "log-file", true, "Location where the log is to be stored. No value means output goes to the console.")
-                    .addOption("s", "stream", false, "Generate output as stream.");
+                    .addOption(ARG_HELP, ARG_HELP_LONG, false, "Show help")
+                    .addOption(ARG_DIRECTORY, ARG_DIRECTORY_LONG, true,
+                            "Location of the directory with the queryset, documentset, dataset, and configuration files as explained in https://w3id.org/sparql-generate/language-cli.html. Default value is . (the current folder)")
+                    .addOption(ARG_QUERY, ARG_QUERY_LONG, true,
+                            "Name of the query file in the directory. Default value is ./query.rqg")
+                    .addOption(ARG_OUTPUT, ARG_OUTPUT_LONG, true,
+                            "Location where the output is to be stored. No value means output goes to the console.")
+                    .addOption(ARG_LOG_LEVEL, ARG_LOG_LEVEL_LONG, true,
+                            "Set log level, acceptable values are TRACE < DEBUG < INFO < WARN < ERROR < FATAL < OFF. No value or unrecognized value results in level DEBUG")
+                    .addOption(ARG_LOG_FILE, ARG_LOG_FILE_LONG, true,
+                            "Location where the log is to be stored. No value means output goes to the console.")
+                    .addOption(ARG_STREAM, ARG_STREAM_LONG, false, "Generate output as stream.")
+                    .addOption(sourcesOpt);
             return opt;
         }
 
