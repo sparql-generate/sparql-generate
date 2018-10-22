@@ -34,6 +34,7 @@ import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetFactory;
 import org.apache.jena.query.QueryFactory;
 import org.apache.jena.rdf.model.Model;
+import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFLanguages;
 import org.apache.jena.riot.system.StreamRDF;
 import org.apache.jena.shared.PrefixMapping;
@@ -77,6 +78,10 @@ public class SPARQLGenerateCli {
     private static final String ARG_QUERY_DEFAULT = "query.rqg";
     private static final String ARG_OUTPUT = "o";
     private static final String ARG_OUTPUT_LONG = "output";
+    private static final String ARG_OUTPUT_APPEND = "oa";
+    private static final String ARG_OUTPUT_APPEND_LONG = "output-append";
+    private static final String ARG_OUTPUT_FORMAT = "of";
+    private static final String ARG_OUTPUT_FORMAT_LONG = "output-format";
     private static final String ARG_SOURCE_LONG = "source";
     private static final String ARG_STREAM = "s";
     private static final String ARG_STREAM_LONG = "stream";
@@ -155,17 +160,18 @@ public class SPARQLGenerateCli {
         }
 
         String output = cl.getOptionValue(ARG_OUTPUT);
+        boolean outputAppend = cl.hasOption(ARG_OUTPUT_APPEND);
+        Lang outputLang = RDFLanguages.nameToLang(cl.getOptionValue(ARG_OUTPUT_FORMAT, RDFLanguages.strLangTurtle));
 
         boolean stream = cl.hasOption(ARG_STREAM);
         if (stream) {
-
             StreamRDF outputRDF;
             if (output == null) {
                 outputRDF = new ConsoleStreamRDF(System.out, q.getPrefixMapping());
             } else {
                 try {
                     outputRDF = new ConsoleStreamRDF(
-                            new PrintStream(new FileOutputStream(output, false)), q.getPrefixMapping());
+                            new PrintStream(new FileOutputStream(output, outputAppend)), q.getPrefixMapping());
                 } catch (IOException ex) {
                     LOG.error("Error while opening the output file.", ex);
                     return;
@@ -176,16 +182,14 @@ public class SPARQLGenerateCli {
             } catch (Exception ex) {
                 LOG.error("Error while executing the plan.", ex);
             }
-
         } else {
-
             try {
                 Model model = plan.exec(ds);
                 if (output == null) {
-                    model.write(System.out, RDFLanguages.strLangTurtle);
+                    model.write(System.out, outputLang.getLabel());
                 } else {
                     try {
-                        model.write(new FileOutputStream(output, false), RDFLanguages.strLangTurtle);
+                        model.write(new FileOutputStream(output, outputAppend), outputLang.getLabel());
                     } catch (IOException ex) {
                         LOG.error("Error while opening the output file.", ex);
                         return;
@@ -194,10 +198,12 @@ public class SPARQLGenerateCli {
             } catch (Exception ex) {
                 LOG.error("Error while executing the plan.", ex);
             }
-
         }
         long millis = Duration.between(start, Instant.now()).toMillis();
-        System.out.println("Program finished in " + String.format("%d min, %d sec", TimeUnit.MILLISECONDS.toMinutes(millis), TimeUnit.MILLISECONDS.toSeconds(millis) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis))));
+        System.out.println("Program finished in " + String.format("%d min, %d sec",
+                TimeUnit.MILLISECONDS.toMinutes(millis),
+                TimeUnit.MILLISECONDS.toSeconds(millis)
+                        - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis))));
     }
 
     private static class ConsoleStreamRDF implements StreamRDF {
@@ -282,7 +288,7 @@ public class SPARQLGenerateCli {
                         ElementSource elementSource = (ElementSource) element;
                         String sourceURI = elementSource.getSource().toString(query.getPrefixMapping(), false);
 
-                        if(replacementSources.containsKey(sourceURI)) {
+                        if (replacementSources.containsKey(sourceURI)) {
                             Node replacementSource = NodeFactory.createURI(replacementSources.getProperty(sourceURI));
 
                             LOG.info("Replaced source <{}> with <{}>.", sourceURI, replacementSource);
@@ -325,7 +331,7 @@ public class SPARQLGenerateCli {
                     .desc("Replaces <source> in a SOURCE clause with the given value, e.g. urn:sg:source=source.json.")
                     .build();
 
-            Options opt = new Options()
+            return new Options()
                     .addOption(ARG_HELP, ARG_HELP_LONG, false, "Show help")
                     .addOption(ARG_DIRECTORY, ARG_DIRECTORY_LONG, true,
                             "Location of the directory with the queryset, documentset, dataset, and configuration files as explained in https://w3id.org/sparql-generate/language-cli.html. Default value is . (the current folder)")
@@ -333,13 +339,16 @@ public class SPARQLGenerateCli {
                             "Name of the query file in the directory. Default value is ./query.rqg")
                     .addOption(ARG_OUTPUT, ARG_OUTPUT_LONG, true,
                             "Location where the output is to be stored. No value means output goes to the console.")
+                    .addOption(ARG_OUTPUT_APPEND, ARG_OUTPUT_APPEND_LONG, false,
+                            "Write from the end of the output file, instead of replacing it.")
+                    .addOption(ARG_OUTPUT_FORMAT, ARG_OUTPUT_FORMAT_LONG, true,
+                            "Format of the output file, e.g. TTL, NT, etc.")
                     .addOption(ARG_LOG_LEVEL, ARG_LOG_LEVEL_LONG, true,
                             "Set log level, acceptable values are TRACE < DEBUG < INFO < WARN < ERROR < FATAL < OFF. No value or unrecognized value results in level DEBUG")
                     .addOption(ARG_LOG_FILE, ARG_LOG_FILE_LONG, true,
                             "Location where the log is to be stored. No value means output goes to the console.")
                     .addOption(ARG_STREAM, ARG_STREAM_LONG, false, "Generate output as stream.")
                     .addOption(sourcesOpt);
-            return opt;
         }
 
         public static void displayHelp() {
