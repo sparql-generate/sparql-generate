@@ -38,22 +38,23 @@ import java.util.stream.Collectors;
 /**
  * Iterator function
  * <a href="http://w3id.org/sparql-generate/iter/CSVStream">iter:CSVStream</a>
- * batch-processes CSV documents and iteratively binds the content of one of
+ * batch-processes CSV documents and iteratively binds the content of one or
  * multiple cells to variables.
  *
  * <ul>
  * <li>Param 1: the URI of the CSV document (a String);</li>
  * <li>Param 2: the number of rows per batch (an Integer);</li>
- * <li>Param 3 .. <em>n</em>: the names of the columns to select (use "*" to 
+ * <li>Param 3: is the delimiter character separating the values in each row (usually ",");</li>
+ * <li>Param 4 .. <em>n</em>: the names of the columns to select (use "*" to
  * select all the columns).</li>
  * </ul>
  * <p>
- * CSVStream works like a 
+ * CSVStream works like a
  * <a href="http://w3id.org/sparql-generate/iter/CSVMultipleOutput">iter:CSVMultipleOutput</a>
  * iterator but for one chunk of the CSV document at a time.
  * </p>
  * <p>
- * CSVStream yields better results for very large CSV files, typically above 
+ * CSVStream yields better results for very large CSV files, typically above
  * 100.000 lines.
  * </p>
  * <p>
@@ -64,7 +65,7 @@ import java.util.stream.Collectors;
  * <p>
  * <b>Example: </b>
  * <p>The clause</p>
- * <code>ITERATOR ite:CSVStream("path/to/file", 3, "PersonId", "Name") AS
+ * <code>ITERATOR ite:CSVStream("path/to/file", 3, ",", "PersonId", "Name") AS
  * ?PersonId ?Name</code>
  * <p>iterates over the following CSV document in batches of three rows:</p>
  * <pre>
@@ -129,25 +130,31 @@ public class ITER_CSVStream extends IteratorStreamFunctionBase {
             LOG.debug("Second argument must be a positive integer, got: " + args.get(1));
             throw new ExprEvalException("Second argument must be a positive integer, got: " + args.get(1));
         }
-        if (args.subList(2, args.size()).stream().anyMatch(col -> !col.isString())) {
+        if (!args.get(2).isString()) {
+            LOG.debug("Third argument must be a string, got: " + args.get(0));
+            throw new ExprEvalException("Third argument must be a string, got: " + args.get(0));
+        }
+        if (args.subList(3, args.size()).stream().anyMatch(col -> !col.isString())) {
             LOG.debug("Columns names must be a string, got: " + args.subList(2, args.size()));
             throw new ExprEvalException("Columns names must be a string, got: " + args.subList(2, args.size()));
         }
 
         String csvPath = args.get(0).asString();
         int chunkSize = args.get(1).getInteger().intValue();
+        char separator = args.get(2).asString().charAt(0);
 
         LookUpRequest req = new LookUpRequest(csvPath, "text/csv");
         TypedInputStream in = SPARQLGenerate.getStreamManager().open(req);
 
         CsvParserSettings parserSettings = new CsvParserSettings();
         parserSettings.getFormat().setLineSeparator("\n");
+        parserSettings.getFormat().setDelimiter(separator);
         parserSettings.setHeaderExtractionEnabled(true);
 
-        if (args.size() == 3 && args.get(2).asString().equals("*")) {
+        if (args.size() == 4 && args.get(3).asString().equals("*")) {
             // nothing to be done, by default the CSV library retrieves all columns
         } else {
-            String[] wantedColumns = args.subList(2, args.size()).stream().map(NodeValue::asString).toArray(String[]::new);
+            String[] wantedColumns = args.subList(3, args.size()).stream().map(NodeValue::asString).toArray(String[]::new);
             parserSettings.selectFields(wantedColumns);
         }
 

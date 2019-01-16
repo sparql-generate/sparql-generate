@@ -17,23 +17,17 @@ package com.github.thesmartenergy.sparql.generate.jena.iterator.library;
 
 import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.IteratorFunctionBase;
-import org.apache.jena.datatypes.xsd.XSDDatatype;
-import org.apache.jena.graph.NodeFactory;
+import com.univocity.parsers.common.processor.ColumnProcessor;
+import com.univocity.parsers.csv.CsvParser;
+import com.univocity.parsers.csv.CsvParserSettings;
 import org.apache.jena.query.QueryBuildException;
-import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.ExprList;
 import org.apache.jena.sparql.expr.NodeValue;
-import org.apache.jena.sparql.expr.nodevalue.NodeValueNode;
+import org.apache.jena.sparql.expr.nodevalue.NodeValueString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.supercsv.io.CsvListReader;
-import org.supercsv.io.ICsvListReader;
-import org.supercsv.prefs.CsvPreference;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -46,7 +40,8 @@ import java.util.stream.Collectors;
  * <ul>
  * <li>Param 1: (a String) is the CSV document with a header line;</li>
  * <li>Param 2: (a String) is the delimiter character separating the values in each row (usually ",");</li>
- * <li>Param 3 .. <em>n</em>: (Strings) the names of the columns to select.</li>
+ * <li>Param 3 .. <em>n</em>: the names of the columns to select (use "*" to
+ * select all the columns).</li>
  * </ul>
  *
  * <p>
@@ -63,7 +58,7 @@ import java.util.stream.Collectors;
  * 7002,42,58.901389,6.584444,23/12/80
  * </pre>
  * <p>with</p>
- * <code>ITERATOR ite:CSVMultipleOutput(?source, ",", "id", "stop") AS 
+ * <code>ITERATOR ite:CSVMultipleOutput(?source, ",", "id", "stop") AS
  * ?id ?stop</code>
  * <p>returns:</p>
  * <pre>
@@ -74,9 +69,9 @@ import java.util.stream.Collectors;
  * </pre>
  *
  * @author El Mehdi Khalfi <el-mehdi.khalfi at emse.fr>
- * @since 2018-09-04
- * @see com.github.thesmartenergy.sparql.generate.jena.function.library.ITER_CSVStream
+ * @see com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITER_CSVStream
  * to process very large CSV files
+ * @since 2018-09-04
  */
 public class ITER_CSVMultipleOutput extends IteratorFunctionBase {
 
@@ -98,9 +93,8 @@ public class ITER_CSVMultipleOutput extends IteratorFunctionBase {
     @Override
     public List<List<NodeValue>> exec(List<NodeValue> args) {
         NodeValue csv = args.get(0);
-        String separator = args.get(1).asString();
+        char separator = args.get(1).asString().charAt(0);
 
-        List<NodeValue> columns = args.subList(2, args.size());
         if (csv.getDatatypeURI() != null
                 && !csv.getDatatypeURI().equals(datatypeUri)
                 && !csv.getDatatypeURI().equals("http://www.w3.org/2001/XMLSchema#string")) {
@@ -108,41 +102,32 @@ public class ITER_CSVMultipleOutput extends IteratorFunctionBase {
                     + "or <http://www.w3.org/2001/XMLSchema#string>."
             );
         }
-        List<String> cols = columns.stream().map(c -> c.getString()).collect(Collectors.toList());
-        List<List<NodeValue>> nodeValues = new ArrayList<>();
-        for (String col : cols) {
-            nodeValues.add(new ArrayList<>());
+
+        CsvParserSettings parserSettings = new CsvParserSettings();
+        parserSettings.getFormat().setLineSeparator("\n");
+        parserSettings.getFormat().setDelimiter(separator);
+        parserSettings.setHeaderExtractionEnabled(true);
+
+        if (args.size() == 3 && args.get(2).asString().equals("*")) {
+            // nothing to be done, by default the CSV library retrieves all columns
+        } else {
+            String[] wantedColumns = args.subList(2, args.size()).stream().map(NodeValue::asString).toArray(String[]::new);
+            parserSettings.selectFields(wantedColumns);
         }
 
-        try {
-            String sourceCSV = csv.asNode().getLiteralLexicalForm();
-            BufferedReader br = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(sourceCSV.getBytes("UTF-8")), "UTF-8"));
-            CsvPreference preference = new CsvPreference.Builder('"', separator.charAt(0), "\n").build();
-            ICsvListReader listReader = new CsvListReader(br, preference);
-            List<String> header = listReader.read();
+        ColumnProcessor processor = new ColumnProcessor();
+        parserSettings.setProcessor(processor);
 
-            for (String col : cols) {
-                int indexOfColInHeader = header.indexOf(col);
-            }
+        CsvParser parser = new CsvParser(parserSettings);
+        parser.parse(new ByteArrayInputStream(csv.asNode().getLiteralLexicalForm().getBytes()));
 
-            while (true) {
-                List<String> row = listReader.read();
-                if (row == null) {
-                    break;
-                }
-                int i = 0;
-                for (String col : cols) {
-                    int indexOfColInHeader = header.indexOf(col);
-                    //utiliser map
-                    NodeValue n = new NodeValueNode(NodeFactory.createLiteral(row.get(indexOfColInHeader), XSDDatatype.XSDstring));
-                    nodeValues.get(i++).add(n);
-                }
-            }
-            return nodeValues;
-        } catch (Exception ex) {
-            LOG.debug("No evaluation for " + csv, ex);
-            throw new ExprEvalException("No evaluation for " + csv, ex);
-        }
+        List<List<NodeValue>> nodeValues = processor.getColumnValuesAsMapOfIndexes().values().stream().
+                map(column -> column.stream().
+                        //convert each cell from string to a NodeValue to be fed to nodeValuesStream.accept
+                                map(cell -> (NodeValue) new NodeValueString(cell)).
+                                collect(Collectors.toList())).
+                collect(Collectors.toList());
+        return nodeValues;
     }
 
     @Override
