@@ -28,9 +28,12 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import org.apache.jena.sparql.util.Context;
 
 /**
  * Iterator function
@@ -69,6 +72,8 @@ public class ITER_MQTTSubscribe extends IteratorStreamFunctionBase {
 
     public static final MqttConnectOptions OPTIONS = new MqttConnectOptions();
 
+    public static final int MAX = 20;
+    
     static {
         OPTIONS.setAutomaticReconnect(true);
         OPTIONS.setCleanSession(true);
@@ -102,28 +107,12 @@ public class ITER_MQTTSubscribe extends IteratorStreamFunctionBase {
                 }
             }
         }
+
+        final Context context = getContext();
         try {
             IMqttClient mqttClient = new MqttClient(args.get(0).asString(), MqttClient.generateClientId());
 
-            mqttClient.setCallback(new MqttCallback() {
-                @Override
-                public void connectionLost(Throwable cause) {
-                    LOG.debug("MQTT Connection is lost", cause);
-                }
-
-                @Override
-                public void messageArrived(String topic, MqttMessage message) throws Exception {
-                    List<NodeValue> nv = new ArrayList<>();
-                    nv.add(new NodeValueNode(NodeFactory.createLiteral(topic)));
-                    nv.add(PARSER.apply(message.getPayload()));
-                    nodeValuesStream.accept(Collections.singletonList(nv));
-                }
-
-                @Override
-                public void deliveryComplete(IMqttDeliveryToken token) {
-
-                }
-            });
+            mqttClient.setCallback(new MyMqttCallback(context, nodeValuesStream));
 
             mqttClient.connect(OPTIONS);
             if (args.size() > 1) {
@@ -135,5 +124,43 @@ public class ITER_MQTTSubscribe extends IteratorStreamFunctionBase {
             LOG.debug("A MqttException occurred", e);
             throw new ExprEvalException("A MqttException occurred", e);
         }
+
     }
+
+    private class MyMqttCallback implements MqttCallback {
+
+        private final Context context;
+
+        private final Consumer<List<List<NodeValue>>> nodeValuesStream;
+
+        MyMqttCallback(Context context, Consumer<List<List<NodeValue>>> nodeValuesStream) {
+            this.context = context;
+            this.nodeValuesStream = nodeValuesStream;
+            if (context.isUndef(SPARQLGenerate.THREAD)) {
+                context.set(SPARQLGenerate.THREAD, new HashSet<Thread>());
+            }
+            ((Set<Thread>) context.get(SPARQLGenerate.THREAD)).add(Thread.currentThread());
+        }
+
+        @Override
+        public void connectionLost(Throwable cause) {
+            LOG.debug("MQTT Connection is lost", cause);
+        }
+
+        @Override
+        public void messageArrived(String topic, MqttMessage message) throws Exception {
+            registerThread();
+            List<NodeValue> nv = new ArrayList<>();
+            nv.add(new NodeValueNode(NodeFactory.createLiteral(topic)));
+            nv.add(PARSER.apply(message.getPayload()));
+            nodeValuesStream.accept(Collections.singletonList(nv));
+            unregisterThread();
+        }
+
+        @Override
+        public void deliveryComplete(IMqttDeliveryToken token) {
+
+        }
+    }
+
 }

@@ -4,17 +4,13 @@
 @prefix fun:   <http://w3id.org/sparql-generate/fn/> .
 
 <http://airport.example.com/7000>
-        a              transit:Stop ;
-        transit:route  "2002-02-02T00:00:00Z"^^xsd:dateTime .
+        a              transit:Stop .
 
 <http://airport.example.com/6523>
-        a              transit:Stop ;
-        transit:route  "2001-01-01T00:00:00Z"^^xsd:dateTime .
+        a              transit:Stop .
 
 <http://airport.example.com/7002>
-        a              transit:Stop ;
-        transit:route  "1980-12-23T00:00:00Z"^^xsd:dateTime .
+        a              transit:Stop .
 
 <http://airport.example.com/7001>
-        a              transit:Stop ;
-        transit:route  "2003-03-03T00:00:00Z"^^xsd:dateTime .
+        a              transit:Stop .

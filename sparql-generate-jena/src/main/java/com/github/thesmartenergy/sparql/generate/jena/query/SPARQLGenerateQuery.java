@@ -21,8 +21,15 @@ import org.apache.jena.sparql.core.Prologue;
 import org.apache.jena.sparql.syntax.ElementGroup;
 import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
 import com.github.thesmartenergy.sparql.generate.jena.normalizer.QueryNormalizer;
+import com.github.thesmartenergy.sparql.generate.jena.syntax.Param;
 import java.util.List;
+import org.apache.jena.graph.Node;
+import org.apache.jena.graph.NodeFactory;
+import org.apache.jena.graph.Triple;
+import org.apache.jena.query.QueryFactory;
 import org.apache.jena.sparql.syntax.Element;
+import org.apache.jena.sparql.syntax.ElementTriplesBlock;
+import org.apache.jena.vocabulary.RDF;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 
@@ -57,6 +64,25 @@ public class SPARQLGenerateQuery extends Query {
      */
     public boolean hasEmbeddedExpressions() {
         return hasEmbeddedExpressions;
+    }
+
+    private boolean isNamedSubQuery;
+
+    /**
+     * Sets if the query is a named sub query of another query.
+     * 
+     * @param isNamedSubQuery 
+     */
+    public void isNamedSubQuery(boolean isNamedSubQuery) {
+        this.isNamedSubQuery = isNamedSubQuery;
+    }
+    
+    /**
+     * Returns if the query is a named sub query of another query.
+     * 
+     */
+    public boolean isNamedSubQuery() {
+        return isNamedSubQuery;
     }
 
     /**
@@ -98,8 +124,14 @@ public class SPARQLGenerateQuery extends Query {
         return queryType == QueryTypeGenerate;
     }
 
-    /** the {@code GENERATE} clause URI. */
-    private String generateURI = null;
+    /** the {@code GENERATE} name. */
+    private Node queryName = null;
+
+    /** the {@code GENERATE} query signature. */
+    private List<Param> querySignature = null;
+
+    /** the {@code GENERATE} call parameters. */
+    private List<Node> callParameters = null;
 
     /** the {@code GENERATE} template. */
     private ElementGroup generateTemplate = null;
@@ -108,27 +140,75 @@ public class SPARQLGenerateQuery extends Query {
     private List<Element> iteratorsAndSources = null;
 
     /**
-     * Gets if the {@code GENERATE} clause is a URI.
+     * Gets if the {@code GENERATE} clause has a name.
      * @return -
      */
-    public final boolean hasGenerateURI() {
-        return generateURI != null;
+    public final boolean hasGenerateName() {
+        return queryName != null;
     }
 
     /**
-     * Gets the {@code GENERATE} URI of the query, or null.
-     * @return the URI string.
+     * Gets if the {@code GENERATE} query has a signature.
+     * @return -
      */
-    public final String getGenerateURI() {
-        return generateURI;
+    public final boolean hasQuerySignature() {
+        return querySignature != null;
     }
 
     /**
-     * Sets the {@code GENERATE} URI of the query.
-     * @param generateURI the URI
+     * Gets if the {@code GENERATE} query has call parameters.
+     * @return -
      */
-    public final void setGenerateURI(final String generateURI) {
-        this.generateURI = generateURI;
+    public final boolean hasCallParameters() {
+        return callParameters != null;
+    }
+
+    /**
+     * Gets the {@code GENERATE} name of the query, or null.
+     * @return the name node.
+     */
+    public final Node getQueryName() {
+        return queryName;
+    }
+
+    /**
+     * Gets the {@code GENERATE} Signature of the query, or null.
+     * @return the signature of the query.
+     */
+    public final List<Param> getQuerySignature() {
+        return querySignature;
+    }
+
+    /**
+     * Gets the {@code GENERATE} call parameters of the query, or null.
+     * @return call parameters.
+     */
+    public final List<Node> getCallParameters() {
+        return callParameters;
+    }
+
+    /**
+     * Sets the {@code GENERATE} name of the query.
+     * @param name the name of the query
+     */
+    public final void setQueryName(final Node name) {
+        this.queryName = name;
+    }
+
+    /**
+     * Sets the {@code GENERATE} Signature of the query.
+     * @param signature the signature of the query
+     */
+    public final void setQuerySignature(final List<Param> signature) {
+        this.querySignature = signature;
+    }
+
+    /**
+     * Sets the {@code GENERATE} call parameters of the query.
+     * @param parameters the call parameters of the query
+     */
+    public final void setCallParameters(final List<Node> parameters) {
+        this.callParameters = parameters;
     }
 
     /**
@@ -254,6 +334,20 @@ public class SPARQLGenerateQuery extends Query {
             return false ;
         if ( this == other ) return true ;
         return SPARQLGenerateQueryCompare.equals(this, (SPARQLGenerateQuery)other) ;
+    }
+
+    public Query getSelectQueryFromSignature() {
+        final Query select = QueryFactory.create("SELECT * WHERE {}");
+        final ElementTriplesBlock pattern = new ElementTriplesBlock();
+        final Node a = RDF.type.asNode();
+        if(getQuerySignature()!=null) {
+            getQuerySignature().forEach((p) -> {
+                final Node o = NodeFactory.createURI(p.getIri());
+                pattern.addTriple(new Triple(p.getVar(), a, o));
+            });
+            select.setQueryPattern(pattern);
+        }
+        return select;
     }
 
 }

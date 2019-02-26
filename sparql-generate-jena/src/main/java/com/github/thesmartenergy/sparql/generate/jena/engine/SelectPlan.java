@@ -19,6 +19,7 @@ import com.github.thesmartenergy.sparql.generate.jena.engine.impl.BindingHashMap
 import java.util.List;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.sparql.core.Var;
+import org.apache.jena.sparql.util.Context;
 
 /**
  * Executes generated SPARQL SELECT query.
@@ -39,6 +40,6 @@ public interface SelectPlan {
             final Dataset inputDataset,
             final List<Var> variables,
             final List<BindingHashMapOverwrite> values,
-            final ExecutionContext context);
+            final Context context);
     
 }

@@ -38,6 +38,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
+import org.apache.jena.sparql.util.Context;
 
 /**
  * Iterator function
@@ -70,6 +71,8 @@ public class ITER_HTTPGet extends IteratorStreamFunctionBase {
      * The SPARQL function URI.
      */
     public static final String URI = SPARQLGenerate.ITER + "HTTPGet";
+    
+    public static final int MAX = 20;
 
     @Override
     public void checkBuild(ExprList args) {
@@ -102,6 +105,8 @@ public class ITER_HTTPGet extends IteratorStreamFunctionBase {
         AtomicInteger i_call = new AtomicInteger();
 
         Runnable task = () -> {
+            registerThread();            
+            Context context = getContext();
             String message;
             try {
                 URL url = new URL(url_s);
@@ -140,10 +145,14 @@ public class ITER_HTTPGet extends IteratorStreamFunctionBase {
             NodeValue outnode = new NodeValueNode(NodeFactory.createLiteral(message));
 
             nodeValuesStream.accept(Collections.singletonList(Collections.singletonList(outnode)));
-            if (times != 0 && i_call.getAndIncrement() == times) {
+            if (times != 0 && i_call.getAndIncrement() >= Math.min(MAX, times)) {
+                if(i_call.get() >= MAX) {
+                    LOG.warn("The maximum number of operations has been reached. Change ITER_HTTPGet.MAX to overcome this limtation.");
+                }
                 LOG.info("Process finished after " + i_call.getAndDecrement() + "calls.");
                 scheduler.shutdown();
             }
+            unregisterThread();
         };
         scheduler.scheduleAtFixedRate(task, 0, recurrenceValue, TimeUnit.SECONDS);
     }

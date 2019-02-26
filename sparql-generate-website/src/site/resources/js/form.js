@@ -169,7 +169,11 @@ var validate = function() {
 // run
 
 var openSocket = function (callback) {
-  var websocketurl = "wss://" + window.location.hostname + (window.location.port!="" ? ":" + window.location.port : "") + "/sparql-generate/transformStream";
+    var protocol = "ws:";
+    if(window.location.protocol == "https:") {
+        protocol = "wss:";
+    }
+  var websocketurl = protocol + "//" + window.location.hostname + (window.location.port!="" ? ":" + window.location.port : "") + "/sparql-generate/transformStream";
   socket = new WebSocket(websocketurl);
 
   socket.onopen = function (event) {
@@ -255,18 +259,19 @@ var load_queryset = function() {
     defaultquery_string = `PREFIX iter: <http://w3id.org/sparql-generate/iter/>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 PREFIX fun: <http://w3id.org/sparql-generate/fn/> 
-LOOK UP <https://ci.mines-stetienne.fr/sparql-generate/cities.json> AS ?message
-ITERATE iter:JSONListKeys( ?message ) AS ?cityName 
-WHEREVER { 
+GENERATE {
+  GENERATE {
+    <city/{ ?cityName }> <{ ?key }> "{ fun:JSONPath( ?message , "$.['{ ?cityName }']['{ ?key }']" )  }"@en . 
+  } 
+  ITERATOR iter:JSONListKeys( ?city ) AS ?key  .
+}
+SOURCE <https://ci.mines-stetienne.fr/sparql-generate/cities.json> AS ?message
+ITERATOR iter:JSONListKeys( ?message ) AS ?cityName 
+WHERE { 
   FILTER( STRSTARTS( ?cityName , "New" ) ) 
   BIND( fun:JSONPath( ?message, "$.['{ ?cityName }']" ) AS  ?city )
 } 
-CONSTRUCT {
-  ITERATE iter:JSONListKeys( ?city ) AS ?key  
-  CONSTRUCT {
-    <city/{ ?cityName }> <{ ?key }> "{ fun:JSONPath( ?message , "$.['{ ?cityName }']['{ ?key }']" )  }"@en . 
-  } .
-}`;
+`;
     localStorage.setItem('defaultquery', defaultquery_string);
   }
 
@@ -318,10 +323,10 @@ CONSTRUCT {
       string: `PREFIX iter: <http://w3id.org/sparql-generate/iter/>
 PREFIX fun: <http://w3id.org/sparql-generate/fn/> 
 
-LOOK UP <> AS ?message
-ITERATE iter:XPath( ?message ) AS ?var 
-WHEREVER {  } 
-CONSTRUCT {  }`
+GENERATE{ }
+SOURCE <> AS ?message
+ITERATOR iter:XPath( ?message ) AS ?var 
+WHERE {  }`
     };
     namedqueries.push(nq);
     localStorage.setItem('namedqueries', JSON.stringify(namedqueries));
@@ -920,8 +925,8 @@ var load_all = function() {
 
 }
 
-var load = function(set, id) {
-  $.getJSON(`api/${set}/${id}`, function( data ) {
+var load = function(set, idd) {
+  $.getJSON(`api/${set}/${idd}`, function( data ) {
         localStorage.setItem('readme', data.readme);
         localStorage.setItem('defaultquery', data.defaultquery);
         localStorage.setItem('namedqueries', JSON.stringify(data.namedqueries));

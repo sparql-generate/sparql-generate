@@ -18,6 +18,8 @@ package com.github.thesmartenergy.sparql.generate.api;
 import javax.ws.rs.ApplicationPath;
 import org.apache.jena.sparql.expr.NodeValue;
 import org.glassfish.jersey.server.ResourceConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -26,10 +28,12 @@ import org.glassfish.jersey.server.ResourceConfig;
 @ApplicationPath("api")
 public class JerseyApp extends ResourceConfig {
 
+    private static final Logger LOG = LoggerFactory.getLogger(JerseyApp.class);
+    
     public JerseyApp() {
+        LOG.info("Starting Jersey app..."); 
         packages("com.github.thesmartenergy.sparql.generate.api");
         NodeValue.VerboseExceptions = true;
         NodeValue.VerboseWarnings = false;
-        
     }
 }

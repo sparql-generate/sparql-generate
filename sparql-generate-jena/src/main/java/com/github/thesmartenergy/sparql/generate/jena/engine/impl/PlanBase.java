@@ -15,11 +15,23 @@
  */
 package com.github.thesmartenergy.sparql.generate.jena.engine.impl;
 
+import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
+import com.github.thesmartenergy.sparql.generate.jena.engine.RootPlan;
+import com.github.thesmartenergy.sparql.generate.jena.query.SPARQLGenerateQuery;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import org.apache.jena.graph.Node;
+import org.apache.jena.query.QuerySolution;
 import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.engine.binding.Binding;
 import org.apache.jena.sparql.engine.binding.BindingHashMap;
+import org.apache.jena.sparql.util.Context;
+import org.apache.jena.sparql.util.Symbol;
 
 /**
  * One execution.
@@ -27,6 +39,13 @@ import org.apache.jena.sparql.engine.binding.BindingHashMap;
  * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */
 abstract class PlanBase {
+    
+    
+        
+    private final static Symbol QUERY_EXECUTION_CALLS = Symbol.create(SPARQLGenerate.NS + "symbol_query_exec_calls");
+    
+    private final static Symbol LOADED_QUERIES = Symbol.create(SPARQLGenerate.NS + "symbol_loaded_queries");
+    
 
     /**
      * Utility function. ensures there is at least a row of null values in a
@@ -46,4 +65,98 @@ abstract class PlanBase {
             values.add((T) new BindingHashMapOverwrite(map, null, null));
         }
     }
+    
+    private final static Symbol VAR = Symbol.create(SPARQLGenerate.NS + "symbol_var");
+    
+    protected Var allocVar(final Context context, final String label) {
+        if(context.isUndef(VAR)) {
+            context.set(VAR, new HashMap<String, Var>());
+        }
+        final Map<String,Var> vars = context.get(VAR);
+        if(vars.containsKey(label)) {
+            return vars.get(label);
+        }
+        final Var var = Var.alloc(label);
+        vars.put(label, var);
+        return var;
+    }
+
+    // stocker ce qui est associé à une execution de requête:
+    // les variables ? BindingHashMapOverwrite:77 changer Var.alloc  par ExecutiunoContextImpl.alloc
+    // les variables ? SelectPlanImpl :99 eviter Var.alloc par ExecutiunoContextImpl.alloc
+    protected void initContext(Context context, Node queryName, SPARQLGenerateQuery query, RootPlanImpl plan, QuerySolution initialBindings) {
+        if(queryName == null) {
+            return;
+        }
+        if(!queryName.isURI()) {
+            throw new UnsupportedOperationException("not implemented yet");
+        }
+        getLoadedQueries(context).put(queryName.getURI(), query);
+        getLoadedPlans(context).put(queryName.getURI(), plan);
+        registerExecution(context, queryName.getURI(), initialBindings);
+    }
+
+    private final static Symbol PLANS = Symbol.create(SPARQLGenerate.NS + "symbol_plans");
+    
+    protected Map<String, RootPlan> getLoadedPlans(final Context context) {
+        if(context.isUndef(PLANS)) {
+            context.set(PLANS, new HashMap<String, RootPlan>());
+        }
+        return (Map<String, RootPlan>) context.get(PLANS);
+    }
+
+    protected boolean alreadyExecuted(
+            final Context context, 
+            final String queryName, 
+            final QuerySolution binding) {
+        final Map<String, Set<QuerySolution>> queryExecutionCalls = getQueryExecutionCalls(context);
+
+        if(!queryExecutionCalls.containsKey(queryName)) {
+            return false;
+        }
+        for(QuerySolution otherBinding : queryExecutionCalls.get(queryName) ) {
+            Iterator<String> vars = binding.varNames();
+            boolean found = true;
+            while(vars.hasNext()) {
+                String var = vars.next();
+                if(!binding.get(var).equals(otherBinding.get(var))) {
+                    found = false;
+                }
+            }
+            vars = otherBinding.varNames();
+            while(vars.hasNext()) {
+                String var = vars.next();
+                if(!otherBinding.get(var).equals(binding.get(var))) {
+                    found = false;
+                }
+            }
+            if(found) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    protected final void registerExecution(Context context, String queryName, QuerySolution newInitialBinding) {
+        final Map<String, Set<QuerySolution>> queryExecutionCalls = getQueryExecutionCalls(context);
+        if(!queryExecutionCalls.containsKey(queryName)) {
+            queryExecutionCalls.put(queryName, new HashSet<>());
+        }
+        queryExecutionCalls.get(queryName).add(newInitialBinding);
+    }
+    
+    protected Map<String, Set<QuerySolution>> getQueryExecutionCalls(Context context) {
+        if(context.isUndef(QUERY_EXECUTION_CALLS)) {
+            context.set(QUERY_EXECUTION_CALLS, new HashMap<String, Set<QuerySolution>>());
+        }
+        return (Map<String, Set<QuerySolution>>) context.get(QUERY_EXECUTION_CALLS);
+    }
+    
+    protected Map<String, SPARQLGenerateQuery> getLoadedQueries(Context context) {
+        if(context.isUndef(LOADED_QUERIES)) {
+            context.set(LOADED_QUERIES, new HashMap<String, SPARQLGenerateQuery>());
+        }
+        return (Map<String, SPARQLGenerateQuery>) context.get(LOADED_QUERIES);
+    }
+    
 }

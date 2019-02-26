@@ -16,15 +16,16 @@
 package com.github.thesmartenergy.sparql.generate.jena.engine.impl;
 
 import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerateException;
-import com.github.thesmartenergy.sparql.generate.jena.engine.ExecutionContext;
 import com.github.thesmartenergy.sparql.generate.jena.engine.GeneratePlan;
 import com.github.thesmartenergy.sparql.generate.jena.engine.GenerateTemplateElementPlan;
+import com.github.thesmartenergy.sparql.generate.jena.syntax.Param;
 import java.util.List;
 import org.apache.jena.graph.Node;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.QuerySolutionMap;
 import org.apache.jena.riot.system.StreamRDF;
 import org.apache.jena.sparql.core.Var;
+import org.apache.jena.sparql.util.Context;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 
@@ -75,7 +76,7 @@ public class GenerateTemplatePlanImpl extends PlanBase implements GeneratePlan {
             final List<Var> variables,
             final List<BindingHashMapOverwrite> values,
             final BNodeMap bNodeMap,
-            final ExecutionContext context) {
+            final Context context) {
         values.forEach((binding) -> {
             BNodeMap bNodeMap2 = new BNodeMap(bNodeMap, binding);
             templateElementPlans.forEach((el) -> {
@@ -88,20 +89,39 @@ public class GenerateTemplatePlanImpl extends PlanBase implements GeneratePlan {
                 } else if (el instanceof RootPlanImpl) {
                     RootPlanImpl rootPlan = (RootPlanImpl) el;
                     QuerySolutionMap b = new QuerySolutionMap();
-                    binding.varsList().forEach((v) -> {
-                        Node n = binding.get(v);
-                        if (!(n == null)) {
-                            if (bNodeMap.contains(n)) {
-                                b.add(v.getVarName(), inputDataset
-                                        .getDefaultModel()
-                                        .asRDFNode(bNodeMap.get(n)));
-                            } else {
-                                b.add(v.getVarName(), inputDataset
-                                        .getDefaultModel()
-                                        .asRDFNode(n));
+                    List<Param> signature = rootPlan.getQuerySignature();
+                    if(signature == null) {
+                        binding.varsList().forEach((v) -> {
+                            Node n = binding.get(v);
+                            if (!(n == null)) {
+                                if (bNodeMap.contains(n)) {
+                                    b.add(v.getVarName(), inputDataset
+                                            .getDefaultModel()
+                                            .asRDFNode(bNodeMap.get(n)));
+                                } else {
+                                    b.add(v.getVarName(), inputDataset
+                                            .getDefaultModel()
+                                            .asRDFNode(n));
+                                }
                             }
-                        }
-                    });
+                        });
+                    } else {
+                        signature.forEach((param) -> {
+                            Var p = param.getVar();
+                            Node n = binding.get(p);
+                            if (!(n == null)) {
+                                if (bNodeMap.contains(n)) {
+                                    b.add(p.getVarName(), inputDataset
+                                            .getDefaultModel()
+                                            .asRDFNode(bNodeMap.get(n)));
+                                } else {
+                                    b.add(p.getVarName(), inputDataset
+                                            .getDefaultModel()
+                                            .asRDFNode(n));
+                                }
+                            }
+                        });                        
+                    }
                     LOG.trace("Entering sub SPARQL-Generate with \n\t" + b);
                     rootPlan.exec(inputDataset, b, outputStream, bNodeMap2, context);
                 } else {

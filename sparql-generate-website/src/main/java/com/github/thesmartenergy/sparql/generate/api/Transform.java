@@ -36,6 +36,8 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
 import org.apache.jena.rdf.model.Model;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -43,6 +45,8 @@ import org.apache.jena.rdf.model.Model;
  */
 @Path("/transform")
 public class Transform extends HttpServlet {
+
+    private static final Logger LOG = LoggerFactory.getLogger(Transform.class);
 
     String query;
     
@@ -60,6 +64,7 @@ public class Transform extends HttpServlet {
 
     private Response doTransform(
             final @DefaultValue("") @QueryParam("queryurl") String queryurl) throws IOException {
+        LOG.info("doTransform " + queryurl);
         final ExecutorService service = Executors.newSingleThreadExecutor();
         try {
             final Future<Response> f = service.submit(() -> {

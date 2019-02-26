@@ -19,6 +19,7 @@ import com.github.thesmartenergy.sparql.generate.jena.engine.impl.BindingHashMap
 import java.util.List;
 import org.apache.jena.sparql.core.Var;
 import java.util.function.Consumer;
+import org.apache.jena.sparql.util.Context;
 
 /**
  * Executes a ITERATOR clause.
@@ -35,6 +36,7 @@ public interface IteratorPlan extends IteratorOrSourcePlan {
     void exec(
             final List<Var> variables,
             final List<BindingHashMapOverwrite> values,
-            final Consumer<List<BindingHashMapOverwrite>> bindingStream);
+            final Consumer<List<BindingHashMapOverwrite>> bindingStream,
+            final Context context );
     
 }

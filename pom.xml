@@ -12,7 +12,7 @@
     <inceptionYear>2016</inceptionYear>
 
     <!-- command to deploy on the server: -->
-    <!-- ./make.sh sparql-generate-website sparql-generate -->
+    <!-- ./make.sh -->
 
     <!-- command to deploy to maven: -->
     <!--
@@ -123,20 +123,7 @@ mvn release:prepare release:perform
         <repository.domain>github.com</repository.domain>
         <repository.user>thesmartenergy</repository.user>
         <repository.name>sparql-generate</repository.name>
-
     </properties>
-    
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.glassfish.jersey</groupId>
-                <artifactId>jersey-bom</artifactId>
-                <version>2.25.1</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
     
     <dependencies>
         <dependency>
@@ -211,6 +198,7 @@ mvn release:prepare release:perform
                             <exclude>**/*.rqg</exclude>
                             <exclude>**/*.ttl</exclude>
                             <exclude>**/*.xml</exclude>
+                            <exclude>**/*.log</exclude>
                             <exclude>**/java.nio.file.spi.FileTypeDetector</exclude>
                         </excludes>
                     </configuration>

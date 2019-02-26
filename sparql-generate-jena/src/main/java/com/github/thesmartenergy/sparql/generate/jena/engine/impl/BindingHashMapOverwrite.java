@@ -15,7 +15,6 @@
  */
 package com.github.thesmartenergy.sparql.generate.jena.engine.impl;
 
-import com.github.thesmartenergy.sparql.generate.jena.engine.ExecutionContext;
 import org.apache.jena.graph.Node;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.sparql.core.Var;
@@ -25,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import org.apache.jena.sparql.util.Context;
 
 /**
  * Class to store overridable bindings efficiently.
@@ -76,7 +76,7 @@ public class BindingHashMapOverwrite extends PlanBase implements Binding {
      */
     public BindingHashMapOverwrite(
             final QuerySolution binding,
-            final ExecutionContext context) {
+            final Context context) {
         if (binding == null) {
             parent = null;
         } else {
@@ -84,7 +84,7 @@ public class BindingHashMapOverwrite extends PlanBase implements Binding {
             for (Iterator<String> it = binding.varNames(); it.hasNext(); ) {
                 final String varName = it.next();
                 if (binding.get(varName) != null) {
-                    p.add(context.allocVar(varName), binding.get(varName).asNode());
+                    p.add(allocVar(context, varName), binding.get(varName).asNode());
                 }
             }
             parent = p;

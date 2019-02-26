@@ -123,13 +123,13 @@ public class SourcePlanImpl extends PlanBase implements SourcePlan {
                     dt = tm.getSafeTypeByName("http://www.w3.org/2001/XMLSchema#string");
                 }
                 final Node n = NodeFactory.createLiteral(literal, dt);
-                LOG.info("Exec SOURCE <" + sourceUri + "> ACCEPT " + acceptHeader + " AS " + var + " returned. Enable DEBUG level for more.");
-                if(LOG.isDebugEnabled()) {
+                LOG.debug("Exec SOURCE <" + sourceUri + "> ACCEPT " + acceptHeader + " AS " + var + " returned. Enable DEBUG level for more.");
+                if(LOG.isTraceEnabled()) {
                     String out = n.toString();
                     if(out.length()>200) {
                         out = out.substring(0, 120) + "\n ... \n" + out.substring(out.length()-80);
                     }
-                    LOG.debug(out);
+                    LOG.trace(out);
                 }
                 return new BindingHashMapOverwrite(value, var, n);
             } catch (Exception ex) {

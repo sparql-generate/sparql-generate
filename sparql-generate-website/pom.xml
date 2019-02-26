@@ -19,72 +19,51 @@
 
     <properties>
         <endorsed.dir>${project.build.directory}/endorsed</endorsed.dir>
+        <jetty.version>9.4.14.v20181114</jetty.version>
+        <jersey.version>2.28</jersey.version>
     </properties>
 
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.glassfish.jersey</groupId>
-                <artifactId>jersey-bom</artifactId>
-                <version>2.22.2</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-
     <dependencies>
-        <dependency>
-            <groupId>javax</groupId>
-            <artifactId>javaee-web-api</artifactId>
-            <version>7.0</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>javax.ws.rs</groupId>
-            <artifactId>javax.ws.rs-api</artifactId>
-            <version>2.0.1</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>javax.annotation</groupId>
-            <artifactId>javax.annotation-api</artifactId>
-            <version>1.2</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>javax.enterprise</groupId>
-            <artifactId>cdi-api</artifactId>
-            <version>1.2</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency> <!-- this is to avoid Jersey jars to be bundled with the WAR -->
-            <groupId>org.glassfish.jersey.containers</groupId>
-            <artifactId>jersey-container-servlet-core</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.glassfish.jersey.containers</groupId>
-            <artifactId>jersey-container-grizzly2-http</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.glassfish.jersey.core</groupId>
-            <artifactId>jersey-server</artifactId>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-            <version>1.7.25</version>
-        </dependency>
-
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>sparql-generate-jena</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>javax.ws.rs</groupId>
+            <artifactId>javax.ws.rs-api</artifactId>
+            <version>2.1</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>3.1.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.websocket</groupId>
+            <artifactId>javax.websocket-api</artifactId>
+            <version>1.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.containers</groupId>
+            <artifactId>jersey-container-jetty-servlet</artifactId>
+            <version>${jersey.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.glassfish.hk2.external</groupId>
+                    <artifactId>javax.inject</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.inject</groupId>
+            <artifactId>jersey-hk2</artifactId>
+            <version>${jersey.version}</version>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -106,7 +85,7 @@
                     </executions>
                     <configuration>
                         <attach>true</attach>
-                        <outputDirectory>target\${websiteName}</outputDirectory>
+                        <outputDirectory>target\generated-webapp</outputDirectory>
                         <reportPlugins>
                             <plugin>
                                 <groupId>org.apache.maven.plugins</groupId>
@@ -150,7 +129,7 @@
                                 <goal>copy-resources</goal>
                             </goals>
                             <configuration>
-                                <outputDirectory>${basedir}/target/${project.build.finalName}/apidocs</outputDirectory>
+                                <outputDirectory>${basedir}/target/generated-webapp/apidocs</outputDirectory>
                                 <resources>
                                     <resource>
                                         <directory>../sparql-generate-jena/target/apidocs</directory>
@@ -166,11 +145,27 @@
                                 <goal>copy-resources</goal>
                             </goals>
                             <configuration>
-                                <outputDirectory>${basedir}/target/${project.build.finalName}/WEB-INF/classes/tests
+                                <outputDirectory>${basedir}/target/classes/tests
                                 </outputDirectory>
                                 <resources>
                                     <resource>
                                         <directory>../sparql-generate-jena/src/test/resources</directory>
+                                        <filtering>true</filtering>
+                                    </resource>
+                                </resources>
+                            </configuration>
+                        </execution> 
+                        <execution>
+                            <id>copy-generated-webapp</id>
+                            <phase>prepare-package</phase>
+                            <goals>
+                                <goal>copy-resources</goal>
+                            </goals>
+                            <configuration>
+                                <outputDirectory>${basedir}/target/${project.build.finalName}</outputDirectory>
+                                <resources>
+                                    <resource>
+                                        <directory>${basedir}/target/generated-webapp</directory>
                                         <filtering>true</filtering>
                                     </resource>
                                 </resources>
@@ -192,7 +187,7 @@
                             <configuration>
                                 <sourceFile>../sparql-generate-jena/target/sparql-generate-jena-${project.version}.jar
                                 </sourceFile>
-                                <destinationFile>${basedir}/target/sparql-generate/sparql-generate-jena.jar
+                                <destinationFile>${basedir}/target/generated-webapp/sparql-generate-jena.jar
                                 </destinationFile>
                             </configuration>
                         </execution>
@@ -204,7 +199,7 @@
                             </goals>
                             <configuration>
                                 <sourceFile>../sparql-generate-jena/target/site/project-summary.html</sourceFile>
-                                <destinationFile>${basedir}/target/sparql-generate/project-summary.html
+                                <destinationFile>${basedir}/target/generated-webapp/project-summary.html
                                 </destinationFile>
                             </configuration>
                         </execution>
@@ -216,7 +211,7 @@
                             </goals>
                             <configuration>
                                 <sourceFile>../sparql-generate-jena/target/site/source-repository.html</sourceFile>
-                                <destinationFile>${basedir}/target/sparql-generate/source-repository.html
+                                <destinationFile>${basedir}/target/generated-webapp/source-repository.html
                                 </destinationFile>
                             </configuration>
                         </execution>
@@ -257,8 +252,22 @@
                 <artifactId>maven-project-info-reports-plugin</artifactId>
                 <version>2.7</version>
             </plugin>
+            <plugin>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-maven-plugin</artifactId>
+                <version>9.4.14.v20181114</version>
+                <configuration>
+                    <scanIntervalSeconds>4</scanIntervalSeconds>
+                    <!--<modules>annotations,websocket</modules>-->
+                    <webApp>
+                        <resourceBases>
+                            src/main/webapp,target/generated-webapp
+                        </resourceBases>
+                        <contextPath>/${project.build.finalName}</contextPath>
+                    </webApp>
+                </configuration>
+            </plugin>
         </plugins>
-
 
     </build>
 

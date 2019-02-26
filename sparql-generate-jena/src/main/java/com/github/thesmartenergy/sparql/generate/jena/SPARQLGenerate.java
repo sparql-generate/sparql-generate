@@ -106,6 +106,11 @@ public final class SPARQLGenerate {
     public static final Syntax SYNTAX;
 
     /**
+     * The SPARQL-Generate thread symbol.
+     */
+    public static final Symbol THREAD = Symbol.create(NS + "symbol_thread");
+
+    /**
      * Force the initialization of SPARQL-Generate.
      */
     public static void init() {

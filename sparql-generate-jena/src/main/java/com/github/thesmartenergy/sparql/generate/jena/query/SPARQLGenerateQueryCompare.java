@@ -99,10 +99,10 @@ public class SPARQLGenerateQueryCompare implements SPARQLGenerateQueryVisitor {
 
     @Override
     public void visitGenerateResultForm(SPARQLGenerateQuery query) {
-        if (query.hasGenerateURI()) {
-            boolean b1 = query.getGenerateURI().equals(query.getGenerateURI());
+        if (query.hasGenerateName()) {
+            boolean b1 = query.getQueryName().equals(query.getQueryName());
             try {
-                check("Generate pattern URIs", b1);
+                check("Generate name", b1);
             } catch(Exception e) {
                 LOG.debug("",e);
             } 

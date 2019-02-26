@@ -155,6 +155,7 @@ public class ITER_CSVStream extends IteratorStreamFunctionBase {
                 new BatchedColumnProcessor(chunkSize) {
                     @Override
                     public void batchProcessed(int rowsInThisBatch) {
+                        registerThread();
                         List<List<NodeValue>> nodeValues = getColumnValuesAsMapOfIndexes().values().stream().
                                 map(column -> column.stream().
                                         //convert each cell from string to a NodeValue to be fed to nodeValuesStream.accept
@@ -162,6 +163,7 @@ public class ITER_CSVStream extends IteratorStreamFunctionBase {
                                                 collect(Collectors.toList())).
                                 collect(Collectors.toList());
                         nodeValuesStream.accept(nodeValues);
+                        unregisterThread();
                     }
                 }
 

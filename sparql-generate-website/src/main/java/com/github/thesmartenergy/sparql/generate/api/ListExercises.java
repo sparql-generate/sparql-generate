@@ -64,7 +64,8 @@ public class ListExercises extends HttpServlet {
     @GET
     @Path("/{id}")
     public Response doGet(@PathParam("id") String id) throws IOException, URISyntaxException, Exception {
-        File dir = new File(ListExercises.class.getClassLoader().getResource("tutorial/" + id).toURI());
+       LOG.info("Loading: " + id);
+       File dir = new File(ListExercises.class.getClassLoader().getResource("tutorial/" + id).toURI());
 
         // read sparql-generate-conf.json
         Request request;

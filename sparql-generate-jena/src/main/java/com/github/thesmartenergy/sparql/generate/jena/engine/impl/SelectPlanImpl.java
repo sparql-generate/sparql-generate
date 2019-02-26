@@ -15,8 +15,8 @@
  */
 package com.github.thesmartenergy.sparql.generate.jena.engine.impl;
 
+import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
 import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerateException;
-import com.github.thesmartenergy.sparql.generate.jena.engine.ExecutionContext;
 import com.github.thesmartenergy.sparql.generate.jena.engine.SelectPlan;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +31,8 @@ import org.apache.jena.sparql.engine.binding.BindingHashMap;
 import org.apache.jena.sparql.syntax.Element;
 import org.apache.jena.sparql.syntax.ElementData;
 import org.apache.jena.sparql.syntax.ElementGroup;
+import org.apache.jena.sparql.util.Context;
+import org.apache.jena.sparql.util.Symbol;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 
@@ -69,7 +71,7 @@ public class SelectPlanImpl extends PlanBase implements SelectPlan {
             final Dataset inputDataset,
             final List<Var> variables,
             final List<BindingHashMapOverwrite> values,
-            final ExecutionContext context) {
+            final Context context) {
 
         Query q = select.cloneQuery();
         
@@ -92,13 +94,14 @@ public class SelectPlanImpl extends PlanBase implements SelectPlan {
         q.setQueryPattern(temp);        
         try {
             QueryExecution exec = QueryExecutionFactory.create(q, inputDataset);
+            for(Symbol symbol : context.keys()) {
+                exec.getContext().set(symbol, context.get(symbol));
+            }
             ResultSet results = exec.execSelect();            
-            exec = QueryExecutionFactory.create(q, inputDataset);
-            results = exec.execSelect();
             List<Var> newVariables = new ArrayList<>();
             List<Binding> newValues = new ArrayList<>();
             for (String var : results.getResultVars()) {
-                newVariables.add(context.allocVar(var));
+                newVariables.add(allocVar(context, var));
             }
             while (results.hasNext()) {
                 newValues.add(new BindingHashMapOverwrite(results.next(), context));

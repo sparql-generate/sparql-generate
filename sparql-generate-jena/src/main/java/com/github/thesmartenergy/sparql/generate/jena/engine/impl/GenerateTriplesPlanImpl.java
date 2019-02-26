@@ -16,10 +16,14 @@
 package com.github.thesmartenergy.sparql.generate.jena.engine.impl;
 
 import com.github.thesmartenergy.sparql.generate.jena.engine.GenerateTemplateElementPlan;
+import com.github.thesmartenergy.sparql.generate.jena.engine.StreamRDFBlock;
 import org.apache.jena.query.Dataset;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.riot.system.StreamRDF;
 import org.apache.jena.sparql.core.BasicPattern;
 import org.apache.jena.sparql.modify.TemplateLib;
+import org.apache.jena.sparql.util.FmtUtils;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 
@@ -58,17 +62,31 @@ public class GenerateTriplesPlanImpl
             final StreamRDF outputStream,
             final BindingHashMapOverwrite binding,
             final BNodeMap bNodeMap) {
-
         final StringBuilder sb = new StringBuilder("Output triples");
-        bgp.getList().stream()
+        if(outputStream instanceof StreamRDFBlock) {
+            StreamRDFBlock stream = (StreamRDFBlock) outputStream;
+            stream.startBlock();
+            bgp.getList().stream()
                 .map((t) -> TemplateLib.subst(t, binding, bNodeMap.asMap()))
                 .filter((t2) -> (t2.isConcrete()))
                 .forEach((t2) -> {
                     if (LOG.isTraceEnabled()) {
-                        sb.append("\n\t").append(t2);
+                        sb.append("\n\t").append(FmtUtils.stringForTriple(t2));
                     }
                     outputStream.triple(t2);
                 });
+            stream.endBlock();
+        } else {
+            bgp.getList().stream()
+                .map((t) -> TemplateLib.subst(t, binding, bNodeMap.asMap()))
+                .filter((t2) -> (t2.isConcrete()))
+                .forEach((t2) -> {
+                    if (LOG.isTraceEnabled()) {
+                        sb.append("\n\t").append(FmtUtils.stringForTriple(t2));
+                    }
+                    outputStream.triple(t2);
+                });
+        }
         LOG.trace(sb.toString());
     }
 }

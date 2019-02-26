@@ -15,15 +15,18 @@
  */
 package com.github.thesmartenergy.sparql.generate.api;
 
+import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
 import com.github.thesmartenergy.sparql.generate.jena.cli.Response;
 import com.google.gson.Gson;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import org.apache.jena.sparql.util.Context;
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.spi.ErrorCode;
 import org.apache.log4j.spi.LoggingEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -32,18 +35,33 @@ import org.slf4j.LoggerFactory;
 public class StringWriterAppender extends AppenderSkeleton {
     // The iterator across the "clients" Collection must
     // support a "remove()" method.
-    
-    private static final Logger LOG = LoggerFactory.getLogger(StringWriterAppender.class);
+
     private static final Gson gson = new Gson();
 
-    private final Map<String,SessionManager> sessions = new HashMap<>();
-    
-    public void putSession(Thread thread, SessionManager session) {
-        this.sessions.put(thread.getName(), session);
+    private final Set<Context> contexts = new HashSet<>();
+
+//    public StringWriterAppender() {
+//        final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+//        Runnable task = () -> {
+//            int tot = 0;
+//            Set<Thread> uniqueThreads = new HashSet<>();
+//            for (Context c : contexts) {
+//                final Set<Thread> contextThreads = (Set<Thread>) c.get(SPARQLGenerate.THREAD);
+//                tot += contextThreads.size();
+//                uniqueThreads.addAll(contextThreads);
+//                System.out.println("One of the contexts has threads " + contextThreads);
+//            }
+//            System.out.println("StringWriterAppender: " + contexts.size() + " contexts. Total: " + tot + "; Unique: "+uniqueThreads.size());
+//        };
+//        scheduler.scheduleAtFixedRate(task, 0, 5, TimeUnit.MINUTES);
+//    }
+
+    public void addContext(Context context) {
+        contexts.add(context);
     }
 
-    public void removeSession(Thread thread) {
-        this.sessions.remove(thread.getName());
+    public void removeContext(Context context) {
+        contexts.remove(context);
     }
 
     // map of thread - websocket sessions
@@ -56,20 +74,26 @@ public class StringWriterAppender extends AppenderSkeleton {
             return;
         }
         String message = this.layout.format(event);
-        SessionManager session = sessions.get(event.getThreadName());
-        if (session != null) {
-            session.appendResponse(new Response(message, "", false));
+        for (Context context : contexts) {
+            if (context.get(SPARQLGenerate.THREAD) == null) {
+                continue;
+            }
+            for (Thread thread : (Set<Thread>) context.get(SPARQLGenerate.THREAD)) {
+                if (thread.getName().equals(event.getThreadName())) {
+                    ((SessionManager) context.get(SessionManager.SYMBOL)).appendResponse(new Response(message, "", false));
+                    return;
+                }
+            }
         }
     }
 
     @Override
     public void close() {
-        System.out.println("closing");
     }
 
     @Override
     public boolean requiresLayout() {
         return true;
     }
-    
+
 }

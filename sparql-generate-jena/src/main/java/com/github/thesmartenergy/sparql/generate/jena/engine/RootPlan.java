@@ -157,7 +157,7 @@ public interface RootPlan extends GeneratePlan, GenerateTemplateElementPlan {
      */
     void exec(QuerySolution initialBindings, Model initialModel);
 
-    /**
+   /**
      * Executes a SPARQL-Generate query. Uses the given {@code initialBindings}
      * as if they were specified in a SPARQL VALUES clause. Emit generated
      * triples to the stream.
