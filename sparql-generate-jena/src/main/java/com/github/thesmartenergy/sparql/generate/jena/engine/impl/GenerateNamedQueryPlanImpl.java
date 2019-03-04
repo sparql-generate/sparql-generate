@@ -109,14 +109,13 @@ public class GenerateNamedQueryPlanImpl extends PlanBase implements GeneratePlan
                     }
                 }
             }
-            if(alreadyExecuted(context, queryName, newInitialBinding)) {
+            final BNodeMap bNodeMap2 = new BNodeMap();
+            final BindingHashMapOverwrite newBinding = new BindingHashMapOverwrite(newInitialBinding, context);
+            if(alreadyExecuted(context, queryName, newBinding)) {
                 return;
             }
             LOG.debug("Executing " + queryName + ": " + newInitialBinding);
-            registerExecution(context, queryName, newInitialBinding);
-            
-            final BNodeMap bNodeMap2 = new BNodeMap();
-            final BindingHashMapOverwrite newBinding = new BindingHashMapOverwrite(newInitialBinding, context);
+            registerExecution(context, queryName, newBinding);
             final List<Var> newVariables = newBinding.varsList();
             final List<BindingHashMapOverwrite> newValues = Lists.newArrayList(newBinding);
             plan.exec(inputDataset, outputStream, newVariables, newValues, bNodeMap2, context);

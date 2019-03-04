@@ -26,7 +26,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import org.apache.jena.graph.Node;
-import org.apache.jena.query.QuerySolution;
 import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.engine.binding.Binding;
 import org.apache.jena.sparql.engine.binding.BindingHashMap;
@@ -84,7 +83,7 @@ abstract class PlanBase {
     // stocker ce qui est associé à une execution de requête:
     // les variables ? BindingHashMapOverwrite:77 changer Var.alloc  par ExecutiunoContextImpl.alloc
     // les variables ? SelectPlanImpl :99 eviter Var.alloc par ExecutiunoContextImpl.alloc
-    protected void initContext(Context context, Node queryName, SPARQLGenerateQuery query, RootPlanImpl plan, QuerySolution initialBindings) {
+    protected void initContext(Context context, Node queryName, SPARQLGenerateQuery query, RootPlanImpl plan, BindingHashMapOverwrite values) {
         if(queryName == null) {
             return;
         }
@@ -93,7 +92,7 @@ abstract class PlanBase {
         }
         getLoadedQueries(context).put(queryName.getURI(), query);
         getLoadedPlans(context).put(queryName.getURI(), plan);
-        registerExecution(context, queryName.getURI(), initialBindings);
+        registerExecution(context, queryName.getURI(), values);
     }
 
     private final static Symbol PLANS = Symbol.create(SPARQLGenerate.NS + "symbol_plans");
@@ -108,25 +107,18 @@ abstract class PlanBase {
     protected boolean alreadyExecuted(
             final Context context, 
             final String queryName, 
-            final QuerySolution binding) {
-        final Map<String, Set<QuerySolution>> queryExecutionCalls = getQueryExecutionCalls(context);
+            final BindingHashMapOverwrite currentCall) {
+        final Map<String, Set<BindingHashMapOverwrite>> queryExecutionCalls = getQueryExecutionCalls(context);
 
         if(!queryExecutionCalls.containsKey(queryName)) {
             return false;
         }
-        for(QuerySolution otherBinding : queryExecutionCalls.get(queryName) ) {
-            Iterator<String> vars = binding.varNames();
+        for(BindingHashMapOverwrite previousCall : queryExecutionCalls.get(queryName) ) {
             boolean found = true;
-            while(vars.hasNext()) {
-                String var = vars.next();
-                if(!binding.get(var).equals(otherBinding.get(var))) {
-                    found = false;
-                }
-            }
-            vars = otherBinding.varNames();
-            while(vars.hasNext()) {
-                String var = vars.next();
-                if(!otherBinding.get(var).equals(binding.get(var))) {
+            final Iterator<Var> variables = currentCall.vars();
+            while(variables.hasNext()) {
+                final Var var = variables.next();
+                if(!currentCall.get(var).equals(previousCall.get(var))) {
                     found = false;
                 }
             }
@@ -137,19 +129,19 @@ abstract class PlanBase {
         return false;
     }
 
-    protected final void registerExecution(Context context, String queryName, QuerySolution newInitialBinding) {
-        final Map<String, Set<QuerySolution>> queryExecutionCalls = getQueryExecutionCalls(context);
+    protected final void registerExecution(Context context, String queryName, BindingHashMapOverwrite values) {
+        final Map<String, Set<BindingHashMapOverwrite>> queryExecutionCalls = getQueryExecutionCalls(context);
         if(!queryExecutionCalls.containsKey(queryName)) {
             queryExecutionCalls.put(queryName, new HashSet<>());
         }
-        queryExecutionCalls.get(queryName).add(newInitialBinding);
+        queryExecutionCalls.get(queryName).add(values);
     }
     
-    protected Map<String, Set<QuerySolution>> getQueryExecutionCalls(Context context) {
+    protected Map<String, Set<BindingHashMapOverwrite>> getQueryExecutionCalls(Context context) {
         if(context.isUndef(QUERY_EXECUTION_CALLS)) {
-            context.set(QUERY_EXECUTION_CALLS, new HashMap<String, Set<QuerySolution>>());
+            context.set(QUERY_EXECUTION_CALLS, new HashMap<String, Set<BindingHashMapOverwrite>>());
         }
-        return (Map<String, Set<QuerySolution>>) context.get(QUERY_EXECUTION_CALLS);
+        return (Map<String, Set<BindingHashMapOverwrite>>) context.get(QUERY_EXECUTION_CALLS);
     }
     
     protected Map<String, SPARQLGenerateQuery> getLoadedQueries(Context context) {

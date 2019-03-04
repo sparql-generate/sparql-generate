@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.github.thesmartenergy.sparql.generate.jena.iterator.library;
 
 import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
@@ -34,6 +33,7 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import org.apache.jena.graph.Node;
 
 /**
  * Iterator function
@@ -44,16 +44,16 @@ import java.util.stream.Collectors;
  * <ul>
  * <li>Param 1: the URI of the CSV document (a String);</li>
  * <li>Param 2: the number of rows per batch (an Integer);</li>
- * <li>Param 3 .. <em>n</em>: the names of the columns to select (use "*" to 
+ * <li>Param 3 .. <em>n</em>: the names of the columns to select (use "*" to
  * select all the columns).</li>
  * </ul>
  * <p>
- * CSVStream works like a 
+ * CSVStream works like a
  * <a href="http://w3id.org/sparql-generate/iter/CSVMultipleOutput">iter:CSVMultipleOutput</a>
  * iterator but for one chunk of the CSV document at a time.
  * </p>
  * <p>
- * CSVStream yields better results for very large CSV files, typically above 
+ * CSVStream yields better results for very large CSV files, typically above
  * 100.000 lines.
  * </p>
  * <p>
@@ -63,10 +63,12 @@ import java.util.stream.Collectors;
  * reaches <code>java.lang.OutOfMemoryError: GC overhead limit exceeded</code>.
  * <p>
  * <b>Example: </b>
- * <p>The clause</p>
+ * <p>
+ * The clause</p>
  * <code>ITERATOR ite:CSVStream("path/to/file", 3, "PersonId", "Name") AS
  * ?PersonId ?Name</code>
- * <p>iterates over the following CSV document in batches of three rows:</p>
+ * <p>
+ * iterates over the following CSV document in batches of three rows:</p>
  * <pre>
  * PersonId,Name,Phone,Email,Birthdate,Height,Weight,Company
  * 1,Jin Lott,374-5365,nonummy@nonsollicitudina.net,1990-10-23T09:39:36+01:00,166.58961852476,72.523064012179,4
@@ -80,25 +82,29 @@ import java.util.stream.Collectors;
  * 9,Hunter Howell,237-7855,augue.id.ante@tinciduntnequevitae.edu,1965-04-29T19:15:38+01:00,163.27719591459,69.74419350177,99
  * 10,Lionel Melendez,292-7586,posuere.cubilia.Curae@augue.edu,1938-06-18T17:19:01+01:00,170.29595560716,67.133894657783,76
  * </pre>
- * <p>batch 1 contains:</p>
+ * <p>
+ * batch 1 contains:</p>
  * <pre>
  *  ?PersonId => "1", ?Name => "Jin Lott"
  *  ?PersonId => "2", ?Name => "Ulric Obrien"
  *  ?PersonId => "3", ?Name => "Travis Wilkerson"
  * </pre>
- * <p>batch 2</p>
+ * <p>
+ * batch 2</p>
  * <pre>
  *  ?PersonId => "4", ?Name => "Emerson Bass"
  *  ?PersonId => "5", ?Name => "Nathaniel Mendoza"
  *  ?PersonId => "6", ?Name => "Gil Chang"
  * </pre>
- * <p>batch 3</p>
+ * <p>
+ * batch 3</p>
  * <pre>
  *  ?PersonId => "7", ?Name => "Gregory Pearson"
  *  ?PersonId => "8", ?Name => "Slade Davis"
  *  ?PersonId => "9", ?Name => "Hunter Howell"
  * </pre>
- * <p>batch 4</p>
+ * <p>
+ * batch 4</p>
  * <pre>
  *  ?PersonId => "10", ?Name => "Lionel Melendez"
  * </pre>
@@ -106,7 +112,6 @@ import java.util.stream.Collectors;
  * @author El-Mehdi Khalfi <el-mehdi.khalfi at emse.fr>
  * @since 2018-09-26
  */
-
 public class ITER_CSVStream extends IteratorStreamFunctionBase {
 
     /**
@@ -153,26 +158,30 @@ public class ITER_CSVStream extends IteratorStreamFunctionBase {
 
         parserSettings.setProcessor(
                 new BatchedColumnProcessor(chunkSize) {
-                    @Override
-                    public void batchProcessed(int rowsInThisBatch) {
-                        registerThread();
-                        List<List<NodeValue>> nodeValues = getColumnValuesAsMapOfIndexes().values().stream().
-                                map(column -> column.stream().
-                                        //convert each cell from string to a NodeValue to be fed to nodeValuesStream.accept
-                                                map(cell -> (NodeValue) new NodeValueString(cell)).
-                                                collect(Collectors.toList())).
-                                collect(Collectors.toList());
-                        nodeValuesStream.accept(nodeValues);
-                        unregisterThread();
-                    }
-                }
-
+            @Override
+            public void batchProcessed(int rowsInThisBatch) {
+                registerThread();
+                List<List<NodeValue>> nodeValues = getColumnValuesAsMapOfIndexes().values().stream().
+                        map(column -> column.stream().
+                                //convert each cell from string to a NodeValue to be fed to nodeValuesStream.accept
+                                map(cell -> {
+                                    if (cell == null) {
+                                        return null;
+                                    } else {
+                                        return (NodeValue) new NodeValueString(cell);     
+                                    }
+                                }).
+                                collect(Collectors.toList())).
+                        collect(Collectors.toList());
+                nodeValuesStream.accept(nodeValues);
+                unregisterThread();
+            }
+        }
         );
 
         CsvParser parser = new CsvParser(parserSettings);
         parser.parse(in.getInputStream());
     }
-
 
     @Override
     public void checkBuild(ExprList args) {

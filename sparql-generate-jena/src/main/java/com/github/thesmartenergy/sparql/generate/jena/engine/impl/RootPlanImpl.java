@@ -274,16 +274,12 @@ public final class RootPlanImpl extends PlanBase implements RootPlan,
     public final void exec(final Dataset inputDataset, final QuerySolution initialBindings, final StreamRDF outputStream) {
         final BNodeMap bNodeMap = new BNodeMap();
         final Context context = new Context(ARQ.getContext());
-        Set<Thread> threads = new HashSet<>();
-        threads.add(Thread.currentThread());
-        context.set(SPARQLGenerate.THREAD, threads);
         exec(inputDataset, initialBindings, outputStream, bNodeMap, context);
     }
     
     final void exec(final Dataset inputDataset, final QuerySolution initialBindings, final StreamRDF outputStream, final BNodeMap bNodeMap, final Context context) {
         final List<BindingHashMapOverwrite> values;
         final List<Var> variables;
-        initContext(context, query.getQueryName(), query, this, initialBindings);
         if (initialBindings == null) {
             values = new ArrayList<>();
             variables = new ArrayList<>();
@@ -309,7 +305,13 @@ public final class RootPlanImpl extends PlanBase implements RootPlan,
         Objects.requireNonNull(variables, "variables must not be null.");
         Objects.requireNonNull(values, "values must not be null.");
         Objects.requireNonNull(bNodeMap, "bNodeMap must not be null.");
+        Set<Thread> threads = new HashSet<>();
+        threads.add(Thread.currentThread());
+        context.set(SPARQLGenerate.THREAD, threads);
         if(initial) {
+            for(BindingHashMapOverwrite binding : values) {
+                initContext(context, query.getQueryName(), query, this, binding);            
+            }
             LOG.trace("Starting transformation");
             outputStream.start();
             // generate prefixes only once
