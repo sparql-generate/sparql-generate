@@ -20,9 +20,6 @@ import com.github.thesmartenergy.sparql.generate.jena.cli.Response;
 import com.google.gson.Gson;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import org.apache.jena.sparql.util.Context;
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.spi.ErrorCode;
@@ -73,14 +70,18 @@ public class StringWriterAppender extends AppenderSkeleton {
                     null, ErrorCode.MISSING_LAYOUT);
             return;
         }
-        String message = this.layout.format(event);
+        final StringBuilder sb = new StringBuilder(this.layout.format(event));
+        if(event.getThrowableStrRep() != null) {
+            sb.append(String.join("\n", event.getThrowableStrRep()));
+        }
+        final Response response = new Response(sb.toString(), "", false);
         for (Context context : contexts) {
             if (context.get(SPARQLGenerate.THREAD) == null) {
                 continue;
             }
             for (Thread thread : (Set<Thread>) context.get(SPARQLGenerate.THREAD)) {
                 if (thread.getName().equals(event.getThreadName())) {
-                    ((SessionManager) context.get(SessionManager.SYMBOL)).appendResponse(new Response(message, "", false));
+                    ((SessionManager) context.get(SessionManager.SYMBOL)).appendResponse(response);
                     return;
                 }
             }
