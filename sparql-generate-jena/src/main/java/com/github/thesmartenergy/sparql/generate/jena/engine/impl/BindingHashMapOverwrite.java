@@ -89,7 +89,6 @@ public class BindingHashMapOverwrite extends PlanBase implements Binding {
             }
             parent = p;
         }
-//        LOG.trace("New binding #" + System.identityHashCode(this) + " copies " + binding);
     }
 
     /**

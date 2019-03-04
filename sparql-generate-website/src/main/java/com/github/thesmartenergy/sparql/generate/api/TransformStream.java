@@ -35,6 +35,7 @@ import com.jayway.jsonpath.spi.mapper.JacksonMappingProvider;
 import com.jayway.jsonpath.spi.mapper.MappingProvider;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -174,12 +175,10 @@ public class TransformStream {
                 SPARQLGenerateQuery q = (SPARQLGenerateQuery) QueryFactory.create(defaultquery, SPARQLGenerate.SYNTAX);
                 RootPlan plan = PlanFactory.create(q);
 
-                List<Var> variables = new ArrayList<>();
-                List<BindingHashMapOverwrite> values = new ArrayList<>();
-                BNodeMap bNodeMap = new BNodeMap();
-
-                StreamRDF outputStream = new WebSocketRDF(sessionManager, q.getPrefixMapping());
-                plan.exec(dataset, outputStream, variables, values, bNodeMap, context);
+                Model model = plan.exec(dataset);
+                StringWriter sw = new StringWriter();
+                model.write(sw, "TTL", "http://example.org/");
+                sessionManager.appendResponse(new Response("", sw.toString(), false));
             });
             f.get(10, TimeUnit.SECONDS);
         } catch (final TimeoutException ex) {
@@ -197,73 +196,6 @@ public class TransformStream {
         LOG.error("Error", error);
     }
     
-    private static class WebSocketRDF implements StreamRDFBlock {
-
-        private final SessionManager session;
-        private final PrefixMapping pm;
-        private final SerializationContext context;
-        private ElementTriplesBlock triples;
-
-        public WebSocketRDF(SessionManager session, PrefixMapping pm) {
-            this.session = session;
-            this.pm = pm;
-            context = new SerializationContext(pm);
-        }
-        
-        @Override
-        public void start() {
-            StringBuilder sb = new StringBuilder();
-            pm.getNsPrefixMap().forEach((prefix, uri) -> {
-                sb.append("@prefix ").append(prefix).append(": <").append(uri).append("> .\n");
-            });
-            session.appendResponse(new Response("", sb.toString() + "\n", false));
-        }
-
-        @Override
-        public void base(String string) {
-            session.appendResponse(new Response("", "@base <" + string + ">\n", false));
-        }
-
-        @Override
-        public void prefix(String prefix, String uri) {
-            if (!uri.equals(pm.getNsPrefixURI(prefix))) {
-                pm.setNsPrefix(prefix, uri);
-                StringBuilder sb = new StringBuilder();
-                sb.append("@prefix ").append(prefix).append(": <").append(uri).append("> .\n");
-                session.appendResponse(new Response("", sb.toString(), false));
-            }
-        }
-
-        @Override
-        public void startBlock() {
-            triples = new ElementTriplesBlock();
-        }
-
-        @Override
-        public void triple(Triple triple) {
-            triples.addTriple(triple);
-        }
-
-        @Override
-        public void endBlock() {
-            ByteArrayOutputStream os = new ByteArrayOutputStream();
-            try (IndentedWriter w = new IndentedWriter(os)) {
-                FormatterElement.format(w,context,triples);
-            }
-            String output = new String(os.toByteArray(), Charset.defaultCharset());
-            Response response = new Response("", output + (triples.isEmpty()? "\n" : ".\n"), false);
-            session.appendResponse(response);
-        }
-        
-        @Override
-        public void quad(Quad quad) {
-        }
-
-        @Override
-        public void finish() {
-        }
-    }
-
     static {
         com.jayway.jsonpath.Configuration.setDefaults(new com.jayway.jsonpath.Configuration.Defaults() {
 
