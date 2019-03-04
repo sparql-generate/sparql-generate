@@ -133,9 +133,13 @@ public class ITER_CSVMultipleOutput extends IteratorFunctionBase {
                 int i = 0;
                 for (String col : cols) {
                     int indexOfColInHeader = header.indexOf(col);
-                    //utiliser map
-                    NodeValue n = new NodeValueNode(NodeFactory.createLiteral(row.get(indexOfColInHeader), XSDDatatype.XSDstring));
-                    nodeValues.get(i++).add(n);
+                    if(row.get(indexOfColInHeader) != null) {
+                        //utiliser map
+                        NodeValue n = new NodeValueNode(NodeFactory.createLiteral(row.get(indexOfColInHeader), XSDDatatype.XSDstring));
+                        nodeValues.get(i++).add(n);
+                    } else {
+                        nodeValues.get(i++).add(null);                        
+                    }
                 }
             }
             return nodeValues;
