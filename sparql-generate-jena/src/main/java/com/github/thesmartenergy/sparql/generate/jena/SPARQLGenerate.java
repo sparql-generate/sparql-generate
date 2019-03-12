@@ -111,6 +111,11 @@ public final class SPARQLGenerate {
     public static final Symbol THREAD = Symbol.create(NS + "symbol_thread");
 
     /**
+     * The SPARQL-Generate stream manager symbol.
+     */
+    public static final Symbol STREAM_MANAGER = Symbol.create(NS + "symbol_stream_manager");
+
+    /**
      * Force the initialization of SPARQL-Generate.
      */
     public static void init() {
@@ -281,29 +286,4 @@ public final class SPARQLGenerate {
         }
 
     }
-
-    private static final Map<Thread, SPARQLGenerateStreamManager> streamManagers = new HashMap<>();
-
-    public static SPARQLGenerateStreamManager getStreamManager() {
-        if (streamManagers.containsKey(Thread.currentThread())) {
-            log.trace("Using stream manager for " + Thread.currentThread());
-            SPARQLGenerateStreamManager sm = streamManagers.get(Thread.currentThread());
-            StreamManager.setGlobal(sm);
-            return sm;
-        }
-        try {
-            log.trace("Using default stream manager.");
-            return (SPARQLGenerateStreamManager) StreamManager.get();
-        } catch (ClassCastException ex) {
-            log.error(ex.getMessage());
-        }
-        return null;
-    }
-
-    public static void setStreamManager(SPARQLGenerateStreamManager streamManager) {
-        Objects.requireNonNull(streamManager);
-        streamManagers.put(Thread.currentThread(), streamManager);
-        StreamManager.setGlobal(streamManager);
-    }
-
 }

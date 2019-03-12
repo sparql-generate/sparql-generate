@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -136,10 +137,9 @@ public class ITER_MQTTSubscribe extends IteratorStreamFunctionBase {
         MyMqttCallback(Context context, Consumer<List<List<NodeValue>>> nodeValuesStream) {
             this.context = context;
             this.nodeValuesStream = nodeValuesStream;
-            if (context.isUndef(SPARQLGenerate.THREAD)) {
-                context.set(SPARQLGenerate.THREAD, new HashSet<Thread>());
-            }
-            ((Set<Thread>) context.get(SPARQLGenerate.THREAD)).add(Thread.currentThread());
+            final Set<Thread> threads = (Set<Thread>) context.get(SPARQLGenerate.THREAD);
+            Objects.requireNonNull(threads);
+            threads.add(Thread.currentThread());
         }
 
         @Override

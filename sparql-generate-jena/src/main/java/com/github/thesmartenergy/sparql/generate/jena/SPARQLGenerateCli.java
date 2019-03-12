@@ -53,6 +53,9 @@ import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import org.apache.jena.query.ARQ;
+import org.apache.jena.riot.system.stream.StreamManager;
+import org.apache.jena.sparql.util.Context;
 
 /**
  * @author Noorani Bakerally <noorani.bakerally at emse.fr>, Maxime Lefrançois
@@ -63,8 +66,7 @@ public class SPARQLGenerateCli {
     private static final Logger LOG = LoggerFactory.getLogger(SPARQLGenerateCli.class);
     private static final Gson GSON = new Gson();
 
-    private static final Layout LAYOUT = new PatternLayout("%5p [%t] (%F:%L) - %m%n");
-    private static final Appender CONSOLE_APPENDER = new ConsoleAppender(LAYOUT);
+    private static final Layout LAYOUT = new PatternLayout("%d %-5p %c{1}:%L - %m%n");
     private static final org.apache.log4j.Logger ROOT_LOGGER = org.apache.log4j.Logger.getRootLogger();
 
     private static final String ARG_HELP = "h";
@@ -111,17 +113,21 @@ public class SPARQLGenerateCli {
             LOG.warn("Error while loading the location mapping model for the queryset. No named queries will be used");
             request = Request.DEFAULT;
         }
+        
 
         // initialize stream manager
         SPARQLGenerateStreamManager sm = SPARQLGenerateStreamManager
                 .makeStreamManager(new LocatorFileAccept(dir.toURI().getPath()));
         sm.setLocationMapper(request.asLocationMapper());
-        SPARQLGenerate.setStreamManager(sm);
+
+        Context context = new Context(ARQ.getContext());
+        context.set(SPARQLGenerate.STREAM_MANAGER, sm);
+        StreamManager.setGlobal(sm);
 
         String queryPath = cl.getOptionValue(ARG_QUERY, ARG_QUERY_DEFAULT);
         String query;
         try {
-            query = IOUtils.toString(SPARQLGenerate.getStreamManager()
+            query = IOUtils.toString(sm
                     .open(new LookUpRequest(queryPath, SPARQLGenerate.MEDIA_TYPE)), StandardCharsets.UTF_8);
         } catch (IOException | NullPointerException ex) {
             LOG.error("No file named {} was found in the directory that contains the query to be executed.", queryPath);
@@ -172,7 +178,7 @@ public class SPARQLGenerateCli {
                 }
             }
             try {
-                plan.exec(ds, outputRDF);
+                plan.exec(ds, outputRDF, context);
             } catch (Exception ex) {
                 LOG.error("Error while executing the plan.", ex);
             }
@@ -180,7 +186,7 @@ public class SPARQLGenerateCli {
         } else {
 
             try {
-                Model model = plan.exec(ds);
+                Model model = plan.exec(ds, context);
                 if (output == null) {
                     model.write(System.out, RDFLanguages.strLangTurtle);
                 } else {
@@ -261,9 +267,7 @@ public class SPARQLGenerateCli {
         }
 
         String logPath = cl.getOptionValue(ARG_LOG_FILE);
-        if (logPath == null) {
-            ROOT_LOGGER.addAppender(CONSOLE_APPENDER);
-        } else {
+        if (logPath != null) {
             try {
                 ROOT_LOGGER.addAppender(new org.apache.log4j.RollingFileAppender(LAYOUT, logPath, false));
             } catch (IOException ex) {

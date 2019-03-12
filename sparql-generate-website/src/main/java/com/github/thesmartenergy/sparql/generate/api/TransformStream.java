@@ -20,9 +20,6 @@ import com.github.thesmartenergy.sparql.generate.jena.cli.Request;
 import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
 import com.github.thesmartenergy.sparql.generate.jena.engine.PlanFactory;
 import com.github.thesmartenergy.sparql.generate.jena.engine.RootPlan;
-import com.github.thesmartenergy.sparql.generate.jena.engine.StreamRDFBlock;
-import com.github.thesmartenergy.sparql.generate.jena.engine.impl.BNodeMap;
-import com.github.thesmartenergy.sparql.generate.jena.engine.impl.BindingHashMapOverwrite;
 import com.github.thesmartenergy.sparql.generate.jena.query.SPARQLGenerateQuery;
 import com.github.thesmartenergy.sparql.generate.jena.stream.LocatorStringMap;
 import com.github.thesmartenergy.sparql.generate.jena.stream.SPARQLGenerateStreamManager;
@@ -33,15 +30,11 @@ import com.jayway.jsonpath.spi.json.JacksonJsonProvider;
 import com.jayway.jsonpath.spi.json.JsonProvider;
 import com.jayway.jsonpath.spi.mapper.JacksonMappingProvider;
 import com.jayway.jsonpath.spi.mapper.MappingProvider;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringWriter;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -56,8 +49,6 @@ import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 import org.apache.commons.io.IOUtils;
-import org.apache.jena.atlas.io.IndentedWriter;
-import org.apache.jena.graph.Triple;
 import org.apache.jena.query.ARQ;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetFactory;
@@ -66,13 +57,6 @@ import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
-import org.apache.jena.riot.system.StreamRDF;
-import org.apache.jena.shared.PrefixMapping;
-import org.apache.jena.sparql.core.Quad;
-import org.apache.jena.sparql.core.Var;
-import org.apache.jena.sparql.serializer.FormatterElement;
-import org.apache.jena.sparql.serializer.SerializationContext;
-import org.apache.jena.sparql.syntax.ElementTriplesBlock;
 import org.apache.jena.sparql.util.Context;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
@@ -159,8 +143,7 @@ public class TransformStream {
                 loc.put(doc.uri, doc.string, doc.mediatype);
             });
 
-            SPARQLGenerateStreamManager sm = SPARQLGenerateStreamManager.makeStreamManager(loc);
-            SPARQLGenerate.setStreamManager(sm);
+            context.set(SPARQLGenerate.STREAM_MANAGER, SPARQLGenerateStreamManager.makeStreamManager(loc));
         } catch (JsonSyntaxException | IOException ex) {
             LOG.error("Error while reading parameters:", ex);
             return;
@@ -175,16 +158,16 @@ public class TransformStream {
                 SPARQLGenerateQuery q = (SPARQLGenerateQuery) QueryFactory.create(defaultquery, SPARQLGenerate.SYNTAX);
                 RootPlan plan = PlanFactory.create(q);
 
-                Model model = plan.exec(dataset);
+                Model model = plan.exec(dataset, context);
                 StringWriter sw = new StringWriter();
                 model.write(sw, "TTL", "http://example.org/");
                 sessionManager.appendResponse(new Response("", sw.toString(), false));
             });
             f.get(10, TimeUnit.SECONDS);
         } catch (final TimeoutException ex) {
-            LOG.error("In this web interface requests cannot exceed 10 s. Please use the executable jar instead.");
+            LOG.error("In this web interface requests cannot exceed 10 s. Please use the executable jar instead.", ex);
         } catch (final Exception ex) {
-            LOG.error("An exception occurred:" + ex.getMessage());
+            LOG.error("An exception occurred", ex);
         } finally {
             service.awaitTermination(100, TimeUnit.MILLISECONDS);
         }

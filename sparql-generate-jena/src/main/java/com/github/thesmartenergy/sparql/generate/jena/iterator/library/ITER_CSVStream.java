@@ -18,6 +18,7 @@ package com.github.thesmartenergy.sparql.generate.jena.iterator.library;
 import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.IteratorStreamFunctionBase;
 import com.github.thesmartenergy.sparql.generate.jena.stream.LookUpRequest;
+import com.github.thesmartenergy.sparql.generate.jena.stream.SPARQLGenerateStreamManager;
 import com.univocity.parsers.common.processor.BatchedColumnProcessor;
 import com.univocity.parsers.csv.CsvParser;
 import com.univocity.parsers.csv.CsvParserSettings;
@@ -31,6 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import org.apache.jena.graph.Node;
@@ -126,6 +128,7 @@ public class ITER_CSVStream extends IteratorStreamFunctionBase {
 
     @Override
     public void exec(List<NodeValue> args, Consumer<List<List<NodeValue>>> nodeValuesStream) {
+        registerThread();
         if (!args.get(0).isString()) {
             LOG.debug("First argument must be a string, got: " + args.get(0));
             throw new ExprEvalException("First argument must be a string, got: " + args.get(0));
@@ -143,7 +146,14 @@ public class ITER_CSVStream extends IteratorStreamFunctionBase {
         int chunkSize = args.get(1).getInteger().intValue();
 
         LookUpRequest req = new LookUpRequest(csvPath, "text/csv");
-        TypedInputStream in = SPARQLGenerate.getStreamManager().open(req);
+        SPARQLGenerateStreamManager sm = getContext().get(SPARQLGenerate.STREAM_MANAGER);
+        Objects.requireNonNull(sm);
+        TypedInputStream in = sm.open(req);
+        if (in == null) {
+            String message = String.format("Could not look up csv document %s", csvPath);
+            LOG.warn(message);
+            throw new ExprEvalException(message);
+        }
 
         CsvParserSettings parserSettings = new CsvParserSettings();
         parserSettings.getFormat().setLineSeparator("\n");
@@ -158,9 +168,13 @@ public class ITER_CSVStream extends IteratorStreamFunctionBase {
 
         parserSettings.setProcessor(
                 new BatchedColumnProcessor(chunkSize) {
+                    
+            private int total = 0;
+            
             @Override
             public void batchProcessed(int rowsInThisBatch) {
-                registerThread();
+                total+=rowsInThisBatch;                
+                LOG.debug("New batch of " + rowsInThisBatch + " rows, " + total +" total for " + csvPath);
                 List<List<NodeValue>> nodeValues = getColumnValuesAsMapOfIndexes().values().stream().
                         map(column -> column.stream().
                                 //convert each cell from string to a NodeValue to be fed to nodeValuesStream.accept
@@ -168,19 +182,19 @@ public class ITER_CSVStream extends IteratorStreamFunctionBase {
                                     if (cell == null) {
                                         return null;
                                     } else {
-                                        return (NodeValue) new NodeValueString(cell);     
+                                        return (NodeValue) new NodeValueString(cell);
                                     }
                                 }).
                                 collect(Collectors.toList())).
                         collect(Collectors.toList());
                 nodeValuesStream.accept(nodeValues);
-                unregisterThread();
             }
         }
         );
 
         CsvParser parser = new CsvParser(parserSettings);
         parser.parse(in.getInputStream());
+        unregisterThread();
     }
 
     @Override

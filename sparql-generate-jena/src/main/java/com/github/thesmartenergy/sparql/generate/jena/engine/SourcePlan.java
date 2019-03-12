@@ -18,6 +18,7 @@ package com.github.thesmartenergy.sparql.generate.jena.engine;
 import com.github.thesmartenergy.sparql.generate.jena.engine.impl.BindingHashMapOverwrite;
 import java.util.List;
 import org.apache.jena.sparql.core.Var;
+import org.apache.jena.sparql.util.Context;
 
 /**
  * Executes a SOURE clause.
@@ -29,9 +30,11 @@ public interface SourcePlan extends IteratorOrSourcePlan {
      * Updates the values block.
      * @param variables the already bound variables.
      * @param values the existing bindings.
+     * @param context the execution context.
      */
     void exec(
             final List<Var> variables,
-            final List<BindingHashMapOverwrite> values);
+            final List<BindingHashMapOverwrite> values,
+            final Context context);
     
 }

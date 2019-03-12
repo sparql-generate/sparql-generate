@@ -22,24 +22,23 @@ import com.github.thesmartenergy.sparql.generate.jena.engine.PlanFactory;
 import com.github.thesmartenergy.sparql.generate.jena.engine.RootPlan;
 import com.github.thesmartenergy.sparql.generate.jena.query.SPARQLGenerateQuery;
 import com.github.thesmartenergy.sparql.generate.jena.stream.LookUpRequest;
+import com.github.thesmartenergy.sparql.generate.jena.stream.SPARQLGenerateStreamManager;
 import com.github.thesmartenergy.sparql.generate.jena.syntax.Param;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import org.apache.commons.io.IOUtils;
 import org.apache.jena.ext.com.google.common.collect.Lists;
 import org.apache.jena.graph.Node;
-import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.QueryFactory;
 import org.apache.jena.query.QueryParseException;
-import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.QuerySolutionMap;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.riot.system.StreamRDF;
+import org.apache.jena.riot.system.stream.StreamManager;
 import org.apache.jena.sparql.core.Substitute;
 import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.util.Context;
@@ -129,14 +128,18 @@ public class GenerateNamedQueryPlanImpl extends PlanBase implements GeneratePlan
 
         try {
             final LookUpRequest request = new LookUpRequest(queryName, SPARQLGenerate.MEDIA_TYPE);
-            InputStream in = SPARQLGenerate.getStreamManager().open(request);
+            
+            final SPARQLGenerateStreamManager sm = context.get(SPARQLGenerate.STREAM_MANAGER);
+            Objects.requireNonNull(sm);
+            final InputStream in = sm.open(request);
+            Objects.requireNonNull(in);
             String qString = IOUtils.toString(in, Charset.forName("UTF-8"));
-            SPARQLGenerateQuery q
+            final SPARQLGenerateQuery q
                     = (SPARQLGenerateQuery) QueryFactory.create(qString,
                             SPARQLGenerate.SYNTAX);
             getLoadedQueries(context).put(queryName, q);
 
-            RootPlan plan = PlanFactory.create(q);
+            final RootPlan plan = PlanFactory.create(q);
             getLoadedPlans(context).put(queryName, plan);
 
             return plan;

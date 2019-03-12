@@ -43,6 +43,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.logging.Level;
+import org.apache.jena.query.ARQ;
+import org.apache.jena.sparql.util.Context;
 
 import static org.junit.Assert.assertTrue;
 
@@ -59,6 +61,8 @@ public class TestBase {
 
     private final File exampleDir;
     private Request request;
+    private SPARQLGenerateStreamManager sm;
+    private Context context;
 
     private static final String pattern = ".*";
 
@@ -86,15 +90,16 @@ public class TestBase {
         }
 
         // initialize stream manager
-        SPARQLGenerateStreamManager sm = SPARQLGenerateStreamManager.makeStreamManager(new LocatorFileAccept(exampleDir.toURI().getPath()));
+        sm = SPARQLGenerateStreamManager.makeStreamManager(new LocatorFileAccept(exampleDir.toURI().getPath()));
         sm.setLocationMapper(request.asLocationMapper());
-        SPARQLGenerate.setStreamManager(sm);
+        context = new Context(ARQ.getContext());
+        context.set(SPARQLGenerate.STREAM_MANAGER, sm);
     }
 
     @Test
     public void testPlanExecution() throws Exception {
 
-        String query = IOUtils.toString(SPARQLGenerate.getStreamManager().open(new LookUpRequest(request.query, SPARQLGenerate.MEDIA_TYPE)), "UTF-8");
+        String query = IOUtils.toString(sm.open(new LookUpRequest(request.query, SPARQLGenerate.MEDIA_TYPE)), "UTF-8");
 
         long start0 = System.currentTimeMillis();
         long start = start0;
@@ -111,9 +116,9 @@ public class TestBase {
         now = System.currentTimeMillis();
         log.info("needed " + (now - start) + " to get ready");
         start = now;
-
+        
         // execute plan
-        Model output = plan.exec(ds);
+        Model output = plan.exec(ds, context);
 
         now = System.currentTimeMillis();
         log.info("executed plan in " + (now - start));

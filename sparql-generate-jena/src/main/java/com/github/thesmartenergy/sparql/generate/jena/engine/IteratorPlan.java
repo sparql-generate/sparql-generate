@@ -32,6 +32,7 @@ public interface IteratorPlan extends IteratorOrSourcePlan {
      * @param variables the already bound variables.
      * @param values the existing bindings.
      * @param bindingStream where new bindings are emited.
+     * @param context the execution context.
      */
     void exec(
             final List<Var> variables,

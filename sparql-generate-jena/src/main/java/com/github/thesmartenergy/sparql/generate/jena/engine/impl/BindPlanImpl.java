@@ -23,6 +23,7 @@ import org.apache.jena.sparql.expr.Expr;
 import org.apache.jena.sparql.expr.NodeValue;
 import org.apache.jena.sparql.util.ExprUtils;
 import com.github.thesmartenergy.sparql.generate.jena.engine.SourcePlan;
+import org.apache.jena.sparql.util.Context;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 
@@ -72,7 +73,8 @@ public class BindPlanImpl extends PlanBase implements SourcePlan {
     @Override
     final public void exec(
             final List<Var> variables,
-            final List<BindingHashMapOverwrite> values) {
+            final List<BindingHashMapOverwrite> values,
+            final Context context) {
         boolean added = variables.add(var);
         if (!added) {
             throw new SPARQLGenerateException("Variable " + var + " is already"
