@@ -72,7 +72,7 @@ public class ITER_HTTPGet extends IteratorStreamFunctionBase {
      */
     public static final String URI = SPARQLGenerate.ITER + "HTTPGet";
     
-    public static final int MAX = 20;
+    public static int MAX = Integer.MAX_VALUE;
 
     @Override
     public void checkBuild(ExprList args) {
@@ -105,8 +105,8 @@ public class ITER_HTTPGet extends IteratorStreamFunctionBase {
         AtomicInteger i_call = new AtomicInteger();
 
         Runnable task = () -> {
-            registerThread();            
             Context context = getContext();
+            SPARQLGenerate.registerThread(context);            
             String message;
             try {
                 URL url = new URL(url_s);
@@ -152,7 +152,7 @@ public class ITER_HTTPGet extends IteratorStreamFunctionBase {
                 LOG.info("Process finished after " + i_call.getAndDecrement() + "calls.");
                 scheduler.shutdown();
             }
-            unregisterThread();
+            SPARQLGenerate.unregisterThread(context);            
         };
         scheduler.scheduleAtFixedRate(task, 0, recurrenceValue, TimeUnit.SECONDS);
     }

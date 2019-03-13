@@ -14,6 +14,8 @@ java -jar sparql-generate-jena.jar [arguments]
 * `-d,--dir <arg>` Location of the directory with the queryset, documentset, dataset, and configuration files as explained below. Default value is '.' (the current folder)
 * `-q,--query-file <arg>` Name of the query file in the directory. Default value is ./query.rqg
 * `-o,--output <arg>` Location where the output is to be stored. No value means output goes to the console.
+* `-oa,--output-append` Write from the end of the output file, instead of replacing it.
+* `-of,--output-format` Format of the output file, e.g. TTL, NT, etc.
 * `-l,--log-level <arg>` Set log level, acceptable values are TRACE < DEBUG < INFO < WARN < ERROR < FATAL < OFF. No value or unrecognized value results in level DEBUG
 * `-f,--log-file <arg>` Location where the log is to be stored. No value means output goes to the console.
 * `-s,--stream` Generate output as stream.

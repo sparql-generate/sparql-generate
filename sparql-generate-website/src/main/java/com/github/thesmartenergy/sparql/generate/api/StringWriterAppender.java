@@ -73,6 +73,7 @@ public class StringWriterAppender extends AppenderSkeleton {
         final StringBuilder sb = new StringBuilder(this.layout.format(event));
         if(event.getThrowableStrRep() != null) {
             sb.append(String.join("\n", event.getThrowableStrRep()));
+            sb.append("\n");
         }
         final Response response = new Response(sb.toString(), "", false);
         for (Context context : contexts) {

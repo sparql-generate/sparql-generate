@@ -45,11 +45,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 import static org.apache.jena.riot.RDFLanguages.strLangRDFXML;
 import static org.apache.jena.riot.WebContent.contentTypeRDFXML;
+import org.apache.jena.sparql.util.Context;
 
 /**
  * The configuration entry point of SPARQL-Generate. Method {@link #init()} must
@@ -121,10 +124,10 @@ public final class SPARQLGenerate {
     public static void init() {
     }
 
-    static final Logger log = LoggerFactory.getLogger(SPARQLGenerate.class);
+    static final Logger LOG = LoggerFactory.getLogger(SPARQLGenerate.class);
 
     static {
-        log.trace("initializing SPARQLGenerate");
+        LOG.trace("initializing SPARQLGenerate");
 
         SYNTAX = new SPARQLGenerateSyntax(SYNTAX_URI);
 
@@ -166,7 +169,6 @@ public final class SPARQLGenerate {
         itereg.put(ITER_HTTPGet.URI, ITER_HTTPGet.class);
         itereg.put(ITER_MQTTSubscribe.URI, ITER_MQTTSubscribe.class);
         itereg.put(ITER_WebSocket.URI, ITER_WebSocket.class);
-
 
         SPARQLParserRegistry.get()
                 .add(SYNTAX, new SPARQLParserFactory() {
@@ -228,6 +230,51 @@ public final class SPARQLGenerate {
         StreamManager.setGlobal(SPARQLGenerateStreamManager.makeStreamManager());
     }
 
+    public static void resetThreads(Context context) {
+        if (Thread.currentThread().getStackTrace().length > 2) {
+            String clazz = Thread.currentThread().getStackTrace()[2].getClassName();
+            clazz = clazz.substring(clazz.lastIndexOf(".") + 1);
+            int lineNumber = Thread.currentThread().getStackTrace()[2].getLineNumber();
+            LOG.info(clazz + ":" + lineNumber + " resets threads");
+        }
+        final Set<Thread> workingThreads = new HashSet<>();
+        workingThreads.add(Thread.currentThread());
+        context.set(SPARQLGenerate.THREAD, workingThreads);
+        LOG.info("Working threads are " + workingThreads);
+    }
+
+    public static void registerThread(Context context) {
+        if (Thread.currentThread().getStackTrace().length > 2) {
+            String clazz = Thread.currentThread().getStackTrace()[2].getClassName();
+            clazz = clazz.substring(clazz.lastIndexOf(".") + 1);
+            int lineNumber = Thread.currentThread().getStackTrace()[2].getLineNumber();
+            LOG.info(clazz + ":" + lineNumber + " added thread " + Thread.currentThread());
+        }
+        final Set<Thread> workingThreads
+                = context.get(SPARQLGenerate.THREAD) != null
+                ? context.get(SPARQLGenerate.THREAD)
+                : new HashSet<>();
+        workingThreads.add(Thread.currentThread());
+        context.set(SPARQLGenerate.THREAD, workingThreads);
+        LOG.info("Working threads are " + workingThreads);
+    }
+
+    public static void unregisterThread(Context context) {
+        if (Thread.currentThread().getStackTrace().length > 2) {
+            String clazz = Thread.currentThread().getStackTrace()[2].getClassName();
+            clazz = clazz.substring(clazz.lastIndexOf(".") + 1);
+            int lineNumber = Thread.currentThread().getStackTrace()[2].getLineNumber();
+            LOG.info(clazz + ":" + lineNumber + " removes thread " + Thread.currentThread());
+        }
+        if (context.get(SPARQLGenerate.THREAD) == null) {
+            return;
+        }
+        final Set<Thread> workingThreads = context.get(SPARQLGenerate.THREAD);
+        workingThreads.remove(Thread.currentThread());
+        context.set(SPARQLGenerate.THREAD, workingThreads);
+        LOG.info("Working threads are " + workingThreads);
+    }
+
     /**
      * This class must be used instead of class <code>Syntax</code>.
      *
@@ -272,7 +319,7 @@ public final class SPARQLGenerate {
         /**
          * Guess the syntax (query and update) based on filename.
          *
-         * @param url           the url of the syntax
+         * @param url the url of the syntax
          * @param defaultSyntax a default syntax
          * @return an available syntax for the filename
          */

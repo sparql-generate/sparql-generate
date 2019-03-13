@@ -67,12 +67,13 @@ public class SessionManager {
                 session.getBasicRemote().sendText(gson.toJson(responses));
                 responses.clear();
             } catch (IOException ex) {
-                System.out.println("SessionManager Error while sending for session: " + session + ": " + ex.getMessage());
+                System.out.println("SessionManager Error while sending for session: " + session.getId() + ": " + ex.getMessage());
             }
         }
     }
 
     void stop() {
+        System.out.println("SessionManager stopping " + session.getId());
         send();
         service.shutdown();
     }

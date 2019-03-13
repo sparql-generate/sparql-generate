@@ -128,7 +128,7 @@ public class ITER_CSVStream extends IteratorStreamFunctionBase {
 
     @Override
     public void exec(List<NodeValue> args, Consumer<List<List<NodeValue>>> nodeValuesStream) {
-        registerThread();
+        SPARQLGenerate.registerThread(getContext());
         if (!args.get(0).isString()) {
             LOG.debug("First argument must be a string, got: " + args.get(0));
             throw new ExprEvalException("First argument must be a string, got: " + args.get(0));
@@ -194,7 +194,7 @@ public class ITER_CSVStream extends IteratorStreamFunctionBase {
 
         CsvParser parser = new CsvParser(parserSettings);
         parser.parse(in.getInputStream());
-        unregisterThread();
+        SPARQLGenerate.unregisterThread(getContext());
     }
 
     @Override

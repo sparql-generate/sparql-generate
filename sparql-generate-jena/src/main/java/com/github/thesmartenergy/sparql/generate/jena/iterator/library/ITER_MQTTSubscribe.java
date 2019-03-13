@@ -73,7 +73,7 @@ public class ITER_MQTTSubscribe extends IteratorStreamFunctionBase {
 
     public static final MqttConnectOptions OPTIONS = new MqttConnectOptions();
 
-    public static final int MAX = 20;
+    public static int MAX = Integer.MAX_VALUE;
     
     static {
         OPTIONS.setAutomaticReconnect(true);
@@ -137,9 +137,7 @@ public class ITER_MQTTSubscribe extends IteratorStreamFunctionBase {
         MyMqttCallback(Context context, Consumer<List<List<NodeValue>>> nodeValuesStream) {
             this.context = context;
             this.nodeValuesStream = nodeValuesStream;
-            final Set<Thread> threads = (Set<Thread>) context.get(SPARQLGenerate.THREAD);
-            Objects.requireNonNull(threads);
-            threads.add(Thread.currentThread());
+            SPARQLGenerate.registerThread(context);
         }
 
         @Override
@@ -149,12 +147,12 @@ public class ITER_MQTTSubscribe extends IteratorStreamFunctionBase {
 
         @Override
         public void messageArrived(String topic, MqttMessage message) throws Exception {
-            registerThread();
+            SPARQLGenerate.registerThread(context);            
             List<NodeValue> nv = new ArrayList<>();
             nv.add(new NodeValueNode(NodeFactory.createLiteral(topic)));
             nv.add(PARSER.apply(message.getPayload()));
             nodeValuesStream.accept(Collections.singletonList(nv));
-            unregisterThread();
+            SPARQLGenerate.unregisterThread(context);            
         }
 
         @Override

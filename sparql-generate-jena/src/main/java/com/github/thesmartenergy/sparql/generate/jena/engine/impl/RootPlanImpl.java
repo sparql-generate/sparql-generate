@@ -464,13 +464,12 @@ public final class RootPlanImpl extends PlanBase implements RootPlan,
         Objects.requireNonNull(values, "values must not be null.");
         Objects.requireNonNull(bNodeMap, "bNodeMap must not be null.");
         Objects.requireNonNull(context, "context must not be null.");
-        final Set<Thread> threads = new HashSet<>();
-        threads.add(Thread.currentThread());
-        context.set(SPARQLGenerate.THREAD, threads);
+        SPARQLGenerate.registerThread(context);
         if(context.isUndef(SPARQLGenerate.STREAM_MANAGER)) {
             LOG.debug("Using default stream manager");
             context.set(SPARQLGenerate.STREAM_MANAGER, SPARQLGenerateStreamManager.makeStreamManager());
         }
+        
         if(initial) {
             for(BindingHashMapOverwrite binding : values) {
                 initContext(context, query.getQueryName(), query, this, binding);            

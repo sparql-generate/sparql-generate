@@ -87,6 +87,8 @@ public class ITER_WebSocket extends IteratorStreamFunctionBase {
      * The logger.
      */
     private static final Logger LOG = LoggerFactory.getLogger(ITER_WebSocket.class);
+    
+    public static int MAX = Integer.MAX_VALUE;
 
     /**
      * The SPARQL function URI.
@@ -121,7 +123,7 @@ public class ITER_WebSocket extends IteratorStreamFunctionBase {
         }
 
         String url = args.get(0).asString();
-        int duration = args.get(1).getInteger().intValue();
+        int duration = Math.min( MAX, args.get(1).getInteger().intValue() );
 
         String query = "";
         if (args.size() == 3) {
@@ -132,37 +134,31 @@ public class ITER_WebSocket extends IteratorStreamFunctionBase {
             WebSocketClient webSocketClient = new WebSocketClient(new URI(url)) {
                 @Override
                 public void onOpen(ServerHandshake serverHandshake) {
-                    registerThread();
+                    SPARQLGenerate.registerThread(getContext());            
                     LOG.debug("Connection to " + url + " successful !");
                     if (duration != 0) {
                         final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
                         Runnable task = () -> this.close();
                         scheduler.schedule(task, duration, TimeUnit.SECONDS);
                     }
-                    unregisterThread();
                 }
 
                 @Override
                 public void onMessage(String s) {
-                    registerThread();
                     Node node = NodeFactory.createLiteral(s);
                     NodeValue nodeValue = new NodeValueNode(node);
                     nodeValuesStream.accept(Collections.singletonList(Collections.singletonList(nodeValue)));
-                    unregisterThread();
                 }
 
                 @Override
                 public void onClose(int i, String s, boolean b) {
-                    registerThread();
                     LOG.debug(duration + " seconds is elapsed. Connection with " + url + " closed !");
-                    unregisterThread();
+                    SPARQLGenerate.unregisterThread(getContext());            
                 }
 
                 @Override
                 public void onError(Exception e) {
-                    registerThread();
                     LOG.debug("An error occurred ", e);
-                    unregisterThread();
                 }
             };
             webSocketClient.connectBlocking();

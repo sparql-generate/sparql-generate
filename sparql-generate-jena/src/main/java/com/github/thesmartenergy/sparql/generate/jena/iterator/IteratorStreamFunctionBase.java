@@ -97,24 +97,4 @@ public abstract class IteratorStreamFunctionBase implements IteratorFunction {
      */
     public abstract void exec(List<NodeValue> args, Consumer<List<List<NodeValue>>> nodeValuesStream);
    
-   /**
-    * Register new Thread in the context
-    */
-    public final void registerThread() {
-        if(getContext().isUndef(SPARQLGenerate.THREAD)) {
-            getContext().set(SPARQLGenerate.THREAD, new HashSet<Thread>());
-        }
-        ((Set<Thread>) getContext().get(SPARQLGenerate.THREAD)).add(Thread.currentThread());
-    } 
-
-   /**
-    * Register new Thread in the context
-    */
-    public final void unregisterThread() {
-        if(getContext().isUndef(SPARQLGenerate.THREAD)) {
-            getContext().set(SPARQLGenerate.THREAD, new HashSet<Thread>());
-        }
-        ((Set<Thread>) getContext().get(SPARQLGenerate.THREAD)).remove(Thread.currentThread());
-    } 
-
 }

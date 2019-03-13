@@ -20,6 +20,8 @@ import com.github.thesmartenergy.sparql.generate.jena.cli.Request;
 import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
 import com.github.thesmartenergy.sparql.generate.jena.engine.PlanFactory;
 import com.github.thesmartenergy.sparql.generate.jena.engine.RootPlan;
+import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITER_HTTPGet;
+import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITER_WebSocket;
 import com.github.thesmartenergy.sparql.generate.jena.query.SPARQLGenerateQuery;
 import com.github.thesmartenergy.sparql.generate.jena.stream.LocatorStringMap;
 import com.github.thesmartenergy.sparql.generate.jena.stream.SPARQLGenerateStreamManager;
@@ -73,22 +75,27 @@ public class TransformStream {
     private static String base = "http://example.org/";
     private static StringWriterAppender appender = (StringWriterAppender) org.apache.log4j.Logger.getRootLogger().getAppender("WEBSOCKET");
 
-    private final Map<Session, Context> contexts = new HashMap<>();
+    private final Map<String, Context> contexts = new HashMap<>();
+    
+    static {
+        ITER_WebSocket.MAX = 5;
+        ITER_HTTPGet.MAX = 5;
+    }
     
     @OnOpen
     public void open(Session session) {
         final Context context = new Context(ARQ.getContext());
-        LOG.info("Starting context for session " + session);
         context.set(SessionManager.SYMBOL, new SessionManager(session));
-        contexts.put(session, context);
+        contexts.put(session.getId(), context);
         appender.addContext(context);
+        LOG.info("Open session " + session.getId());
         session.setMaxTextMessageBufferSize((int) (2 * Math.pow(2, 20)));
     }
 
     @OnClose
     public void close(Session session) {
-        final Context context = contexts.remove(session);
-        LOG.info("Stopping context for session " + session);
+        LOG.info("Close session " + session.getId());
+        final Context context = contexts.remove(session.getId());
         appender.removeContext(context);
         final SessionManager sessionManager = context.get(SessionManager.SYMBOL);
         sessionManager.stop();
@@ -96,18 +103,19 @@ public class TransformStream {
 
     @OnMessage
     public void handleMessage(String message, Session session) throws IOException, InterruptedException {
-        if(!contexts.containsKey(session)) {
+        // get context
+        final Context context = contexts.get(session.getId());
+        if (context==null) {
             throw new IOException("can't find context");
         }
-        final Context context = contexts.get(session);
-        final Set<Thread> threads = new HashSet<>();
+        
+        // add thread
+        SPARQLGenerate.resetThreads(context);            
+
+        // reset LOG
         final SessionManager sessionManager = context.get(SessionManager.SYMBOL);
-        final Thread thread = Thread.currentThread();
-        threads.add(thread);
-        context.set(SPARQLGenerate.THREAD, threads);
         sessionManager.appendResponse(new Response("", "", true));
-        LOG.info("Handling message for session " + session);
-        LOG.debug("Having thread " + thread.getName());
+        LOG.info("Handling message for session " + session.getId());
 
         if (message.getBytes().length > 2 * Math.pow(2, 20)) {
             LOG.error("In this web interface request size cannot exceed 2 MB. Please use the executable jar instead.");
@@ -119,7 +127,8 @@ public class TransformStream {
         final String defaultquery;
         try {
             Request request = gson.fromJson(message, Request.class);
-            LOG.info("Executing request " + gson.toJson(request));
+            LOG.info("Enable debug log level to see request");
+            LOG.debug("Executing request " + gson.toJson(request));
 
             defaultquery = request.defaultquery;
             request.namedqueries.forEach((nq) -> {
@@ -151,34 +160,39 @@ public class TransformStream {
 
         final ExecutorService service = Executors.newSingleThreadExecutor();
 
+        final Model model = ModelFactory.createDefaultModel();
+        SPARQLGenerate.registerThread(context);
         try {
             final Future f = service.submit(() -> {
-                threads.add(Thread.currentThread());
-
                 SPARQLGenerateQuery q = (SPARQLGenerateQuery) QueryFactory.create(defaultquery, SPARQLGenerate.SYNTAX);
                 RootPlan plan = PlanFactory.create(q);
-
-                Model model = plan.exec(dataset, context);
-                StringWriter sw = new StringWriter();
-                model.write(sw, "TTL", "http://example.org/");
-                sessionManager.appendResponse(new Response("", sw.toString(), false));
+                plan.exec(dataset, model, context);
             });
-            f.get(10, TimeUnit.SECONDS);
+            f.get(5, TimeUnit.SECONDS);
         } catch (final TimeoutException ex) {
-            LOG.error("In this web interface requests cannot exceed 10 s. Please use the executable jar instead.", ex);
+            LOG.error("In this web interface requests cannot exceed 5 s. Please use the executable jar instead.", ex);
         } catch (final Exception ex) {
             LOG.error("An exception occurred", ex);
         } finally {
-            service.awaitTermination(100, TimeUnit.MILLISECONDS);
+            StringWriter sw = new StringWriter();
+            model.write(sw, "TTL", "http://example.org/");
+            sessionManager.appendResponse(new Response("", sw.toString(), false));
+
+            SPARQLGenerate.unregisterThread(context);
+            service.awaitTermination(1, TimeUnit.SECONDS);
         }
 
     }
 
     @OnError
     public void handleError(Throwable error) {
-        LOG.error("Error", error);
+        if(error instanceof TimeoutException) {
+            LOG.error("TiomeoutException");
+        } else {
+            LOG.error("Error", error);
+        }
     }
-    
+
     static {
         com.jayway.jsonpath.Configuration.setDefaults(new com.jayway.jsonpath.Configuration.Defaults() {
 

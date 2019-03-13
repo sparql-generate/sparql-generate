@@ -132,7 +132,7 @@ public class TestBase {
             output.write(out, "TTL");
 //            StringWriter sw = new StringWriter();
 //            output.write(sw, "TTL");
-//            log.debug("output is " + sw.toString());
+//            LOG.debug("output is " + sw.toString());
         } finally {
             try {
                 out.close();
