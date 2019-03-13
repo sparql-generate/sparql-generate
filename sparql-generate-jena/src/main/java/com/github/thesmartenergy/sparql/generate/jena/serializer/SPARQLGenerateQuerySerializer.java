@@ -22,6 +22,7 @@ import com.github.thesmartenergy.sparql.generate.jena.query.SPARQLGenerateQuery;
 import com.github.thesmartenergy.sparql.generate.jena.query.SPARQLGenerateQueryVisitor;
 import com.github.thesmartenergy.sparql.generate.jena.syntax.ElementIterator;
 import com.github.thesmartenergy.sparql.generate.jena.syntax.ElementSource;
+import com.github.thesmartenergy.sparql.generate.jena.syntax.Param;
 import java.util.List;
 import org.apache.jena.graph.Node;
 import org.apache.jena.query.SortCondition;
@@ -65,11 +66,45 @@ public class SPARQLGenerateQuerySerializer implements SPARQLGenerateQueryVisitor
     @Override
     public void visitGenerateResultForm(SPARQLGenerateQuery query) {
         out.print("GENERATE ");
-        if (query.hasGenerateURI()) {
+        if (query.hasGenerateName()) {
             out.print(" ");
-            out.print("<" + query.getGenerateURI() + ">");
-            out.newline();
-        } else if (query.hasGenerateTemplate()) {
+            SPARQLGenerateFmtUtils.printNode(out, query.getQueryName(), context);
+        } 
+        if (query.hasQuerySignature()) {
+            out.print("(");
+            boolean first = true;
+            List<Param> signature = query.getQuerySignature();
+            for(int i=0;i<signature.size();i++) {
+                Param param = signature.get(i);
+                if(!first) {
+                    out.print(", ");
+                }
+                out.print("?");
+                out.print(param.getVar().getName());
+                if(param.getIri()!=null) {
+                    out.print(" a <");
+                    out.print(param.getIri());
+                    out.print(">");
+                }
+                first = false;
+            }
+            out.print(")");
+        }
+        if (query.hasCallParameters()) {
+            out.print("(");
+            boolean first = true;
+            List<Node> parameters = query.getCallParameters();
+            for(int i=0;i<parameters.size();i++) {
+                Node param = parameters.get(i);
+                if(!first) {
+                    out.print(", ");
+                }
+                SPARQLGenerateFmtUtils.printNode(out, param, context);
+                first = false;
+            }
+            out.print(")");
+        }
+        if (query.hasGenerateTemplate()) {
             out.newline();
             out.incIndent(BLOCK_INDENT);
             fmtElement.visit(query.getGenerateTemplate());

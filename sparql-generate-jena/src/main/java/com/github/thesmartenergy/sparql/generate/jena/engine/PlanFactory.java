@@ -20,7 +20,6 @@ import com.github.thesmartenergy.sparql.generate.jena.engine.impl.GenerateTempla
 import com.github.thesmartenergy.sparql.generate.jena.engine.impl.SelectPlanImpl;
 import com.github.thesmartenergy.sparql.generate.jena.engine.impl.RootPlanImpl;
 import com.github.thesmartenergy.sparql.generate.jena.engine.impl.IteratorPlanImpl;
-import org.apache.commons.io.IOUtils;
 import org.apache.jena.query.QueryFactory;
 import org.apache.jena.query.SortCondition;
 import org.apache.jena.sparql.core.Var;
@@ -32,6 +31,7 @@ import org.apache.jena.sparql.syntax.Element;
 import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
 import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerateException;
 import com.github.thesmartenergy.sparql.generate.jena.engine.impl.BindPlanImpl;
+import com.github.thesmartenergy.sparql.generate.jena.engine.impl.GenerateNamedQueryPlanImpl;
 import com.github.thesmartenergy.sparql.generate.jena.engine.impl.SourcePlanImpl;
 import com.github.thesmartenergy.sparql.generate.jena.query.SPARQLGenerateQuery;
 import com.github.thesmartenergy.sparql.generate.jena.query.SPARQLGenerateQueryVisitor;
@@ -39,8 +39,6 @@ import com.github.thesmartenergy.sparql.generate.jena.iterator.IteratorFunctionR
 import com.github.thesmartenergy.sparql.generate.jena.syntax.ElementIterator;
 import com.github.thesmartenergy.sparql.generate.jena.syntax.ElementSource;
 import com.github.thesmartenergy.sparql.generate.jena.syntax.ElementSubGenerate;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.jena.query.Query;
@@ -49,9 +47,8 @@ import org.apache.jena.sparql.core.Prologue;
 import org.apache.jena.sparql.engine.binding.Binding;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.IteratorFunction;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.IteratorFunctionFactory;
-import com.github.thesmartenergy.sparql.generate.jena.stream.LookUpRequest;
+import com.github.thesmartenergy.sparql.generate.jena.lang.ParserSPARQLGenerate;
 import com.github.thesmartenergy.sparql.generate.jena.syntax.ElementGenerateTriplesBlock;
-import java.nio.charset.Charset;
 import java.util.Objects;
 import org.apache.jena.graph.Node;
 import org.apache.jena.sparql.syntax.ElementBind;
@@ -134,28 +131,32 @@ public class PlanFactory {
      * @return the RootPlan.
      */
     private static RootPlan make(final SPARQLGenerateQuery query) {
-        return make(query, true, false);
+        return make(query, true);
     }
 
     /**
      * Makes a {@code RootPlan} for a SPARQL-Generate query.
      *
      * @param query the SPARQL-Generate Query.
-     * @param distant whether this query was obtained from a GENERATE URI.
      * @return the RootPlan.
      */
     private static RootPlan make(final SPARQLGenerateQuery query,
-                                 final boolean initial,
-                                 final boolean distant) {
+                                 final boolean initial) {
         Objects.requireNonNull(query, "The query must not be null");
+        LOG.trace("Making plan for query\n" + query);
 
         if (query.hasEmbeddedExpressions()) {
+            LOG.debug("Query has embedded expressions. Will be normalized");
             String qs = query.toString();
-            SPARQLGenerateQuery query2 = (SPARQLGenerateQuery) QueryFactory.create(qs, SPARQLGenerate.SYNTAX) ;
+            SPARQLGenerateQuery query2;
+            if (!query.isNamedSubQuery()) {
+                query2 = (SPARQLGenerateQuery) QueryFactory.create(qs, SPARQLGenerate.SYNTAX) ;
+            } else {
+                query2 = (SPARQLGenerateQuery) ParserSPARQLGenerate.parseSubQuery(query,qs);
+            }
             query2.normalize();
-            LOG.debug("Query has been normalized");
-            LOG.trace(query2.toString());
-            return make(query2, initial, distant);
+            LOG.trace("normalized query:\n" + query2.toString());
+            return make(query2, initial);
         }
 
         List<IteratorOrSourcePlan> iteratorAndSourcePlans = new ArrayList<>();
@@ -184,7 +185,7 @@ public class PlanFactory {
         if (query.getQueryPattern() != null) {
             selectPlan = makeSelectPlan(query);
         }
-        if (query.hasGenerateURI()) {
+        if (query.isNamedSubQuery()) {
             generatePlan = makeGenerateQueryPlan(query);
         } else if (query.hasGenerateTemplate()) {
             generatePlan = makeGenerateTemplatePlan(query);
@@ -192,8 +193,8 @@ public class PlanFactory {
             LOG.warn("Query with no generate part.", query);
         }
         return new RootPlanImpl(
-                iteratorAndSourcePlans, selectPlan,
-                generatePlan, query.getPrefixMapping(), initial, distant);
+                query, iteratorAndSourcePlans,
+                selectPlan, generatePlan, initial);
     }
 
     /**
@@ -292,39 +293,13 @@ public class PlanFactory {
      *
      * @param query the query for which the plan is created.
      * @return -
-     * @throws IOException Thrown if the source query cannot be found, or if a
-     * parse error occurs
      */
-    private static RootPlan makeGenerateQueryPlan(
+    private static GenerateNamedQueryPlanImpl makeGenerateQueryPlan(
             final SPARQLGenerateQuery query) throws SPARQLGenerateException {
         Objects.requireNonNull(query, "The query must not be null");
-        checkIsTrue(query.hasGenerateURI(), "Query was expected to be of type"
-                + " GENERATE ?source...");
-        try {
-            String generateURI = query.getGenerateURI();
-            final LookUpRequest request = new LookUpRequest(generateURI, SPARQLGenerate.MEDIA_TYPE);
-            InputStream in = SPARQLGenerate.getStreamManager().open(request);
-            String qString = IOUtils.toString(in, Charset.forName("UTF-8"));
-            SPARQLGenerateQuery q
-                    = (SPARQLGenerateQuery) QueryFactory.create(qString,
-                    SPARQLGenerate.SYNTAX);
-            return make(q, false, true);
-        } catch (NullPointerException ex) {
-            LOG.error("NullPointerException while loading the query"
-                    + " file " + query.getGenerateURI() + ": " + ex.getMessage());
-            throw new SPARQLGenerateException("NullPointerException exception while loading the query"
-                    + " file " + query.getGenerateURI() + ": " + ex.getMessage());
-        } catch (IOException ex) {
-            LOG.error("IOException while loading the query"
-                    + " file " + query.getGenerateURI() + ": " + ex.getMessage());
-            throw new SPARQLGenerateException("IOException  while loading the query"
-                    + " file " + query.getGenerateURI() + ": " + ex.getMessage());
-        } catch (QueryParseException ex) {
-            LOG.error("QueryParseException while parsing the query"
-                    + query.getGenerateURI() + ": " + ex.getMessage());
-            throw new SPARQLGenerateException("QueryParseException while parsing the query "
-                    + query.getGenerateURI() + ": " + ex.getMessage());
-        }
+        checkIsTrue(query.isNamedSubQuery(), "Query was expected to be a named "
+                + "sub query");
+        return new GenerateNamedQueryPlanImpl(query.getQueryName(), query.getCallParameters());
     }
 
     /**
@@ -347,7 +322,7 @@ public class PlanFactory {
                 plan = new GenerateTriplesPlanImpl(sub.getPattern());
             } else if (elem instanceof ElementSubGenerate) {
                 ElementSubGenerate sub = (ElementSubGenerate) elem;
-                plan = make(sub.getQuery(), false, false);
+                plan = make(sub.getQuery(), false);
             } else {
                 throw new SPARQLGenerateException("should not reach this"
                         + " point");

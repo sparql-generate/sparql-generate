@@ -7,7 +7,6 @@ PREFIX ex: <http://example.org/>
 GENERATE {
   [] ex:time "{?time}"^^xsd:time .
 }
-ITERATOR iter:HTTPGet("https://time.is",2) AS ?time
+ITERATOR iter:HTTPGet("https://time.is",2,5) AS ?time
 WHERE {
-  BIND(fun:CSS(?time_html, "#twd" ) AS ?time)
 }

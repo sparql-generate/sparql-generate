@@ -32,5 +32,5 @@ buildNumber.properties
 .mvn/timing.properties
 
 # deploy website
-.sh
-.bat
+make.sh
+*.log

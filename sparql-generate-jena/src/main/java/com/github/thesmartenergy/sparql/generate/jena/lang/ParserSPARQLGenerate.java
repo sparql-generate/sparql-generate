@@ -76,6 +76,29 @@ public class ParserSPARQLGenerate extends SPARQLParser {
         validateParsedQuery(q);
         return q;
     }
+    
+    /**
+     * Parses the query.
+     * @param query
+     * @param queryString
+     * @return 
+     */
+    public static Query parseSubQuery(final Query query, String queryString) {
+
+        SPARQLGenerateQuery q = new SPARQLGenerateQuery();
+        q.setSyntax(query.getSyntax());
+        q.setResolver(query.getResolver());
+
+        Action action = new Action() {
+            @Override
+            public void exec(SPARQLGenerateParser parser) throws Exception {
+                parser.SubGenerateUnit();
+            }
+        };
+
+        perform(q, queryString, action);
+        return q;
+    }
 
     /**
      * Performs the parsing.

@@ -20,10 +20,13 @@ import com.github.thesmartenergy.sparql.generate.jena.cli.Request;
 import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
 import com.github.thesmartenergy.sparql.generate.jena.engine.PlanFactory;
 import com.github.thesmartenergy.sparql.generate.jena.engine.RootPlan;
+import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITER_HTTPGet;
+import com.github.thesmartenergy.sparql.generate.jena.iterator.library.ITER_WebSocket;
 import com.github.thesmartenergy.sparql.generate.jena.query.SPARQLGenerateQuery;
 import com.github.thesmartenergy.sparql.generate.jena.stream.LocatorStringMap;
 import com.github.thesmartenergy.sparql.generate.jena.stream.SPARQLGenerateStreamManager;
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.jayway.jsonpath.Option;
 import com.jayway.jsonpath.spi.json.JacksonJsonProvider;
 import com.jayway.jsonpath.spi.json.JsonProvider;
@@ -32,6 +35,9 @@ import com.jayway.jsonpath.spi.mapper.MappingProvider;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -39,12 +45,13 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import javax.websocket.OnClose;
+import javax.websocket.OnError;
 import javax.websocket.OnMessage;
 import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 import org.apache.commons.io.IOUtils;
-import org.apache.jena.graph.Triple;
+import org.apache.jena.query.ARQ;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetFactory;
 import org.apache.jena.query.QueryFactory;
@@ -52,11 +59,7 @@ import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
-import org.apache.jena.riot.system.StreamRDF;
-import org.apache.jena.shared.PrefixMapping;
-import org.apache.jena.sparql.core.Quad;
-import org.apache.jena.sparql.serializer.SerializationContext;
-import org.apache.jena.sparql.util.FmtUtils;
+import org.apache.jena.sparql.util.Context;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 
@@ -70,44 +73,64 @@ public class TransformStream {
     private static final Logger LOG = LoggerFactory.getLogger(TransformStream.class);
     private static final Gson gson = new Gson();
     private static String base = "http://example.org/";
-    private final StringWriterAppender appender = (StringWriterAppender) org.apache.log4j.Logger.getRootLogger().getAppender("WEBSOCKET");
+    private static StringWriterAppender appender = (StringWriterAppender) org.apache.log4j.Logger.getRootLogger().getAppender("WEBSOCKET");
 
-    private Thread thread;
-
+    private final Map<String, Context> contexts = new HashMap<>();
+    
+    static {
+        ITER_WebSocket.MAX = 5;
+        ITER_HTTPGet.MAX = 5;
+    }
+    
     @OnOpen
     public void open(Session session) {
-        LOG.info("Establishing connection");
+        final Context context = new Context(ARQ.getContext());
+        context.set(SessionManager.SYMBOL, new SessionManager(session));
+        contexts.put(session.getId(), context);
+        appender.addContext(context);
+        LOG.info("Open session " + session.getId());
+        session.setMaxTextMessageBufferSize((int) (2 * Math.pow(2, 20)));
     }
 
     @OnClose
     public void close(Session session) {
-        LOG.info("Closing connection");
+        LOG.info("Close session " + session.getId());
+        final Context context = contexts.remove(session.getId());
+        appender.removeContext(context);
+        final SessionManager sessionManager = context.get(SessionManager.SYMBOL);
+        sessionManager.stop();
     }
 
     @OnMessage
     public void handleMessage(String message, Session session) throws IOException, InterruptedException {
-        //todo check size of message.
+        // get context
+        final Context context = contexts.get(session.getId());
+        if (context==null) {
+            throw new IOException("can't find context");
+        }
+        
+        // add thread
+        SPARQLGenerate.resetThreads(context);            
 
-        SessionManager sessionManager = new SessionManager(session);
-
-        appender.putSession(Thread.currentThread(), sessionManager);
+        // reset LOG
+        final SessionManager sessionManager = context.get(SessionManager.SYMBOL);
         sessionManager.appendResponse(new Response("", "", true));
+        LOG.info("Handling message for session " + session.getId());
+
         if (message.getBytes().length > 2 * Math.pow(2, 20)) {
             LOG.error("In this web interface request size cannot exceed 2 MB. Please use the executable jar instead.");
-            appender.removeSession(Thread.currentThread());
             return;
         }
 
-        Dataset dataset = DatasetFactory.create();
-        LocatorStringMap loc = new LocatorStringMap();
-        String defaultquery;
-        boolean stream;
+        final Dataset dataset = DatasetFactory.create();
+        final LocatorStringMap loc = new LocatorStringMap();
+        final String defaultquery;
         try {
             Request request = gson.fromJson(message, Request.class);
+            LOG.info("Enable debug log level to see request");
+            LOG.debug("Executing request " + gson.toJson(request));
 
             defaultquery = request.defaultquery;
-            stream = request.stream;
-
             request.namedqueries.forEach((nq) -> {
                 loc.put(nq.uri, nq.string, nq.mediatype);
             });
@@ -129,104 +152,44 @@ public class TransformStream {
                 loc.put(doc.uri, doc.string, doc.mediatype);
             });
 
-            SPARQLGenerateStreamManager sm = SPARQLGenerateStreamManager.makeStreamManager(loc);
-            SPARQLGenerate.setStreamManager(sm);
-        } catch (Exception ex) {
-            System.out.println("error while reading parameters: " + ex.getMessage());
-            if(thread != null) {
-                appender.removeSession(thread);
-            }
-            appender.removeSession(Thread.currentThread());
-            sessionManager.stop();
+            context.set(SPARQLGenerate.STREAM_MANAGER, SPARQLGenerateStreamManager.makeStreamManager(loc));
+        } catch (JsonSyntaxException | IOException ex) {
+            LOG.error("Error while reading parameters:", ex);
             return;
         }
 
         final ExecutorService service = Executors.newSingleThreadExecutor();
 
+        final Model model = ModelFactory.createDefaultModel();
+        SPARQLGenerate.registerThread(context);
         try {
             final Future f = service.submit(() -> {
-                thread = Thread.currentThread();
-                appender.putSession(thread, sessionManager);
                 SPARQLGenerateQuery q = (SPARQLGenerateQuery) QueryFactory.create(defaultquery, SPARQLGenerate.SYNTAX);
                 RootPlan plan = PlanFactory.create(q);
-
-                if (stream) {
-                    StreamRDF outputStream = new WebSocketRDF(sessionManager, q.getPrefixMapping());
-                    outputStream.start();
-                    plan.exec(dataset, outputStream);
-                } else {
-                    Model model = plan.exec(dataset);
-                    StringWriter sw = new StringWriter();
-                    model.write(sw, "TTL", "http://example.org/");
-                    LOG.trace("end of transformation");
-                    sessionManager.appendResponse(new Response("", sw.toString(), false));
-                }
+                plan.exec(dataset, model, context);
             });
-            f.get(10, TimeUnit.SECONDS);
+            f.get(5, TimeUnit.SECONDS);
         } catch (final TimeoutException ex) {
-            LOG.error("In this web interface requests cannot exceed 10 s. Please use the executable jar instead.");
+            LOG.error("In this web interface requests cannot exceed 5 s. Please use the executable jar instead.", ex);
         } catch (final Exception ex) {
-            LOG.error("An exception occurred:" + ex.getMessage());
+            LOG.error("An exception occurred", ex);
         } finally {
-            if(thread != null) {
-                appender.removeSession(thread);
-            }
-            appender.removeSession(Thread.currentThread());
-            sessionManager.stop();
-            service.awaitTermination(100, TimeUnit.MILLISECONDS);
+            StringWriter sw = new StringWriter();
+            model.write(sw, "TTL", "http://example.org/");
+            sessionManager.appendResponse(new Response("", sw.toString(), false));
+
+            SPARQLGenerate.unregisterThread(context);
+            service.awaitTermination(1, TimeUnit.SECONDS);
         }
 
     }
 
-    private static class WebSocketRDF implements StreamRDF {
-
-        private final SessionManager session;
-        private final PrefixMapping pm;
-        private final SerializationContext context;
-
-        public WebSocketRDF(SessionManager session, PrefixMapping pm) {
-            this.session = session;
-            this.pm = pm;
-            context = new SerializationContext(pm);
-        }
-
-        @Override
-        public void start() {
-            StringBuilder sb = new StringBuilder();
-            pm.getNsPrefixMap().forEach((prefix, uri) -> {
-                sb.append("@Prefix ").append(prefix).append(": <").append(uri).append("> .\n");
-            });
-            session.appendResponse(new Response("", sb.toString() + "\n", false));
-        }
-
-        @Override
-        public void base(String string) {
-            session.appendResponse(new Response("", "@base <" + string + ">\n", false));
-        }
-
-        @Override
-        public void prefix(String prefix, String uri) {
-            if (!uri.equals(pm.getNsPrefixURI(prefix))) {
-                pm.setNsPrefix(prefix, uri);
-                StringBuilder sb = new StringBuilder();
-                sb.append("@Prefix ").append(prefix).append(": <").append(uri).append("> .\n");
-                session.appendResponse(new Response("", sb.toString(), false));
-            }
-        }
-
-        @Override
-        public void triple(Triple triple) {
-            Response response = new Response("", FmtUtils.stringForTriple(triple, context) + " .\n", false);
-            session.appendResponse(response);
-        }
-
-        @Override
-        public void quad(Quad quad) {
-        }
-
-        @Override
-        public void finish() {
-            LOG.trace("end of transformation");
+    @OnError
+    public void handleError(Throwable error) {
+        if(error instanceof TimeoutException) {
+            LOG.error("TiomeoutException");
+        } else {
+            LOG.error("Error", error);
         }
     }
 

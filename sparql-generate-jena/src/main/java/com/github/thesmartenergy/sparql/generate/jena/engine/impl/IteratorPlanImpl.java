@@ -27,6 +27,9 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import org.apache.jena.sparql.function.FunctionEnv;
+import org.apache.jena.sparql.function.FunctionEnvBase;
+import org.apache.jena.sparql.util.Context;
 
 /**
  * Executes a {@code ITERATOR <iterator>(<expreList>) AS <var>} clause.
@@ -81,7 +84,8 @@ public class IteratorPlanImpl extends PlanBase implements IteratorPlan {
     final public void exec(
             final List<Var> variables,
             final List<BindingHashMapOverwrite> values,
-            final Consumer<List<BindingHashMapOverwrite>> bindingStream) {
+            final Consumer<List<BindingHashMapOverwrite>> bindingStream,
+            final Context context) {
 
         boolean added = variables.addAll(vars);
         if (!added) {
@@ -97,7 +101,8 @@ public class IteratorPlanImpl extends PlanBase implements IteratorPlan {
         }
         values.forEach((binding) -> {
             try {
-                iterator.exec(binding, exprList, null, (nodeValues) -> {
+                final FunctionEnv env = new FunctionEnvBase(context);
+                iterator.exec(binding, exprList, env, (nodeValues) -> {
                     List<BindingHashMapOverwrite> newValues = new ArrayList<>();
                     if (nodeValues == null || nodeValues.isEmpty()) {
                         for (Var v : vars) {
@@ -110,8 +115,11 @@ public class IteratorPlanImpl extends PlanBase implements IteratorPlan {
                             for (int i = 0; i < vars.size(); i++) {
                                 Var v = vars.get(i);
                                 try {
-                                    Node n = nodeValues.get(i).get(j).asNode();
-                                    bindingHashMapOverwrite.add(v, n);
+                                    if(nodeValues.get(i) != null
+                                            && nodeValues.get(i).get(j) != null) {
+                                        Node n = nodeValues.get(i).get(j).asNode();
+                                        bindingHashMapOverwrite.add(v, n);
+                                    }
                                 } catch (IndexOutOfBoundsException ex) {
                                     LOG.warn("The number of variables does not match the number of names provided to the iterator arguments");
                                     break;

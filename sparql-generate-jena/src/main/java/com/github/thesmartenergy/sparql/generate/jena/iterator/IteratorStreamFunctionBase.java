@@ -15,8 +15,11 @@
  */
 package com.github.thesmartenergy.sparql.generate.jena.iterator;
 
+import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 import org.apache.jena.query.QueryBuildException;
 import org.apache.jena.sparql.ARQInternalErrorException;
@@ -93,5 +96,5 @@ public abstract class IteratorStreamFunctionBase implements IteratorFunction {
      * @param nodeValuesStream - where to emit new values
      */
     public abstract void exec(List<NodeValue> args, Consumer<List<List<NodeValue>>> nodeValuesStream);
-
+   
 }

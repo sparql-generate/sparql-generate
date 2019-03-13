@@ -91,6 +91,15 @@ void GenerateUnit(): { }
   Query() <EOF>
   { finishQuery() ; }
 }
+void SubGenerateUnit(): { }
+{
+  ByteOrderMark()
+  { startQuery() ; }
+    Prologue()
+    SubGenerateQuery()
+    ValuesClause() <EOF>
+  { finishQuery() ; }
+}
 void Query() : { }
 {
   Prologue()
@@ -106,17 +115,59 @@ void GenerateQuery() : { }
 {
   <GENERATE>
     { asSPARQLGenerateQuery().setQueryGenerateType() ; }
-  ( 
-    { String generateUri; } generateUri = SourceSelector() { asSPARQLGenerateQuery().setGenerateURI(generateUri); }
-  | 
+    ( 
+      { String generateUri; } generateUri = SourceSelector() { asSPARQLGenerateQuery().setQueryName(NodeFactory.createURI(generateUri)); }
+      ( GenerateSignature() )?
+    )? 
     GenerateTemplate() 
-  )
   ( DatasetClause() )*
   {  List<Element> list = new ArrayList<Element> ();}
   ( IteratorOrSourceClause(list) )*
   {  asSPARQLGenerateQuery().setIteratorsAndSources(list);}
   ( WhereClause() )?
   SolutionModifier()
+}
+void GenerateSignature() : { }
+{ 
+  { List<Param> params = new ArrayList<Param>(); }
+    (
+      <NIL>
+    |
+      <LPAREN>
+      { Var var; String iri; }
+      ( { iri = null; } var = Var() ( <KW_A> iri = iri() )? { params.add( new Param( var, iri ) ); } )
+      ( <COMMA> { iri = null; } var = Var() ( <KW_A> iri = iri() )? { params.add( new Param( var, iri ) ); } )*
+      <RPAREN>
+    )
+  { asSPARQLGenerateQuery().setQuerySignature(params); }
+}
+void NamedSubGenerateParameters() : { }
+{
+  { List<Node> params = new ArrayList<Node>(); }
+  ( 
+    <NIL>
+  |
+    <LPAREN>
+      { Node s; }
+      ( s = VarOrXTerm() { params.add( s ); } )
+      ( <COMMA> s = VarOrXTerm() { params.add( s ); } )*
+    <RPAREN>
+  )
+   { asSPARQLGenerateQuery().setCallParameters(params); }
+}
+void AnonymousSubGenerateParameters() : { }
+{
+  { List<Node> params = new ArrayList<Node>(); }
+  ( 
+    <NIL>
+  |
+    <LPAREN>
+      { Node s; }
+      ( s = Var() { params.add( s ); } )
+      ( <COMMA> s = Var() { params.add( s ); } )*
+    <RPAREN>
+  )
+   { asSPARQLGenerateQuery().setCallParameters(params); }
 }
 void GenerateTemplate() : { }
 {
@@ -135,7 +186,7 @@ ElementGroup GenerateTemplateSub() : {  ElementGroup elg = new ElementGroup();}
   )?
   ( 
     { startSubGenerate() ; Token t = null;}
-    t = SubGenerateQuery()
+    t = SubGenerateQuery() <DOT>
       { int beginLine = t.beginLine; int beginColumn = t.beginColumn; t = null; }
       { SPARQLGenerateQuery q = endSubGenerate(beginLine, beginColumn) ; } 
       { elg.addElement( new ElementSubGenerate(q) ) ; }
@@ -183,17 +234,21 @@ Token SubGenerateQuery( ) : { Token t;}
 {
   t = <GENERATE>
     { asSPARQLGenerateQuery().setQueryGenerateType() ; }
+
   ( 
-    { String generateUri; } generateUri = SourceSelector() { asSPARQLGenerateQuery().setGenerateURI(generateUri); }
-  | 
-    GenerateTemplate() 
+    { Node n; } n = VarOrXIri() 
+    { asSPARQLGenerateQuery().setQueryName(n); 
+      asSPARQLGenerateQuery().isNamedSubQuery(true); }
+    ( NamedSubGenerateParameters() )?
+  |
+    ( AnonymousSubGenerateParameters() )?
+    GenerateTemplate()
   )
   {  List<Element> list = new LinkedList<Element> ();}
   ( IteratorOrSourceClause(list) )*
   {  asSPARQLGenerateQuery().setIteratorsAndSources(list);}
   ( WhereClause() )?
   SolutionModifier()
-  <DOT>
   { return t; }
 }
 void ByteOrderMark() : {}
@@ -1605,6 +1660,7 @@ TOKEN : { <KW_A: "a" > }
 TOKEN [IGNORE_CASE] :
 {
    < GENERATE: "generate" >
+|   < CALL: "call" >
 |  < SOURCE: "source" | "look up" >
 |  < ACCEPT: "accept" >
 |  < ITERATOR: "iterator" | "iterate">

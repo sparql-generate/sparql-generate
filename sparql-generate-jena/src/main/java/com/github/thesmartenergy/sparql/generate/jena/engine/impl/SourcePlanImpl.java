@@ -27,7 +27,9 @@ import org.apache.jena.sparql.core.Var;
 import java.util.Objects;
 import com.github.thesmartenergy.sparql.generate.jena.engine.SourcePlan;
 import com.github.thesmartenergy.sparql.generate.jena.stream.LookUpRequest;
+import com.github.thesmartenergy.sparql.generate.jena.stream.SPARQLGenerateStreamManager;
 import org.apache.jena.atlas.web.TypedInputStream;
+import org.apache.jena.sparql.util.Context;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 
@@ -94,7 +96,8 @@ public class SourcePlanImpl extends PlanBase implements SourcePlan {
      */
     final public void exec(
             final List<Var> variables,
-            final List<BindingHashMapOverwrite> values) {
+            final List<BindingHashMapOverwrite> values,
+            final Context context) {
         LOG.debug("Exec SOURCE " + node  + (accept!=null? " ACCEPT " + accept : "" ) + " AS " + var);
 
         boolean added = variables.add(var);
@@ -110,26 +113,28 @@ public class SourcePlanImpl extends PlanBase implements SourcePlan {
             LOG.trace("... resolved to SOURCE <" + sourceUri + "> ACCEPT " + acceptHeader + " AS " + var);
             try {
                 final LookUpRequest request = new LookUpRequest(sourceUri, acceptHeader);
-                final TypedInputStream stream = SPARQLGenerate.getStreamManager().open(request);
+                SPARQLGenerateStreamManager sm = context.get(SPARQLGenerate.STREAM_MANAGER);
+                Objects.requireNonNull(sm);
+                final TypedInputStream stream = sm.open(request);
                 if(stream == null) {
                     LOG.info("Exec SOURCE <" + sourceUri + "> ACCEPT " + acceptHeader + " AS " + var + " returned nothing.");
                     return new BindingHashMapOverwrite(value, var, null);
                 }
                 final String literal = IOUtils.toString(stream.getInputStream(), "UTF-8");
-                final RDFDatatype dt;;
+                final RDFDatatype dt;
                 if (stream.getMediaType() != null && stream.getMediaType().getContentType() != null) {
                     dt = tm.getSafeTypeByName("http://www.iana.org/assignments/media-types/" + stream.getMediaType().getContentType());
                 } else {
                     dt = tm.getSafeTypeByName("http://www.w3.org/2001/XMLSchema#string");
                 }
                 final Node n = NodeFactory.createLiteral(literal, dt);
-                LOG.info("Exec SOURCE <" + sourceUri + "> ACCEPT " + acceptHeader + " AS " + var + " returned. Enable DEBUG level for more.");
-                if(LOG.isDebugEnabled()) {
+                LOG.debug("Exec SOURCE <" + sourceUri + "> ACCEPT " + acceptHeader + " AS " + var + " returned. Enable DEBUG level for more.");
+                if(LOG.isTraceEnabled()) {
                     String out = n.toString();
                     if(out.length()>200) {
                         out = out.substring(0, 120) + "\n ... \n" + out.substring(out.length()-80);
                     }
-                    LOG.debug(out);
+                    LOG.trace(out);
                 }
                 return new BindingHashMapOverwrite(value, var, n);
             } catch (Exception ex) {

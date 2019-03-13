@@ -16,6 +16,7 @@
 package com.github.thesmartenergy.sparql.generate.jena.function.library;
 
 import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
+import java.math.BigInteger;
 import org.apache.jena.datatypes.xsd.XSDDatatype;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
@@ -38,9 +39,9 @@ import java.util.List;
  * <ul>
  *  <li>args contains the supplied arguments such that
  *      <ul>
- *          <li>the first argument is either a datetime or a UNIX timestamp (in milliseconds);</li>
- *          <li>the second argument is optional, and (if provided) contains the parsing format string in the <a href="https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html#iso8601timezone">ISO 8601</a> format according to universal time;</li>
- *          <li>if there is no second argument, the first argument is considered as a UNIX timestamp (in milliseconds) in UTC time zone.</li>
+ *          <li>the first argument is either a datetime (String) or a UNIX timestamp in milliseconds (String or integer);</li>
+ *          <li>the second argument is optional. If provided contains the parsing format string in the <a href="https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html#iso8601timezone">ISO 8601</a> format according to universal time;</li>
+ *          <li>if there is no second argument, the first argument must be a UNIX timestamp in milliseconds (String or integer);</li>
  *          </ul>
  *  </li>
  *  <li>Result is a xsd:dateTime.</li>
@@ -49,6 +50,7 @@ import java.util.List;
  * <b>Examples:</b>
  * <pre>
  * {@code
+ * fun:dateTime(1453508109000) => "2016-01-23T01:15:09Z"^^http://www.w3.org/2001/XMLSchema#dateTime
  * fun:dateTime("1453508109000") => "2016-01-23T01:15:09Z"^^http://www.w3.org/2001/XMLSchema#dateTime
  * fun:dateTime("04/09/2018","dd/MM/yyyy") => "2018-09-04T00:00:00Z"^^http://www.w3.org/2001/XMLSchema#dateTime
  * fun:dateTime("2018-09-01T20:13:42Z", "ISO_DATE_TIME") => "2018-09-01T20:13:42Z"^^http://www.w3.org/2001/XMLSchema#dateTime
@@ -77,21 +79,83 @@ public final class FUN_dateTime extends FunctionBase {
 
     @Override
     public NodeValue exec(List<NodeValue> args) {
-
-        NodeValue dt = args.get(0);
-        String dateTimeString = dt.asString();
-
-        if (dt == null || dateTimeString.isEmpty()) {
-            LOG.debug("The NodeValue is null or empty");
-            throw new ExprEvalException("The NodeValue is null or empty");
+        if (args.size() > 2) {
+            final String message = "Accepts maximum two arguments.";
+            LOG.warn(message);
+            throw new ExprEvalException(message);
         }
+        final ZonedDateTime date;
+        final NodeValue dt = args.get(0);
+        if(dt.isNumber()) {
+            if (args.size() > 1) {
+                final String message = "If the first argument is a number, accepts no other argument.";
+                LOG.warn(message);
+                throw new ExprEvalException(message);
+            }
+            final BigInteger dateTimeInteger;
+            if(dt.isInteger()) {
+                dateTimeInteger = dt.getInteger();
+            } else if(dt.isDecimal()) {
+                dateTimeInteger = dt.getDecimal().toBigInteger();
+            } else if(dt.isDouble()) {
+                dateTimeInteger = BigInteger.valueOf(Math.round(dt.getDouble()));
+            } else if (dt.isFloat()) {
+                dateTimeInteger = BigInteger.valueOf(Math.round(dt.getFloat()));
+            } else {
+                final String message = "The first argument is a number, but it is not an integer nor a decimal nor a double nor a float.";
+                LOG.warn(message);
+                throw new ExprEvalException(message);
+            }
+            date = exec(dateTimeInteger);
+        } else if (dt.isString()) {
+            final String dateTimeString = dt.asString();
+            if (args.size() == 1) {
+                date = exec(dateTimeString);
+            } else {
+                final NodeValue df = args.get(1);
+                if(!df.isString()) {
+                    LOG.debug("The second argument must be a String that encodes the format. Got {}", df);
+                }
+                date = exec(dateTimeString, df.getString());
+            }
+        } else {
+            final String message = "First argument must be an integer or a string";
+            LOG.warn(message);
+            throw new ExprEvalException(message);
+        }
+        Node node = NodeFactory.createLiteral(DateTimeFormatter.ISO_DATE_TIME.format(date), XSDDatatype.XSDdateTime);
+        return NodeValue.makeNode(node);
+    }
 
-        ZonedDateTime date = null;
-        if (args.size() == 2) {
-            NodeValue df = args.get(1) == null? NodeValue.nvEmptyString: args.get(1);
-            DateTimeFormatter parseFormat;
+    @Override
+    public void checkBuild(String uri, ExprList args) {
+        if (args.size() == 0 || args.size() > 2) {
+            throw new QueryBuildException("Function '"
+                    + this.getClass().getName() + "' takes up to two argument");
+        }
+    }
 
-            switch (df.getString()) {
+    private ZonedDateTime exec(BigInteger dateTimeInteger) throws ExprEvalException {
+        long miliSeconds = dateTimeInteger.longValue();
+        return ZonedDateTime.ofInstant(Instant.ofEpochMilli(miliSeconds), ZoneOffset.UTC);
+    }
+    
+    private ZonedDateTime exec(String dateTimeString)  throws ExprEvalException {
+        //https://docs.oracle.com/javase/7/docs/api/java/util/Date.html#Date(long)
+        try {
+            long miliSeconds = Long.parseLong(dateTimeString);
+            return ZonedDateTime.ofInstant(Instant.ofEpochMilli(miliSeconds), ZoneOffset.UTC);
+        } catch (NumberFormatException ex) {
+            final String message = String.format("The first argument %s MUST be an integer.", dateTimeString);
+            LOG.debug(message);
+            throw new ExprEvalException(message);
+        }
+    }
+    
+    private ZonedDateTime exec(String dateTimeString, String format) {
+        final DateTimeFormatter parseFormat;
+        try {
+            switch (format) {
                 case ISO_DATE_TIME:
                     parseFormat = DateTimeFormatter.ISO_DATE_TIME;
                     break;
@@ -102,35 +166,17 @@ public final class FUN_dateTime extends FunctionBase {
                     parseFormat = DateTimeFormatter.ISO_DATE;
                     break;
                 default:
-                    parseFormat = DateTimeFormatter.ofPattern(df.getString());
+                    parseFormat = DateTimeFormatter.ofPattern(format);
             }
-
-            try {
-                date = ZonedDateTime.parse(dateTimeString, parseFormat);
-            } catch (DateTimeParseException e) {
-                LOG.debug("The NodeValue {} MUST correspond to the format {}.", dt, df);
-                throw new ExprEvalException("The NodeValue " + dt + " MUST correspond to the format " + df + " on in milliseconds.");
-            }
-        } else if (args.size() == 1) {
-            //https://docs.oracle.com/javase/7/docs/api/java/util/Date.html#Date(long)
-            try {
-                long miliSeconds = Long.parseLong(dateTimeString);
-                date = ZonedDateTime.ofInstant(Instant.ofEpochMilli(miliSeconds), ZoneOffset.UTC);
-            } catch (NumberFormatException ex) {
-                LOG.debug("The NodeValue {} MUST be an integer.", dt);
-                throw new ExprEvalException("The NodeValue " + dt + " MUST be an integer.");
-            }
-        }
-
-        Node node = NodeFactory.createLiteral(DateTimeFormatter.ISO_DATE_TIME.format(date), XSDDatatype.XSDdateTime);
-        return NodeValue.makeNode(node);
-    }
-
-    @Override
-    public void checkBuild(String uri, ExprList args) {
-        if (args.size() == 0 || args.size() > 2) {
-            throw new QueryBuildException("Function '"
-                    + this.getClass().getName() + "' takes up to two argument");
+            return ZonedDateTime.parse(dateTimeString, parseFormat);
+        } catch(IllegalArgumentException ex) {
+            final String message = String.format("The second argument %s MUST be a valid DateTimeFormatter format.", format);
+            LOG.debug(message);
+            throw new ExprEvalException(message);
+        } catch (DateTimeParseException ex) {
+            final String message = String.format("The second argument %s MUST correspond to the format %s.", dateTimeString, format);
+            LOG.debug(message);
+            throw new ExprEvalException(message);
         }
     }
 }

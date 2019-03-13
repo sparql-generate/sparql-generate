@@ -25,6 +25,8 @@ import javax.servlet.ServletResponse;
 import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class filters the calls to resources, and dispatches to the endpoint
@@ -34,9 +36,12 @@ import javax.servlet.http.HttpServletResponse;
  */
 @WebFilter(urlPatterns = {"/iter/*"})
 public class IteratorFilter implements Filter {
-    
+        
+    private static final Logger LOG = LoggerFactory.getLogger(IteratorFilter.class);
+
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
+        LOG.info("starting...");
     }
 
     @Override

@@ -18,19 +18,23 @@ package com.github.thesmartenergy.sparql.generate.jena.iterator.library;
 import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.IteratorStreamFunctionBase;
 import org.apache.jena.graph.NodeFactory;
+import org.apache.jena.sparql.expr.ExprEvalException;
+import org.apache.jena.sparql.expr.ExprList;
 import org.apache.jena.sparql.expr.NodeValue;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueNode;
 import org.eclipse.paho.client.mqttv3.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import org.apache.jena.sparql.expr.ExprEvalException;
-import org.apache.jena.sparql.expr.ExprList;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.jena.sparql.util.Context;
 
 /**
  * Iterator function
@@ -69,6 +73,8 @@ public class ITER_MQTTSubscribe extends IteratorStreamFunctionBase {
 
     public static final MqttConnectOptions OPTIONS = new MqttConnectOptions();
 
+    public static int MAX = Integer.MAX_VALUE;
+    
     static {
         OPTIONS.setAutomaticReconnect(true);
         OPTIONS.setCleanSession(true);
@@ -90,6 +96,9 @@ public class ITER_MQTTSubscribe extends IteratorStreamFunctionBase {
         if (!args.get(0).isString()) {
             LOG.debug("First argument must be a string, got: " + args.get(0));
             throw new ExprEvalException("First argument must be a string, got: " + args.get(0));
+        } else if (args.get(0).asString().isEmpty()) {
+            LOG.debug("First argument is an empty string");
+            throw new ExprEvalException("First argument is an empty string");
         }
         if (args.size() > 1) {
             for (int i = 1; i < args.size(); i++) {
@@ -99,28 +108,12 @@ public class ITER_MQTTSubscribe extends IteratorStreamFunctionBase {
                 }
             }
         }
+
+        final Context context = getContext();
         try {
             IMqttClient mqttClient = new MqttClient(args.get(0).asString(), MqttClient.generateClientId());
 
-            mqttClient.setCallback(new MqttCallback() {
-                @Override
-                public void connectionLost(Throwable cause) {
-                    LOG.debug("MQTT Connection is lost", cause);
-                }
-
-                @Override
-                public void messageArrived(String topic, MqttMessage message) throws Exception {
-                    List<NodeValue> nv = new ArrayList<>();
-                    nv.add(new NodeValueNode(NodeFactory.createLiteral(topic)));
-                    nv.add(PARSER.apply(message.getPayload()));
-                    nodeValuesStream.accept(Collections.singletonList(nv));
-                }
-
-                @Override
-                public void deliveryComplete(IMqttDeliveryToken token) {
-
-                }
-            });
+            mqttClient.setCallback(new MyMqttCallback(context, nodeValuesStream));
 
             mqttClient.connect(OPTIONS);
             if (args.size() > 1) {
@@ -132,5 +125,40 @@ public class ITER_MQTTSubscribe extends IteratorStreamFunctionBase {
             LOG.debug("A MqttException occurred", e);
             throw new ExprEvalException("A MqttException occurred", e);
         }
+
     }
+
+    private class MyMqttCallback implements MqttCallback {
+
+        private final Context context;
+
+        private final Consumer<List<List<NodeValue>>> nodeValuesStream;
+
+        MyMqttCallback(Context context, Consumer<List<List<NodeValue>>> nodeValuesStream) {
+            this.context = context;
+            this.nodeValuesStream = nodeValuesStream;
+            SPARQLGenerate.registerThread(context);
+        }
+
+        @Override
+        public void connectionLost(Throwable cause) {
+            LOG.debug("MQTT Connection is lost", cause);
+        }
+
+        @Override
+        public void messageArrived(String topic, MqttMessage message) throws Exception {
+            SPARQLGenerate.registerThread(context);            
+            List<NodeValue> nv = new ArrayList<>();
+            nv.add(new NodeValueNode(NodeFactory.createLiteral(topic)));
+            nv.add(PARSER.apply(message.getPayload()));
+            nodeValuesStream.accept(Collections.singletonList(nv));
+            SPARQLGenerate.unregisterThread(context);            
+        }
+
+        @Override
+        public void deliveryComplete(IMqttDeliveryToken token) {
+
+        }
+    }
+
 }

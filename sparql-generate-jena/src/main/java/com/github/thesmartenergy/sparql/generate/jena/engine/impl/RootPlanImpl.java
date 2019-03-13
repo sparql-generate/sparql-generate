@@ -15,7 +15,7 @@
  */
 package com.github.thesmartenergy.sparql.generate.jena.engine.impl;
 
-import com.github.thesmartenergy.sparql.generate.jena.engine.ExecutionContext;
+import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
 import com.github.thesmartenergy.sparql.generate.jena.engine.GeneratePlan;
 import com.github.thesmartenergy.sparql.generate.jena.engine.GenerateTemplateElementPlan;
 import com.github.thesmartenergy.sparql.generate.jena.engine.IteratorOrSourcePlan;
@@ -27,18 +27,22 @@ import org.apache.jena.query.DatasetFactory;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
-import org.apache.jena.shared.PrefixMapping;
 import org.apache.jena.sparql.core.Var;
 import com.github.thesmartenergy.sparql.generate.jena.engine.SelectPlan;
 import com.github.thesmartenergy.sparql.generate.jena.engine.SourcePlan;
+import com.github.thesmartenergy.sparql.generate.jena.query.SPARQLGenerateQuery;
+import com.github.thesmartenergy.sparql.generate.jena.stream.SPARQLGenerateStreamManager;
+import com.github.thesmartenergy.sparql.generate.jena.syntax.Param;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Objects;
+import java.util.Set;
 import org.apache.jena.ext.com.google.common.collect.Lists;
-import org.apache.jena.graph.Triple;
+import org.apache.jena.query.ARQ;
 import org.apache.jena.query.QuerySolutionMap;
 import org.apache.jena.riot.system.StreamRDF;
-import org.apache.jena.sparql.core.Quad;
+import org.apache.jena.sparql.util.Context;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 
@@ -48,12 +52,17 @@ import org.slf4j.Logger;
  * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */
 public final class RootPlanImpl extends PlanBase implements RootPlan,
-        GeneratePlan, GenerateTemplateElementPlan {
+        GenerateTemplateElementPlan {
 
     /**
      * The logger.
      */
     private static final Logger LOG = LoggerFactory.getLogger(RootPlanImpl.class);
+
+    /**
+     * query.
+     */
+    private final SPARQLGenerateQuery query;
 
     /**
      * Selector and Source plans.
@@ -71,19 +80,13 @@ public final class RootPlanImpl extends PlanBase implements RootPlan,
     private final GeneratePlan generatePlan;
 
     /**
-     * The prefix mapping.
-     */
-    private final PrefixMapping prefixMapping;
-
-    /**
      * true if the query is not a sub-query.
      */
     private final boolean initial;
     
-    /**
-     * true if the query generate template is specified by a URI.
-     */
-    private final boolean distant;
+    public List<Param> getQuerySignature() {
+        return query.getQuerySignature();
+    }
 
     /**
      * Get the plans for the ITERATOR and SOURCE clauses.
@@ -113,39 +116,27 @@ public final class RootPlanImpl extends PlanBase implements RootPlan,
     }
 
     /**
-     * Gets it the query generate template is specified by a URI.
-     *
-     * @return -
-     */
-    public boolean isDistant() {
-        return distant;
-    }
-
-    /**
      * Constructor
      *
+     * @param query
      * @param iteratorAndSourcePlans
      * @param selectPlan
      * @param generatePlan
-     * @param prefixMapping
      * @param initial
-     * @param distant
      */
     public RootPlanImpl(
+            final SPARQLGenerateQuery query,
             final List<IteratorOrSourcePlan> iteratorAndSourcePlans,
             final SelectPlan selectPlan,
             final GeneratePlan generatePlan,
-            final PrefixMapping prefixMapping,
-            final boolean initial,
-            final boolean distant) {
+            final boolean initial) {
         Objects.requireNonNull(iteratorAndSourcePlans, "iterator and source"
                 + " plans may be empty, but not null.");
+        this.query = query;
         this.iteratorAndSourcePlans = iteratorAndSourcePlans;
         this.selectPlan = selectPlan;
         this.generatePlan = generatePlan;
-        this.prefixMapping = prefixMapping;
         this.initial = initial;
-        this.distant = distant;
     }
 
     /**
@@ -157,7 +148,21 @@ public final class RootPlanImpl extends PlanBase implements RootPlan,
         final QuerySolution initialBindings = new QuerySolutionMap();
         final Model initialModel = ModelFactory.createDefaultModel();
         final StreamRDF outputStream = new StreamRDFModel(initialModel);
-        exec(inputDataset, initialBindings, outputStream);
+        final Context context = new Context(ARQ.getContext());
+        exec(inputDataset, initialBindings, outputStream, context);
+        return initialModel;
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public final Model exec(final Context context) {
+        final Dataset inputDataset = DatasetFactory.create();
+        final QuerySolution initialBindings = new QuerySolutionMap();
+        final Model initialModel = ModelFactory.createDefaultModel();
+        final StreamRDF outputStream = new StreamRDFModel(initialModel);
+        exec(inputDataset, initialBindings, outputStream, context);
         return initialModel;
     }
 
@@ -170,7 +175,21 @@ public final class RootPlanImpl extends PlanBase implements RootPlan,
         final QuerySolution initialBindings = new QuerySolutionMap();
         final Model initialModel = ModelFactory.createDefaultModel();
         final StreamRDF outputStream = new StreamRDFModel(initialModel);
-        exec(inputDataset, initialBindings, outputStream);
+        final Context context = new Context(ARQ.getContext());
+        exec(inputDataset, initialBindings, outputStream, context);
+        return initialModel;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public final Model exec(final Model inputModel, final Context context) {
+        final Dataset inputDataset = DatasetFactory.create(inputModel);
+        final QuerySolution initialBindings = new QuerySolutionMap();
+        final Model initialModel = ModelFactory.createDefaultModel();
+        final StreamRDF outputStream = new StreamRDFModel(initialModel);
+        exec(inputDataset, initialBindings, outputStream, context);
         return initialModel;
     }
 
@@ -182,7 +201,20 @@ public final class RootPlanImpl extends PlanBase implements RootPlan,
         final QuerySolution initialBindings = new QuerySolutionMap();
         final Model initialModel = ModelFactory.createDefaultModel();
         final StreamRDF outputStream = new StreamRDFModel(initialModel);
-        exec(inputDataset, initialBindings, outputStream);
+        final Context context = new Context(ARQ.getContext());
+        exec(inputDataset, initialBindings, outputStream, context);
+        return initialModel;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public final Model exec(final Dataset inputDataset, final Context context) {
+        final QuerySolution initialBindings = new QuerySolutionMap();
+        final Model initialModel = ModelFactory.createDefaultModel();
+        final StreamRDF outputStream = new StreamRDFModel(initialModel);
+        exec(inputDataset, initialBindings, outputStream, context);
         return initialModel;
     }
 
@@ -195,7 +227,22 @@ public final class RootPlanImpl extends PlanBase implements RootPlan,
             final Model initialModel) {
         final Dataset inputDataset = DatasetFactory.create();
         final StreamRDF outputStream = new StreamRDFModel(initialModel);
-        exec(inputDataset, initialBindings, outputStream);
+        final Context context = new Context(ARQ.getContext());
+        exec(inputDataset, initialBindings, outputStream, context);
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public final void exec(
+            final QuerySolution initialBindings,
+            final Model initialModel,
+            final Context context) {
+        final Dataset inputDataset = DatasetFactory.create();
+        final StreamRDF outputStream = new StreamRDFModel(initialModel);
+        exec(inputDataset, initialBindings, outputStream, context);
     }
 
     /**
@@ -208,7 +255,22 @@ public final class RootPlanImpl extends PlanBase implements RootPlan,
         final Dataset inputDataset = DatasetFactory.create(inputModel);
         final QuerySolution initialBindings = new QuerySolutionMap();
         final StreamRDF outputStream = new StreamRDFModel(initialModel);
-        exec(inputDataset, initialBindings, outputStream);
+        final Context context = new Context(ARQ.getContext());
+        exec(inputDataset, initialBindings, outputStream, context);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public final void exec(
+            final Model inputModel,
+            final Model initialModel,
+            final Context context) {
+        final Dataset inputDataset = DatasetFactory.create(inputModel);
+        final QuerySolution initialBindings = new QuerySolutionMap();
+        final StreamRDF outputStream = new StreamRDFModel(initialModel);
+        exec(inputDataset, initialBindings, outputStream, context);
     }
 
     /**
@@ -220,7 +282,21 @@ public final class RootPlanImpl extends PlanBase implements RootPlan,
             final Model initialModel) {
         final QuerySolution initialBindings = new QuerySolutionMap();
         final StreamRDF outputStream = new StreamRDFModel(initialModel);
-        exec(inputDataset, initialBindings, outputStream);
+        final Context context = new Context(ARQ.getContext());
+        exec(inputDataset, initialBindings, outputStream, context);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public final void exec(
+            final Dataset inputDataset,
+            final Model initialModel,
+            final Context context) {
+        final QuerySolution initialBindings = new QuerySolutionMap();
+        final StreamRDF outputStream = new StreamRDFModel(initialModel);
+        exec(inputDataset, initialBindings, outputStream, context);
     }
 
     /**
@@ -233,7 +309,22 @@ public final class RootPlanImpl extends PlanBase implements RootPlan,
             final Model initialModel) {
         final Dataset inputDataset = DatasetFactory.create(inputModel);
         final StreamRDF outputStream = new StreamRDFModel(initialModel);
-        exec(inputDataset, initialBindings, outputStream);
+        final Context context = new Context(ARQ.getContext());
+        exec(inputDataset, initialBindings, outputStream, context);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public final void exec(
+            final Model inputModel,
+            final QuerySolution initialBindings,
+            final Model initialModel,
+            final Context context) {
+        final Dataset inputDataset = DatasetFactory.create(inputModel);
+        final StreamRDF outputStream = new StreamRDFModel(initialModel);
+        exec(inputDataset, initialBindings, outputStream, context);
     }
 
     /**
@@ -245,49 +336,106 @@ public final class RootPlanImpl extends PlanBase implements RootPlan,
             final QuerySolution initialBindings,
             final Model initialModel) {
         final StreamRDF outputStream = new StreamRDFModel(initialModel);
-        exec(inputDataset, initialBindings, outputStream);
+        final Context context = new Context(ARQ.getContext());
+        exec(inputDataset, initialBindings, outputStream, context);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public final void exec(
+            final Dataset inputDataset,
+            final QuerySolution initialBindings,
+            final Model initialModel,
+            final Context context) {
+        final StreamRDF outputStream = new StreamRDFModel(initialModel);
+        exec(inputDataset, initialBindings, outputStream, context);
     }
 
     @Override
     public final void exec(final Model inputModel, final StreamRDF outputStream) {
         final Dataset inputDataset = DatasetFactory.create(inputModel);
         final QuerySolution initialBindings = new QuerySolutionMap();
-        exec(inputDataset, initialBindings, outputStream);
+        final Context context = new Context(ARQ.getContext());
+        exec(inputDataset, initialBindings, outputStream, context);
+    }
+
+    @Override
+    public final void exec(final Model inputModel, final StreamRDF outputStream, final Context context) {
+        final Dataset inputDataset = DatasetFactory.create(inputModel);
+        final QuerySolution initialBindings = new QuerySolutionMap();
+        exec(inputDataset, initialBindings, outputStream, context);
     }
 
     @Override
     public void exec(final StreamRDF outputStream) {
         final Dataset inputDataset = DatasetFactory.create();
         final QuerySolution initialBindings = new QuerySolutionMap();
-        exec(inputDataset, initialBindings, outputStream);
+        final Context context = new Context(ARQ.getContext());
+        exec(inputDataset, initialBindings, outputStream, context);
+    }
+
+    @Override
+    public void exec(final StreamRDF outputStream, final Context context) {
+        final Dataset inputDataset = DatasetFactory.create();
+        final QuerySolution initialBindings = new QuerySolutionMap();
+        exec(inputDataset, initialBindings, outputStream, context);
     }
 
     @Override
     public final void exec(final Dataset inputDataset, final StreamRDF outputStream) {
         final QuerySolution initialBindings = new QuerySolutionMap();
-        exec(inputDataset, initialBindings, outputStream);
+        final Context context = new Context(ARQ.getContext());
+        exec(inputDataset, initialBindings, outputStream, context);
+    }
+
+    @Override
+    public final void exec(final Dataset inputDataset, final StreamRDF outputStream, final Context context) {
+        final QuerySolution initialBindings = new QuerySolutionMap();
+        exec(inputDataset, initialBindings, outputStream, context);
     }
 
     @Override
     public final void exec(final QuerySolution initialBindings, final StreamRDF outputStream) {
         final Dataset inputDataset = DatasetFactory.create();
-        exec(inputDataset, initialBindings, outputStream);
+        final Context context = new Context(ARQ.getContext());
+        exec(inputDataset, initialBindings, outputStream, context);
+    }
+    
+    @Override
+    public final void exec(final QuerySolution initialBindings, final StreamRDF outputStream, final Context context) {
+        final Dataset inputDataset = DatasetFactory.create();
+        exec(inputDataset, initialBindings, outputStream, context);
     }
 
     @Override
     public final void exec(final Model inputModel, final QuerySolution initialBindings, final StreamRDF outputStream) {
         final Dataset inputDataset = DatasetFactory.create(inputModel);
-        exec(inputDataset, initialBindings, outputStream);
+        final Context context = new Context(ARQ.getContext());
+        exec(inputDataset, initialBindings, outputStream, context);
+    }
+
+    @Override
+    public final void exec(final Model inputModel, final QuerySolution initialBindings, final StreamRDF outputStream, final Context context) {
+        final Dataset inputDataset = DatasetFactory.create(inputModel);
+        exec(inputDataset, initialBindings, outputStream, context);
     }
 
     @Override
     public final void exec(final Dataset inputDataset, final QuerySolution initialBindings, final StreamRDF outputStream) {
         final BNodeMap bNodeMap = new BNodeMap();
-        final ExecutionContext context = new ExecutionContextImpl();
+        final Context context = new Context(ARQ.getContext());
+        exec(inputDataset, initialBindings, outputStream, bNodeMap, context);
+    }
+
+    @Override
+    public final void exec(final Dataset inputDataset, final QuerySolution initialBindings, final StreamRDF outputStream, final Context context) {
+        final BNodeMap bNodeMap = new BNodeMap();
         exec(inputDataset, initialBindings, outputStream, bNodeMap, context);
     }
     
-    final void exec(final Dataset inputDataset, final QuerySolution initialBindings, final StreamRDF outputStream, final BNodeMap bNodeMap, final ExecutionContext context) {
+    final void exec(final Dataset inputDataset, final QuerySolution initialBindings, final StreamRDF outputStream, final BNodeMap bNodeMap, final Context context) {
         final List<BindingHashMapOverwrite> values;
         final List<Var> variables;
         if (initialBindings == null) {
@@ -309,22 +457,37 @@ public final class RootPlanImpl extends PlanBase implements RootPlan,
             final List<Var> variables,
             final List<BindingHashMapOverwrite> values,
             final BNodeMap bNodeMap,
-            final ExecutionContext context) {
+            final Context context) {
         Objects.requireNonNull(inputDataset, "inputDataset must not be null.");
         Objects.requireNonNull(outputStream, "outputStream must not be null.");
         Objects.requireNonNull(variables, "variables must not be null.");
         Objects.requireNonNull(values, "values must not be null.");
         Objects.requireNonNull(bNodeMap, "bNodeMap must not be null.");
-
+        Objects.requireNonNull(context, "context must not be null.");
+        SPARQLGenerate.registerThread(context);
+        if(context.isUndef(SPARQLGenerate.STREAM_MANAGER)) {
+            LOG.debug("Using default stream manager");
+            context.set(SPARQLGenerate.STREAM_MANAGER, SPARQLGenerateStreamManager.makeStreamManager());
+        }
+        
         if(initial) {
+            for(BindingHashMapOverwrite binding : values) {
+                initContext(context, query.getQueryName(), query, this, binding);            
+            }
+            LOG.trace("Starting transformation");
+            outputStream.start();
             // generate prefixes only once
-            for (String prefix : prefixMapping.getNsPrefixMap().keySet()) {
-                outputStream.prefix(prefix, prefixMapping.getNsPrefixURI(prefix));
+            for (String prefix : query.getPrefixMapping().getNsPrefixMap().keySet()) {
+                outputStream.prefix(prefix, query.getPrefixMapping().getNsPrefixURI(prefix));
             }            
         }
 
         Iterator<IteratorOrSourcePlan> it = iteratorAndSourcePlans.iterator();
         exec(inputDataset, outputStream, variables, values, bNodeMap, it, context);
+        if(initial) {
+            outputStream.finish();
+            LOG.trace("End of transformation");
+        }
     }
 
     private void exec(
@@ -334,9 +497,9 @@ public final class RootPlanImpl extends PlanBase implements RootPlan,
             final List<BindingHashMapOverwrite> values,
             final BNodeMap bNodeMap,
             final Iterator<IteratorOrSourcePlan> nextPlans,
-            final ExecutionContext context) {
+            final Context context) {
 
-
+        
         if (nextPlans.hasNext()) {
             IteratorOrSourcePlan plan = nextPlans.next();
             if (plan instanceof IteratorPlan) {
@@ -345,10 +508,10 @@ public final class RootPlanImpl extends PlanBase implements RootPlan,
                 nextPlans.forEachRemaining(list::add);
                 iteratorPlan.exec(variables, values, (List<BindingHashMapOverwrite> newValues) -> {
                     exec(inputDataset, outputStream, variables, newValues, bNodeMap, list.iterator(), context);
-                });
+                }, context);
             } else {
                 SourcePlan sourcePlan = (SourcePlan) plan;
-                sourcePlan.exec(variables, values);
+                sourcePlan.exec(variables, values, context);
                 exec(inputDataset, outputStream, variables, values, bNodeMap, nextPlans, context);
             }
         } else {
@@ -356,54 +519,10 @@ public final class RootPlanImpl extends PlanBase implements RootPlan,
                 selectPlan.exec(inputDataset, variables, values, context);
             }
             if (generatePlan != null) {
-                if (distant) {
-                    BNodeMap bNodeMap2 = new BNodeMap();
-                    generatePlan.exec(inputDataset, outputStream, variables, values,
-                            bNodeMap2, context);
-                } else {
-                    generatePlan.exec(inputDataset, outputStream, variables, values,
-                            bNodeMap, context);
-                }
+                generatePlan.exec(inputDataset, outputStream, variables, values,
+                        bNodeMap, context);
             }
         }
     }
-
-    private class StreamRDFModel implements StreamRDF {
-
-        private final Model model;
-
-        public StreamRDFModel(final Model model) {
-            this.model = model;
-        }
-
-        @Override
-        public void start() {
-        }
-
-        @Override
-        public void triple(Triple triple) {
-            model.add(model.asStatement(triple));
-        }
-
-        @Override
-        public void quad(Quad quad) {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        @Override
-        public void base(String base) {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        @Override
-        public void prefix(String prefix, String iri) {
-            model.setNsPrefix(prefix, iri);
-        }
-
-        @Override
-        public void finish() {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-    }
-
+   
 }

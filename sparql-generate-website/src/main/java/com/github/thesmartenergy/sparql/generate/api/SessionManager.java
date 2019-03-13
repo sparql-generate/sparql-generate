@@ -15,16 +15,17 @@
  */
 package com.github.thesmartenergy.sparql.generate.api;
 
+import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
 import com.github.thesmartenergy.sparql.generate.jena.cli.Response;
 import com.google.gson.Gson;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import javax.websocket.Session;
+import org.apache.jena.sparql.util.Symbol;
 
 /**
  *
@@ -32,13 +33,15 @@ import javax.websocket.Session;
  */
 public class SessionManager {
 
-    final Session session;
+    static final Symbol SYMBOL = Symbol.create(SPARQLGenerate.NS + "symbol_session");
+
+    private static final Gson gson = new Gson();
+    
+    private final Session session;
 
     private final List<Response> responses = new ArrayList<>();
 
-    private static final Gson gson = new Gson();
-
-    final ScheduledExecutorService service;
+    private final ScheduledExecutorService service;
 
     public SessionManager(final Session session) {
         this.session = session;
@@ -59,18 +62,18 @@ public class SessionManager {
     }
 
     private void send() {
-        System.out.println("Sending Now " + new Date() + "  " + responses.size());
         if (!responses.isEmpty()) {
             try {
                 session.getBasicRemote().sendText(gson.toJson(responses));
                 responses.clear();
             } catch (IOException ex) {
-                System.out.println("Error");
+                System.out.println("SessionManager Error while sending for session: " + session.getId() + ": " + ex.getMessage());
             }
         }
     }
 
     void stop() {
+        System.out.println("SessionManager stopping " + session.getId());
         send();
         service.shutdown();
     }

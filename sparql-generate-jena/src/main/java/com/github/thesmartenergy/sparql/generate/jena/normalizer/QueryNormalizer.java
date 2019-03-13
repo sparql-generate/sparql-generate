@@ -17,10 +17,12 @@ package com.github.thesmartenergy.sparql.generate.jena.normalizer;
 
 import com.github.thesmartenergy.sparql.generate.jena.query.SPARQLGenerateQuery;
 import com.github.thesmartenergy.sparql.generate.jena.query.SPARQLGenerateQueryVisitor;
+import com.github.thesmartenergy.sparql.generate.jena.serializer.SPARQLGenerateFmtUtils;
 import com.github.thesmartenergy.sparql.generate.jena.syntax.ElementGenerateTriplesBlock;
 import com.github.thesmartenergy.sparql.generate.jena.syntax.ElementIterator;
 import com.github.thesmartenergy.sparql.generate.jena.syntax.ElementSource;
 import com.github.thesmartenergy.sparql.generate.jena.syntax.ElementSubGenerate;
+import com.github.thesmartenergy.sparql.generate.jena.syntax.Param;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.jena.graph.Node;
@@ -92,37 +94,45 @@ public class QueryNormalizer implements SPARQLGenerateQueryVisitor {
 
     @Override
     public void visitGenerateResultForm(SPARQLGenerateQuery query) {
-        if (query.hasGenerateURI() || !query.hasGenerateTemplate()) {
-            return;
-        }
         final NodeExprNormalizer nenzer = new NodeExprNormalizer();
-        final ElementGroup group = new ElementGroup();
-        for (final Element element : query.getGenerateTemplate().getElements()) {
-            if (element instanceof ElementGenerateTriplesBlock) {
-                final ElementGenerateTriplesBlock el = (ElementGenerateTriplesBlock) element;
-                final BasicPattern bgp = el.getPattern();
-
-                final ElementGenerateTriplesBlock nzed = new ElementGenerateTriplesBlock();
-                bgp.forEach((t) -> {
-                    t.getSubject().visitWith(nenzer);
-                    Node s = nenzer.getResult();
-                    t.getPredicate().visitWith(nenzer);
-                    Node p = nenzer.getResult();
-                    t.getObject().visitWith(nenzer);
-                    Node o = nenzer.getResult();
-                    nzed.addTriple(new Triple(s, p, o));
-                });
-                group.addElement(nzed);
-            } else if (element instanceof ElementSubGenerate) {
-                ElementSubGenerate el = (ElementSubGenerate) element;
-                SPARQLGenerateQuery nzed = el.getQuery();
-                nzed.normalize();
-                group.addElement(new ElementSubGenerate(nzed));
-            } else {
-                throw new NullPointerException("Should not reach this point");
-            }
+        if (query.hasCallParameters()) {
+            final List<Node> parameters = query.getCallParameters();
+            final List<Node> nzed = new ArrayList<>();
+            parameters.forEach((p)->{
+                p.visitWith(nenzer);
+                nzed.add(nenzer.getResult());
+            });
+            query.setCallParameters(nzed);
         }
-        query.setGenerateTemplate(group);
+        if (query.hasGenerateTemplate()) {
+            final ElementGroup group = new ElementGroup();
+            for (final Element element : query.getGenerateTemplate().getElements()) {
+                if (element instanceof ElementGenerateTriplesBlock) {
+                    final ElementGenerateTriplesBlock el = (ElementGenerateTriplesBlock) element;
+                    final BasicPattern bgp = el.getPattern();
+
+                    final ElementGenerateTriplesBlock nzed = new ElementGenerateTriplesBlock();
+                    bgp.forEach((t) -> {
+                        t.getSubject().visitWith(nenzer);
+                        Node s = nenzer.getResult();
+                        t.getPredicate().visitWith(nenzer);
+                        Node p = nenzer.getResult();
+                        t.getObject().visitWith(nenzer);
+                        Node o = nenzer.getResult();
+                        nzed.addTriple(new Triple(s, p, o));
+                    });
+                    group.addElement(nzed);
+                } else if (element instanceof ElementSubGenerate) {
+                    ElementSubGenerate el = (ElementSubGenerate) element;
+                    SPARQLGenerateQuery nzed = el.getQuery();
+                    nzed.normalize();
+                    group.addElement(new ElementSubGenerate(nzed));
+                } else {
+                    throw new NullPointerException("Should not reach this point");
+                }
+            }
+            query.setGenerateTemplate(group);
+        }
         appendBindings(query, nenzer);
     }
 

@@ -21,6 +21,7 @@ import java.util.List;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.riot.system.StreamRDF;
 import org.apache.jena.sparql.core.Var;
+import org.apache.jena.sparql.util.Context;
 
 /**
  * The GENERATE Clause
@@ -53,6 +54,6 @@ public interface GeneratePlan {
         final List<Var> variables,
         final List<BindingHashMapOverwrite> values,
         final BNodeMap bNodeMap,
-        final ExecutionContext context);
+        final Context context);
 
 }

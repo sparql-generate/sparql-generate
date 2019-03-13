@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 École des Mines de Saint-Étienne.
+ * Copyright 2019 École des Mines de Saint-Étienne.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.thesmartenergy.sparql.generate.jena.engine;
+package com.github.thesmartenergy.sparql.generate.jena.syntax;
 
 import org.apache.jena.sparql.core.Var;
 
@@ -21,7 +21,34 @@ import org.apache.jena.sparql.core.Var;
  *
  * @author maxime.lefrancois
  */
-public interface ExecutionContext {
+public class Param {
     
-    Var allocVar(String label);
+    private String iri;
+    private Var var;
+
+    public Param(Var var) {
+        this.var = var;
+    }
+
+    public Param(Var var, String iri) {
+        this.var = var;
+        this.iri = iri;
+    }
+
+    public String getIri() {
+        return iri;
+    }
+
+    public Var getVar() {
+        return var;
+    }
+
+    public void setIri(String iri) {
+        this.iri = iri;
+    }
+
+    public void setVar(Var var) {
+        this.var = var;
+    }
+    
 }
