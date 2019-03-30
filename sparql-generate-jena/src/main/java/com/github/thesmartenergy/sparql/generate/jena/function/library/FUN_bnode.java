@@ -40,21 +40,24 @@ import org.slf4j.Logger;
  */
 public class FUN_bnode extends FunctionBase1 {
 
-    public static Map<String, String> map = new HashMap<>();
+    public static Map<String, NodeValue> map = new HashMap<>();
 
     private static final Logger LOG = LoggerFactory.getLogger(FUN_bnode.class);
 
     public static final String URI = SPARQLGenerate.FUN + "bnode";
 
     @Override
-    public NodeValue exec(NodeValue node) {
+    public synchronized NodeValue exec(NodeValue node) {
         String input = (String) node.asNode().getLiteralValue();
         if (!map.containsKey(input)) {
             String hash = new BigInteger(120, new Random()).toString(32);
-            map.put(input, hash);
+//            LOG.trace("Create bnode for " + node + " : " + hash);
+            Node n = NodeFactory.createBlankNode(hash);
+            NodeValue nv = NodeValue.makeNode(n);
+            map.put(input, nv);
+            return nv;
         }
-        Node n = NodeFactory.createBlankNode(map.get(input));
-        return NodeValue.makeNode(n);
+        return map.get(input);
     }
 
 }

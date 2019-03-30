@@ -45,8 +45,8 @@ import org.slf4j.Logger;
  * documents according to a JSONPath expression.
  *
  * <ul>
- * <li>Param 1: (cbor) is a base64 encoding of the CBOR document in a RDF Literal
- * with datatype URI
+ * <li>Param 1: (cbor) is a base64 encoding of the CBOR document in a RDF
+ * Literal with datatype URI
  * {@code <http://www.iana.org/assignments/media-types/application/cbor>} or
  * {@code xsd:string}</li>
  * <li>Param 2: (jsonpath) is the JSONPath expression in a RDF Literal with
@@ -88,7 +88,7 @@ public class ITER_CBOR extends IteratorFunctionBase2 {
     private static final String datatypeUri = "http://www.iana.org/assignments/media-types/application/cbor";
 
     @Override
-    public List<List<NodeValue>> exec(NodeValue cbor, NodeValue jsonpath) {
+    public Collection<List<NodeValue>> exec(NodeValue cbor, NodeValue jsonpath) {
         if (cbor.getDatatypeURI() != null
                 && !cbor.getDatatypeURI().equals(datatypeUri)
                 && !cbor.getDatatypeURI().equals("http://www.w3.org/2001/XMLSchema#string")) {
@@ -103,21 +103,26 @@ public class ITER_CBOR extends IteratorFunctionBase2 {
 
         String json = new String(Base64.getDecoder().decode(cbor.asNode().getLiteralLexicalForm().getBytes()));
 
+        Gson gson = new Gson();
+        RDFDatatype dt = TypeMapper.getInstance().getSafeTypeByName(datatypeUri);
+        
         try {
             List<Object> values = JsonPath
                     .using(conf)
                     .parse(json)
                     .read(jsonpath.getString());
-            List<NodeValue> nodeValues = new ArrayList<>(values.size());
-            Gson gson = new Gson();
+
+            final Collection<List<NodeValue>> nodeValues = new HashSet<>();
+
+            Node node;
+            NodeValue nodeValue;
             for (Object value : values) {
-                RDFDatatype dt = TypeMapper.getInstance().getSafeTypeByName(datatypeUri);
                 String jsonstring = gson.toJson(value);
-                Node node = NodeFactory.createLiteral(jsonstring, dt);
-                NodeValue nodeValue = new NodeValueNode(node);
-                nodeValues.add(nodeValue);
+                node = NodeFactory.createLiteral(jsonstring, dt);
+                nodeValue = new NodeValueNode(node);
+                nodeValues.add(Collections.singletonList(nodeValue));
             }
-            return new ArrayList<>(Collections.singletonList(nodeValues));
+            return nodeValues;
         } catch (Exception ex) {
             LOG.debug("No evaluation of " + cbor + ", " + jsonpath, ex);
             throw new ExprEvalException("No evaluation of " + cbor + ", " + jsonpath, ex);

@@ -16,10 +16,11 @@
 package com.github.thesmartenergy.sparql.generate.jena.iterator.library;
 
 import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
-import java.util.ArrayList;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.IteratorFunctionBase3;
 import java.math.BigDecimal;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.NodeValue;
@@ -30,13 +31,15 @@ import org.slf4j.Logger;
 /**
  * Iterator function
  * <a href="http://w3id.org/sparql-generate/iter/for">iter:for</a>
- * iterates over numeric values that start at the first argument, increment
- * by the second argument, and stops whenever it goes over the third argument.
+ * iterates over numeric values that start at the first argument, increment by
+ * the second argument (positive or negatice), and stops whenever it goes beyond
+ * the third argument.
  *
  * <ul>
- * <li>Param 1 is the initial value;</li>
- * <li>Param 2 is the increment;</li>
- * <li>Param 3 is the threshold that defines the condition for stopping;</li>
+ * <li>Param 1: (a decimal) the first value;</li>
+ * <li>Param 2: (a decimal) the increment (positive or negative);</li>
+ * <li>Param 3: (a decimal) the threshold that defines the condition for
+ * stopping.</li>
  * </ul>
  *
  * @author Antoilne Zimmermann <antoine.zimmermann at emse.fr>
@@ -50,14 +53,14 @@ public class ITER_for extends IteratorFunctionBase3 {
     }
 
     @Override
-    public List<List<NodeValue>> exec(NodeValue start, NodeValue incr, NodeValue stop) {
+    public Collection<List<NodeValue>> exec(NodeValue start, NodeValue incr, NodeValue stop) {
 
         // the initial value
         BigDecimal value = start.getDecimal();
 
         // the size of the increment
         BigDecimal incrV = incr.getDecimal();
-        
+
         // the increment must not be zero
         if (incrV.equals(BigDecimal.ZERO)) {
             LOG.debug("Increment value must be non zero.");
@@ -65,17 +68,16 @@ public class ITER_for extends IteratorFunctionBase3 {
         }
 
         // the threshold above/under which it stops
-        BigDecimal stopV = stop.getDecimal(); 
-        
-        // the list that will contain the final result
-        List<NodeValue> nodeValues = new ArrayList<>();
+        BigDecimal stopV = stop.getDecimal();
 
-        while ( stopV.subtract(value).multiply(incrV).compareTo(BigDecimal.ZERO)>0 ) {
+        final Collection<List<NodeValue>> collectionNodeValues = new HashSet<>();
+
+        while (stopV.subtract(value).multiply(incrV).compareTo(BigDecimal.ZERO) > 0) {
             NodeValue nodeValue = new NodeValueDecimal(value);
-            nodeValues.add(nodeValue);
+            collectionNodeValues.add(Collections.singletonList(nodeValue));
             value = value.add(incrV);
         }
-        return new ArrayList<>(Collections.singletonList(nodeValues));
+        return collectionNodeValues;
     }
 
 }

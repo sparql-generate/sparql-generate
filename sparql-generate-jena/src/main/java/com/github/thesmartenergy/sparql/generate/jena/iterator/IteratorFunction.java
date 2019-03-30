@@ -15,8 +15,10 @@
  */
 package com.github.thesmartenergy.sparql.generate.jena.iterator;
 
+import java.util.Collection;
 import java.util.List;
-import java.util.function.Consumer;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
 import org.apache.jena.sparql.engine.binding.Binding;
 import org.apache.jena.sparql.expr.ExprList;
 import org.apache.jena.sparql.expr.NodeValue;
@@ -48,6 +50,7 @@ public interface IteratorFunction {
      * @param args A list of unevaluated expressions
      * @param env The execution context
      * @param nodeValuesStream where to emit new values
+     * @return when the iterator finishes its job
      */
-    void exec(Binding binding, ExprList args, FunctionEnv env, Consumer<List<List<NodeValue>>> nodeValuesStream);
+    CompletableFuture<Void> exec(Binding binding, ExprList args, FunctionEnv env, Function<Collection<List<NodeValue>>, CompletableFuture<Void>> nodeValuesStream);
 }

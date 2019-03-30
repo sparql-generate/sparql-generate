@@ -18,12 +18,9 @@ package com.github.thesmartenergy.sparql.generate.jena.iterator.library;
 import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.IteratorFunctionBase1;
 import java.io.ByteArrayInputStream;
-import java.util.ArrayList;
 import java.io.BufferedReader;
 import java.util.Collections;
 import java.util.List;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.sparql.expr.ExprEvalException;
@@ -31,6 +28,8 @@ import org.apache.jena.sparql.expr.NodeValue;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueNode;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Collection;
+import java.util.HashSet;
 import org.supercsv.io.CsvMapReader;
 import org.supercsv.prefs.CsvPreference;
 import org.slf4j.LoggerFactory;
@@ -56,7 +55,7 @@ public class ITER_CSVHeaders extends IteratorFunctionBase1 {
     private static final String datatypeUri = "http://www.iana.org/assignments/media-types/text/csv";
 
     @Override
-    public List<List<NodeValue>> exec(NodeValue csv) {
+    public Collection<List<NodeValue>> exec(NodeValue csv) {
         if (csv.getDatatypeURI() != null
                 && !csv.getDatatypeURI().equals(datatypeUri)
                 && !csv.getDatatypeURI().equals("http://www.w3.org/2001/XMLSchema#string")) {
@@ -64,13 +63,7 @@ public class ITER_CSVHeaders extends IteratorFunctionBase1 {
                     + "or <http://www.w3.org/2001/XMLSchema#string>."
             );
         }
-        List<NodeValue> nodeValues = new ArrayList<>();
-
-        DocumentBuilderFactory builderFactory
-                = DocumentBuilderFactory.newInstance();
-        DocumentBuilder builder = null;
         try {
-
             String sourceCSV = String.valueOf(csv.asNode().getLiteralLexicalForm());
 
             InputStream is = new ByteArrayInputStream(sourceCSV.getBytes("UTF-8"));
@@ -79,12 +72,15 @@ public class ITER_CSVHeaders extends IteratorFunctionBase1 {
             CsvMapReader mapReader = new CsvMapReader(br, CsvPreference.STANDARD_PREFERENCE);
             String headers_str[] = mapReader.getHeader(true);
 
+            final Collection<List<NodeValue>> nodeValues = new HashSet<>();
+            Node node;
+            NodeValue nodeValue;
             for (String header : headers_str) {
-                Node node = NodeFactory.createLiteral(header);
-                NodeValueNode nodeValue = new NodeValueNode(node);
-                nodeValues.add(nodeValue);
+                node = NodeFactory.createLiteral(header);
+                nodeValue = new NodeValueNode(node);
+                nodeValues.add(Collections.singletonList(nodeValue));
             }
-            return new ArrayList<>(Collections.singletonList(nodeValues));
+            return nodeValues;
         } catch (Exception ex) {
             LOG.debug("No evaluation for " + csv, ex);
             throw new ExprEvalException("No evaluation for " + csv, ex);

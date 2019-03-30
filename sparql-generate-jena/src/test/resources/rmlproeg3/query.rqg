@@ -1,63 +1,44 @@
 BASE <http://example.com/> 
 PREFIX ite: <http://w3id.org/sparql-generate/iter/>
 PREFIX fun: <http://w3id.org/sparql-generate/fn/>
-PREFIX country:<http://loc.example.com/city/>
 PREFIX schema: <http://schema.org/>
 PREFIX wgs84_pos: <http://www.w3.org/2003/01/geo/wgs84_pos#>
 PREFIX gn: <http://www.geonames.org/ontology#>
 PREFIX transit: <http://vocab.org/transit/terms/>
-PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> 
-PREFIX ex: <http://example.com/ns#>
-PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX geosp: <http://www.telegraphis.net/ontology/geography/geography#>
 
 GENERATE { 
-    ?airportURI a transit:Stop;
-          wgs84_pos:location ?latlongURI;
-          transit:service ?busIRI;
-          wgs84_pos:location ?cityURI .
+    <http://airport.example.com/{?id}> a transit:Stop;
+          wgs84_pos:location <http://loc.example.com/latlong/{?lat},{?long}>;
+          wgs84_pos:location <http://loc.example.com/city/{?cityName}> ;
+          transit:service <http://trans.example.com/busses/{ ?busId }> .
 
-    ?latlongURI wgs84_pos:lat ?lat;
-                wgs84_pos:long ?long .
-
-    ?cityURI a schema:City ;
+    <http://loc.example.com/city/{?cityName}> a schema:City ;
              gn:countryCode ?countryCode;
              geosp:onContinent ?continentCode;
-             wgs84_pos:location ?vlatlongURI .
+             wgs84_pos:location <http://loc.example.com/latlong/{?lat},{?long}> .
 
-    ?vlatlongURI wgs84_pos:lat ?vlatitude;
+    <http://trans.example.com/busses/{ ?busId }>  a transit:Stop;
+             transit:stop <http://trans.example.com/stop/{ ?busStopId }> .
+
+    <http://trans.example.com/stop/{ ?busStopId }> rdfs:label ?busStopLabel .
+  
+    <http://loc.example.com/latlong/{?lat},{?long}> wgs84_pos:lat ?lat;
+                wgs84_pos:long ?long .
+
+    <http://loc.example.com/latlong/{?vlatitude},{?vlongitude}> wgs84_pos:lat ?vlatitude;
             wgs84_pos:long ?vlongitude .
-
-    ?busIRI  a transit:Stop;
-             transit:stop ?busStopIRI .
-
-    ?busStopIRI rdfs:label ?busStopLabel .
-       
 }
-SOURCE <http://example.com/airport.csv> AS ?source
-SOURCE <http://example.com/venue.json> AS ?sourcevenue
-SOURCE <http://example.com/transport.xml> AS ?sourcetransport
-ITERATOR ite:XPath(?sourcetransport, "//bus" ) AS ?busStop
-ITERATOR ite:XPath(?busStop, "//stop" ) AS ?stop
-ITERATOR ite:CSV(?source) AS ?airport
+SOURCE <http://example.com/venue.json> AS ?sourcevenue 
+ITERATOR ite:CSV(<http://example.com/airport.csv> , "id", "city", "bus", "latitude", "longitude" ) AS ?id ?city ?bus ?lat ?long
+ITERATOR ite:XPath(<http://example.com/transport.xml>, "/transport/bus" , "/bus/@id" ) AS ?bus ?busId
+ITERATOR ite:XPath(?bus, "/bus/route" ) AS ?busRoute
+ITERATOR ite:XPath(?busRoute, "/route/stop" , "/stop/@id" , "/stop/text()" ) AS ?busStop ?busStopId ?busStopLabel
 WHERE {
-    BIND (fun:CSV(?airport, "id" ) AS ?id )
-    BIND (fun:CSV(?airport, "city" ) AS ?city ) 
-    BIND (fun:CSV(?airport, "longitude" ) AS ?long )
-    BIND (fun:CSV(?airport, "latitude" ) AS ?lat )
-    BIND (URI(CONCAT("http://airport.example.com/",?id)) AS ?airportURI)
-    BIND (URI(CONCAT("http://loc.example.com/latlong/",?lat,",",?long)) AS ?latlongURI)
-    BIND (fun:JSONPath(?sourcevenue, "$.location.city" ) AS ?cityName)
+    BIND(fun:JSONPath(?sourcevenue, "$.location.city" ) AS ?cityName)
     BIND(fun:JSONPath(?sourcevenue, "$.location.country" ) AS ?countryCode)
     BIND(fun:JSONPath(?sourcevenue, "$.location.continent" ) AS ?continentCode)
-    BIND(URI(CONCAT("http://loc.example.com/city/",?cityName)) AS ?cityURI)
     BIND(fun:JSONPath(?sourcevenue, "$.venue.latitude" ) AS ?vlatitude)
     BIND(fun:JSONPath(?sourcevenue, "$.venue.longitude" ) AS ?vlongitude)
-    BIND (URI(CONCAT("http://loc.example.com/latlong/",?lat,",",?long)) AS ?vlatlongURI)
-    BIND( fun:XPath(?busStop,"/bus/@id") AS ?busId )
-    BIND( URI(CONCAT( "http://trans.example.com/busses/",?busId)) AS ?busIRI )
-    BIND( fun:XPath(?stop,"/stop/@id"  ) AS ?busStopId )
-    BIND( fun:XPath(?stop,"/stop/text()"  ) AS ?busStopLabel )
-    BIND( URI(CONCAT( "http://trans.example.com/stop/",?busStopId)) AS ?busStopIRI )
 }

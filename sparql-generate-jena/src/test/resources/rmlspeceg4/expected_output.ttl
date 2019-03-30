@@ -2,25 +2,54 @@
 @prefix transit: <http://vocab.org/transit/terms/> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 @prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix ite:   <http://w3id.org/sparql-generate/iter/> .
 
 <http://trans.example.com/stop/651>
         rdfs:label  "Conference center" ;
-        ex:id       "651"^^xsd:int .
+        ex:id       651 .
 
 <http://trans.example.com/stop/645>
         rdfs:label  "Airport" ;
-        ex:id       "645"^^xsd:int .
+        ex:id       645 .
+
+<http://trans.example.com/stop/873>
+        rdfs:label  "Central Park" ;
+        ex:id       873 .
+
+<http://airport.example.com/9878>
+        a           transit:Stop ;
+        ex:latlong  <http://loc.example.com/latlong/51.138754,4.816384> ;
+        ex:route    <http://trans.example.com/bus/47> .
 
 <http://airport.example.com/6523>
         a           transit:Stop ;
         ex:latlong  <http://loc.example.com/latlong/50.901389,4.484444> ;
         ex:route    <http://trans.example.com/bus/25> .
 
+<http://loc.example.com/city/Brussels>
+        a               ex:City ;
+        ex:countryCode  "BE" ;
+        ex:onContinent  "EU" .
+
+<http://loc.example.com/city/London>
+        a               ex:City ;
+        ex:countryCode  "GB" ;
+        ex:onContinent  "EU" .
+
+<http://loc.example.com/latlong/51.138754,4.816384>
+        ex:lat   51.138754 ;
+        ex:long  4.816384 .
+
 <http://loc.example.com/latlong/50.901389,4.484444>
-        ex:lat   "50.901389" ;
-        ex:long  "4.484444" .
+        ex:lat   50.901389 ;
+        ex:long  4.484444 .
+
+<http://trans.example.com/bus/47>
+        a        ex:Transport ;
+        ex:stop  <http://trans.example.com/stop/873> , <http://trans.example.com/stop/651> ;
+        ex:type  <http://trans.example.com/vehicle/DoubleDecker> .
 
 <http://trans.example.com/bus/25>
-        a        ex:Trannsport ;
-        ex:stop  <http://trans.example.com/stop/651> , <http://trans.example.com/stop/645> ;
+        a        ex:Transport ;
+        ex:stop  <http://trans.example.com/stop/645> , <http://trans.example.com/stop/651> ;
         ex:type  <http://trans.example.com/vehicle/SingeDecker> .

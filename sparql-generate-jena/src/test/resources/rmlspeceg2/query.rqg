@@ -10,24 +10,12 @@ PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> 
 GENERATE { 
-    ?busiri rdf:type transit:Bus .
+    <bus/{ ?busid }> rdf:type transit:Bus .
+
     GENERATE {
-        ?busiri transit:stop ?stopiri .
-        ?stopiri rdfs:label ?label .
-        
+        <bus/{ ?busid }> transit:stop <stop/{?stopid}> .
+        <stop/{?stopid}> rdfs:label ?label .        
     }
-    ITERATOR ite:XPath(?bus, "//stop" ) AS ?stop
-    WHERE {
-        BIND( fun:XPath(?stop,"/stop/@id"  ) AS ?stopid )
-        BIND( CONCAT( ?base,"stop/",?stopid) AS ?stopiristr )
-        BIND( fun:XPath(?stop,"/stop/text()"  ) AS ?label )
-        BIND( IRI(?stopiristr) AS ?stopiri )
-    }.
+    ITERATOR ite:XPath(?bus, "/bus/route/stop", "/stop/@id", "/stop/text()") AS ?stop ?stopid ?label .
 }
-SOURCE <http://example.com/transport.xml> AS ?source
-ITERATOR ite:XPath(?source, "//bus" ) AS ?bus
-WHERE {
-    BIND( "http://trans.example.com/" AS ?base )
-    BIND( fun:XPath(?bus,"/bus/@id"  ) AS ?busid )
-    BIND( IRI( CONCAT( ?base, "bus/",?busid ) ) AS ?busiri )
-}
+ITERATOR ite:XPath(<http://example.com/transport.xml>, "/transport/bus", "/bus/@id" ) AS ?bus ?busid

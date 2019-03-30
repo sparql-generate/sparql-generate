@@ -1,0 +1,26 @@
+@prefix skos:  <http://www.w3.org/2004/02/skos/core#> .
+
+<http://example.com/concept/%27S%20GRAVENWEZEL>
+        a               skos:Concept ;
+        skos:altLabel   "'NL GRAVENWEZEL"@nl ;
+        skos:prefLabel  "'S GRAVENWEZEL"@en .
+
+<http://example.com/concept/%27S%20GRAVENVOEREN>
+        a               skos:Concept ;
+        skos:altLabel   "'NL GRAVENVOEREN"@nl ;
+        skos:prefLabel  "'S GRAVENVOEREN"@en .
+
+<http://example.com/concept/%27S%20HEEREN%20DIANE>
+        a               skos:Concept ;
+        skos:altLabel   "'NL HEEREN DIANE"@nl ;
+        skos:prefLabel  "'S HEEREN DIANE"@en .
+
+<http://example.com/concept/%27S%20HEERENBERG>
+        a               skos:Concept ;
+        skos:altLabel   "'NL HEERENBERG"@nl ;
+        skos:prefLabel  "'S HEERENBERG"@en .
+
+<http://example.com/concept/%27S%20GRAVESANDE%20AD>
+        a               skos:Concept ;
+        skos:altLabel   "'NL GRAVESANDE AD"@nl ;
+        skos:prefLabel  "'S GRAVESANDE AD"@en .

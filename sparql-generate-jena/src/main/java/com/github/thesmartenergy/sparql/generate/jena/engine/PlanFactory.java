@@ -100,7 +100,20 @@ public class PlanFactory {
      */
     public static final RootPlan create(final SPARQLGenerateQuery query) {
         Objects.requireNonNull(query, "Query must not be null");
-        return make(query);
+        return make(query, true);
+    }
+
+    /**
+     * A factory that creates a {@link RootPlan} for a SPARQL-Generate
+     * sub-query. Only for queries inside the GENERATE clause.
+     *
+     * @param query the SPARQL-Generate query.
+     * @return the RootPlan that may be used to execute the SPARQL-Generate
+     * query.
+     */
+    public static final RootPlan createPlanForSubQuery(final SPARQLGenerateQuery query) {
+        Objects.requireNonNull(query, "Query must not be null");
+        return make(query, false);
     }
 
     /**
@@ -130,18 +143,8 @@ public class PlanFactory {
      * @param query the SPARQL-Generate Query.
      * @return the RootPlan.
      */
-    private static RootPlan make(final SPARQLGenerateQuery query) {
-        return make(query, true);
-    }
-
-    /**
-     * Makes a {@code RootPlan} for a SPARQL-Generate query.
-     *
-     * @param query the SPARQL-Generate Query.
-     * @return the RootPlan.
-     */
     private static RootPlan make(final SPARQLGenerateQuery query,
-                                 final boolean initial) {
+            final boolean initial) {
         Objects.requireNonNull(query, "The query must not be null");
         LOG.trace("Making plan for query\n" + query);
 
@@ -150,22 +153,21 @@ public class PlanFactory {
             String qs = query.toString();
             SPARQLGenerateQuery query2;
             if (!query.isNamedSubQuery()) {
-                query2 = (SPARQLGenerateQuery) QueryFactory.create(qs, SPARQLGenerate.SYNTAX) ;
+                query2 = (SPARQLGenerateQuery) QueryFactory.create(qs, SPARQLGenerate.SYNTAX);
             } else {
-                query2 = (SPARQLGenerateQuery) ParserSPARQLGenerate.parseSubQuery(query,qs);
+                query2 = (SPARQLGenerateQuery) ParserSPARQLGenerate.parseSubQuery(query, qs);
             }
             query2.normalize();
-            LOG.trace("normalized query:\n" + query2.toString());
             return make(query2, initial);
         }
 
-        List<IteratorOrSourcePlan> iteratorAndSourcePlans = new ArrayList<>();
+        List<IteratorOrSourceOrBindPlan> iteratorAndSourcePlans = new ArrayList<>();
         SelectPlan selectPlan = null;
         GeneratePlan generatePlan = null;
 
         if (query.hasIteratorsAndSources()) {
             for (Element el : query.getIteratorsAndSources()) {
-                IteratorOrSourcePlan iteratorOrSourcePlan;
+                IteratorOrSourceOrBindPlan iteratorOrSourcePlan;
                 if (el instanceof ElementIterator) {
                     ElementIterator elementIterator = (ElementIterator) el;
                     iteratorOrSourcePlan = makeIteratorPlan(elementIterator);
@@ -237,7 +239,7 @@ public class PlanFactory {
      * @param elementSource the SPARQL SOURCE
      * @return -
      */
-    private static SourcePlan makeSourcePlan(
+    private static BindOrSourcePlan makeSourcePlan(
             final ElementSource elementSource) throws SPARQLGenerateException {
         Objects.requireNonNull(elementSource, "The Source must not be null");
 
@@ -262,7 +264,7 @@ public class PlanFactory {
      * @param elementBind the SPARQL BIND
      * @return -
      */
-    private static SourcePlan makeBindPlan(
+    private static BindOrSourcePlan makeBindPlan(
             final ElementBind elementBind) throws SPARQLGenerateException {
         Objects.requireNonNull(elementBind, "The Bind element must not be null");
 
@@ -313,9 +315,9 @@ public class PlanFactory {
         Objects.requireNonNull(query, "The query must not be null");
         checkIsTrue(query.hasGenerateTemplate(), "Query was expected to be of"
                 + " type GENERATE {...} ...");
-        List<GenerateTemplateElementPlan> subPlans = new ArrayList<>();
+        List<GeneratePlan> subPlans = new ArrayList<>();
         for (Element elem : query.getGenerateTemplate().getElements()) {
-            GenerateTemplateElementPlan plan;
+            GeneratePlan plan;
             if (elem instanceof ElementGenerateTriplesBlock) {
                 ElementGenerateTriplesBlock sub
                         = (ElementGenerateTriplesBlock) elem;

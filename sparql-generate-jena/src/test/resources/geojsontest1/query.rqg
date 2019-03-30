@@ -1,0 +1,16 @@
+BASE <http://example.com/> 
+PREFIX iter: <http://w3id.org/sparql-generate/iter/>
+PREFIX fun: <http://w3id.org/sparql-generate/fn/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX wkt: <http://www.opengis.net/ont/geosparql#>
+PREFIX ex: <http://example.com/>
+GENERATE {
+	?earthquakeIRI a ex:Earthquake;
+		wkt:asWKT ?geometricCoordinates .
+}
+SOURCE <https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_month.geojson> AS ?source
+ITERATOR iter:GeoJSON(?source) AS ?geometricCoordinates ?properties
+WHERE {
+    BIND (URI(CONCAT("http://earthquake.example.com/",fun:JSONPath(?properties,"$.code"))) AS ?earthquakeIRI)
+}

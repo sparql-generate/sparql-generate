@@ -7,34 +7,24 @@ PREFIX note: <http://example.com/note/>
 PREFIX ex: <http://example.com/>
 
 GENERATE { 
-    ?noteIRI a mail:note;
+    <http://example.com/note/{?noteId}> a mail:note;
             mail:from ?from;
             mail:to ?to;
             mail:heading ?heading;
-            mail:body ?body .
+            mail:body ?body ;
+            mail:when <http://example.com/DateTime/{?year}/{?month}/{?day}> .
 
-    ?dmy a ex:DateTime;
-                ex:day ?gDay;
-                ex:month ?gMonth;
-                ex:year ?gYear .       
-                
-    ?noteIRI mail:when ?dmy .
+    <http://example.com/DateTime/{?year}/{?month}/{?day}> a ex:DateTime;
+                ex:day "{?day}"^^xsd:gDay ;
+                ex:month "{?month}"^^xsd:gMonth ;
+                ex:year "{?year}"^^xsd:gYear .       
 }
-SOURCE <http://example.com/example2.xml> AS ?source
-ITERATOR ite:XPath(?source, "//note" ) AS ?note 
+ITERATOR ite:XPath(<http://example.com/example2.xml>, "/notes/note" , "/note/@id" , "/note/@day" ) AS ?note ?noteId ?day
 WHERE {
-     BIND( fun:XPath(?note,"/note/@id"  ) AS ?noteId )
-     BIND( fun:XPath(?note,"/note/@day"  ) AS ?day )
      BIND( fun:XPath(?note,"/note/@month"  ) AS ?month )
      BIND( fun:XPath(?note,"/note/@year"  ) AS ?year )
-     BIND (STRDT(?year,xsd:gYear) as ?gYear )
-     BIND (STRDT(?month,xsd:gMonth) as ?gMonth )
-     BIND (STRDT(?day,xsd:gDay) as ?gDay )
      BIND( fun:XPath(?note,"/note/from/text()"  ) AS ?from )
      BIND( fun:XPath(?note,"/note/to/text()"  ) AS ?to )
      BIND( fun:XPath(?note,"/note/heading/text()"  ) AS ?heading )
      BIND( fun:XPath(?note,"/note/body/text()"  ) AS ?body )
-     BIND(IRI(CONCAT("http://example.com/note/",?noteId)) as ?noteIRI)
-     BIND(IRI(CONCAT("http://example.com/DateTime/",?year,"/",?month,"/",?day)) as ?dmy)
-
 }

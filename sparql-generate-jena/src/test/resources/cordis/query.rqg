@@ -5,8 +5,8 @@ PREFIX ite: <http://w3id.org/sparql-generate/iter/>
 PREFIX fun: <http://w3id.org/sparql-generate/fn/>
 
 GENERATE { 
-  <http://ex.org/project/{ fun:CustomCSV( ?project, "id", '"' , ";" , "\n" , true ) }>
-    dcterms:title "{ fun:CustomCSV( ?project, "acronym", '"' , ";" , "\n" , true ) }"@en ;
-    dcterms:description "{ fun:CustomCSV( ?project, "objective", '"' , ";" , "\n" , true ) }"@en .
+  <http://ex.org/project/{ ?id }>
+    dcterms:title "{ ?acronym }"@en ;
+    dcterms:description "{ ?objective }"@en .
 }
-ITERATOR ite:CSVStream(<http://www.emse.fr/~zimmermann/Data/cordis-h2020projects.10lines.csv>, true, 2, 0) AS ?project
+ITERATOR ite:CSV(<http://www.emse.fr/~zimmermann/Data/cordis-h2020projects.10lines.csv>, true, '"', ";", "\n", 10, "id", "acronym", "objective") AS ?id ?acronym ?objective

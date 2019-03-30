@@ -15,11 +15,14 @@
  */
 package com.github.thesmartenergy.sparql.generate.jena.engine;
 
+import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerateContext;
+import com.github.thesmartenergy.sparql.generate.jena.engine.impl.BNodeMap;
+import com.github.thesmartenergy.sparql.generate.jena.engine.impl.BindingHashMapOverwrite;
+import java.util.concurrent.CompletableFuture;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.riot.system.StreamRDF;
-import org.apache.jena.sparql.util.Context;
 
 /**
  * Class to execute SPARQL-Generate queries.
@@ -44,7 +47,6 @@ import org.apache.jena.sparql.util.Context;
  * and augmented by the method. Hence:
  * <ul>
  *   <li>If <code>initialModel == null</code>, then an
- * <code>IllegalArgumentException</code> exception will be thrown.</li>
  *   <li>The behaviour when the same instance is passed as
  * <code>inputModel</code> and <code>initialModel</code> is not specified.</li>
  * </ul>
@@ -88,7 +90,7 @@ import org.apache.jena.sparql.util.Context;
  *
  * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */
-public interface RootPlan extends GeneratePlan, GenerateTemplateElementPlan {
+public interface RootPlan extends GeneratePlan {
 
     /**
      * Executes a SPARQL-Generate query. And returns the generated RDF triples.
@@ -103,22 +105,24 @@ public interface RootPlan extends GeneratePlan, GenerateTemplateElementPlan {
      * @param context the execution context
      * @return the Model that contains the generated RDF triples.
      */
-    Model exec(Context context);
+    Model exec(SPARQLGenerateContext context);
 
     /**
      * Executes a SPARQL-Generate query. Emit generated triples to the stream.
      *
      * @param outputStream the RDF Stream object.
+     * @return the completable future
      */
-    void exec(StreamRDF outputStream);
+    CompletableFuture<Void> exec(StreamRDF outputStream);
 
     /**
      * Executes a SPARQL-Generate query. Emit generated triples to the stream.
      *
      * @param context the execution context
      * @param outputStream the RDF Stream object.
+     * @return the completable future
      */
-    void exec(StreamRDF outputStream, Context context);
+    CompletableFuture<Void> exec(StreamRDF outputStream, SPARQLGenerateContext context);
 
     /**
      * Executes a SPARQL-Generate query. Uses the given {@code inputModel}
@@ -141,7 +145,7 @@ public interface RootPlan extends GeneratePlan, GenerateTemplateElementPlan {
      * query.
      * @return the Model that contains the generated RDF triples.
      */
-    Model exec(Model inputModel, Context context);
+    Model exec(Model inputModel, SPARQLGenerateContext context);
 
     /**
      * Executes a SPARQL-Generate query. Uses the given {@code inputModel}
@@ -151,8 +155,9 @@ public interface RootPlan extends GeneratePlan, GenerateTemplateElementPlan {
      * @param inputModel the Model to use for the SPARQL SELECT part of the
      * query.
      * @param outputStream the RDF Stream object.
+     * @return the completable future
      */
-    void exec(Model inputModel, StreamRDF outputStream);
+    CompletableFuture<Void> exec(Model inputModel, StreamRDF outputStream);
 
     /**
      * Executes a SPARQL-Generate query. Uses the given {@code inputModel}
@@ -163,8 +168,9 @@ public interface RootPlan extends GeneratePlan, GenerateTemplateElementPlan {
      * query.
      * @param outputStream the RDF Stream object.
      * @param context the execution context
+     * @return the completable future
      */
-    void exec(Model inputModel, StreamRDF outputStream, Context context);
+    CompletableFuture<Void> exec(Model inputModel, StreamRDF outputStream, SPARQLGenerateContext context);
 
     /**
      * Executes a SPARQL-Generate query. Uses the given {@code inputDataset}
@@ -187,7 +193,7 @@ public interface RootPlan extends GeneratePlan, GenerateTemplateElementPlan {
      * @param context the execution context
      * @return the Model that contains the generated RDF triples.
      */
-    Model exec(Dataset inputDataset, Context context);
+    Model exec(Dataset inputDataset, SPARQLGenerateContext context);
 
     /**
      * Executes a SPARQL-Generate query. Uses the given {@code inputDataset}
@@ -197,8 +203,9 @@ public interface RootPlan extends GeneratePlan, GenerateTemplateElementPlan {
      * @param inputDataset the Dataset to use for the SPARQL SELECT part of the
      * query.
      * @param outputStream the RDF Stream object.
+     * @return the completable future
      */
-    void exec(Dataset inputDataset, StreamRDF outputStream);
+    CompletableFuture<Void> exec(Dataset inputDataset, StreamRDF outputStream);
 
     /**
      * Executes a SPARQL-Generate query. Uses the given {@code inputDataset}
@@ -209,8 +216,9 @@ public interface RootPlan extends GeneratePlan, GenerateTemplateElementPlan {
      * query.
      * @param context the execution context
      * @param outputStream the RDF Stream object.
+     * @return the completable future
      */
-    void exec(Dataset inputDataset, StreamRDF outputStream, Context context);
+    CompletableFuture<Void> exec(Dataset inputDataset, StreamRDF outputStream, SPARQLGenerateContext context);
 
     /**
      * Executes a SPARQL-Generate query. Uses the given {@code initialBindings}
@@ -231,7 +239,7 @@ public interface RootPlan extends GeneratePlan, GenerateTemplateElementPlan {
      * @param initialModel the Model to augment with the generated RDF triples.
      * @param context the execution context
      */
-    void exec(QuerySolution initialBindings, Model initialModel, Context context);
+    void exec(QuerySolution initialBindings, Model initialModel, SPARQLGenerateContext context);
 
    /**
      * Executes a SPARQL-Generate query. Uses the given {@code initialBindings}
@@ -240,8 +248,9 @@ public interface RootPlan extends GeneratePlan, GenerateTemplateElementPlan {
      *
      * @param initialBindings one map of variable-RDF nodes bindings.
      * @param outputStream the RDF Stream object.
+     * @return the completable future
      */
-    void exec(QuerySolution initialBindings, StreamRDF outputStream);
+    CompletableFuture<Void> exec(QuerySolution initialBindings, StreamRDF outputStream);
 
    /**
      * Executes a SPARQL-Generate query. Uses the given {@code initialBindings}
@@ -251,8 +260,9 @@ public interface RootPlan extends GeneratePlan, GenerateTemplateElementPlan {
      * @param initialBindings one map of variable-RDF nodes bindings.
      * @param outputStream the RDF Stream object.
      * @param context the execution context
+     * @return the completable future
      */
-    void exec(QuerySolution initialBindings, StreamRDF outputStream, Context context);
+    CompletableFuture<Void> exec(QuerySolution initialBindings, StreamRDF outputStream, SPARQLGenerateContext context);
 
     /**
      * Executes a SPARQL-Generate query. Uses the given {@code inputModel}
@@ -263,7 +273,6 @@ public interface RootPlan extends GeneratePlan, GenerateTemplateElementPlan {
      * @param inputModel the Model to use for the SPARQL SELECT part of the
      * query.
      * @param initialModel the Model to augment with the generated RDF triples.
-     * @throws IllegalArgumentException if the {@code initialModel} is null.
      */
     void exec(Model inputModel, Model initialModel);
 
@@ -277,9 +286,8 @@ public interface RootPlan extends GeneratePlan, GenerateTemplateElementPlan {
      * query.
      * @param initialModel the Model to augment with the generated RDF triples.
      * @param context the execution context
-     * @throws IllegalArgumentException if the {@code initialModel} is null.
      */
-    void exec(Model inputModel, Model initialModel, Context context);
+    void exec(Model inputModel, Model initialModel, SPARQLGenerateContext context);
 
     /**
      * Executes a SPARQL-Generate query. Uses the given {@code inputModel}
@@ -292,7 +300,6 @@ public interface RootPlan extends GeneratePlan, GenerateTemplateElementPlan {
      * query.
      * @param initialBindings one map of variable-RDF nodes bindings.
      * @param initialModel the Model to augment with the generated RDF triples.
-     * @throws IllegalArgumentException if the {@code initialModel} is null.
      */
     void exec(Model inputModel, QuerySolution initialBindings,
             Model initialModel);
@@ -309,10 +316,9 @@ public interface RootPlan extends GeneratePlan, GenerateTemplateElementPlan {
      * @param initialBindings one map of variable-RDF nodes bindings.
      * @param initialModel the Model to augment with the generated RDF triples.2
      * @param context the execution context
-     * @throws IllegalArgumentException if the {@code initialModel} is null.
      */
     void exec(Model inputModel, QuerySolution initialBindings,
-            Model initialModel, Context context);
+            Model initialModel, SPARQLGenerateContext context);
 
     /**
      * Executes a SPARQL-Generate query. Uses the given {@code inputModel}
@@ -324,9 +330,9 @@ public interface RootPlan extends GeneratePlan, GenerateTemplateElementPlan {
      * query.
      * @param initialBindings one map of variable-RDF nodes bindings.
      * @param outputStream the RDF Stream object.
-     * @throws IllegalArgumentException if the {@code outputStream} is null.
+     * @return the completable future
      */
-    void exec(Model inputModel, QuerySolution initialBindings,
+    CompletableFuture<Void> exec(Model inputModel, QuerySolution initialBindings,
             StreamRDF outputStream);
 
     /**
@@ -340,10 +346,10 @@ public interface RootPlan extends GeneratePlan, GenerateTemplateElementPlan {
      * @param initialBindings one map of variable-RDF nodes bindings.
      * @param outputStream the RDF Stream object.
      * @param context the execution context
-     * @throws IllegalArgumentException if the {@code outputStream} is null.
+     * @return the completable future
      */
-    void exec(Model inputModel, QuerySolution initialBindings,
-            StreamRDF outputStream, Context context);
+    CompletableFuture<Void> exec(Model inputModel, QuerySolution initialBindings,
+            StreamRDF outputStream, SPARQLGenerateContext context);
 
     /**
      * Executes a SPARQL-Generate query. Uses the given {@code inputDataset}
@@ -355,7 +361,6 @@ public interface RootPlan extends GeneratePlan, GenerateTemplateElementPlan {
      * @param inputDataset the Dataset to use for the SPARQL SELECT part of the
      * query.
      * @param initialModel the Model to augment with the generated RDF triples.
-     * @throws IllegalArgumentException if the {@code initialModel} is null.
      */
     void exec(Dataset inputDataset, Model initialModel);
 
@@ -370,9 +375,8 @@ public interface RootPlan extends GeneratePlan, GenerateTemplateElementPlan {
      * query.
      * @param initialModel the Model to augment with the generated RDF triples.
      * @param context the execution context
-     * @throws IllegalArgumentException if the {@code initialModel} is null.
      */
-    void exec(Dataset inputDataset, Model initialModel, Context context);
+    void exec(Dataset inputDataset, Model initialModel, SPARQLGenerateContext context);
 
     /**
      * Executes a SPARQL-Generate query. Uses the given {@code inputDataset}
@@ -386,7 +390,6 @@ public interface RootPlan extends GeneratePlan, GenerateTemplateElementPlan {
      * query.
      * @param initialBindings one map of variable-RDF nodes bindings.
      * @param initialModel the Model to augment with the generated RDF triples.
-     * @throws IllegalArgumentException if the {@code initialModel} is null.
      */
     void exec(Dataset inputDataset, QuerySolution initialBindings,
             Model initialModel);
@@ -404,10 +407,9 @@ public interface RootPlan extends GeneratePlan, GenerateTemplateElementPlan {
      * @param initialBindings one map of variable-RDF nodes bindings.
      * @param initialModel the Model to augment with the generated RDF triples.
      * @param context the execution context
-     * @throws IllegalArgumentException if the {@code initialModel} is null.
      */
     void exec(Dataset inputDataset, QuerySolution initialBindings,
-            Model initialModel, Context context);
+            Model initialModel, SPARQLGenerateContext context);
 
     /**
      * Executes a SPARQL-Generate query. Uses the given {@code inputDataset}
@@ -419,9 +421,9 @@ public interface RootPlan extends GeneratePlan, GenerateTemplateElementPlan {
      * query.
      * @param initialBindings one map of variable-RDF nodes bindings.
      * @param outputStream the RDF Stream object.
-     * @throws IllegalArgumentException if the {@code outputStream} is null.
+     * @return the completable future
      */
-    void exec(Dataset inputDataset, QuerySolution initialBindings,
+    CompletableFuture<Void> exec(Dataset inputDataset, QuerySolution initialBindings,
             StreamRDF outputStream);
 
     /**
@@ -435,9 +437,9 @@ public interface RootPlan extends GeneratePlan, GenerateTemplateElementPlan {
      * @param initialBindings one map of variable-RDF nodes bindings.
      * @param outputStream the RDF Stream object.
      * @param context the execution context
-     * @throws IllegalArgumentException if the {@code outputStream} is null.
+     * @return the completable future
      */
-    void exec(Dataset inputDataset, QuerySolution initialBindings,
-            StreamRDF outputStream, Context context);
+    CompletableFuture<Void> exec(Dataset inputDataset, QuerySolution initialBindings,
+            StreamRDF outputStream, SPARQLGenerateContext context);
 
 }

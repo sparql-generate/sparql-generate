@@ -16,15 +16,19 @@
 package com.github.thesmartenergy.sparql.generate.jena.iterator.library;
 
 import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
+import com.github.thesmartenergy.sparql.generate.jena.iterator.IteratorFunctionBase;
 import java.util.ArrayList;
-import com.github.thesmartenergy.sparql.generate.jena.iterator.IteratorFunctionBase3;
+import java.math.BigInteger;
+import java.util.Collection;
 
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import org.apache.jena.sparql.expr.NodeValue;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueString;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.jena.sparql.expr.ExprEvalException;
+import org.apache.jena.sparql.expr.ExprList;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 
@@ -35,14 +39,15 @@ import org.slf4j.Logger;
  * regex matches.
  *
  * <ul>
- * <li>Param 1 is the input string;</li>
- * <li>Param 2 is a regular expression;</li>
- * <li>Param 3 is the number of the group to capture;</li>
+ * <li>Param 1 (string) is the input string;</li>
+ * <li>Param 2 (string) is a regular expression;</li>
+ * <li>Param 3..N (integers) are the numbers of the groups to capture.</li>
  * </ul>
  *
- * @author Noorani Bakerally <noorani.bakerally at emse.fr>
+ * @author Noorani Bakerally &lt;noorani.bakerally at emse.fr>
+ * @author Maxime Lefrançois &lt;maxime.lefrancois at emse.fr>
  */
-public class ITER_regex extends IteratorFunctionBase3 {
+public class ITER_regex extends IteratorFunctionBase {
 
     private static final Logger LOG = LoggerFactory.getLogger(ITER_regex.class);
     public static final String URI = SPARQLGenerate.ITER + "regex";
@@ -51,22 +56,59 @@ public class ITER_regex extends IteratorFunctionBase3 {
     }
 
     @Override
-    public List<List<NodeValue>> exec(NodeValue stringValue, NodeValue regex, NodeValue locationV) {
+    public Collection<List<NodeValue>> exec(List<NodeValue> args) {
+        if (args.size() < 2) {
+            LOG.debug("Requires at least two arguments that are strings. Got: " + args.size());
+            throw new ExprEvalException("Requires at least two arguments that are strings. Got: " + args.size());
+        }
 
-        String string = stringValue.asString();
-        String regexString = regex.asString();
+        if (!args.get(0).isString()) {
+            LOG.debug("First argument must be a string, got: " + args.get(0));
+            throw new ExprEvalException("First argument must be a string, got: " + args.get(0));
+        }
+        String string = args.get(0).getString();
 
-        int location = locationV.getInteger().intValue();
+        if (!args.get(1).isString()) {
+            LOG.debug("Second argument must be a string, got: " + args.get(1));
+            throw new ExprEvalException("Second argument must be a string, got: " + args.get(1));
+        }
+        String regexString = args.get(1).asString();
         Pattern pattern = Pattern.compile(regexString, Pattern.MULTILINE);
+
+        Integer[] gSelection = null;
+        if (args.size() > 2) {
+            final List<NodeValue> gNumbers = args.subList(2, args.size());
+            if (gNumbers.stream().anyMatch(g -> g == null || !g.isInteger())) {
+                LOG.debug("Group numbers must strings, got: " + gNumbers);
+                throw new ExprEvalException("Columns names must be strings, got: " + gNumbers);
+            }
+            gSelection = gNumbers.stream().map(NodeValue::getInteger).map(BigInteger::intValue).toArray(Integer[]::new);
+        }
 
         Matcher matcher = pattern.matcher(string);
 
-        List<NodeValue> nodeValues = new ArrayList<>();
+        Collection<List<NodeValue>> collectionNodeValues = new HashSet<>();
+
+        List<NodeValue> nodeValues;
+        int size = gSelection!=null ? gSelection.length : matcher.groupCount() + 1;
         while (matcher.find()) {
-            NodeValue nodeValue = new NodeValueString(matcher.group(location));
-            nodeValues.add(nodeValue);
+            nodeValues = new ArrayList<>(size);
+            if (gSelection == null) {
+                for (int i = 0; i < matcher.groupCount() + 1; i++) {
+                    nodeValues.add(new NodeValueString(matcher.group(i)));
+                }
+            } else {
+                for(Integer g : gSelection) {
+                    nodeValues.add(new NodeValueString(matcher.group(g)));
+                }
+            }
+            collectionNodeValues.add(nodeValues);
         }
-        return new ArrayList<>(Collections.singletonList(nodeValues));
+        return collectionNodeValues;
+    }
+
+    @Override
+    public void checkBuild(ExprList args) {
     }
 
 }

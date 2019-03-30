@@ -4,7 +4,7 @@ PREFIX fun: <http://w3id.org/sparql-generate/fn/>
 PREFIX gn: <http://www.geonames.org/ontology#>
 PREFIX ex: <http://example.com/> 
 GENERATE { 
-   ?studentIRI a ex:Student;
+   <{?studentIRI}> a ex:Student;
               ex:name ?name;
               ex:dobmonth ?dobmonth;
               ex:dobday ?dobday;
@@ -12,11 +12,4 @@ GENERATE {
 }
 SOURCE <http://example.com/student.txt> AS ?source
 ITERATOR ite:regex(?source,"([^#]+)(#|$)",1) AS ?student
-WHERE {
-    BIND ("([0-9]+)-([a-zA-Z ]+)-(([0-9]+)/([0-9]+)/([0-9]+))" as ?regex)
-    BIND(IRI(fun:regex(?student,?regex,1)) as ?studentIRI)
-    BIND(fun:regex(?student,?regex,2) as ?name)
-    BIND(fun:regex(?student,?regex,4) as ?dobday)
-    BIND(fun:regex(?student,?regex,5) as ?dobmonth)
-    BIND(fun:regex(?student,?regex,6) as ?dobyear)
-}
+ITERATOR ite:regex(?source,"([0-9]+)-([a-zA-Z ]+)-(([0-9]+)/([0-9]+)/([0-9]+))", 1,2,4,5,6) AS ?studentIRI ?name ?dobday ?dobmonth ?dobyear 

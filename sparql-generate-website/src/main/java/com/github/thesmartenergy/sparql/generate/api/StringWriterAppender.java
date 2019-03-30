@@ -15,12 +15,11 @@
  */
 package com.github.thesmartenergy.sparql.generate.api;
 
-import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
-import com.github.thesmartenergy.sparql.generate.jena.cli.Response;
+import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerateContext;
 import com.google.gson.Gson;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
-import org.apache.jena.sparql.util.Context;
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.spi.ErrorCode;
 import org.apache.log4j.spi.LoggingEvent;
@@ -35,30 +34,14 @@ public class StringWriterAppender extends AppenderSkeleton {
 
     private static final Gson gson = new Gson();
 
-    private final Set<Context> contexts = new HashSet<>();
+    private final Set<SessionManager> sessionManagers = new HashSet<>();
 
-//    public StringWriterAppender() {
-//        final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-//        Runnable task = () -> {
-//            int tot = 0;
-//            Set<Thread> uniqueThreads = new HashSet<>();
-//            for (Context c : contexts) {
-//                final Set<Thread> contextThreads = (Set<Thread>) c.get(SPARQLGenerate.THREAD);
-//                tot += contextThreads.size();
-//                uniqueThreads.addAll(contextThreads);
-//                System.out.println("One of the contexts has threads " + contextThreads);
-//            }
-//            System.out.println("StringWriterAppender: " + contexts.size() + " contexts. Total: " + tot + "; Unique: "+uniqueThreads.size());
-//        };
-//        scheduler.scheduleAtFixedRate(task, 0, 5, TimeUnit.MINUTES);
-//    }
-
-    public void addContext(Context context) {
-        contexts.add(context);
+    public void addSessionManager(SessionManager sessionManager) {
+        sessionManagers.add(sessionManager);
     }
 
-    public void removeContext(Context context) {
-        contexts.remove(context);
+    public void removeSessionManager(SessionManager sessionManager) {
+        sessionManagers.remove(sessionManager);
     }
 
     // map of thread - websocket sessions
@@ -71,21 +54,36 @@ public class StringWriterAppender extends AppenderSkeleton {
             return;
         }
         final StringBuilder sb = new StringBuilder(this.layout.format(event));
-        if(event.getThrowableStrRep() != null) {
+        if (event.getThrowableStrRep() != null) {
             sb.append(String.join("\n", event.getThrowableStrRep()));
             sb.append("\n");
         }
-        final Response response = new Response(sb.toString(), "", false);
-        for (Context context : contexts) {
-            if (context.get(SPARQLGenerate.THREAD) == null) {
+        int i = 0;
+        for (SessionManager sessionManager : sessionManagers) {
+            final SPARQLGenerateContext context = sessionManager.getContext();
+            if(context == null) {
                 continue;
             }
-            for (Thread thread : (Set<Thread>) context.get(SPARQLGenerate.THREAD)) {
+            for (Thread thread : context.getRegisteredThreads()) {
                 if (thread.getName().equals(event.getThreadName())) {
-                    ((SessionManager) context.get(SessionManager.SYMBOL)).appendResponse(response);
-                    return;
+                    i++;
+                    sessionManager.appendLog(sb.toString());
                 }
             }
+        }
+        if (i == 0) {
+            System.out.print("WARN: " + new Date() + " [" + event.getThreadName() + "] no session got this log message \n\t" + sb.toString());
+            sessionManagers.stream().forEach((sessionManager) -> { 
+                final SPARQLGenerateContext context = sessionManager.getContext();
+                if(context == null) {
+                    System.out.println("   session " + sessionManager.getSessionId() + " has no registered thread.");
+                } else {
+                    System.out.println("   session " + sessionManager.getSessionId() + " has threads " + sessionManager.getContext().getRegisteredThreads());
+                }
+            });            
+        }
+        if (i > 1) {
+            System.out.println("ERROR: " + new Date() + " [" + Thread.currentThread() + "] more than one session got this log message " + sb.toString());
         }
     }
 

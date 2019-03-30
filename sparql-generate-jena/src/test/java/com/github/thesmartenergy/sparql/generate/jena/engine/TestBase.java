@@ -16,6 +16,8 @@
 package com.github.thesmartenergy.sparql.generate.jena.engine;
 
 import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
+import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerateContext;
+import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerateRootContext;
 import com.github.thesmartenergy.sparql.generate.jena.cli.Request;
 import com.github.thesmartenergy.sparql.generate.jena.query.SPARQLGenerateQuery;
 import com.github.thesmartenergy.sparql.generate.jena.stream.LocatorFileAccept;
@@ -42,9 +44,14 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.ForkJoinWorkerThread;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
-import org.apache.jena.query.ARQ;
-import org.apache.jena.sparql.util.Context;
 
 import static org.junit.Assert.assertTrue;
 
@@ -60,40 +67,38 @@ public class TestBase {
     private final Logger log;
 
     private final File exampleDir;
+    private final String name;
     private Request request;
     private SPARQLGenerateStreamManager sm;
-    private Context context;
 
-    private static final String pattern = ".*";
-
+    private static final String pattern = "geoj.*";
 
     public TestBase(Logger log, File exampleDir, String name) {
         this.log = log;
         this.exampleDir = exampleDir;
+        this.name = name;
 
         log.info("constructing with " + exampleDir);
 
         SPARQLGenerate.init();
 
         // read sparql-generate-conf.json
-
         try {
             String conf = IOUtils.toString(new FileInputStream(new File(exampleDir, "sparql-generate-conf.json")), "utf-8");
             request = gson.fromJson(conf, Request.class);
-            if (request.query == null)
+            if (request.query == null) {
                 request.query = "query.rqg";
-            if (request.graph == null)
+            }
+            if (request.graph == null) {
                 request.graph = "graph.ttl";
+            }
         } catch (Exception ex) {
             LOG.warn("Error while loading the location mapping model for the queryset. No named queries will be used");
             request = Request.DEFAULT;
         }
-
         // initialize stream manager
         sm = SPARQLGenerateStreamManager.makeStreamManager(new LocatorFileAccept(exampleDir.toURI().getPath()));
         sm.setLocationMapper(request.asLocationMapper());
-        context = new Context(ARQ.getContext());
-        context.set(SPARQLGenerate.STREAM_MANAGER, sm);
     }
 
     @Test
@@ -116,9 +121,24 @@ public class TestBase {
         now = System.currentTimeMillis();
         log.info("needed " + (now - start) + " to get ready");
         start = now;
-        
+
         // execute plan
-        Model output = plan.exec(ds, context);
+
+        ExecutorService executor = new ForkJoinPool(Runtime.getRuntime().availableProcessors(),
+            (ForkJoinPool pool) -> {
+                final ForkJoinWorkerThread worker = ForkJoinPool.defaultForkJoinWorkerThreadFactory.newThread(pool);
+                worker.setName("test-" + name + "-" + worker.getPoolIndex());
+                return worker;
+            },
+            null, true);
+
+        ScheduledExecutorService guard = Executors.newScheduledThreadPool(1);
+        guard.schedule(()->{executor.shutdownNow();}, 15, TimeUnit.SECONDS);
+        Model output;
+        try (SPARQLGenerateContext context = new SPARQLGenerateRootContext(sm, executor)) {
+            output = plan.exec(ds, context);
+            guard.shutdownNow();
+        }
 
         now = System.currentTimeMillis();
         log.info("executed plan in " + (now - start));
@@ -130,9 +150,9 @@ public class TestBase {
         FileWriter out = new FileWriter(fileName);
         try {
             output.write(out, "TTL");
-//            StringWriter sw = new StringWriter();
-//            output.write(sw, "TTL");
-//            LOG.debug("output is " + sw.toString());
+            StringWriter sw = new StringWriter();
+            output.write(sw, "TTL");
+            LOG.debug("output is \n" + sw.toString());
         } finally {
             try {
                 out.close();
@@ -143,51 +163,29 @@ public class TestBase {
 
         URI expectedOutputUri = exampleDir.toURI().resolve("expected_output.ttl");
         Model expectedOutput = RDFDataMgr.loadModel(expectedOutputUri.toString(), Lang.TTL);
-        StringWriter sw = new StringWriter();
-        expectedOutput.write(sw, "TTL");
-        assertTrue("Error with test " + exampleDir, output.isIsomorphicWith(expectedOutput));
-    }
+//        StringWriter sw = new StringWriter();
+//        expectedOutput.write(System.out, "TTL");
+        System.out.println("Is isomorphic: " + output.isIsomorphicWith(expectedOutput));
+        if (!output.isIsomorphicWith(expectedOutput)) {
+            output.listStatements().forEachRemaining((s) -> {
+                if (!expectedOutput.contains(s)) {
+                    LOG.debug("expectedOutput does not contain " + s);
+                }
+                expectedOutput.remove(s);
+            });
+            expectedOutput.listStatements().forEachRemaining((s) -> {
+                LOG.debug("output does not contain " + s);
+            });
+        }
 
-    void testQuerySerialization() throws Exception {
-//        String qstring = IOUtils.toString(StreamManager.get().open("query.rqg"), "UTF-8");
-//        SPARQLGenerateQuery q = (SPARQLGenerateQuery) QueryFactory.create(qstring, SPARQLGenerate.SYNTAX);
-//        LOG.debug(qstring);
-//
-//        // serialize query 
-//        URI queryOutputUri = exampleDir.toURI().resolve("query_serialized.rqg");
-//        File queryOutputFile = new File(queryOutputUri);
-//        try (OutputStream queryOutputStream = new FileOutputStream(queryOutputFile)) {
-//            queryOutputStream.write(q.toString().getBytes("UTF-8"));
-//        }
-//        LOG.debug(q);
-//
-//        SPARQLGenerateQuery q2 = (SPARQLGenerateQuery) QueryFactory.create(q.toString(), SPARQLGenerate.SYNTAX);
-//        LOG.debug(q2);
-//        assertTrue(q.equals(q2));
-    }
-
-    void testQueryNormalization() throws Exception {
-//        String qstring = IOUtils.toString(StreamManager.get().open("query.rqg"), "UTF-8");
-//        SPARQLGenerateQuery q = (SPARQLGenerateQuery) QueryFactory.create(qstring, SPARQLGenerate.SYNTAX);
-//        LOG.debug(qstring);
-//
-//        // normalize query 
-//        URI queryOutputUri = exampleDir.toURI().resolve("query_normalized.rqg");
-//        File queryOutputFile = new File(queryOutputUri);
-//        
-//        SPARQLGenerateQuery q2 = q.normalize();
-//                
-//        try (OutputStream queryOutputStream = new FileOutputStream(queryOutputFile)) {
-//            queryOutputStream.write(q2.toString().getBytes("UTF-8"));
-//        }
-//        LOG.debug(q2);
+        assertTrue("Error with test " + exampleDir.getName(), output.isIsomorphicWith(expectedOutput));
     }
 
     @Parameters(name = "Test {2}")
     public static Collection<Object[]> data() {
 
         try {
-            Collection<Object[]> data = new ArrayList<Object[]>();
+            Collection<Object[]> data = new ArrayList<>();
 
             File tests = new File(TestBase.class.getClassLoader().getResource("").toURI());
             LOG.trace(tests.getAbsolutePath());

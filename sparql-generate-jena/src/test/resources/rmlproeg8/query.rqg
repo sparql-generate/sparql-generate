@@ -19,8 +19,7 @@ GENERATE {
            simres:LibraryLocation ?libLoc;
            simres:LibraryName ?libName .
 }
-SOURCE <http://example.com/simergy.xml> AS ?source
-ITERATOR ite:XPath(?source, "//*[local-name()='SimAppLibraryDefault_AppLibraryDefault_GlobalLibrary' and namespace-uri()='http://www.lbl.gov/namespaces/Sim/Model/']" ) AS ?model
+ITERATOR ite:XPath(<http://example.com/simergy.xml>, "//*[local-name()='SimAppLibraryDefault_AppLibraryDefault_GlobalLibrary' and namespace-uri()='http://www.lbl.gov/namespaces/Sim/Model/']" ) AS ?model
 WHERE {
     BIND( fun:XPath(?model,"/*[local-name()='SimAppLibraryDefault_AppLibraryDefault_GlobalLibrary' and namespace-uri()='http://www.lbl.gov/namespaces/Sim/Model/']/@*[local-name()='RefId' ]" ) AS ?refId )
     BIND( fun:XPath(?model,"/*[local-name()='SimAppLibraryDefault_AppLibraryDefault_GlobalLibrary' and namespace-uri()='http://www.lbl.gov/namespaces/Sim/Model/']/*[local-name()='SimModelType' and namespace-uri()='http://www.lbl.gov/namespaces/Sim/ResourcesGeneral']/text()" ) AS ?type )

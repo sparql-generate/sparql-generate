@@ -7,16 +7,9 @@ PREFIX wgs84_pos: <http://www.w3.org/2003/01/geo/wgs84_pos#>
 PREFIX gn: <http://www.geonames.org/ontology#>
 
 GENERATE { 
-  ?s a schema:City .
-  ?s wgs84_pos:lat ?latitude .
-  ?s wgs84_pos:long ?longitude .
-  ?s gn:countryCode ?countryCode .
+  <http://loc.example.com/city/{ ?city}> a schema:City ;
+    wgs84_pos:lat ?latitude ;
+    wgs84_pos:long ?longitude ;
+    gn:countryCode ?countryCode .
 }
-SOURCE <https://raw.githubusercontent.com/mmlab/RMLProcessor/master/src/test/resources/example3/Venue.json> AS ?source
-WHERE {
-   BIND(fun:JSONPath(?source, "$.location.city" ) AS ?city)
-   BIND(fun:JSONPath(?source, "$.venue.latitude" ) AS ?latitude)
-   BIND(fun:JSONPath(?source, "$.venue.longitude" ) AS ?longitude)
-   BIND(fun:JSONPath(?source, "$.location.country" ) AS ?countryCode)
-   BIND (URI(CONCAT("http://loc.example.com/city/",?city)) AS ?s)
-}
+ITERATOR ite:JSONPath(<https://raw.githubusercontent.com/mmlab/RMLProcessor/master/src/test/resources/example3/Venue.json>, "$", "$.location.city", "$.venue.latitude", "$.venue.longitude", "$.location.country" ) AS ?source ?city ?latitude ?longitude ?countryCode

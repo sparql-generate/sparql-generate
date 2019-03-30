@@ -15,28 +15,32 @@
  */
 package com.github.thesmartenergy.sparql.generate.jena.engine.impl;
 
+import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerateContext;
 import com.github.thesmartenergy.sparql.generate.jena.engine.IteratorPlan;
 import com.github.thesmartenergy.sparql.generate.jena.iterator.IteratorFunction;
 import org.apache.jena.graph.Node;
 import org.apache.jena.sparql.core.Var;
-import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.ExprList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
-import java.util.function.Consumer;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
+import org.apache.jena.sparql.ARQConstants;
+import org.apache.jena.sparql.expr.NodeValue;
 import org.apache.jena.sparql.function.FunctionEnv;
 import org.apache.jena.sparql.function.FunctionEnvBase;
-import org.apache.jena.sparql.util.Context;
+import org.apache.jena.sparql.util.NodeFactoryExtra;
 
 /**
  * Executes a {@code ITERATOR <iterator>(<expreList>) AS <var>} clause.
  *
  * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */
-public class IteratorPlanImpl extends PlanBase implements IteratorPlan {
+public class IteratorPlanImpl implements IteratorPlan {
 
     /**
      * The logger.
@@ -62,11 +66,11 @@ public class IteratorPlanImpl extends PlanBase implements IteratorPlan {
     /**
      * The constructor.
      *
-     * @param s    - The SPARQL-Generate iterator function.
-     * @param e    - The list of expressions on which to evaluate the iterator
-     *             function.
-     * @param vars - The list of variables that will be bound to each result of the iterator
-     *             function evaluation.
+     * @param s - The SPARQL-Generate iterator function.
+     * @param e - The list of expressions on which to evaluate the iterator
+     * function.
+     * @param vars - The list of variables that will be bound to each result of
+     * the iterator function evaluation.
      */
     public IteratorPlanImpl(
             final IteratorFunction s,
@@ -81,63 +85,53 @@ public class IteratorPlanImpl extends PlanBase implements IteratorPlan {
      * {@inheritDoc}
      */
     @Override
-    final public void exec(
-            final List<Var> variables,
-            final List<BindingHashMapOverwrite> values,
-            final Consumer<List<BindingHashMapOverwrite>> bindingStream,
-            final Context context) {
+    final public CompletableFuture<Void> exec(
+            final BindingHashMapOverwrite binding,
+            final SPARQLGenerateContext context,
+            final Function<Collection<BindingHashMapOverwrite>, CompletableFuture<Void>> functionCollectionBindings) {
 
-        boolean added = variables.addAll(vars);
-        if (!added) {
-            LOG.debug("Bindings of variables " + vars + " will be overriden");
-        }
+        context.set(ARQConstants.sysCurrentTime, NodeFactoryExtra.nowAsDateTime());
+        final FunctionEnv env = new FunctionEnvBase(context);
 
-        ensureNotEmpty(variables, values);
-        final StringBuilder sb;
-        if (LOG.isTraceEnabled()) {
-            sb = new StringBuilder("Execution of " + iterator + " " + exprList + " AS  " + vars + ":\n");
-        } else {
-            sb = null;
+        LOG.trace("Starting execution of ITERATOR " + iterator.getClass().getSimpleName() + " " + exprList + " AS " + vars);
+        try {
+            return iterator.exec(binding, exprList, env, (collectionNodeValues) -> {
+                LOG.debug("ITERATOR " + iterator.getClass().getSimpleName() + " " + exprList + " AS  " + vars + " generated " + collectionNodeValues.size() + " new bindings");
+                LOG.trace("New bindings are " + collectionNodeValues);
+                final Collection<BindingHashMapOverwrite> collectionBindings = getCollectionBinding(binding, collectionNodeValues);
+                return functionCollectionBindings.apply(collectionBindings);
+            });
+        } catch (Exception ex) {
+            LOG.warn("Execution failed for ITERATOR " + iterator.getClass().getSimpleName() + " " + exprList + " AS " + vars, ex);
+            return CompletableFuture.completedFuture(null);
         }
-        values.forEach((binding) -> {
-            try {
-                final FunctionEnv env = new FunctionEnvBase(context);
-                iterator.exec(binding, exprList, env, (nodeValues) -> {
-                    List<BindingHashMapOverwrite> newValues = new ArrayList<>();
-                    if (nodeValues == null || nodeValues.isEmpty()) {
-                        for (Var v : vars) {
-                            newValues.add(new BindingHashMapOverwrite(binding, v, null));
-                        }
-                    } else {
-                        int nbIterables = nodeValues.get(0).size();
-                        for (int j = 0; j < nbIterables; j++) {
-                            BindingHashMapOverwrite bindingHashMapOverwrite = new BindingHashMapOverwrite(binding, null, null);
-                            for (int i = 0; i < vars.size(); i++) {
-                                Var v = vars.get(i);
-                                try {
-                                    if(nodeValues.get(i) != null
-                                            && nodeValues.get(i).get(j) != null) {
-                                        Node n = nodeValues.get(i).get(j).asNode();
-                                        bindingHashMapOverwrite.add(v, n);
-                                    }
-                                } catch (IndexOutOfBoundsException ex) {
-                                    LOG.warn("The number of variables does not match the number of names provided to the iterator arguments");
-                                    break;
-                                }
-                            }
-                            newValues.add(bindingHashMapOverwrite);
-                        }
-                        bindingStream.accept(newValues);
-                    }
-                });
-                if (LOG.isTraceEnabled()) {
-                    sb.setLength(sb.length() - 2);
-                    LOG.trace(sb.toString());
-                }
-            } catch (ExprEvalException ex) {
-                LOG.debug("Iterator execution failed due to " + ex.getClass().getSimpleName() + " - " + ex.getMessage());
-                //newValues.add(new BindingHashMapOverwrite(binding, vars, null));
-            }
-        });
     }
+
+    private Collection<BindingHashMapOverwrite> getCollectionBinding(
+            final BindingHashMapOverwrite binding,
+            final Collection<List<NodeValue>> collectionListNodeValues) {
+        final Collection<BindingHashMapOverwrite> collectionBindings = new HashSet<>();
+        collectionListNodeValues.forEach((listNodeValues) -> {
+            if (vars.size() > listNodeValues.size()) {
+                LOG.warn("Too many variables, some will not be bound: " + listNodeValues);
+                return;
+            }
+            BindingHashMapOverwrite bindingHashMapOverwrite = new BindingHashMapOverwrite(binding, null, null);
+            for (int i = 0; i < vars.size(); i++) {
+                if (listNodeValues.get(i) != null) {
+                    Node n = listNodeValues.get(i).asNode();
+                    bindingHashMapOverwrite.add(vars.get(i), n);
+                }
+            }
+            collectionBindings.add(bindingHashMapOverwrite);
+        });
+        return collectionBindings;
+    }
+
+    @Override
+    public String toString() {
+        return "ITERATOR " + iterator.getClass().getSimpleName() + " " + exprList + " AS " + vars;
+    }
+    
+    
 }

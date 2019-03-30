@@ -34,10 +34,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Iterator function
@@ -164,7 +165,7 @@ public class ITER_GeoJSON extends IteratorFunctionBase1 {
             .create();
 
     @Override
-    public List<List<NodeValue>> exec(NodeValue json) {
+    public Collection<List<NodeValue>> exec(NodeValue json) {
         if (json.getDatatypeURI() != null
                 && !json.getDatatypeURI().equals(datatypeUri)
                 && !json.getDatatypeURI().equals("http://www.w3.org/2001/XMLSchema#string")) {
@@ -174,11 +175,12 @@ public class ITER_GeoJSON extends IteratorFunctionBase1 {
                     + json.getDatatypeURI());
         }
 
-        // Generate a List of (two) Lists
+        // Generate a Collection of (two) Lists
         // first list is for geometries
         // second list is for properties
-        List<List<NodeValue>> nodeValues = Stream.generate(ArrayList<NodeValue>::new).limit(2).collect(Collectors.toList());
-
+        Collection<List<NodeValue>> nodeValues = new HashSet<>();
+        
+        
         FeatureCollection featureCollection = gson.fromJson(json.asString(), FeatureCollection.class);
 
         for (Feature feature : featureCollection.features()) {
@@ -209,8 +211,11 @@ public class ITER_GeoJSON extends IteratorFunctionBase1 {
                 n = NodeFactory.createLiteral(g.getClass().getSimpleName().toUpperCase() + " " + gString, WktLiteral.wktLiteralType);
             }
             NodeValue nodeValue = new NodeValueNode(n);
+            
+            List<NodeValue> values = new ArrayList<>();
+            
             // Adding features iterator
-            nodeValues.get(0).add(nodeValue);
+            values.add(nodeValue);
 
             // properties
             Map<String, String> properties = feature.properties().entrySet().stream().collect(Collectors.toMap(
@@ -218,7 +223,7 @@ public class ITER_GeoJSON extends IteratorFunctionBase1 {
                     p -> p.getValue().isJsonNull() ? "" : p.getValue().isJsonPrimitive() ? p.getValue().getAsString() : gson.toJson(p.getValue())
             ));
             // Adding properties iterator
-            nodeValues.get(1).add(new NodeValueNode(
+            values.add(new NodeValueNode(
                     NodeFactory.createLiteral(
                             gson.toJson(properties),
                             TypeMapper.getInstance().getSafeTypeByName("http://www.iana.org/assignments/media-types/application/json")))

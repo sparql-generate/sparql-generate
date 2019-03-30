@@ -3,20 +3,18 @@ PREFIX ite: <http://w3id.org/sparql-generate/iter/>
 PREFIX fun: <http://w3id.org/sparql-generate/fn/>
 PREFIX foaf: <http://xmlns.com/foaf/0.1/>
 GENERATE { 
-  ?personNode a foaf:Person .
-  ?personNode foaf:name ?personName .
 
-    ?personNode foaf:knows ?knowsPersonNode .
-        ?knowsPersonNode a foaf:Person .
-        ?knowsPersonNode foaf:name ?knowsPerson .
+  ?personNameNode a foaf:Person ;
+    foaf:name ?personName ;
+    foaf:knows ?knowsPersonNode .
+
+  ?knowsPersonNode a foaf:Person ;
+    foaf:name ?knowsPerson .
     
 }
-SOURCE <http://example.com/relations.xml> AS ?source
-ITERATOR ite:XPath(?source, "//person" ) AS ?person
-ITERATOR ite:XPath(?person, "//knows" ) AS ?knows 
+ITERATOR ite:XPath( <http://example.com/relations.xml> , "//person" , "/person/@name" ) AS ?person ?personName
+ITERATOR ite:XPath(?person, "//knows", "/knows/text()" ) AS ?knows ?knowsPerson
 WHERE {
-    BIND( fun:XPath(?person,"/person/@name"  ) AS ?personName )
-    BIND (fun:bnode(CONCAT("http://example.com/",?personName)) AS ?personNode)
-    BIND( fun:XPath(?knows,"/knows/text()"  ) AS ?knowsPerson )
-    BIND (fun:bnode(CONCAT("http://example.com/",?knowsPerson)) AS ?knowsPersonNode)
+    BIND( fun:bnode(?personName)  AS ?personNameNode)
+    BIND( fun:bnode(?knowsPerson)  AS ?knowsPersonNode)
 }

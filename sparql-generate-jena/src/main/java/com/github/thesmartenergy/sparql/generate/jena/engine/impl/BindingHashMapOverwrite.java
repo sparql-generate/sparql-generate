@@ -15,6 +15,7 @@
  */
 package com.github.thesmartenergy.sparql.generate.jena.engine.impl;
 
+import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerateContext;
 import org.apache.jena.graph.Node;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.sparql.core.Var;
@@ -24,14 +25,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
-import org.apache.jena.sparql.util.Context;
+import org.apache.jena.sparql.util.FmtUtils;
 
 /**
  * Class to store overridable bindings efficiently.
  *
  * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */
-public class BindingHashMapOverwrite extends PlanBase implements Binding {
+public class BindingHashMapOverwrite implements Binding {
 
     private static final Logger LOG = LoggerFactory.getLogger(BindingHashMapOverwrite.class);
 
@@ -39,6 +40,7 @@ public class BindingHashMapOverwrite extends PlanBase implements Binding {
      * The parent binding.
      */
     private final Binding parent;
+
     /**
      * The variables and the corresponding nodes of this binding
      */
@@ -48,16 +50,17 @@ public class BindingHashMapOverwrite extends PlanBase implements Binding {
      * Constructs a new binding by binding a new (or not new) variable.
      *
      * @param parent -
-     * @param var    -
-     * @param node   -
+     * @param var -
+     * @param node -
      */
     public BindingHashMapOverwrite(
             final Binding parent,
             final Var var,
             final Node node) {
         this.parent = parent;
-        if (var != null)
+        if (var != null) {
             map.put(var, node);
+        }
 //        LOG.trace("New binding #" + System.identityHashCode(this) + " overrides " + parent + " with " + var + " = " + node);
     }
 
@@ -76,15 +79,15 @@ public class BindingHashMapOverwrite extends PlanBase implements Binding {
      */
     public BindingHashMapOverwrite(
             final QuerySolution binding,
-            final Context context) {
+            final SPARQLGenerateContext context) {
         if (binding == null) {
             parent = null;
         } else {
             final BindingHashMap p = new BindingHashMap();
-            for (Iterator<String> it = binding.varNames(); it.hasNext(); ) {
+            for (Iterator<String> it = binding.varNames(); it.hasNext();) {
                 final String varName = it.next();
                 if (binding.get(varName) != null) {
-                    p.add(allocVar(context, varName), binding.get(varName).asNode());
+                    p.add(context.allocVar(varName), binding.get(varName).asNode());
                 }
             }
             parent = p;
@@ -100,7 +103,7 @@ public class BindingHashMapOverwrite extends PlanBase implements Binding {
         List<Var> vars = new ArrayList<>();
         vars.addAll(map.keySet());
         if (parent != null) {
-            for (Iterator<Var> it = parent.vars(); it.hasNext(); ) {
+            for (Iterator<Var> it = parent.vars(); it.hasNext();) {
                 Var v = it.next();
                 if (!map.containsKey(v)) {
                     vars.add(v);
@@ -166,5 +169,19 @@ public class BindingHashMapOverwrite extends PlanBase implements Binding {
     }
 
     //todo write equal, hash, and tostring methods.
-
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("binding ");
+        for (Iterator<Var> iter = vars(); iter.hasNext();) {
+            Var v = iter.next();
+            Node n = get(v);
+            String nStr = FmtUtils.stringForNode(n);
+            sb.append("(")
+                    .append(v)
+                    .append(" = ")
+                    .append(nStr)
+                    .append(")");
+        }
+        return sb.toString();
+    }
 }

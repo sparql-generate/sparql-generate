@@ -15,10 +15,11 @@
  */
 package com.github.thesmartenergy.sparql.generate.jena.engine.impl;
 
-import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
+import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerateContext;
 import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerateException;
 import com.github.thesmartenergy.sparql.generate.jena.engine.SelectPlan;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.QueryExecution;
@@ -28,10 +29,8 @@ import org.apache.jena.query.Query;
 import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.engine.binding.Binding;
 import org.apache.jena.sparql.engine.binding.BindingHashMap;
-import org.apache.jena.sparql.syntax.Element;
 import org.apache.jena.sparql.syntax.ElementData;
 import org.apache.jena.sparql.syntax.ElementGroup;
-import org.apache.jena.sparql.util.Context;
 import org.apache.jena.sparql.util.Symbol;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
@@ -41,7 +40,7 @@ import org.slf4j.Logger;
  *
  * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */
-public class SelectPlanImpl extends PlanBase implements SelectPlan {
+public class SelectPlanImpl implements SelectPlan {
 
     private static final Logger LOG = LoggerFactory.getLogger(SelectPlanImpl.class);
 
@@ -67,54 +66,22 @@ public class SelectPlanImpl extends PlanBase implements SelectPlan {
      * {@inheritDoc}
      */
     @Override
-    final public void exec(
+    final public List<BindingHashMapOverwrite> exec(
             final Dataset inputDataset,
-            final List<Var> variables,
-            final List<BindingHashMapOverwrite> values,
-            final Context context) {
-
-        Query q = select.cloneQuery();
-        
-        // add data block in the where clause.
-        ElementData data = new ElementData();
-        
-        for (Var v : variables) {
-            data.add(v);
-        }
-        for (BindingHashMapOverwrite b : values) {
-            data.add(b);
-        }
-        ElementGroup old = (ElementGroup) q.getQueryPattern();
-        
-        ElementGroup temp = new ElementGroup();
-        temp.addElement(data);
-        for(Element olde : old.getElements()) {
-            temp.addElement(olde);
-        }
-        q.setQueryPattern(temp);        
+            final Collection<BindingHashMapOverwrite> values,
+            final SPARQLGenerateContext context) {
         try {
-            QueryExecution exec = QueryExecutionFactory.create(q, inputDataset);
-            for(Symbol symbol : context.keys()) {
+            final Query q = createQuery(select, values);
+            final QueryExecution exec = QueryExecutionFactory.create(q, inputDataset);
+            for (Symbol symbol : context.keys()) {
                 exec.getContext().set(symbol, context.get(symbol));
             }
-            ResultSet results = exec.execSelect();            
-            List<Var> newVariables = new ArrayList<>();
-            List<Binding> newValues = new ArrayList<>();
-            for (String var : results.getResultVars()) {
-                newVariables.add(allocVar(context, var));
-            }
+            final ResultSet results = exec.execSelect();
+            final List<BindingHashMapOverwrite> newBindings = new ArrayList<>();
             while (results.hasNext()) {
-                newValues.add(new BindingHashMapOverwrite(results.next(), context));
+                newBindings.add(new BindingHashMapOverwrite(results.next(), context));
             }
-            
-            variables.clear();
-            values.clear();
-            for(Var newVar : newVariables) {
-                variables.add(newVar);
-            }
-            for(Binding newBinding : newValues) {
-                values.add((BindingHashMapOverwrite) newBinding);
-            }
+            return newBindings;
         } catch (Exception ex) {
             LOG.error("Error while executing SELECT Query", ex);
             throw new SPARQLGenerateException("Error while executing"
@@ -122,47 +89,81 @@ public class SelectPlanImpl extends PlanBase implements SelectPlan {
         }
     }
 
-    /**
-     * merge values in qvalues.
-     *
-     * @param qvariables
-     * @param qvalues
-     * @param variables
-     * @param values
-     */
-    private void mergeValues(
-            final List<Var> qvariables,
-            final List<Binding> qvalues,
-            final List<Var> variables,
-            final List<BindingHashMapOverwrite> values) {
+    private Query createQuery(Query select, Collection<BindingHashMapOverwrite> values) {
+        LOG.debug("Create select query for " + values.size() + " initial values");
+        LOG.trace("Initial values are " + values);
+        Query q = select.cloneQuery();
+        ElementGroup old = (ElementGroup) q.getQueryPattern();
+        ElementGroup temp = new ElementGroup();
+        if (old.size() > 1 && old.get(0) instanceof ElementData) {
+            ElementData qData = (ElementData) old.get(0);
+            int oldSize = qData.getRows().size();
+            qData = mergeValues(qData, values);
+            temp.addElement(qData);
+            LOG.debug("New query has " + qData.getRows().size() + " initial values. It had " + oldSize + " values before");
+            LOG.trace("New values are " + qData);
+            for (int i = 1; i < old.size(); i++) {
+                temp.addElement(old.get(i));
+            }
+        } else {
+            ElementData data = new ElementData();
+            values.forEach((binding) -> {
+                binding.varsList().forEach(data::add);
+                data.add(binding);
+            });
+            LOG.debug("New query has " + data.getRows().size() + " initial values");
+            if (data.getRows().size() != values.size()) {
+                LOG.warn("Different size for the values block here.\n Was "
+                        + values.size() + ": \n" + values + "\n now is "
+                        + data.getRows().size() + ": \n" + data.getRows());
+                StringBuilder sb = new StringBuilder("Different size for the values block here.\n Was "
+                        + values.size() + ": \n" + values + "\n\n");
+                int i = 0;
+                for (Binding b: values) {
+                    sb.append("\nbinding " + i++ + " is " + b);
+                }
+                LOG.warn(sb.toString());
+            }
+
+            temp.addElement(data);
+            old.getElements().forEach(temp::addElement);
+        }
+        q.setQueryPattern(temp);
+        return q;
+    }
+
+    private ElementData mergeValues(
+            final ElementData qData,
+            final Collection<BindingHashMapOverwrite> values) {
+
+        if (values.isEmpty()) {
+            return qData;
+        }
 
         // check that no variable is duplicate in variables and qvariables
         // brute force, ok if not many variables.
-        checkNotContainsSome(qvariables, variables);
-        checkNotContainsSome(variables, qvariables);
-
-        // merge variables
-        qvariables.addAll(variables);
-
-        // deal with empty cases
-        if (values.isEmpty() && qvalues.isEmpty()) {
-            return;
+        List<Var> vars = qData.getVars();
+        for (BindingHashMapOverwrite binding : values) {
+            List<Var> newVars = binding.varsList();
+            checkNotContainsSome(vars, newVars);
+            checkNotContainsSome(newVars, vars);
         }
-        // ensure not empty
-        ensureNotEmpty(qvariables, qvalues);
-        ensureNotEmpty(variables, values);
 
-        // perform the merge
-        int j = qvalues.size();
-        for (int i = 0; i < j; i++) {
-            Binding qb = qvalues.remove(0);
-            for (Binding b : values) {
-                BindingHashMap newqb = new BindingHashMap();
-                newqb.addAll(qb);
-                newqb.addAll(b);
-                qvalues.add(newqb);
+        if (values.isEmpty()) {
+            return qData;
+        }
+
+        ElementData data = new ElementData();
+        qData.getVars().forEach((v) -> data.add(v));
+        for (BindingHashMapOverwrite binding : values) {
+            binding.varsList().forEach((v) -> data.add(v));
+            for (Binding qbinding : qData.getRows()) {
+                BindingHashMap newb = new BindingHashMap(qbinding);
+                binding.varsList().forEach((v) -> newb.add(v, binding.get(v)));
+                data.add(newb);
             }
         }
+        return data;
     }
 
     private void checkNotContainsSome(List<Var> vars1, List<Var> vars2) {

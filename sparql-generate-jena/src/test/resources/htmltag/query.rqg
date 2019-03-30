@@ -6,12 +6,10 @@ PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX ex: <http://example.com/>
 
 GENERATE {
-<{?countryName}> a ex:Country;
-    ex:countryCode ?code.
+<{REPLACE( ?countryName , " " , "-" )}> a ex:Country;
+    ex:countryCode ?code; ex:countyrynale ?countryName2 .
 }
-SOURCE <https://example.countries.html> AS ?source
-ITERATOR iter:CSSPath(?source, '#countriesTable tr') AS ?table
+ITERATOR iter:CSSPath(<https://example.countries.html>, '#countriesTable tr', "td:nth-child(1)/text()", "td:nth-child(2)/text()"  ) AS ?table ?countryName ?code
 WHERE {
-    BIND( fun:HTMLTag(?table, "td:nth-child(1)") AS ?countryName )
-    BIND( fun:HTMLTag(?table, "td:nth-child(2)") AS ?code )
+    FILTER( ?code != ""  && STRSTARTS( ?code, 'B' ) )
 }

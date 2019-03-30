@@ -786,8 +786,20 @@ void ObjectList(Node s, Node p, Path path, TripleCollector acc): { Node o ; }
 void Object(Node s, Node p, Path path, TripleCollector acc): { Node o ; }
 {
   { ElementPathBlock tempAcc = new ElementPathBlock() ; int mark = tempAcc.mark() ; }
-  o = GraphNode(tempAcc)
+  (
+    o = GraphNode(tempAcc)
+  |
+    o = ListNode()
+  )
   { insert(tempAcc, mark, s, p, path, o) ; insert(acc, tempAcc) ; }
+}
+Node_List ListNode(): { Expr e;}
+{
+  <LIST>
+  <LPAREN>
+   e = Expression()
+  <RPAREN>
+  { return new Node_List(e); }
 }
 void TriplesSameSubjectPath(TripleCollector acc) : { Node s ; }
 {
@@ -1660,10 +1672,10 @@ TOKEN : { <KW_A: "a" > }
 TOKEN [IGNORE_CASE] :
 {
    < GENERATE: "generate" >
-|   < CALL: "call" >
-|  < SOURCE: "source" | "look up" >
+|  < SOURCE: "source" >
 |  < ACCEPT: "accept" >
-|  < ITERATOR: "iterator" | "iterate">
+|  < ITERATOR: "iterator">
+|  < LIST: "list">
 }
 TOKEN [IGNORE_CASE] :
 {

@@ -40,7 +40,7 @@ public class SPARQLGenerateUtils {
         try {
             ds.setDefaultModel(RDFDataMgr.loadModel(new File(dir, dgfile).toString(), Lang.TTL));
         } catch (Exception ex) {
-            LOG.debug("error while loading the default graph " + dgfile + ": " + ex.getMessage());
+            LOG.debug("Cannot load default graph " + dgfile + ": " + ex.getMessage());
         }
 
         if(request.namedgraphs == null)
@@ -51,7 +51,7 @@ public class SPARQLGenerateUtils {
                 Model model = RDFDataMgr.loadModel(new File(dir, ng.path).toString(), Lang.TTL);
                 ds.addNamedModel(ng.uri, model);
             } catch (Exception ex) {  
-                LOG.debug("error while loading the default graph default.ttl: " + ex.getMessage());
+                LOG.debug("Cannot load named graph " + ng.path + ": " + ex.getMessage());
             }
         });
             

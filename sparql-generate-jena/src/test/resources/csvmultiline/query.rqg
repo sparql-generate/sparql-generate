@@ -5,9 +5,9 @@ PREFIX ite: <http://w3id.org/sparql-generate/iter/>
 PREFIX fun: <http://w3id.org/sparql-generate/fn/>
 
 GENERATE { 
-  <http://ex.org/project/{ fun:CustomCSV( ?project, "Ref", '"' , "," , "\n" , true ) }>
-    dcterms:title "{ fun:CustomCSV( ?project, "Titre du projet", '"' , "," , "\n" , true ) }"@en ;
-    dcterms:description "{ fun:CustomCSV( ?project, "Description du projet", '"' , "," , "\n" , true ) }"@en .
+  <http://ex.org/project/{ ?ref }>
+    dcterms:title "{ ?title }"@en ;
+    dcterms:description "{ ?description }"@en .
 }
 SOURCE <http://w3id.org/sparql-generate/example/source/design> AS ?source
-ITERATOR ite:CustomCSV( ?source , '"' , "," , "\n" , true ) AS ?project
+ITERATOR ite:CSV( ?source , true, '"' , "," , "\n" , "Ref", "Titre du projet", "Description du projet") AS ?ref ?title ?description

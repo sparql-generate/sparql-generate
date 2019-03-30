@@ -1,9 +1,9 @@
 @prefix dcterms: <http://purl.org/dc/terms/> .
 
-<http://ex.org/project/S.B%2017>
-        dcterms:description  "You & Me ring making. © Patrick Laing\nGold \"Slender\" polished You & Me ring. © Patrick Laing"@en ;
-        dcterms:title        "Le Siege"@en .
-
 <http://ex.org/project/S.B%2016>
         dcterms:description  "Plateau Fermé, design S. B., crédit photographique : E. F.\nPlateau Ouvert, design S. B., crédit photographique : E. F."@en ;
         dcterms:title        "Le Plateau"@en .
+
+<http://ex.org/project/S.B%2017>
+        dcterms:description  "You & Me ring making. © Patrick Laing\nGold \"Slender\" polished You & Me ring. © Patrick Laing"@en ;
+        dcterms:title        "Le Siege"@en .

@@ -24,6 +24,8 @@ import java.util.List;
 import org.apache.jena.sparql.expr.NodeValue;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueString;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
 import org.apache.jena.sparql.expr.ExprEvalException;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
@@ -58,20 +60,19 @@ public class ITER_Split extends IteratorFunctionBase2 {
      * @return a list of RDF Literal with datatype {@code xsd:string}
      */
     @Override
-    public List<List<NodeValue>> exec(NodeValue stringValue, NodeValue delimeterValue) {
+    public Collection<List<NodeValue>> exec(NodeValue stringValue, NodeValue delimeterValue) {
         try {
             String string = stringValue.asNode().getLiteralLexicalForm();
             String delimeter = delimeterValue.asNode().getLiteralLexicalForm();
-            List<String> splits = new ArrayList<String>(Arrays.asList(string.split(delimeter)));
+            List<String> splits = new ArrayList<>(Arrays.asList(string.split(delimeter)));
 
-            //will contain the final results
-            List<NodeValue> nodeValues = new ArrayList<>(splits.size());
+            Collection<List<NodeValue>> collectionNodeValues = new HashSet<>(splits.size());
 
             for (String split : splits) {
                 NodeValue nodeValue = new NodeValueString(split);
-                nodeValues.add(nodeValue);
+                collectionNodeValues.add(Collections.singletonList(nodeValue));
             }
-            return new ArrayList<>(Collections.singletonList(nodeValues));
+            return collectionNodeValues;
         } catch (Exception ex) {
             LOG.debug("No evaluation for " + stringValue + ", " + delimeterValue, ex);
             throw new ExprEvalException("No evaluation for " + stringValue + ", " + delimeterValue, ex);

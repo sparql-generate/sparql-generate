@@ -15,9 +15,8 @@
  */
 package com.github.thesmartenergy.sparql.generate.jena.engine.impl;
 
-import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
+import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerateContext;
 import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerateException;
-import java.util.List;
 import org.apache.commons.io.IOUtils;
 import org.apache.jena.datatypes.RDFDatatype;
 import org.apache.jena.datatypes.TypeMapper;
@@ -25,20 +24,22 @@ import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.sparql.core.Var;
 import java.util.Objects;
-import com.github.thesmartenergy.sparql.generate.jena.engine.SourcePlan;
 import com.github.thesmartenergy.sparql.generate.jena.stream.LookUpRequest;
 import com.github.thesmartenergy.sparql.generate.jena.stream.SPARQLGenerateStreamManager;
+import java.io.IOException;
 import org.apache.jena.atlas.web.TypedInputStream;
-import org.apache.jena.sparql.util.Context;
+import org.apache.jena.datatypes.DatatypeFormatException;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
+import com.github.thesmartenergy.sparql.generate.jena.engine.BindOrSourcePlan;
+import java.io.InputStream;
 
 /**
  * Executes a <code>{@code SOURCE <node> ACCEPT <mime> AS <var>}</code> clause.
  *
  * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */
-public class SourcePlanImpl extends PlanBase implements SourcePlan {
+public class SourcePlanImpl implements BindOrSourcePlan {
 
     /**
      * The logger.
@@ -94,54 +95,50 @@ public class SourcePlanImpl extends PlanBase implements SourcePlan {
     /**
      * {@inheritDoc}
      */
-    final public void exec(
-            final List<Var> variables,
-            final List<BindingHashMapOverwrite> values,
-            final Context context) {
-        LOG.debug("Exec SOURCE " + node  + (accept!=null? " ACCEPT " + accept : "" ) + " AS " + var);
+    @Override
+    final public BindingHashMapOverwrite exec(
+            final BindingHashMapOverwrite binding,
+            final SPARQLGenerateContext context) {
 
-        boolean added = variables.add(var);
-        if (!added) {
-            throw new SPARQLGenerateException("Variable " + var + " is already"
-                    + " bound !");
+        LOG.debug("Exec SOURCE " + node + (accept != null ? " ACCEPT " + accept : "") + " AS " + var);
+        Objects.nonNull(binding);
+        // generate the source URI.
+        final String sourceUri = getActualSource(binding);
+        final String acceptHeader = getAcceptHeader(binding);
+        LOG.trace("... resolved to SOURCE <" + sourceUri + "> ACCEPT " + acceptHeader + " AS " + var);
+        final LookUpRequest request = new LookUpRequest(sourceUri, acceptHeader);
+        SPARQLGenerateStreamManager sm = context.getStreamManager();
+        Objects.requireNonNull(sm);
+        final TypedInputStream stream = sm.open(request);
+        if (stream == null) {
+            LOG.info("Exec SOURCE <" + sourceUri + "> ACCEPT " + acceptHeader + " AS " + var + " returned nothing.");
+            return new BindingHashMapOverwrite(binding, var, null);
         }
-        ensureNotEmpty(variables, values);
-        values.replaceAll((BindingHashMapOverwrite value) -> {
-            // generate the source URI.
-            final String sourceUri = getActualSource(value);
-            final String acceptHeader = getAcceptHeader(value);
-            LOG.trace("... resolved to SOURCE <" + sourceUri + "> ACCEPT " + acceptHeader + " AS " + var);
-            try {
-                final LookUpRequest request = new LookUpRequest(sourceUri, acceptHeader);
-                SPARQLGenerateStreamManager sm = context.get(SPARQLGenerate.STREAM_MANAGER);
-                Objects.requireNonNull(sm);
-                final TypedInputStream stream = sm.open(request);
-                if(stream == null) {
-                    LOG.info("Exec SOURCE <" + sourceUri + "> ACCEPT " + acceptHeader + " AS " + var + " returned nothing.");
-                    return new BindingHashMapOverwrite(value, var, null);
-                }
-                final String literal = IOUtils.toString(stream.getInputStream(), "UTF-8");
-                final RDFDatatype dt;
-                if (stream.getMediaType() != null && stream.getMediaType().getContentType() != null) {
-                    dt = tm.getSafeTypeByName("http://www.iana.org/assignments/media-types/" + stream.getMediaType().getContentType());
-                } else {
-                    dt = tm.getSafeTypeByName("http://www.w3.org/2001/XMLSchema#string");
-                }
-                final Node n = NodeFactory.createLiteral(literal, dt);
-                LOG.debug("Exec SOURCE <" + sourceUri + "> ACCEPT " + acceptHeader + " AS " + var + " returned. Enable DEBUG level for more.");
-                if(LOG.isTraceEnabled()) {
-                    String out = n.toString();
-                    if(out.length()>200) {
-                        out = out.substring(0, 120) + "\n ... \n" + out.substring(out.length()-80);
-                    }
-                    LOG.trace(out);
-                }
-                return new BindingHashMapOverwrite(value, var, n);
-            } catch (Exception ex) {
-                LOG.warn("Exception while looking up " + sourceUri + ":", ex);
-                return new BindingHashMapOverwrite(value, var, null);
+        try (InputStream in = stream.getInputStream()) {
+            final String literal = IOUtils.toString(in, "UTF-8");
+            final RDFDatatype dt;
+            if (stream.getMediaType() != null && stream.getMediaType().getContentType() != null) {
+                dt = tm.getSafeTypeByName("http://www.iana.org/assignments/media-types/" + stream.getMediaType().getContentType());
+            } else {
+                dt = tm.getSafeTypeByName("http://www.w3.org/2001/XMLSchema#string");
             }
-        });
+            final Node n = NodeFactory.createLiteral(literal, dt);
+            LOG.debug("Exec SOURCE <" + sourceUri + "> ACCEPT "
+                    + acceptHeader + " AS " + var + " returned. "
+                    + "Enable TRACE level for more.");
+            if (LOG.isTraceEnabled()) {
+                String out = n.toString();
+                if (out.length() > 200) {
+                    out = out.substring(0, 120) + "\n"
+                            + " ... \n" + out.substring(out.length() - 80);
+                }
+                LOG.trace("Exec SOURCE <" + sourceUri + "> returned\n" + out);
+            }
+            return new BindingHashMapOverwrite(binding, var, n);
+        } catch (IOException | DatatypeFormatException ex) {
+            LOG.warn("Exception while looking up " + sourceUri + ":", ex);
+            return new BindingHashMapOverwrite(binding, var, null);
+        }
     }
 
     /**

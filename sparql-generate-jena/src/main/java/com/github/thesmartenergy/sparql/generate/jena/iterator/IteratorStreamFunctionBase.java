@@ -15,12 +15,13 @@
  */
 package com.github.thesmartenergy.sparql.generate.jena.iterator;
 
-import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
+import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerateContext;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Collection;
 import java.util.List;
-import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import org.apache.jena.query.QueryBuildException;
 import org.apache.jena.sparql.ARQInternalErrorException;
 import org.apache.jena.sparql.engine.binding.Binding;
@@ -28,25 +29,32 @@ import org.apache.jena.sparql.expr.Expr;
 import org.apache.jena.sparql.expr.ExprList;
 import org.apache.jena.sparql.expr.NodeValue;
 import org.apache.jena.sparql.function.FunctionEnv;
-import org.apache.jena.sparql.util.Context;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The base implementation of the {@link IteratorFunction} interface.
  */
 public abstract class IteratorStreamFunctionBase implements IteratorFunction {
 
-    /** The list of argument expressions. */
+    private static final Logger LOG = LoggerFactory.getLogger(IteratorStreamFunctionBase.class);
+
+    /**
+     * The list of argument expressions.
+     */
     protected ExprList arguments = null;
-    /** The function environment. */
+    /**
+     * The function environment.
+     */
     private FunctionEnv env;
 
     /**
-     * Build a iterator function execution with the given arguments,
-     * and operate a check of the build.
+     * Build a iterator function execution with the given arguments, and operate
+     * a check of the build.
+     *
      * @param args -
-     * @throws QueryBuildException if the iterator function cannot be
-     * executed with the
-     * given arguments.
+     * @throws QueryBuildException if the iterator function cannot be executed
+     * with the given arguments.
      */
     @Override
     public final void build(ExprList args) {
@@ -57,15 +65,20 @@ public abstract class IteratorStreamFunctionBase implements IteratorFunction {
     /**
      * Partially checks if the iterator function can be executed with the given
      * arguments.
+     *
      * @param args -
-     * @throws QueryBuildException if the iterator function cannot be executed with the
-     * given arguments.
+     * @throws QueryBuildException if the iterator function cannot be executed
+     * with the given arguments.
      */
     public abstract void checkBuild(ExprList args);
 
     @Override
-    public void exec(
-            Binding binding, ExprList args, FunctionEnv env, Consumer<List<List<NodeValue>>> nodeValuesStream) {
+    public CompletableFuture<Void> exec(
+            Binding binding, ExprList args, FunctionEnv env, Function<Collection<List<NodeValue>>, CompletableFuture<Void>> collectionListNodeValue) {
+        if (!(env.getContext() instanceof SPARQLGenerateContext)) {
+            throw new ARQInternalErrorException("Context should be of type"
+                    + " SPARQLGenerateContext");
+        }
         this.env = env;
         if (args == null) {
             throw new ARQInternalErrorException("IteratorFunctionBase:"
@@ -78,23 +91,24 @@ public abstract class IteratorStreamFunctionBase implements IteratorFunction {
             evalArgs.add(x);
         }
 
-        exec(evalArgs, nodeValuesStream);
-        arguments = null;
+        return exec(evalArgs, collectionListNodeValue);
     }
 
     /**
      * Return the Context object for this execution.
+     *
      * @return -
      */
-    public Context getContext() {
-        return env.getContext();
+    public SPARQLGenerateContext getContext() {
+        return (SPARQLGenerateContext) env.getContext();
     }
 
     /**
      * IteratorFunction call to a list of evaluated argument values.
+     *
      * @param args -
-     * @param nodeValuesStream - where to emit new values
+     * @param collectionListNodeValue - where to emit new future collections of lists of values
      */
-    public abstract void exec(List<NodeValue> args, Consumer<List<List<NodeValue>>> nodeValuesStream);
-   
+    public abstract CompletableFuture<Void> exec(List<NodeValue> args, Function<Collection<List<NodeValue>>, CompletableFuture<Void>> collectionListNodeValue);
+
 }

@@ -46,6 +46,41 @@ import org.slf4j.Logger;
  */
 public class ITER_JSONListKeys extends IteratorFunctionBase1 {
 
+    public static final String URI = SPARQLGenerate.ITER + "JSONListKeys";
+
+    private static final Logger LOG = LoggerFactory.getLogger(ITER_JSONListKeys.class);
+
+    private static final String datatypeUri = "http://www.iana.org/assignments/media-types/application/json";
+
+    private static final Gson GSON = new Gson();
+
+    @Override
+    public Collection<List<NodeValue>> exec(NodeValue json) {
+        if (json.getDatatypeURI() != null
+                && !json.getDatatypeURI().equals(datatypeUri)
+                && !json.getDatatypeURI().equals("http://www.w3.org/2001/XMLSchema#string")) {
+            LOG.debug("The URI of NodeValue1 MUST have been"
+                    + " <" + datatypeUri + "> or"
+                    + " <http://www.w3.org/2001/XMLSchema#string>."
+                    + " Got <" + json.getDatatypeURI() + ">"
+            );
+        }
+        try {
+            Set<String> keys = GSON.fromJson(json.asNode().getLiteralLexicalForm(), Map.class).keySet();
+            Set<List<NodeValue>> collectionNodeValues = new HashSet<>(keys.size());
+            for (String key : keys) {
+                NodeValue nodeValue
+                        = NodeValue.makeNode(NodeFactory.createLiteral(key));
+                collectionNodeValues.add(Collections.singletonList(nodeValue));
+            }
+            LOG.trace("end JSONListKeys");
+            return collectionNodeValues;
+        } catch (Exception ex) {
+            LOG.debug("No evaluation for " + json, ex);
+            throw new ExprEvalException("No evaluation for " + json, ex);
+        }
+    }
+
     static {
         Configuration.setDefaults(new Configuration.Defaults() {
 
@@ -68,39 +103,5 @@ public class ITER_JSONListKeys extends IteratorFunctionBase1 {
                 return EnumSet.noneOf(Option.class);
             }
         });
-    }
-
-    private static final Logger LOG = LoggerFactory.getLogger(ITER_JSONListKeys.class);
-
-    public static final String URI = SPARQLGenerate.ITER + "JSONListKeys";
-
-    private static final String datatypeUri = "http://www.iana.org/assignments/media-types/application/json";
-
-    @Override
-    public List<List<NodeValue>> exec(NodeValue json) {
-        if (json.getDatatypeURI() != null
-                && !json.getDatatypeURI().equals(datatypeUri)
-                && !json.getDatatypeURI().equals("http://www.w3.org/2001/XMLSchema#string")) {
-            LOG.debug("The URI of NodeValue1 MUST have been"
-                    + " <" + datatypeUri + "> or"
-                    + " <http://www.w3.org/2001/XMLSchema#string>."
-                    + " Got <" + json.getDatatypeURI() + ">"
-            );
-        }
-        try {
-            Gson gson = new Gson();
-            Set<String> keys = gson.fromJson(
-                    json.asNode().getLiteralLexicalForm(), Map.class).keySet();
-            List<NodeValue> nodeValues = new ArrayList<>(keys.size());
-            for (String key : keys) {
-                NodeValue nodeValue
-                        = NodeValue.makeNode(NodeFactory.createLiteral(key));
-                nodeValues.add(nodeValue);
-            }
-            return new ArrayList<>(Collections.singletonList(nodeValues));
-        } catch (Exception ex) {
-            LOG.debug("No evaluation for " + json, ex);
-            throw new ExprEvalException("No evaluation for " + json, ex);
-        }
     }
 }

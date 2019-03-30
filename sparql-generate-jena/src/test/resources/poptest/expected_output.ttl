@@ -1,78 +1,72 @@
-@prefix schema: <http://schema.org/> .
-@prefix country: <http://loc.example.com/city/> .
-@prefix transit: <http://vocab.org/transit/terms/> .
-@prefix gn:    <http://www.geonames.org/ontology#> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
-@prefix fun:    <http://w3id.org/sparql-generate/fn/> .
-@prefix ite:  <http://w3id.org/sparql-generate/iter/> .
-@prefix wgs84_pos: <http://www.w3.org/2003/01/geo/wgs84_pos#> .
+@prefix ex:    <http://example.com/> .
 
-[ xsd:continentCode      "NA" ;
-  xsd:continentName      "North America" ;
-  xsd:countryCode        "US" ;
-  xsd:countryName        "United States" ;
-  xsd:countryPopulation  "278357000"^^xsd:decimal
+[ ex:continentCode      "NA" ;
+  ex:continentName      "North America" ;
+  ex:countryCode        "US" ;
+  ex:countryName        "United States" ;
+  ex:countryPopulation  "278357000"^^xsd:decimal
 ] .
 
-[ xsd:continentCode      "AS" ;
-  xsd:continentName      "Asia" ;
-  xsd:countryCode        "JP" ;
-  xsd:countryName        "Japan" ;
-  xsd:countryPopulation  "126714000"^^xsd:decimal
+[ ex:continentCode      "AS" ;
+  ex:continentName      "Asia" ;
+  ex:countryCode        "JP" ;
+  ex:countryName        "Japan" ;
+  ex:countryPopulation  "126714000"^^xsd:decimal
 ] .
 
-[ xsd:continentCode      "SA" ;
-  xsd:continentName      "South America" ;
-  xsd:countryCode        "BR" ;
-  xsd:countryName        "Brazil" ;
-  xsd:countryPopulation  "170115000"^^xsd:decimal
+[ ex:continentCode      "SA" ;
+  ex:continentName      "South America" ;
+  ex:countryCode        "BR" ;
+  ex:countryName        "Brazil" ;
+  ex:countryPopulation  "170115000"^^xsd:decimal
 ] .
 
-[ xsd:continentCode      "NA" ;
-  xsd:continentName      "North America" ;
-  xsd:countryCode        "MX" ;
-  xsd:countryName        "Mexico" ;
-  xsd:countryPopulation  "98881000"^^xsd:decimal
+[ ex:continentCode      "NA" ;
+  ex:continentName      "North America" ;
+  ex:countryCode        "MX" ;
+  ex:countryName        "Mexico" ;
+  ex:countryPopulation  "98881000"^^xsd:decimal
 ] .
 
-[ xsd:continentCode      "AS" ;
-  xsd:continentName      "Asia" ;
-  xsd:countryCode        "IN" ;
-  xsd:countryName        "India" ;
-  xsd:countryPopulation  "1013662000"^^xsd:decimal
+[ ex:continentCode      "AS" ;
+  ex:continentName      "Asia" ;
+  ex:countryCode        "IN" ;
+  ex:countryName        "India" ;
+  ex:countryPopulation  "1013662000"^^xsd:decimal
 ] .
 
-[ xsd:continentCode      "AS" ;
-  xsd:continentName      "Asia" ;
-  xsd:countryCode        "BD" ;
-  xsd:countryName        "Bangladesh" ;
-  xsd:countryPopulation  "129155000"^^xsd:decimal
+[ ex:continentCode      "AS" ;
+  ex:continentName      "Asia" ;
+  ex:countryCode        "BD" ;
+  ex:countryName        "Bangladesh" ;
+  ex:countryPopulation  "129155000"^^xsd:decimal
 ] .
 
-[ xsd:continentCode      "AS" ;
-  xsd:continentName      "Asia" ;
-  xsd:countryCode        "ID" ;
-  xsd:countryName        "Indonesia" ;
-  xsd:countryPopulation  "212107000"^^xsd:decimal
+[ ex:continentCode      "AS" ;
+  ex:continentName      "Asia" ;
+  ex:countryCode        "ID" ;
+  ex:countryName        "Indonesia" ;
+  ex:countryPopulation  "212107000"^^xsd:decimal
 ] .
 
-[ xsd:continentCode      "AF" ;
-  xsd:continentName      "Africa" ;
-  xsd:countryCode        "NG" ;
-  xsd:countryName        "Nigeria" ;
-  xsd:countryPopulation  "111506000"^^xsd:decimal
+[ ex:continentCode      "AF" ;
+  ex:continentName      "Africa" ;
+  ex:countryCode        "NG" ;
+  ex:countryName        "Nigeria" ;
+  ex:countryPopulation  "111506000"^^xsd:decimal
 ] .
 
-[ xsd:continentCode      "AS" ;
-  xsd:continentName      "Asia" ;
-  xsd:countryCode        "PK" ;
-  xsd:countryName        "Pakistan" ;
-  xsd:countryPopulation  "156483000"^^xsd:decimal
+[ ex:continentCode      "AS" ;
+  ex:continentName      "Asia" ;
+  ex:countryCode        "PK" ;
+  ex:countryName        "Pakistan" ;
+  ex:countryPopulation  "156483000"^^xsd:decimal
 ] .
 
-[ xsd:continentCode      "AS" ;
-  xsd:continentName      "Asia" ;
-  xsd:countryCode        "CN" ;
-  xsd:countryName        "China" ;
-  xsd:countryPopulation  "1277558000"^^xsd:decimal
+[ ex:continentCode      "AS" ;
+  ex:continentName      "Asia" ;
+  ex:countryCode        "CN" ;
+  ex:countryName        "China" ;
+  ex:countryPopulation  "1277558000"^^xsd:decimal
 ] .

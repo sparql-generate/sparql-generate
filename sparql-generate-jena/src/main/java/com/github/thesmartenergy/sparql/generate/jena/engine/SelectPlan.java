@@ -15,11 +15,11 @@
  */
 package com.github.thesmartenergy.sparql.generate.jena.engine;
 
+import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerateContext;
 import com.github.thesmartenergy.sparql.generate.jena.engine.impl.BindingHashMapOverwrite;
+import java.util.Collection;
 import java.util.List;
 import org.apache.jena.query.Dataset;
-import org.apache.jena.sparql.core.Var;
-import org.apache.jena.sparql.util.Context;
 
 /**
  * Executes generated SPARQL SELECT query.
@@ -32,14 +32,13 @@ public interface SelectPlan {
      *
      * @param inputDataset the Dataset to use for the SPARQL SELECT part of the
      * query.
-     * @param variables the set of bound variables.
      * @param values the set of bindings.
      * @param context the execution context.
+     * @return the new list of bindings
      */
-    void exec(
+    List<BindingHashMapOverwrite> exec(
             final Dataset inputDataset,
-            final List<Var> variables,
-            final List<BindingHashMapOverwrite> values,
-            final Context context);
+            final Collection<BindingHashMapOverwrite> values,
+            final SPARQLGenerateContext context);
     
 }

@@ -1,0 +1,50 @@
+@prefix wkt:   <http://www.opengis.net/ont/geosparql#> .
+@prefix ex:    <http://example.com/> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix iter:  <http://w3id.org/sparql-generate/iter/> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix fun:   <http://w3id.org/sparql-generate/fn/> .
+
+<http://earthquake.example.com/70265011>
+        a          ex:Earthquake ;
+        wkt:asWKT  "MULTIPOINT ((10.0 40.0, 40.0 30.0, 20.0 20.0, 30.0 10.0))"^^wkt:wktLiteral .
+
+<http://earthquake.example.com/70265016>
+        a          ex:Earthquake ;
+        wkt:asWKT  "POLYGON (((35.0 10.0, 45.0 45.0, 15.0 40.0, 10.0 20.0, 35.0 10.0), (20.0 30.0, 35.0 35.0, 30.0 20.0, 20.0 30.0)))"^^wkt:wktLiteral .
+
+<http://earthquake.example.com/70259026>
+        a          ex:Earthquake ;
+        wkt:asWKT  "GEOMETRYCOLLECTION (POINT (100.0 0.0), LINESTRING ((101.0 0.0, 102.0 1.0)))"^^wkt:wktLiteral .
+
+<http://earthquake.example.com/70265031>
+        a          ex:Earthquake ;
+        wkt:asWKT  "LINESTRING ((30.0 10.0, 10.0 30.0, 40.0 40.0))"^^wkt:wktLiteral .
+
+<http://earthquake.example.com/70265036>
+        a          ex:Earthquake ;
+        wkt:asWKT  "POINT (30.0 10.0)"^^wkt:wktLiteral .
+
+<http://earthquake.example.com/70265051>
+        a          ex:Earthquake ;
+        wkt:asWKT  "POINT (-155.230835 19.3894997 19.99)"^^wkt:wktLiteral .
+
+<http://earthquake.example.com/70264971>
+        a          ex:Earthquake ;
+        wkt:asWKT  "MULTIPOLYGON ((((40.0 40.0, 20.0 45.0, 45.0 30.0, 40.0 40.0)), ((20.0 35.0, 10.0 30.0, 10.0 10.0, 30.0 5.0, 45.0 20.0, 20.0 35.0), (30.0 20.0, 20.0 15.0, 20.0 25.0, 30.0 20.0))))"^^wkt:wktLiteral .
+
+<http://earthquake.example.com/70265001>
+        a          ex:Earthquake ;
+        wkt:asWKT  "MULTILINESTRING (((10.0 10.0, 20.0 20.0, 10.0 40.0), (40.0 40.0, 30.0 30.0, 40.0 20.0, 30.0 10.0)))"^^wkt:wktLiteral .
+
+<http://earthquake.example.com/70265026>
+        a          ex:Earthquake ;
+        wkt:asWKT  "POLYGON (((30.0 10.0, 40.0 40.0, 20.0 40.0, 10.0 20.0, 30.0 10.0)))"^^wkt:wktLiteral .
+
+<http://earthquake.example.com/73030326>
+        a          ex:Earthquake ;
+        wkt:asWKT  "MULTIPOLYGON ((((30.0 20.0, 45.0 40.0, 10.0 40.0, 30.0 20.0)), ((15.0 5.0, 40.0 10.0, 10.0 20.0, 5.0 10.0, 15.0 5.0))))"^^wkt:wktLiteral .
+
+<http://earthquake.example.com/70265061>
+        a          ex:Earthquake ;
+        wkt:asWKT  "POINT (-155.2333374 19.4148331 -1.07)"^^wkt:wktLiteral .

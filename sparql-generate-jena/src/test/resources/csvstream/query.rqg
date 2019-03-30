@@ -8,4 +8,4 @@ GENERATE {
    <{?id}> ex:consumption "{?consumption}"^^xsd:integer ;
       ex:time "{?time}"^^xsd:dateTime .
 }
-ITERATOR iter:CSVStream("http://example.com/consumption.csv", 20, "*") AS ?id ?consumption ?time
+ITERATOR iter:CSV(<http://example.com/consumption.csv>, 20) AS ?id ?consumption ?time

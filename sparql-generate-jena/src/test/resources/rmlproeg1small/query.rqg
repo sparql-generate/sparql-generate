@@ -22,8 +22,7 @@ GENERATE {
             ex:year "{ ?year }"^^xsd:gYear .  
 
 }
-SOURCE <http://example.com/example1.xml> AS ?source
-ITERATOR ite:XPath(?source, "//note" ) AS ?note
+ITERATOR ite:XPath(<http://example.com/example1.xml>, "/notes/note" ) AS ?note
 WHERE {
      BIND( fun:XPath(?note,"/note/@day" ) AS ?day )
      BIND( fun:XPath(?note,"/note/@month" ) AS ?month )

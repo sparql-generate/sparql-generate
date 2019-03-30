@@ -15,7 +15,7 @@
  */
 package com.github.thesmartenergy.sparql.generate.api;
 
-import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
+import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerateContext;
 import com.github.thesmartenergy.sparql.generate.jena.cli.Response;
 import com.google.gson.Gson;
 import java.io.IOException;
@@ -25,7 +25,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import javax.websocket.Session;
-import org.apache.jena.sparql.util.Symbol;
 
 /**
  *
@@ -33,38 +32,61 @@ import org.apache.jena.sparql.util.Symbol;
  */
 public class SessionManager {
 
-    static final Symbol SYMBOL = Symbol.create(SPARQLGenerate.NS + "symbol_session");
+    private static final int TOO_MANY = 1000;
 
-    private static final Gson gson = new Gson();
-    
+    private static final Gson GSON = new Gson();
+
     private final Session session;
 
     private final List<Response> responses = new ArrayList<>();
 
     private final ScheduledExecutorService service;
 
+    private SPARQLGenerateContext context;
+
     public SessionManager(final Session session) {
         this.session = session;
         service = Executors.newScheduledThreadPool(1);
-        service.scheduleAtFixedRate(new Runnable() {
-            @Override
-            public void run() {
-                send();
-            }
-        }, 0, 200, TimeUnit.MILLISECONDS);  // execute every x seconds
+        service.scheduleAtFixedRate(this::flush, 0, 200, TimeUnit.MILLISECONDS);
     }
 
-    void appendResponse(Response response) {
-        responses.add(response);
-        if(responses.size()>1000) {
-            send();
+    public SPARQLGenerateContext getContext() {
+        return context;
+    }
+
+    public void setContext(SPARQLGenerateContext context) {
+        this.context = context;
+    }
+    
+    public final String getSessionId() {
+        return session.getId();
+    }
+
+    void appendLog(String log) {
+        responses.add(new Response(log, "", false));
+        sendIfTooMany();
+    }
+
+    void appendResult(String result) {
+        responses.add(new Response("", result, false));
+        sendIfTooMany();
+    }
+
+    private void sendIfTooMany() {
+        if (responses.size() > TOO_MANY) {
+            flush();
         }
     }
+    
+    void clear() {
+        responses.add(new Response("", "", true));
+        flush();
+    }
 
-    private void send() {
+    void flush() {
         if (!responses.isEmpty()) {
             try {
-                session.getBasicRemote().sendText(gson.toJson(responses));
+                session.getBasicRemote().sendText(GSON.toJson(responses));
                 responses.clear();
             } catch (IOException ex) {
                 System.out.println("SessionManager Error while sending for session: " + session.getId() + ": " + ex.getMessage());
@@ -74,7 +96,8 @@ public class SessionManager {
 
     void stop() {
         System.out.println("SessionManager stopping " + session.getId());
-        send();
+        flush();
         service.shutdown();
     }
+
 }

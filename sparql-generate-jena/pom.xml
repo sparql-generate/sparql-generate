@@ -418,6 +418,9 @@
                 <version>2.20</version>
                 <configuration>
                     <skip>${skip}</skip>
+                    <forkCount>3</forkCount>
+                    <reuseForks>true</reuseForks>
+                    <argLine>-Xmx2048m -XX:MaxPermSize=512m</argLine>
                 </configuration>
             </plugin>
 

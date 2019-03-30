@@ -16,11 +16,14 @@
 package com.github.thesmartenergy.sparql.generate.jena.iterator.library;
 
 import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
+import com.github.thesmartenergy.sparql.generate.jena.function.library.FUN_XPath;
+import com.github.thesmartenergy.sparql.generate.jena.iterator.IteratorFunctionBase;
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
-import com.github.thesmartenergy.sparql.generate.jena.iterator.IteratorFunctionBase2;
-import java.io.StringWriter;
-import java.util.Collections;
+import com.github.thesmartenergy.sparql.generate.jena.stream.LookUpRequest;
+import com.github.thesmartenergy.sparql.generate.jena.stream.SPARQLGenerateStreamManager;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -29,121 +32,205 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 import org.apache.jena.datatypes.RDFDatatype;
 import org.apache.jena.datatypes.TypeMapper;
-import org.apache.jena.graph.Node;
-import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.NodeValue;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueBoolean;
-import org.apache.jena.sparql.expr.nodevalue.NodeValueDecimal;
-import org.apache.jena.sparql.expr.nodevalue.NodeValueDouble;
-import org.apache.jena.sparql.expr.nodevalue.NodeValueFloat;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueInteger;
-import org.apache.jena.sparql.expr.nodevalue.NodeValueNode;
-import org.apache.jena.sparql.expr.nodevalue.NodeValueString;
-import java.math.BigDecimal;
-import javax.xml.transform.Transformer;
+import java.nio.charset.StandardCharsets;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Objects;
 import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
+import org.apache.commons.io.IOUtils;
+import org.apache.jena.atlas.web.TypedInputStream;
+import org.apache.jena.sparql.expr.ExprList;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 
 /**
  * Iterator function
  * <a href="http://w3id.org/sparql-generate/iter/XPath">iter:XPath</a>
- * extracts a list of sub-XML elements of a XML root element, according to a
- * XPath query.
+ * extracts parts of a XML document, using XPath queries.
  *
  * <ul>
- * <li>Param 1: (input) is the input XML document;</li>
- * <li>Param 2: (xpath) is a XPath query;</li>
+ * <li>Param 1: (xml): the URI of the XML document (a URI), or the XML document
+ * itself (a String);</li>
+ * <li>Param 2: (xPath) the XPath query;</li>
+ * <li>Param 3 .. N : (auxXPath ... ) other XPath queries, which will be
+ * executed over the results of the execution of xPath, and provide one result
+ * each.</li>
  * </ul>
+ *
+ * The following variables may be bound:
+ *
+ * <ul>
+ * <li>Output 1: (literal) matched XML element, encoded as a boolean, float,
+ * double, integer, string, as it best fits;</li>
+ * <li>Output 2 .. N-1: (string) result of the execution of the auxiliary XPath
+ * queries on Output 1, encoded as a boolean, float, double, integer, string, as
+ * it best fits;</li>
+ * <li>Output N: (integer) the position of the result in the list;</li>
+ * <li>Output N+1: (boolean) true if this result has a next result in the
+ * list.</li>
+ * </ul>
+ *
+ * Output N and N+1 can be used to generate RDF lists from the input, but the use
+ * of keyword LIST( ?var ) as the object of a triple pattern covers most cases
+ * more elegantly.
  *
  * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */
-public class ITER_XPath extends IteratorFunctionBase2 {
+public class ITER_XPath extends IteratorFunctionBase {
 
     private static final Logger LOG = LoggerFactory.getLogger(ITER_XPath.class);
 
     public static final String URI = SPARQLGenerate.ITER + "XPath";
 
-    private static final String datatypeUri = "http://www.iana.org/assignments/media-types/application/xml";
+    private static final String XML_URI = "http://www.iana.org/assignments/media-types/application/xml";
+
+    private static final NodeValue TRUE = new NodeValueBoolean(true);
+
+    private static final NodeValue FALSE = new NodeValueBoolean(false);
+
+    private static final FUN_XPath function = new FUN_XPath();
+
+    private static final RDFDatatype DT = TypeMapper.getInstance().getSafeTypeByName(XML_URI);
+
+    private static final DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
+
+    private static final TransformerFactory TRANSFORMER_FACTORY = TransformerFactory.newInstance();
+
+    static {
+        builderFactory.setNamespaceAware(true);
+    }
 
     @Override
-    public List<List<NodeValue>> exec(NodeValue xml, NodeValue v2) {
-        if (xml.getDatatypeURI() != null
-                && !xml.getDatatypeURI().equals(datatypeUri)
+    public Collection<List<NodeValue>> exec(List<NodeValue> args) {
+        if (args.size() < 2) {
+            LOG.debug("Expecting at least two arguments.");
+            throw new ExprEvalException("Expecting at least two arguments.");
+        }
+        final NodeValue xml = args.get(0);
+        if (!xml.isIRI() && !xml.isString() && !xml.asNode().isLiteral()) {
+            LOG.debug("First argument must be a URI or a String.");
+            throw new ExprEvalException("First argument must be a URI or a String.");
+        }
+        if (!xml.isIRI() && xml.getDatatypeURI() != null
+                && !xml.getDatatypeURI().equals(XML_URI)
                 && !xml.getDatatypeURI().equals("http://www.w3.org/2001/XMLSchema#string")) {
-            LOG.debug("The URI of NodeValue1 MUST be"
-                    + " <" + datatypeUri + "> "
-                    + " or <http://www.w3.org/2001/XMLSchema#string>. Got "
+            LOG.debug("The datatype of the first argument should be"
+                    + " <" + XML_URI + "> or"
+                    + " <http://www.w3.org/2001/XMLSchema#string>. Got "
                     + xml.getDatatypeURI());
         }
-        DocumentBuilderFactory builderFactory
-                = DocumentBuilderFactory.newInstance();
-        builderFactory.setNamespaceAware(true);
-        DocumentBuilder builder = null;
-        try {
-            // THIS IS A HACK !! FIND A BETTER WAY TO MANAGE NAMESPACES
-            String xmlstring = xml.asNode().getLiteralLexicalForm().replaceAll("xmlns=\"[^\"]*\"", "");
 
-            builder = builderFactory.newDocumentBuilder();
-            Document document = builder
-                    .parse(new ByteArrayInputStream(xmlstring.getBytes("UTF-8")));
+        // @TODO: FIND A BETTER WAY TO MANAGE NAMESPACES
+        String xmlString = getString(xml).replaceAll("xmlns=\"[^\"]*\"", "");;
 
-            XPath xPath = XPathFactory.newInstance().newXPath();
-
-            NodeList nodeList = (NodeList) xPath
-                    .compile(v2.getString())
-                    .evaluate(document, XPathConstants.NODESET);
-
-            //will contain the final results
-            List<NodeValue> nodeValues = new ArrayList<>(nodeList.getLength());
-
-            for (int i = 0; i < nodeList.getLength(); i++) {
-
-                org.w3c.dom.Node xmlNode = nodeList.item(i);
-
-                RDFDatatype dt = TypeMapper.getInstance()
-                        .getSafeTypeByName(datatypeUri);
-                /*
-                Node node = NodeFactory.createLiteral(xmlNode.getNodeValue(), dt);
-                NodeValue nodeValue = new NodeValueNode(node);
-                nodeValues.add(nodeValue);
-                 */
-                NodeValue nodeValue = null;
-                Object value = xmlNode.getNodeValue();
-                if (value instanceof Float) {
-                    nodeValue = new NodeValueFloat((Float) value);
-                } else if (value instanceof Boolean) {
-                    nodeValue = new NodeValueBoolean((Boolean) value);
-                } else if (value instanceof Integer) {
-                    nodeValue = new NodeValueInteger((Integer) value);
-                } else if (value instanceof Double) {
-                    nodeValue = new NodeValueDouble((Double) value);
-                } else if (value instanceof BigDecimal) {
-                    nodeValue = new NodeValueDecimal((BigDecimal) value);
-                } else if (value instanceof String) {
-                    nodeValue = new NodeValueString((String) value);
-                } else {
-
-                    TransformerFactory tFactory = TransformerFactory.newInstance();
-                    Transformer transformer = tFactory.newTransformer();
-                    DOMSource source = new DOMSource(xmlNode);
-                    StringWriter writer = new StringWriter();
-                    transformer.transform(source, new StreamResult(writer));
-                    Node node = NodeFactory.createLiteral(writer.getBuffer().toString(), dt);
-                    nodeValue = new NodeValueNode(node);
-                }
-                nodeValues.add(nodeValue);
-            }
-            LOG.trace("Evaluation of " + v2 + ": " + nodeValues.size() + " values");
-            return new ArrayList<>(Collections.singletonList(nodeValues));
-        } catch (Exception ex) {
-            LOG.debug("No evaluation for " + xml + ", " + v2, ex);
-            throw new ExprEvalException("No evaluation for " + v2, ex);
+        final NodeValue xPathNode = args.get(1);
+        if (!xPathNode.isString()) {
+            LOG.debug("Second argument must be a String.");
+            throw new ExprEvalException("Second argument must be a String.");
         }
+
+        String[] subqueries = new String[args.size() - 2];
+        if (args.size() > 2) {
+            for (int i = 2; i < args.size(); i++) {
+                final NodeValue subquery = args.get(i);
+                if (!subquery.isString()) {
+                    LOG.debug("Argument " + i + " must be a String.");
+                    throw new ExprEvalException("Argument " + i + " must be a String.");
+                }
+                subqueries[i - 2] = subquery.getString();
+            }
+        }
+
+        try {
+            InputStream is = new ByteArrayInputStream(xmlString.getBytes("UTF-8"));
+            DocumentBuilder builder = builderFactory.newDocumentBuilder();
+            Document document = builder.parse(is);
+            XPath xPath = XPathFactory.newInstance().newXPath();
+            xPath.setNamespaceContext(new FUN_XPath.UniversalNamespaceResolver(document));
+            NodeList nodeList = (NodeList) xPath
+                    .compile(xPathNode.getString())
+                    .evaluate(document, XPathConstants.NODESET);
+            int size = nodeList.getLength();
+            final Collection<List<NodeValue>> collectionNodeValues = new HashSet<>(size);
+            for (int i = 0; i < size; i++) {
+                org.w3c.dom.Node value = nodeList.item(i);
+                List<NodeValue> nodeValues = new ArrayList<>(args.size() + 1);
+                NodeValue nodeValue = function.nodeForNode(value);
+                nodeValues.add(nodeValue);
+                for (String subquery : subqueries) {
+                    try {
+                        InputStream subis = new ByteArrayInputStream(nodeValue.asString().getBytes("UTF-8"));
+                        Document subDocument = builder.parse(subis);
+                        org.w3c.dom.Node subvalue = (org.w3c.dom.Node) xPath
+                                .compile(subquery)
+                                .evaluate(subDocument, XPathConstants.NODE);
+//                        LOG.trace("subvalue " + subvalue);
+                        nodeValues.add(function.nodeForNode(subvalue));
+                    } catch (Exception ex) {
+                        LOG.debug("No evaluation for " + value + ", " + subquery, ex);
+                        nodeValues.add(null);
+                    }
+                }
+                nodeValues.add(new NodeValueInteger(i));
+                nodeValues.add((i == size - 1) ? TRUE : FALSE);
+                collectionNodeValues.add(nodeValues);
+            }
+            return collectionNodeValues;
+        } catch (Exception ex) {
+            LOG.debug("No evaluation for " + xmlString + ", " + xPathNode, ex);
+            throw new ExprEvalException("No evaluation for " + xmlString + ", " + xPathNode, ex);
+        }
+    }
+
+    private String getString(NodeValue xml) throws ExprEvalException {
+        if (xml.isString()) {
+            return xml.getString();
+        } else if (xml.isLiteral() && xml.asNode().getLiteralDatatypeURI().equals(XML_URI)) {
+            return xml.asNode().getLiteralLexicalForm();
+        } else if (!xml.isIRI()) {
+            String message = String.format("First argument must be a URI or a String");
+            LOG.warn(message);
+            throw new ExprEvalException(message);
+        }
+        String xmlPath = xml.asNode().getURI();
+        String acceptHeader = "application/xml";
+        LookUpRequest req = new LookUpRequest(xmlPath, acceptHeader);
+        SPARQLGenerateStreamManager sm = getContext().getStreamManager();
+        Objects.requireNonNull(sm);
+        TypedInputStream tin = sm.open(req);
+        if (tin == null) {
+            String message = String.format("Could not look up xml document %s", xmlPath);
+            LOG.warn(message);
+            throw new ExprEvalException(message);
+        }
+
+        try {
+            String output = IOUtils.toString(tin.getInputStream(), StandardCharsets.UTF_8);
+            if (LOG.isTraceEnabled()) {
+                String log = output;
+                LOG.debug("Loaded <" + xmlPath + "> ACCEPT "
+                        + acceptHeader + ". Enable TRACE level for more.");
+                if (log.length() > 200) {
+                    log = log.substring(0, 120) + "\n"
+                            + " ... \n" + log.substring(log.length() - 80);
+                }
+                LOG.trace("Loaded <" + xmlPath + "> ACCEPT "
+                        + acceptHeader + ". returned\n" + log);
+            }
+            return output;
+        } catch (IOException ex) {
+            throw new ExprEvalException("IOException while looking up xml document " + xmlPath, ex);
+        }
+    }
+
+    @Override
+    public void checkBuild(ExprList args) {
+        Objects.nonNull(args);
     }
 }

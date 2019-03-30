@@ -17,8 +17,10 @@
  */
 package com.github.thesmartenergy.sparql.generate.jena.iterator;
 
+import java.util.Collection;
 import java.util.List;
-import java.util.function.Consumer;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
 import org.apache.jena.query.QueryBuildException;
 import org.apache.jena.sparql.ARQInternalErrorException;
 import org.apache.jena.sparql.expr.ExprEvalException;
@@ -45,7 +47,7 @@ public abstract class IteratorStreamFunctionBase1 extends IteratorStreamFunction
      * {@inheritDoc}
      */
     @Override
-    public final void exec(List<NodeValue> args, Consumer<List<List<NodeValue>>> nodeValuesStream) {
+    public final CompletableFuture<Void> exec(List<NodeValue> args, Function<Collection<List<NodeValue>>, CompletableFuture<Void>> nodeValuesStream) {
         if (args == null) {
             throw new ARQInternalErrorException("SelectorBase1:"
                     + " Null args list");
@@ -55,11 +57,11 @@ public abstract class IteratorStreamFunctionBase1 extends IteratorStreamFunction
                     + " arguments: Wanted 1, got " + args.size());
         }
         NodeValue v1 = args.get(0);
-        exec(v1, nodeValuesStream);
+        return exec(v1, nodeValuesStream);
     }
 
     /**
      * {@inheritDoc}
      */
-    public abstract void exec(NodeValue v, Consumer<List<List<NodeValue>>> nodeValuesStream);
+    public abstract CompletableFuture<Void> exec(NodeValue v, Function<Collection<List<NodeValue>>, CompletableFuture<Void>> nodeValuesStream);
 }

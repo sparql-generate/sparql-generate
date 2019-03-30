@@ -2,7 +2,7 @@
     "documentset": [
         {
             "uri": "https://example.countries.html",
-            "mediatype": "html/text",
+            "mediatype": "text/html",
             "path": "documentset/countries.html"
         }
     ],

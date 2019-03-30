@@ -18,6 +18,7 @@ package com.github.thesmartenergy.sparql.generate.jena.serializer;
 import com.github.thesmartenergy.sparql.generate.jena.graph.Node_Expr;
 import com.github.thesmartenergy.sparql.generate.jena.graph.Node_ExtendedLiteral;
 import com.github.thesmartenergy.sparql.generate.jena.graph.Node_ExtendedURI;
+import com.github.thesmartenergy.sparql.generate.jena.graph.Node_List;
 import org.apache.jena.atlas.io.IndentedWriter;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.Triple;
@@ -101,6 +102,12 @@ public class SPARQLGenerateFmtUtils {
                 }
             }
             out.print(">");
+        } else if (n instanceof Node_List) {
+            SPARQLGenerateFmtExprSPARQL v = new SPARQLGenerateFmtExprSPARQL(out, context);
+            Node_List n2 = (Node_List) n;
+            out.print("LIST( ");
+            v.format(n2.getExpr());
+            out.print(" )");
         } else {
             out.print(FmtUtils.stringForNode(n, context));
         }

@@ -15,29 +15,30 @@
  */
 package com.github.thesmartenergy.sparql.generate.jena.engine;
 
+import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerateContext;
 import com.github.thesmartenergy.sparql.generate.jena.engine.impl.BindingHashMapOverwrite;
-import java.util.List;
-import org.apache.jena.sparql.core.Var;
-import java.util.function.Consumer;
-import org.apache.jena.sparql.util.Context;
+import java.util.Collection;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
 
 /**
  * Executes a ITERATOR clause.
+ *
  * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */
-public interface IteratorPlan extends IteratorOrSourcePlan {
-    
+public interface IteratorPlan extends IteratorOrSourceOrBindPlan {
+
     /**
      * Updates the values block.
-     * @param variables the already bound variables.
-     * @param values the existing bindings.
-     * @param bindingStream where new bindings are emited.
+     *
+     * @param binding the existing bindings.
+     * @param valuesStream where new bindings are emited.
      * @param context the execution context.
+     * @return the future that will be completed when the iterator completes.
      */
-    void exec(
-            final List<Var> variables,
-            final List<BindingHashMapOverwrite> values,
-            final Consumer<List<BindingHashMapOverwrite>> bindingStream,
-            final Context context );
-    
+    CompletableFuture<Void> exec(
+            final BindingHashMapOverwrite binding,
+            final SPARQLGenerateContext context,
+            final Function<Collection<BindingHashMapOverwrite>, CompletableFuture<Void>> valuesStream);
+
 }

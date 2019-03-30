@@ -33,6 +33,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import java.util.ArrayList;
 import java.util.Map;
+import org.apache.jena.datatypes.RDFDatatype;
+import org.apache.jena.datatypes.TypeMapper;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueNode;
@@ -48,7 +50,8 @@ import org.slf4j.Logger;
  * <li>Param 1 is a JSON document;</li>
  * <li>Param 2 is the JSONPath query. See https://github.com/json-path/JsonPath
  * for the syntax specification;</li>
- * <li>Result is a xsd:string.</li>
+ * <li>Result is a boolean, float, double, integer, string, as it best
+ * fits.</li>
  * </ul>
  *
  * @author Noorani Bakerally <noorani.bakerally at emse.fr>
@@ -71,68 +74,71 @@ public final class FUN_JSONPath extends FunctionBase2 {
      */
     private static final String datatypeUri = "http://www.iana.org/assignments/media-types/application/json";
 
-    /**
-     *
-     * @param json a RDF Literal with datatype URI
-     * {@code <http://www.iana.org/assignments/media-types/application/json>} or
-     * {@code xsd:string}
-     * @param jsonpath a RDF Literal with datatype {@code xsd:string}
-     * @return a RDF Literal with datatype being the type of the object
-     * extracted from the JSON document
-     */
+    private static RDFDatatype dt = TypeMapper.getInstance().getSafeTypeByName(datatypeUri);
+
+    private static Gson GSON = new Gson();
+
     @Override
     public NodeValue exec(NodeValue json, NodeValue jsonpath) {
         if (json.getDatatypeURI() != null
                 && !json.getDatatypeURI().equals(datatypeUri)
                 && !json.getDatatypeURI().equals("http://www.w3.org/2001/XMLSchema#string")) {
-            LOG.debug("The URI of NodeValue1 MUST be <" + datatypeUri + ">"
+            LOG.debug("The datatype of the first argument should be <" + datatypeUri + ">"
                     + " or <http://www.w3.org/2001/XMLSchema#string>. Got "
                     + json.getDatatypeURI());
+        }
+        if (!jsonpath.isString()) {
+            LOG.debug("The second argument should be a string. Got " + json);
         }
 
         try {
             Object value = JsonPath.parse(json.asNode().getLiteralLexicalForm())
                     .limit(1).read(jsonpath.getString());
-            if (value instanceof String) {
-                return new NodeValueString((String) value);
-            } else if (value instanceof Float) {
-                return new NodeValueFloat((Float) value);
-            } else if (value instanceof Boolean) {
-                return new NodeValueBoolean((Boolean) value);
-            } else if (value instanceof Integer) {
-                return new NodeValueInteger((Integer) value);
-            } else if (value instanceof Long) {
-                return new NodeValueInteger((Long) value);
-            } else if (value instanceof Double) {
-                return new NodeValueDouble((Double) value);
-            } else if (value instanceof BigDecimal) {
-                return new NodeValueDecimal((BigDecimal) value);
-            } else if (value instanceof ArrayList) {
-                String jsonString = new Gson().toJson(value);
-                return new NodeValueString(jsonString);
-            } else if (value instanceof Map) {
-                String jsonString = new Gson().toJson(value, Map.class);
-                return new NodeValueString(jsonString);
-            } else {
-                String strValue = String.valueOf(value);
-
-                JsonParser parser = new JsonParser();
-                JsonElement valElement = parser.parse(strValue);
-                JsonArray list = valElement.getAsJsonArray();
-
-                if (list.size() == 1) {
-                    String jsonstring = list.get(0).getAsString();
-                    Node node = NodeFactory.createLiteral(jsonstring);
-                    NodeValue nodeValue = new NodeValueNode(node);
-                    return nodeValue;
-
-                } else {
-                    return new NodeValueString(String.valueOf(value));
-                }
-            }
+            return nodeForObject(value);
         } catch (Exception ex) {
             LOG.debug("No evaluation of " + json + ", " + jsonpath, ex);
             throw new ExprEvalException("No evaluation of " + json + ", " + jsonpath, ex);
+        }
+    }
+
+    public NodeValue nodeForObject(Object value) {
+        if (value instanceof String) {
+            return new NodeValueString((String) value);
+        } else if (value instanceof Float) {
+            return new NodeValueFloat((Float) value);
+        } else if (value instanceof Boolean) {
+            return new NodeValueBoolean((Boolean) value);
+        } else if (value instanceof Integer) {
+            return new NodeValueInteger((Integer) value);
+        } else if (value instanceof Long) {
+            return new NodeValueInteger((Long) value);
+        } else if (value instanceof Double) {
+            return new NodeValueDouble((Double) value);
+        } else if (value instanceof BigDecimal) {
+            return new NodeValueDecimal((BigDecimal) value);
+        } else if (value instanceof ArrayList) {
+            String jsonString = new Gson().toJson(value);
+            return new NodeValueString(jsonString);
+        } else if (value instanceof Map) {
+            String jsonString = GSON.toJson(value, Map.class);
+            return new NodeValueNode(NodeFactory.createLiteral(jsonString, dt));
+        } else {
+            String strValue = String.valueOf(value);
+
+            JsonParser parser = new JsonParser();
+            JsonElement valElement = parser.parse(strValue);
+            JsonArray list = valElement.getAsJsonArray();
+
+            if (list.size() == 1) {
+                String jsonstring = list.get(0).getAsString();
+                Node node = NodeFactory.createLiteral(jsonstring);
+                NodeValue nodeValue = new NodeValueNode(node);
+                return nodeValue;
+
+            } else {
+                return new NodeValueString(String.valueOf(value));
+            }
+
         }
     }
 }

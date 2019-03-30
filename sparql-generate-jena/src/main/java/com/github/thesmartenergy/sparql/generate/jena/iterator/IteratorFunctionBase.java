@@ -15,8 +15,10 @@
  */
 package com.github.thesmartenergy.sparql.generate.jena.iterator;
 
+import java.util.Collection;
 import java.util.List;
-import java.util.function.Consumer;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
 import org.apache.jena.sparql.expr.NodeValue;
 
 /**
@@ -25,16 +27,17 @@ import org.apache.jena.sparql.expr.NodeValue;
 public abstract class IteratorFunctionBase extends IteratorStreamFunctionBase {
 
     @Override
-    public final void exec(List<NodeValue> args, Consumer<List<List<NodeValue>>> nodeValuesStream) {
-        List<List<NodeValue>> nodeValues = exec(args);
-        nodeValuesStream.accept(nodeValues);
+    public final CompletableFuture<Void> exec(List<NodeValue> args, Function<Collection<List<NodeValue>>, CompletableFuture<Void>> nodeValuesStream) {
+        Collection<List<NodeValue>> nodeValues = exec(args);
+        return nodeValuesStream.apply(nodeValues);
     }
 
     /**
      * IteratorFunction call to a list of evaluated argument values.
+     *
      * @param args -
      * @return -
      */
-    public abstract List<List<NodeValue>> exec(List<NodeValue> args);
+    public abstract Collection<List<NodeValue>> exec(List<NodeValue> args);
 
 }

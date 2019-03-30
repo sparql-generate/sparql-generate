@@ -15,26 +15,27 @@
  */
 package com.github.thesmartenergy.sparql.generate.jena.engine.impl;
 
+import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerateContext;
 import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerateException;
 import com.github.thesmartenergy.sparql.generate.jena.engine.GeneratePlan;
-import com.github.thesmartenergy.sparql.generate.jena.engine.GenerateTemplateElementPlan;
 import com.github.thesmartenergy.sparql.generate.jena.syntax.Param;
+import java.util.ArrayList;
 import java.util.List;
 import org.apache.jena.graph.Node;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.QuerySolutionMap;
-import org.apache.jena.riot.system.StreamRDF;
 import org.apache.jena.sparql.core.Var;
-import org.apache.jena.sparql.util.Context;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
+import java.util.concurrent.CompletableFuture;
+import org.apache.jena.riot.system.StreamRDF;
 
 /**
  * The GENERATE {...} template.
  *
  * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */
-public class GenerateTemplatePlanImpl extends PlanBase implements GeneratePlan {
+public class GenerateTemplatePlanImpl implements GeneratePlan {
 
     /**
      * the logger.
@@ -44,7 +45,7 @@ public class GenerateTemplatePlanImpl extends PlanBase implements GeneratePlan {
     /**
      * the list of generate blocks.
      */
-    private final List<GenerateTemplateElementPlan> templateElementPlans;
+    private final List<GeneratePlan> templateElementPlans;
 
     /**
      * Constructs a new Generate plan from the given list of generate block
@@ -53,7 +54,7 @@ public class GenerateTemplatePlanImpl extends PlanBase implements GeneratePlan {
      * @param templateElementPlans a list of plans
      */
     public GenerateTemplatePlanImpl(
-            final List<GenerateTemplateElementPlan> templateElementPlans) {
+            final List<GeneratePlan> templateElementPlans) {
         this.templateElementPlans = templateElementPlans;
     }
 
@@ -62,7 +63,7 @@ public class GenerateTemplatePlanImpl extends PlanBase implements GeneratePlan {
      *
      * @return a list of plans
      */
-    public List<GenerateTemplateElementPlan> getTemplateElementsPlans() {
+    public List<GeneratePlan> getTemplateElementsPlans() {
         return templateElementPlans;
     }
 
@@ -70,66 +71,73 @@ public class GenerateTemplatePlanImpl extends PlanBase implements GeneratePlan {
      * {@inheritDoc}
      */
     @Override
-    public void exec(
+    public CompletableFuture<Void> exec(
             final Dataset inputDataset,
+            final BindingHashMapOverwrite binding,
             final StreamRDF outputStream,
-            final List<Var> variables,
-            final List<BindingHashMapOverwrite> values,
             final BNodeMap bNodeMap,
-            final Context context) {
-        values.forEach((binding) -> {
-            BNodeMap bNodeMap2 = new BNodeMap(bNodeMap, binding);
-            templateElementPlans.forEach((el) -> {
-                if (el instanceof GenerateTriplesPlanImpl) {
-                    GenerateTriplesPlanImpl subPlanTriples
-                            = (GenerateTriplesPlanImpl) el;
-                    subPlanTriples.exec(
-                            inputDataset, outputStream,
-                            binding, bNodeMap2);
-                } else if (el instanceof RootPlanImpl) {
-                    RootPlanImpl rootPlan = (RootPlanImpl) el;
-                    QuerySolutionMap b = new QuerySolutionMap();
-                    List<Param> signature = rootPlan.getQuerySignature();
-                    if(signature == null) {
-                        binding.varsList().forEach((v) -> {
-                            Node n = binding.get(v);
-                            if (!(n == null)) {
-                                if (bNodeMap.contains(n)) {
-                                    b.add(v.getVarName(), inputDataset
-                                            .getDefaultModel()
-                                            .asRDFNode(bNodeMap.get(n)));
-                                } else {
-                                    b.add(v.getVarName(), inputDataset
-                                            .getDefaultModel()
-                                            .asRDFNode(n));
-                                }
-                            }
-                        });
-                    } else {
-                        signature.forEach((param) -> {
-                            Var p = param.getVar();
-                            Node n = binding.get(p);
-                            if (!(n == null)) {
-                                if (bNodeMap.contains(n)) {
-                                    b.add(p.getVarName(), inputDataset
-                                            .getDefaultModel()
-                                            .asRDFNode(bNodeMap.get(n)));
-                                } else {
-                                    b.add(p.getVarName(), inputDataset
-                                            .getDefaultModel()
-                                            .asRDFNode(n));
-                                }
-                            }
-                        });                        
-                    }
-                    LOG.trace("Entering sub SPARQL-Generate with \n\t" + b);
-                    rootPlan.exec(inputDataset, b, outputStream, bNodeMap2, context);
-                } else {
-                    throw new SPARQLGenerateException("should not reach this"
-                            + " point");
-                }
-            });
-        });
+            final SPARQLGenerateContext context) {
+        return exec(inputDataset, binding, outputStream, bNodeMap, context, 0);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public CompletableFuture<Void> exec(
+            final Dataset inputDataset,
+            final BindingHashMapOverwrite binding,
+            final StreamRDF outputStream,
+            final BNodeMap bNodeMap,
+            final SPARQLGenerateContext context,
+            final int position) {
+        final List<CompletableFuture<Void>> fs = new ArrayList<>();
+        final BNodeMap bNodeMap2 = new BNodeMap(bNodeMap, binding);
+        templateElementPlans.forEach((el) -> {
+            if (el instanceof GenerateTriplesPlanImpl) {
+                final GenerateTriplesPlanImpl subPlan = (GenerateTriplesPlanImpl) el;
+                fs.add(subPlan.exec(inputDataset, binding, outputStream, bNodeMap2, context, position));
+            } else if (el instanceof RootPlanImpl) {
+                final RootPlanImpl subPlan = (RootPlanImpl) el;
+                final BindingHashMapOverwrite newBinding = makeQuerySolution(subPlan, inputDataset, binding, bNodeMap, context);
+                LOG.trace("Binding was \n\t" + binding);
+                LOG.trace("Entering sub SPARQL-Generate with \n\t" + newBinding);
+                fs.add(subPlan.exec(inputDataset, newBinding, outputStream, bNodeMap2, context));
+            } else {
+                throw new SPARQLGenerateException("should not reach this point" + el);
+            }
+        });
+        return CompletableFuture.allOf(fs.toArray(new CompletableFuture[fs.size()]));
+    }
+
+    private BindingHashMapOverwrite makeQuerySolution(
+            final RootPlanImpl rootPlan,
+            final Dataset inputDataset,
+            final BindingHashMapOverwrite binding,
+            final BNodeMap bNodeMap,
+            final SPARQLGenerateContext context) {
+        final QuerySolutionMap b = new QuerySolutionMap();
+        final List<Var> variables = new ArrayList<>();
+        final List<Param> signature = rootPlan.getQuerySignature();
+        if (signature == null) {
+            variables.addAll(binding.varsList());
+        } else {
+            signature.forEach(s -> variables.add(s.getVar()));
+        }
+        variables.forEach((v) -> {
+            Node n = binding.get(v);
+            if (!(n == null)) {
+                if (bNodeMap.contains(n)) {
+                    b.add(v.getVarName(), inputDataset
+                            .getDefaultModel()
+                            .asRDFNode(bNodeMap.get(n)));
+                } else {
+                    b.add(v.getVarName(), inputDataset
+                            .getDefaultModel()
+                            .asRDFNode(n));
+                }
+            }
+        });
+        return new BindingHashMapOverwrite(b, context);
+    }
 }

@@ -6,19 +6,10 @@ PREFIX transit: <http://vocab.org/transit/terms/>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> 
 
 GENERATE { 
-  ?airportURI a transit:Stop;
-        transit:route ?route1;
-        wgs84_pos:lat ?lat;
-        wgs84_pos:long ?long .
+  <http://airport.example.com/{ ?id }> a transit:Stop;
+        transit:route "{ ?stop }"^^xsd:integer ;
+        wgs84_pos:lat "{ ?lat }"^^xsd:decimal;
+        wgs84_pos:long "{ ?long }"^^xsd:decimal .
 
 }
-SOURCE <http://example.com/airport.csv> AS ?source
-ITERATOR ite:CSV(?source) AS ?bus
-WHERE {
-    BIND( fun:CSV(?bus, "id" ) AS ?id )
-    BIND( fun:CSV(?bus, "stop" ) AS ?route )
-    BIND(STRDT(STR(?route), xsd:int) AS ?route1)
-    BIND( fun:CSV(?bus, "longitude" ) AS ?long )
-    BIND( fun:CSV(?bus, "latitude" ) AS ?lat )
-    BIND (URI(CONCAT("http://airport.example.com/",?id)) AS ?airportURI)
-}
+ITERATOR ite:CSV(<http://example.com/airport.csv>, "id", "stop", "longitude", "latitude" ) AS ?id ?stop ?long ?lat

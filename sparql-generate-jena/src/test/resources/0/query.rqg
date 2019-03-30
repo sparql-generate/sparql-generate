@@ -1,0 +1,11 @@
+BASE <http://example.com/> 
+PREFIX ite: <http://w3id.org/sparql-generate/iter/>
+PREFIX fun: <http://w3id.org/sparql-generate/fn/>
+
+GENERATE { 
+
+ [] <p> ?i .
+
+} WHERE {
+  VALUES (?i) { ( 1 ) ( 2 ) }
+}

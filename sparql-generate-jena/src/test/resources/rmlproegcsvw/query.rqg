@@ -9,16 +9,8 @@ PREFIX transit: <http://vocab.org/transit/terms/>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> 
 
 GENERATE { 
-  ?airportIRI a transit:Stop;
+  <http://airport.example.com/{?id}> a transit:Stop;
         transit:service ?bus;
         wgs84_pos:location ?city .
-       
 }
-SOURCE <http://example.com/airport.csv> AS ?source
-ITERATOR ite:CustomCSV(?source,'"',";","\n","true"^^xsd:boolean) AS ?busRow
-WHERE {
-    BIND( fun:CustomCSV(?busRow, "bus",'"',";","\n","true"^^xsd:boolean) AS ?bus )
-    BIND( fun:CustomCSV(?busRow, "city",'"',";","\n","true"^^xsd:boolean) AS ?city )
-    BIND( fun:CustomCSV(?busRow, "id",'"',";","\n","true"^^xsd:boolean) AS ?id )
-    BIND ( IRI(CONCAT("http://airport.example.com/",?id)) as ?airportIRI)
-}
+ITERATOR ite:CSV(<http://example.com/airport.csv>, true, '"', ";", "\n", "id", "bus", "city") AS ?id ?bus ?city

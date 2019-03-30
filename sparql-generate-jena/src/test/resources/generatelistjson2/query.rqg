@@ -1,0 +1,10 @@
+BASE <http://example.com/> 
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX ex: <http://example.com/> 
+PREFIX ite: <http://w3id.org/sparql-generate/iter/>
+PREFIX fun: <http://w3id.org/sparql-generate/fn/>
+GENERATE { 
+   <myList1> ex:contains LIST( ?att1 ) .
+   <myList2> ex:contains LIST( ?att2 ) .
+}
+ITERATOR ite:JSONPath( <http://example.com/list.json>, "$.att[*]" , "$.att1" , "$.att2") AS ?element ?att1 ?att2

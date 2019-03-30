@@ -16,6 +16,7 @@
 package com.github.thesmartenergy.sparql.generate.jena.engine.impl;
 
 import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
+import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerateContext;
 import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerateException;
 import com.github.thesmartenergy.sparql.generate.jena.engine.GeneratePlan;
 import com.github.thesmartenergy.sparql.generate.jena.engine.PlanFactory;
@@ -30,26 +31,23 @@ import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Objects;
 import org.apache.commons.io.IOUtils;
-import org.apache.jena.ext.com.google.common.collect.Lists;
 import org.apache.jena.graph.Node;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.QueryFactory;
 import org.apache.jena.query.QueryParseException;
 import org.apache.jena.query.QuerySolutionMap;
 import org.apache.jena.rdf.model.RDFNode;
-import org.apache.jena.riot.system.StreamRDF;
-import org.apache.jena.riot.system.stream.StreamManager;
 import org.apache.jena.sparql.core.Substitute;
-import org.apache.jena.sparql.core.Var;
-import org.apache.jena.sparql.util.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.util.concurrent.CompletableFuture;
+import org.apache.jena.riot.system.StreamRDF;
 
 /**
  *
  * @author maxime.lefrancois
  */
-public class GenerateNamedQueryPlanImpl extends PlanBase implements GeneratePlan {
+public class GenerateNamedQueryPlanImpl implements GeneratePlan {
 
     /**
      * The logger.
@@ -57,7 +55,7 @@ public class GenerateNamedQueryPlanImpl extends PlanBase implements GeneratePlan
     private static final Logger LOG = LoggerFactory.getLogger(GenerateNamedQueryPlanImpl.class);
 
     private final Node name;
-    
+
     private final List<Node> callParameters;
 
     public GenerateNamedQueryPlanImpl(Node name, List<Node> callParameters) {
@@ -65,99 +63,97 @@ public class GenerateNamedQueryPlanImpl extends PlanBase implements GeneratePlan
         this.name = name;
         this.callParameters = callParameters;
     }
+    
 
     @Override
-    public void exec(
+    public CompletableFuture<Void> exec(
             final Dataset inputDataset,
+            final BindingHashMapOverwrite binding,
             final StreamRDF outputStream,
-            final List<Var> variables,
-            final List<BindingHashMapOverwrite> values,
             final BNodeMap bNodeMap,
-            final Context context) {
-
-
-        for(BindingHashMapOverwrite binding : values) {
-
-            // resolves the actual name of the query and get the expanded query
-            final Node n = Substitute.substitute(name, binding);
-            if(!n.isURI()) {
-                throw new UnsupportedOperationException("name of sub query resolved to something else than a URI: " + n);
-            }
-            final String queryName = n.getURI();
-            final RootPlan plan = getPlan(queryName, context);
-            if(plan == null) {
-                return;
-            }
-            final SPARQLGenerateQuery expandedQuery = getLoadedQueries(context).get(queryName);
-            final List<Param> querySignature = expandedQuery.getQuerySignature();
-
-            // prepare the initial binding
-            QuerySolutionMap newInitialBinding = new QuerySolutionMap();
-            if(callParameters!=null && querySignature!=null) {
-                int max = Math.min(callParameters.size(), querySignature.size());
-                if(callParameters.size() != querySignature.size()) {
-                    LOG.debug("The number of parameters is not equal to the size of the signature of query " + queryName+ ". call parameters: " + callParameters + ". and query signature" + querySignature);
-                }
-                for(int i=0; i<max; i++) {
-                    final String parameter = querySignature.get(i).getVar().getVarName();
-                    Node value = callParameters.get(i);
-                    value = Substitute.substitute(value, binding);
-                    if(value.isConcrete()) {
-                        final RDFNode paramJena = inputDataset.getDefaultModel().asRDFNode(value);
-                        newInitialBinding.add(parameter, paramJena);
-                    }
-                }
-            }
-            final BNodeMap bNodeMap2 = new BNodeMap();
-            final BindingHashMapOverwrite newBinding = new BindingHashMapOverwrite(newInitialBinding, context);
-            if(alreadyExecuted(context, queryName, newBinding)) {
-                return;
-            }
-            LOG.debug("Executing " + queryName + ": " + newInitialBinding);
-            registerExecution(context, queryName, newBinding);
-            final List<Var> newVariables = newBinding.varsList();
-            final List<BindingHashMapOverwrite> newValues = Lists.newArrayList(newBinding);
-            plan.exec(inputDataset, outputStream, newVariables, newValues, bNodeMap2, context);
+            final SPARQLGenerateContext context,
+            final int position) {
+        return exec(inputDataset, binding, outputStream, bNodeMap, context);
+    }
+    
+    @Override
+    public CompletableFuture<Void> exec(
+            final Dataset inputDataset,
+            final BindingHashMapOverwrite binding,
+            final StreamRDF outputStream,
+            final BNodeMap bNodeMap,
+            final SPARQLGenerateContext context) {
+        // resolves the actual name of the query and get the expanded query
+        final Node n = Substitute.substitute(name, binding);
+        if (!n.isURI()) {
+            throw new SPARQLGenerateException("Name of sub query "
+                    + "resolved to something else than a URI: " + n);
         }
+        final String queryName = n.getURI();
+        final RootPlan plan;
+        try {
+            plan = getPlan(queryName, context);
+        } catch (NullPointerException | IOException | QueryParseException ex) {
+            String message = "Error while loading the query file " + queryName;
+            throw new SPARQLGenerateException(message, ex);
+        }
+        if (plan == null) {
+            throw new NullPointerException("Could not construct plan for " + queryName);
+        }
+        final SPARQLGenerateQuery expandedQuery = context.getLoadedQueries().get(queryName);
+        final List<Param> querySignature = expandedQuery.getQuerySignature();
+
+        // prepare the initial binding
+        final QuerySolutionMap newInitialBinding = new QuerySolutionMap();
+        if (callParameters != null && querySignature != null) {
+            int max = Math.min(callParameters.size(), querySignature.size());
+            if (callParameters.size() != querySignature.size()) {
+                throw new SPARQLGenerateException("The number of "
+                        + "parameters is not equal to the size of the"
+                        + " signature of query " + queryName + ". call"
+                        + " parameters: " + callParameters + ". and"
+                        + " query signature" + querySignature);
+            }
+            for (int i = 0; i < max; i++) {
+                final String parameter = querySignature.get(i).getVar().getVarName();
+                Node value = callParameters.get(i);
+                value = Substitute.substitute(value, binding);
+                if (value.isConcrete()) {
+                    final RDFNode paramJena = inputDataset.getDefaultModel().asRDFNode(value);
+                    newInitialBinding.add(parameter, paramJena);
+                }
+            }
+        }
+        final BindingHashMapOverwrite newBinding
+                = new BindingHashMapOverwrite(newInitialBinding, context);
+        if (context.alreadyExecuted(queryName, newBinding)) {
+            LOG.debug("Already executed " + queryName + " with same bindings.");
+            LOG.trace("Already executed " + queryName + " with bindings " + newInitialBinding);
+            return null;
+        }
+        context.registerExecution(queryName, newBinding);
+        LOG.trace("Executing " + queryName + ": " + newInitialBinding);
+
+        return plan.exec(inputDataset, newBinding, outputStream, new BNodeMap(), context);
     }
 
-    private RootPlan getPlan(String queryName, Context context) {
-        if(getLoadedPlans(context).containsKey(queryName)) {
-            return getLoadedPlans(context).get(queryName);
+    private RootPlan getPlan(
+            String queryName,
+            final SPARQLGenerateContext context)
+            throws NullPointerException, IOException, QueryParseException {
+        if (context.getLoadedPlans().containsKey(queryName)) {
+            return context.getLoadedPlans().get(queryName);
         }
-
-        try {
-            final LookUpRequest request = new LookUpRequest(queryName, SPARQLGenerate.MEDIA_TYPE);
-            
-            final SPARQLGenerateStreamManager sm = context.get(SPARQLGenerate.STREAM_MANAGER);
-            Objects.requireNonNull(sm);
-            final InputStream in = sm.open(request);
-            Objects.requireNonNull(in);
-            String qString = IOUtils.toString(in, Charset.forName("UTF-8"));
-            final SPARQLGenerateQuery q
-                    = (SPARQLGenerateQuery) QueryFactory.create(qString,
-                            SPARQLGenerate.SYNTAX);
-            getLoadedQueries(context).put(queryName, q);
-
-            final RootPlan plan = PlanFactory.create(q);
-            getLoadedPlans(context).put(queryName, plan);
-
-            return plan;
-        } catch (NullPointerException ex) {
-            LOG.error("NullPointerException while loading the query"
-                    + " file " + queryName + ": " + ex.getMessage());
-            throw new SPARQLGenerateException("NullPointerException exception while loading the query"
-                    + " file " + queryName + ": " + ex.getMessage());
-        } catch (IOException ex) {
-            LOG.error("IOException while loading the query"
-                    + " file " + queryName + ": " + ex.getMessage());
-            throw new SPARQLGenerateException("IOException  while loading the query"
-                    + " file " + queryName + ": " + ex.getMessage());
-        } catch (QueryParseException ex) {
-            LOG.error("QueryParseException while parsing the query"
-                    + queryName + ": " + ex.getMessage());
-            throw new SPARQLGenerateException("QueryParseException while parsing the query "
-                    + queryName + ": " + ex.getMessage());
-        }
+        final LookUpRequest request = new LookUpRequest(queryName, SPARQLGenerate.MEDIA_TYPE);
+        final SPARQLGenerateStreamManager sm = context.getStreamManager();
+        final InputStream in = sm.open(request);
+        String qString = IOUtils.toString(in, Charset.forName("UTF-8"));
+        final SPARQLGenerateQuery q
+                = (SPARQLGenerateQuery) QueryFactory.create(qString,
+                        SPARQLGenerate.SYNTAX);
+        context.getLoadedQueries().put(queryName, q);
+        final RootPlan plan = PlanFactory.createPlanForSubQuery(q);
+        context.getLoadedPlans().put(queryName, plan);
+        return plan;
     }
 }

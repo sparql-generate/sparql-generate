@@ -36,7 +36,6 @@ import org.apache.jena.query.QueryFactory;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFLanguages;
-import org.apache.jena.riot.system.StreamRDF;
 import org.apache.jena.shared.PrefixMapping;
 import org.apache.jena.sparql.core.Quad;
 import org.apache.jena.sparql.serializer.SerializationContext;
@@ -54,9 +53,8 @@ import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import org.apache.jena.query.ARQ;
-import org.apache.jena.riot.system.stream.StreamManager;
-import org.apache.jena.sparql.util.Context;
+import org.apache.jena.query.Query;
+import org.apache.jena.riot.system.StreamRDF;
 
 /**
  * @author Noorani Bakerally <noorani.bakerally at emse.fr>, Maxime Lefrançois
@@ -118,98 +116,110 @@ public class SPARQLGenerateCli {
             LOG.warn("Error while loading the location mapping model for the queryset. No named queries will be used");
             request = Request.DEFAULT;
         }
-        
 
         // initialize stream manager
         SPARQLGenerateStreamManager sm = SPARQLGenerateStreamManager
                 .makeStreamManager(new LocatorFileAccept(dir.toURI().getPath()));
         sm.setLocationMapper(request.asLocationMapper());
 
-        Context context = new Context(ARQ.getContext());
-        context.set(SPARQLGenerate.STREAM_MANAGER, sm);
-        StreamManager.setGlobal(sm);
+        try (SPARQLGenerateContext context = new SPARQLGenerateRootContext(sm)) {
 
-        String queryPath = cl.getOptionValue(ARG_QUERY, ARG_QUERY_DEFAULT);
-        String query;
-        try {
-            query = IOUtils.toString(sm
-                    .open(new LookUpRequest(queryPath, SPARQLGenerate.MEDIA_TYPE)), StandardCharsets.UTF_8);
-        } catch (IOException | NullPointerException ex) {
-            LOG.error("No file named {} was found in the directory that contains the query to be executed.", queryPath);
-            return;
-        }
+            String queryPath = cl.getOptionValue(ARG_QUERY, ARG_QUERY_DEFAULT);
+            String query;
+            try {
+                query = IOUtils.toString(sm
+                        .open(new LookUpRequest(queryPath, SPARQLGenerate.MEDIA_TYPE)), StandardCharsets.UTF_8);
+            } catch (IOException | NullPointerException ex) {
+                LOG.error("No file named {} was found in the directory that contains the query to be executed.", queryPath);
+                return;
+            }
 
-        SPARQLGenerateQuery q;
-        try {
-            q = (SPARQLGenerateQuery) QueryFactory.create(query, SPARQLGenerate.SYNTAX);
+            SPARQLGenerateQuery q;
+            try {
+                q = (SPARQLGenerateQuery) QueryFactory.create(query, SPARQLGenerate.SYNTAX);
+            } catch (Exception ex) {
+                LOG.error("Error while parsing the query to be executed.", ex);
+                return;
+            }
+
+            replaceSourcesIfRequested(cl, q);
+
+            RootPlan plan;
+            try {
+                plan = PlanFactory.create(q);
+            } catch (Exception ex) {
+                LOG.error("Error while creating the plan for the query.", ex);
+                return;
+            }
+
+            final Dataset ds = getDataset(dir, request);
+
+            String output = cl.getOptionValue(ARG_OUTPUT);
+            boolean outputAppend = cl.hasOption(ARG_OUTPUT_APPEND);
+            Lang outputLang = RDFLanguages.nameToLang(cl.getOptionValue(ARG_OUTPUT_FORMAT, RDFLanguages.strLangTurtle));
+
+            boolean stream = cl.hasOption(ARG_STREAM);
+            if (stream) {
+                execAsync(q, plan, ds, context, output, outputAppend);
+            } else {
+                execSync(q, plan, ds, context, outputLang, output, outputAppend);
+            }
+            long millis = Duration.between(start, Instant.now()).toMillis();
+            System.out.println("Program finished in " + String.format("%d min, %d sec",
+                    TimeUnit.MILLISECONDS.toMinutes(millis),
+                    TimeUnit.MILLISECONDS.toSeconds(millis)
+                    - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis))));
+
         } catch (Exception ex) {
-            LOG.error("Error while parsing the query to be executed.", ex);
-            return;
+            throw new RuntimeException(ex);
         }
+    }
 
-        replaceSourcesIfRequested(cl, q);
+    private static void execAsync(Query q, RootPlan plan, Dataset ds, SPARQLGenerateContext context, String output, boolean outputAppend) {
+        final ConsoleStreamRDF futurePrintStreamRDF;
+        if (output == null) {
+            futurePrintStreamRDF = new ConsoleStreamRDF(System.out, q.getPrefixMapping());
+        } else {
+            try {
+                futurePrintStreamRDF = new ConsoleStreamRDF(
+                        new PrintStream(new FileOutputStream(output, outputAppend)), q.getPrefixMapping());
+            } catch (IOException ex) {
+                LOG.error("Error while opening the output file.", ex);
+                return;
+            }
+        }
+        plan.exec(ds, futurePrintStreamRDF, context).exceptionally((ex) -> {
+            LOG.error("Error while executing the plan.", ex);
+            return null;
+        });
+    }
 
-        RootPlan plan;
+    private static void execSync(Query q, RootPlan plan, Dataset ds, SPARQLGenerateContext context, Lang outputLang, String output, boolean outputAppend) {
         try {
-            plan = PlanFactory.create(q);
-        } catch (Exception ex) {
-            LOG.error("Error while creating the plan for the query.", ex);
-            return;
-        }
-
-        Dataset ds;
-        try {
-            ds = SPARQLGenerateUtils.loadDataset(dir, request);
-        } catch (Exception ex) {
-            LOG.warn("Error while loading the dataset, no dataset will be used.");
-            ds = DatasetFactory.create();
-        }
-
-        String output = cl.getOptionValue(ARG_OUTPUT);
-        boolean outputAppend = cl.hasOption(ARG_OUTPUT_APPEND);
-        Lang outputLang = RDFLanguages.nameToLang(cl.getOptionValue(ARG_OUTPUT_FORMAT, RDFLanguages.strLangTurtle));
-
-        boolean stream = cl.hasOption(ARG_STREAM);
-        if (stream) {
-            StreamRDF outputRDF;
+            Model model = plan.exec(ds, context);
             if (output == null) {
-                outputRDF = new ConsoleStreamRDF(System.out, q.getPrefixMapping());
+                model.write(System.out, outputLang.getLabel());
             } else {
                 try {
-                    outputRDF = new ConsoleStreamRDF(
-                            new PrintStream(new FileOutputStream(output, outputAppend)), q.getPrefixMapping());
+                    model.write(new FileOutputStream(output, outputAppend), outputLang.getLabel());
                 } catch (IOException ex) {
                     LOG.error("Error while opening the output file.", ex);
                     return;
                 }
             }
-            try {
-                plan.exec(ds, outputRDF, context);
-            } catch (Exception ex) {
-                LOG.error("Error while executing the plan.", ex);
-            }
-        } else {
-            try {
-                Model model = plan.exec(ds, context);
-                if (output == null) {
-                    model.write(System.out, outputLang.getLabel());
-                } else {
-                    try {
-                        model.write(new FileOutputStream(output, outputAppend), outputLang.getLabel());
-                    } catch (IOException ex) {
-                        LOG.error("Error while opening the output file.", ex);
-                        return;
-                    }
-                }
-            } catch (Exception ex) {
-                LOG.error("Error while executing the plan.", ex);
-            }
+        } catch (Exception ex) {
+            LOG.error("Error while executing the plan.", ex);
         }
-        long millis = Duration.between(start, Instant.now()).toMillis();
-        System.out.println("Program finished in " + String.format("%d min, %d sec",
-                TimeUnit.MILLISECONDS.toMinutes(millis),
-                TimeUnit.MILLISECONDS.toSeconds(millis)
-                        - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis))));
+
+    }
+
+    private static Dataset getDataset(File dir, Request request) {
+        try {
+            return SPARQLGenerateUtils.loadDataset(dir, request);
+        } catch (Exception ex) {
+            LOG.warn("Error while loading the dataset, no dataset will be used.");
+            return DatasetFactory.create();
+        }
     }
 
     private static class ConsoleStreamRDF implements StreamRDF {
@@ -260,7 +270,6 @@ public class SPARQLGenerateCli {
 
         @Override
         public void finish() {
-            LOG.info("end of transformation");
         }
     }
 

@@ -23,11 +23,11 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathFactory;
-import java.math.BigDecimal;
 import java.util.Iterator;
 import javax.xml.XMLConstants;
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
@@ -39,11 +39,6 @@ import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.NodeValue;
 import org.apache.jena.sparql.function.FunctionBase2;
-import org.apache.jena.sparql.expr.nodevalue.NodeValueBoolean;
-import org.apache.jena.sparql.expr.nodevalue.NodeValueDecimal;
-import org.apache.jena.sparql.expr.nodevalue.NodeValueDouble;
-import org.apache.jena.sparql.expr.nodevalue.NodeValueFloat;
-import org.apache.jena.sparql.expr.nodevalue.NodeValueInteger;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueNode;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueString;
 import org.slf4j.LoggerFactory;
@@ -53,18 +48,18 @@ import org.w3c.dom.Document;
 /**
  * Binding function
  * <a href="http://w3id.org/sparql-generate/fn/XPath">fun:XPath</a>
- * extracts a strnig from a XML document, according to a XPath expression.
+ * extracts a string from a XML document, according to a XPath expression.
  *
  * <ul>
  * <li>Param 1 is the input string;</li>
  * <li>Param 2 is a XPath expression;</li>
- * <li>Result is a xsd:string.</li>
+ * <li>Result is a boolean, float, double, integer, string, as it best
+ * fits.</li>
  * </ul>
  *
  * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */
 public class FUN_XPath extends FunctionBase2 {
-    //TODO write multiple unit tests for this class.
 
     /**
      * The logger.
@@ -79,16 +74,23 @@ public class FUN_XPath extends FunctionBase2 {
     /**
      * The datatype URI of the first parameter and the return literals.
      */
-    private static final String datatypeUri = "http://www.iana.org/assignments/media-types/application/xml";
+    private static final String XML_URI = "http://www.iana.org/assignments/media-types/application/xml";
+
+    private static final RDFDatatype DT = TypeMapper.getInstance().getSafeTypeByName(XML_URI);
+
+    private static final TransformerFactory TRANSFORMER_FACTORY = TransformerFactory.newInstance();
 
     @Override
     public NodeValue exec(NodeValue xml, NodeValue xpath) {
         if (xml.getDatatypeURI() != null
-                && !xml.getDatatypeURI().equals(datatypeUri)
+                && !xml.getDatatypeURI().equals(XML_URI)
                 && !xml.getDatatypeURI().equals("http://www.w3.org/2001/XMLSchema#string")) {
-            LOG.debug("The URI of NodeValue1 MUST be <" + datatypeUri + ">"
+            LOG.debug("The URI of NodeValue1 MUST be <" + XML_URI + ">"
                     + " or <http://www.w3.org/2001/XMLSchema#string>. Got "
                     + xml.getDatatypeURI());
+        }
+        if (!xpath.isString()) {
+            LOG.debug("The second argument should be a string. Got " + xpath);
         }
         DocumentBuilderFactory builderFactory
                 = DocumentBuilderFactory.newInstance();
@@ -113,48 +115,31 @@ public class FUN_XPath extends FunctionBase2 {
                 LOG.debug("No evaluation of " + xpath);
                 throw new ExprEvalException("No evaluation of " + xpath);
             }
-
-            /*
-                Node node = NodeFactory.createLiteral(xmlNode.getNodeValue(), dt);
-                NodeValue nodeValue = new NodeValueNode(node);
-                nodeValues.add(nodeValue);
-             */
-            NodeValue nodeValue = null;
-            Object value = xmlNode.getNodeValue();
-            if (value instanceof Float) {
-                nodeValue = new NodeValueFloat((Float) value);
-            } else if (value instanceof Boolean) {
-                nodeValue = new NodeValueBoolean((Boolean) value);
-            } else if (value instanceof Integer) {
-                nodeValue = new NodeValueInteger((Integer) value);
-            } else if (value instanceof Double) {
-                nodeValue = new NodeValueDouble((Double) value);
-            } else if (value instanceof BigDecimal) {
-                nodeValue = new NodeValueDecimal((BigDecimal) value);
-            } else if (value instanceof String) {
-                nodeValue = new NodeValueString((String) value);
-            } else {
-
-                RDFDatatype dt = TypeMapper.getInstance()
-                        .getSafeTypeByName(datatypeUri);
-
-                TransformerFactory tFactory = TransformerFactory.newInstance();
-                Transformer transformer = tFactory.newTransformer();
-                DOMSource source = new DOMSource(xmlNode);
-                StringWriter writer = new StringWriter();
-                transformer.transform(source, new StreamResult(writer));
-                Node node = NodeFactory.createLiteral(writer.getBuffer().toString(), dt);
-                nodeValue = new NodeValueNode(node);
-            }
-            LOG.debug("Evaluation of " + xpath + ":  " + nodeValue);
-            return nodeValue;
+            return nodeForNode(xmlNode);
         } catch (Exception ex) {
             LOG.debug("No evaluation of " + xml + ", " + xpath, ex);
             throw new ExprEvalException("No evaluation of " + xml + ", " + xpath, ex);
         }
     }
 
-    public class UniversalNamespaceResolver implements NamespaceContext {
+    public NodeValue nodeForNode(org.w3c.dom.Node xmlNode) throws TransformerException {
+        if(xmlNode == null) {
+            return null;
+        }
+        String nodeValue = xmlNode.getNodeValue();
+        if (nodeValue != null) {
+            return new NodeValueString(nodeValue);
+        } else {
+            DOMSource source = new DOMSource(xmlNode);
+            StringWriter writer = new StringWriter();
+            Transformer transformer = TRANSFORMER_FACTORY.newTransformer();
+            transformer.transform(source, new StreamResult(writer));
+            Node node = NodeFactory.createLiteral(writer.toString(), DT);
+            return new NodeValueNode(node);
+        }
+    }
+
+    public static class UniversalNamespaceResolver implements NamespaceContext {
         // the delegate
 
         private final Document sourceDocument;

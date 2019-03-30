@@ -15,25 +15,25 @@
  */
 package com.github.thesmartenergy.sparql.generate.jena.engine.impl;
 
-import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerateException;
-import java.util.List;
+import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerateContext;
 import java.util.Objects;
 import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.expr.Expr;
 import org.apache.jena.sparql.expr.NodeValue;
-import org.apache.jena.sparql.util.ExprUtils;
-import com.github.thesmartenergy.sparql.generate.jena.engine.SourcePlan;
-import org.apache.jena.sparql.util.Context;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
+import com.github.thesmartenergy.sparql.generate.jena.engine.BindOrSourcePlan;
+import org.apache.jena.sparql.ARQConstants;
+import org.apache.jena.sparql.function.FunctionEnv;
+import org.apache.jena.sparql.function.FunctionEnvBase;
+import org.apache.jena.sparql.util.NodeFactoryExtra;
 
 /**
  * Executes a {@code BIND( <expr> AS <var>)} clause.
  *
  * @author maxime.lefrancois
  */
-public class BindPlanImpl extends PlanBase implements SourcePlan {
-
+public class BindPlanImpl implements BindOrSourcePlan {
 
     /**
      * The logger.
@@ -51,12 +51,12 @@ public class BindPlanImpl extends PlanBase implements SourcePlan {
     private final Var var;
 
     /**
-     * The generation plan of a <code>{@code (BIND <expr> AS <var>)}</code> 
+     * The generation plan of a <code>{@code (BIND <expr> AS <var>)}</code>
      * clause.
      *
      * @param expr The expression. Must not be null.
-     * @param var The variable to bind the evaluation of the expression.
-     * Must not be null.
+     * @param var The variable to bind the evaluation of the expression. Must
+     * not be null.
      */
     public BindPlanImpl(
             final Expr expr,
@@ -71,32 +71,15 @@ public class BindPlanImpl extends PlanBase implements SourcePlan {
      * {@inheritDoc}
      */
     @Override
-    final public void exec(
-            final List<Var> variables,
-            final List<BindingHashMapOverwrite> values,
-            final Context context) {
-        boolean added = variables.add(var);
-        if (!added) {
-            throw new SPARQLGenerateException("Variable " + var + " is already"
-                    + " bound !");
-        }
-        final StringBuilder sb;
-        if(LOG.isTraceEnabled()) {
-            sb = new StringBuilder("Execution of BIND(" + expr + " AS " + var + "):");
-        } else {
-            sb = null;
-        }
-        values.replaceAll((BindingHashMapOverwrite binding) -> {
-            NodeValue n = ExprUtils.eval(expr, binding);
-            if(LOG.isTraceEnabled()) {
-                sb.append("\n\t").append("New binding ").append(var).append(" = ").append(n);
-            }
-            return new BindingHashMapOverwrite(binding, var, n.asNode());            
-        });
-        if(LOG.isTraceEnabled()) {
-            sb.setLength(sb.length() - 2);
-            LOG.trace(sb.toString());
-        }
+    final public BindingHashMapOverwrite exec(
+            final BindingHashMapOverwrite binding,
+            final SPARQLGenerateContext context) {
+        LOG.debug("Exec BIND(" + expr + " AS " + var + ")");
+        context.set(ARQConstants.sysCurrentTime, NodeFactoryExtra.nowAsDateTime());
+        final FunctionEnv env = new FunctionEnvBase(context);
+        final NodeValue n = expr.eval(binding, env);
+        LOG.trace("New binding " + var + " = " + n);
+        return new BindingHashMapOverwrite(binding, var, n.asNode());
     }
 
 }

@@ -15,45 +15,71 @@
  */
 package com.github.thesmartenergy.sparql.generate.jena.engine;
 
+import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerateContext;
 import com.github.thesmartenergy.sparql.generate.jena.engine.impl.BNodeMap;
 import com.github.thesmartenergy.sparql.generate.jena.engine.impl.BindingHashMapOverwrite;
-import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.riot.system.StreamRDF;
-import org.apache.jena.sparql.core.Var;
-import org.apache.jena.sparql.util.Context;
 
 /**
  * The GENERATE Clause
+ *
  * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */
 public interface GeneratePlan {
 
     /**
-     * Executes the GENERATE Clause. Uses the given {@code inputDataset}
-     * for the subsequent SPARQL-Generate queries. Emit the generated RDF
-     * triples to the {@code stream} RDF Stream. Use the given
-     * {@code variables} and {@code values} to generate triples.
+     * Executes the GENERATE Clause. Uses the given {@code inputDataset} for the
+     * subsequent SPARQL-Generate queries. Emit the generated RDF triples to the
+     * {@code stream} RDF Stream. Use the given {@code variables} and
+     * {@code values} to generate triples.
      *
      * @param inputDataset the Dataset to use for the SPARQL SELECT part of the
      * query.
+     * @param binding the binding.
      * @param outputStream the RDFStream where triples are emitted.
-     * @param variables the set of bound variables.
-     * @param values the set of bindings.
      * @param bNodeMap when instantiating a basic graph pattern for multiple
      * solutions, some of the blank nodes will be mapped to the same blank node
      * across solutions, while other blank nodes will be mapped to a different
      * blank node for each solution. This map holds the information of the first
      * category.
      * @param context the execution context
+     * @return the completable future
      * @throws IllegalArgumentException if the {@code outputStream} is null.
      */
-    void exec(
-        final Dataset inputDataset,
-        final StreamRDF outputStream,
-        final List<Var> variables,
-        final List<BindingHashMapOverwrite> values,
-        final BNodeMap bNodeMap,
-        final Context context);
+    CompletableFuture<Void> exec(
+            final Dataset inputDataset,
+            final BindingHashMapOverwrite binding,
+            final StreamRDF outputStream,
+            final BNodeMap bNodeMap,
+            final SPARQLGenerateContext context);
 
+    /**
+     * Executes the GENERATE Clause. Uses the given {@code inputDataset} for the
+     * subsequent SPARQL-Generate queries. Emit the generated RDF triples to the
+     * {@code stream} RDF Stream. Use the given {@code variables} and
+     * {@code values} to generate triples.
+     *
+     * @param inputDataset the Dataset to use for the SPARQL SELECT part of the
+     * query.
+     * @param binding the binding.
+     * @param outputStream the RDFStream where triples are emitted.
+     * @param bNodeMap when instantiating a basic graph pattern for multiple
+     * solutions, some of the blank nodes will be mapped to the same blank node
+     * across solutions, while other blank nodes will be mapped to a different
+     * blank node for each solution. This map holds the information of the first
+     * category.
+     * @param context the execution context
+     * @param position the position of the binding in the list of bindings
+     * @return the completable future
+     * @throws IllegalArgumentException if the {@code outputStream} is null.
+     */
+    CompletableFuture<Void> exec(
+            final Dataset inputDataset,
+            final BindingHashMapOverwrite binding,
+            final StreamRDF outputStream,
+            final BNodeMap bNodeMap,
+            final SPARQLGenerateContext context,
+            final int position);
 }

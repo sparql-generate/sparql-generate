@@ -29,4 +29,6 @@ public interface SPARQLGenerateNodeVisitor extends NodeVisitor {
     Object visit(Node_ExtendedLiteral node);
 
     Object visit(Node_ExtendedURI node);
+    
+    Object visit(Node_List node);
 }

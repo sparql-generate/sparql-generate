@@ -16,112 +16,250 @@
 package com.github.thesmartenergy.sparql.generate.jena.iterator.library;
 
 import com.github.thesmartenergy.sparql.generate.jena.SPARQLGenerate;
-import com.github.thesmartenergy.sparql.generate.jena.iterator.IteratorFunctionBase1;
-import org.apache.jena.datatypes.RDFDatatype;
-import org.apache.jena.datatypes.TypeMapper;
-import org.apache.jena.graph.Node;
-import org.apache.jena.graph.NodeFactory;
+import com.github.thesmartenergy.sparql.generate.jena.iterator.IteratorStreamFunctionBase;
+import com.github.thesmartenergy.sparql.generate.jena.stream.LookUpRequest;
+import com.github.thesmartenergy.sparql.generate.jena.stream.SPARQLGenerateStreamManager;
+import com.univocity.parsers.common.ParsingContext;
+import com.univocity.parsers.common.processor.AbstractRowProcessor;
+import com.univocity.parsers.common.processor.core.Processor;
+import com.univocity.parsers.csv.CsvParser;
+import com.univocity.parsers.csv.CsvParserSettings;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import org.apache.jena.atlas.web.TypedInputStream;
 import org.apache.jena.sparql.expr.ExprEvalException;
+import org.apache.jena.sparql.expr.ExprList;
 import org.apache.jena.sparql.expr.NodeValue;
-import org.apache.jena.sparql.expr.nodevalue.NodeValueNode;
+import org.apache.jena.sparql.expr.nodevalue.NodeValueString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.supercsv.io.CsvListReader;
-import org.supercsv.io.CsvListWriter;
-import org.supercsv.io.ICsvListReader;
-import org.supercsv.prefs.CsvPreference;
 
-import java.io.*;
-import java.time.Duration;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
-
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
+import org.apache.commons.io.IOUtils;
 /**
  * Iterator function
  * <a href="http://w3id.org/sparql-generate/iter/CSV">iter:CSV</a>
- * returns CSV documents with two rows: the header and the current row.
+ * batch-processes CSV documents, potentially having some custom CSV dialect,
+ * and iteratively binds the content of one of all cells, or a selection thereof
+ * , to the list of variables that are provided.
+ *
+ * The list of parameters is interpreted as follows:
  *
  * <ul>
- * <li>Param 1: (csv) is the CSV document with a header line.</li>
+ * <li>the URI of the CSV document (a URI), or the CSV document itself (a
+ * String);</li>
+ * <li>Optional group of string parameters for custom CSV dialects.
+ * <ul>
+ * <li>(boolean: header) true if the CSV has a header row (default is true
+ * ).</li>
+ * <li>(string: quoteChar) the quote character (default is '"' );</li>
+ * <li>(string: delimiterChar) the delimiter character (default is ',' );</li>
+ * <li>(string: endOfLineSymbols) the end of line symbol (default is '\n'
+ * );</li>
  * </ul>
- *
+ * <li>(integer: batch) Optional number of rows per batch (by default, all the
+ * CSV document is processed as one batch);</li>
+ * <li>(string parameters: names) Names of the columns to select (by default,
+ * all the columns are selected).</li>
+ * </ul>
  * <p>
- * For very large CSV files (typically above 100.000 lines), prefer 
- * <a href="http://w3id.org/sparql-generate/iter/CSVStream">CSVStream</a>.
- * </p>
+ * <b>Examples: </b>
+ * <ul>
+ * <li><code>ITERATOR ite:CSV(&lt;path/to/file>) AS ?PersonId ?Name</code>
+ * fetches the document having URI &lt;path/to/file> (using the provided jena
+ * stream manager); assumes that it has a header row, quote character '"',
+ * delimiter character ',', end of line symbol '\n'; processes it in one batch,
+ * and binds the cells of the two first column to ?PersonId and ?Name (except
+ * for the first column which is the header).
+ * </li>
+ * <li><code>ITERATOR ite:CSV("""A1    B1<br>A2 B2""", false, '"', '\t', '\n') AS
+ * ?A ?B</code> uses the provided CSV document; assumes that it has no header
+ * now, uses the provided custom configuration; processes it in one batch, and
+ * binds the cells of the two first column to ?A and ?B.
+ * </li>
+ * <Li><code>ITERATOR ite:CSV(&lt;path/to/file>, "PersonId", "Name") AS ?PersonId ?Name</code>
+ * fetches the document having URI &lt;path/to/file> (using the provided jena
+ * stream manager); uses the default configuration; processes it in one batch,
+ * and binds the cells of the rows named "PersonId" and "Name" to the
+ * corresponding variables.
+ * </li>
+ * <Li><code>ITERATOR ite:CSV(&lt;path/to/file>, 1000, "PersonId", "Name") AS ?PersonId ?Name</code>
+ * fetches the document having URI &lt;path/to/file> (using the provided jena
+ * stream manager); uses the default configuration; processes it in batches of
+ * 1000 rows, and binds the cells of the rows named "PersonId" and "Name" to the
+ * corresponding variables.
+ * </li>
  *
- * @author Noorani Bakerally <noorani.bakerally at emse.fr>
- * @see com.github.thesmartenergy.sparql.generate.jena.function.library.FN_CustomCSV
- * for CSV document with different dialects
- * @see com.github.thesmartenergy.sparql.generate.jena.function.library.ITER_CSVStream
- * to process very large CSV files
+ * @author Maxime Lefrançois &lt;maxime.lefrancois at emse.fr>
+ * @since 2019-03-23
  */
-public class ITER_CSV extends IteratorFunctionBase1 {
+public class ITER_CSV extends IteratorStreamFunctionBase {
 
+    /**
+     * The logger.
+     */
     private static final Logger LOG = LoggerFactory.getLogger(ITER_CSV.class);
 
+    /**
+     * The SPARQL function URI.
+     */
     public static final String URI = SPARQLGenerate.ITER + "CSV";
 
-    private static final String datatypeUri = "http://www.iana.org/assignments/media-types/text/csv";
+    public final CompletableFuture<Void> future = new CompletableFuture<>();
+
+    public CompletableFuture<Void> returnedFuture = future;
 
     @Override
-    public List<List<NodeValue>> exec(NodeValue csv) {
-        Instant start = Instant.now();
-
-        if (csv.getDatatypeURI() != null
-                && !csv.getDatatypeURI().equals(datatypeUri)
-                && !csv.getDatatypeURI().equals("http://www.w3.org/2001/XMLSchema#string")) {
-            LOG.debug("The URI of NodeValue1 MUST be"
-                    + " <" + datatypeUri + "> or"
-                    + " <http://www.w3.org/2001/XMLSchema#string>. Got <"
-                    + csv.getDatatypeURI() + ">. Returning null.");
+    public CompletableFuture<Void> exec(
+            final List<NodeValue> args,
+            final Function<Collection<List<NodeValue>>, CompletableFuture<Void>> collectionListNodeValue) {
+        Objects.nonNull(args);
+        if (args.isEmpty()) {
+            LOG.debug("Must have at leat one argument");
+            throw new ExprEvalException("Must have at leat one argument");
         }
-        RDFDatatype dt = TypeMapper.getInstance()
-                .getSafeTypeByName(datatypeUri);
-        try {
+        LOG.trace("Executing CSV with variables " + args);
+        final NodeValue csv = args.remove(0);
+        try (InputStream in = getInputStream(csv)) {
+            final CsvParserSettings parserSettings = new CsvParserSettings();
+            parserSettings.setHeaderExtractionEnabled(true);
+            setFormatInformation(args, parserSettings);
+            setProcessor(args, parserSettings, collectionListNodeValue);
+            setSelectedColumns(args, parserSettings);
+            CsvParser parser = new CsvParser(parserSettings);
+            parser.parse(in, StandardCharsets.UTF_8);
+        } catch (ExprEvalException | IOException ex) {
+            LOG.warn("Exception while fetching or parsing CSV document", ex);
+        } catch (Exception ex) {
+            LOG.warn("Exception while fetching or parsing CSV document", ex);
+        }
+        return returnedFuture;
+    }
 
-            String sourceCSV = csv.asNode().getLiteralLexicalForm();
+    @Override
+    public void checkBuild(ExprList args) {
+    }
 
-            ICsvListReader listReader = null;
-            InputStream is = new ByteArrayInputStream(sourceCSV.getBytes("UTF-8"));
-            InputStreamReader reader = new InputStreamReader(is, "UTF-8");
-            BufferedReader br = new BufferedReader(reader);
+    private void setProcessor(
+            final List<NodeValue> args,
+            final CsvParserSettings parserSettings,
+            final Function<Collection<List<NodeValue>>, CompletableFuture<Void>> collectionListNodeValue) {
+        final int rowsInABatch;
+        if (!args.isEmpty() && args.get(0).isInteger()) {
+            int batch = args.remove(0).getInteger().intValue();
+            if (batch > 0) {
+                rowsInABatch = batch;
+                LOG.trace("  With batches of " + rowsInABatch + " lines.");
+            } else {
+                rowsInABatch = 0;
+                LOG.trace("  As one batch");
+            }
+        } else {
+            rowsInABatch = 0;
+            LOG.trace("  As one batch");
+        }
 
-            listReader = new CsvListReader(br, CsvPreference.STANDARD_PREFERENCE);
+        final Processor processor = new AbstractRowProcessor() {
+            private int rowsInThisBatch = 0;
+            private int total = 0;
+            Collection<List<NodeValue>> nodeValues = new ArrayList<>();
 
-            List<String> header = listReader.read();
-            LOG.trace("header: " + header);
-            List<NodeValue> nodeValues = new ArrayList<>();
-
-            while (true) {
-                List<String> row = listReader.read();
-                if (row == null) {
-                    break;
+            @Override
+            public void rowProcessed(String[] row, ParsingContext context) {
+//                System.out.println("row is " + Arrays.asList(row));
+                final List<NodeValue> list = new ArrayList<>();
+                for (String cell : row) {
+                    if (cell == null) {
+                        list.add(null);
+                    } else {
+                        list.add(new NodeValueString(cell));
+                    }
                 }
-
-                StringWriter sw = new StringWriter();
-
-                CsvListWriter listWriter = new CsvListWriter(sw, CsvPreference.STANDARD_PREFERENCE);
-                listWriter.write(header);
-                listWriter.write(row);
-                listWriter.close();
-
-                String lexicalForm = sw.toString();
-                LOG.trace(lexicalForm);
-                Node node = NodeFactory.createLiteral(lexicalForm, dt);
-                NodeValueNode nodeValue = new NodeValueNode(node);
-                nodeValues.add(nodeValue);
+                nodeValues.add(list);
+                rowsInThisBatch++;
+                total++;
+                if (rowsInABatch > 0 && rowsInThisBatch >= rowsInABatch) {
+                    LOG.trace("New batch of " + rowsInThisBatch + " rows, " + total + " total");
+                    send();
+                }
             }
 
-            long millis = Duration.between(start, Instant.now()).toMillis();
-            System.out.println("ITER_CSV sent in " + String.format("%dmin, %d sec", TimeUnit.MILLISECONDS.toMinutes(millis), TimeUnit.MILLISECONDS.toSeconds(millis) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis))));
-            return new ArrayList<>(Collections.singletonList(nodeValues));
-        } catch (Exception ex) {
-            LOG.debug("No evaluation for " + csv, ex);
-            throw new ExprEvalException("No evaluation for " + csv, ex);
+            @Override
+            public void processEnded(ParsingContext context) {
+                LOG.trace("New batch of " + rowsInThisBatch + " rows, " + total + " total. End of CSV processing.");
+                send();
+                future.complete(null);
+            }
+
+            private void send() {
+                returnedFuture = CompletableFuture.allOf(returnedFuture, collectionListNodeValue.apply(nodeValues));
+                nodeValues = new ArrayList<>();
+            }
+
+        };
+        parserSettings.setProcessor(processor);
+    }
+
+    private InputStream getInputStream(NodeValue csv) throws ExprEvalException, IOException {
+        if (csv.isString()) {
+            return IOUtils.toInputStream(csv.asString(), StandardCharsets.UTF_8);
+        } else if (csv.isLiteral() && csv.asNode().getLiteralDatatypeURI().startsWith("http://www.iana.org/assignments/media-types/")) {
+            return IOUtils.toInputStream(csv.asNode().getLiteralLexicalForm(), StandardCharsets.UTF_8);
+        } else if (csv.isIRI()) {
+            String csvPath = csv.asNode().getURI();
+            LookUpRequest req = new LookUpRequest(csvPath, "text/csv");
+            SPARQLGenerateStreamManager sm = getContext().getStreamManager();
+            Objects.requireNonNull(sm);
+            TypedInputStream tin = sm.open(req);
+            if (tin == null) {
+                String message = String.format("Could not look up csv document %s", csvPath);
+                LOG.warn(message);
+                throw new ExprEvalException(message);
+            }
+            return tin.getInputStream();
+        } else {
+            String message = String.format("First argument must be a URI or a String");
+            LOG.warn(message);
+            throw new ExprEvalException(message);
+        }
+    }
+
+    private void setFormatInformation(List<NodeValue> args, CsvParserSettings parserSettings) {
+        if (!args.isEmpty() && args.get(0).isBoolean()) {
+            boolean header = args.remove(0).getBoolean();
+            if (args.size() < 3
+                    || !args.get(0).isString()
+                    || !args.get(1).isString()
+                    || !args.get(2).isString()) {
+                throw new ExprEvalException("Block of CSV configuration parameters does not conform to the specification. Check out the documentation.");
+            }
+            char quote = args.remove(0).getString().charAt(0);
+            char delimiter = args.remove(0).getString().charAt(0);
+            String lineSeparator = args.remove(0).getString();
+            parserSettings.setHeaderExtractionEnabled(header);
+            parserSettings.getFormat().setQuote(quote);
+            parserSettings.getFormat().setDelimiter(delimiter);
+            parserSettings.getFormat().setLineSeparator(lineSeparator);
+            LOG.trace("\tWith custom CSV configuration: header: " + header + ", quote character: '" + quote + "', delimiter character: '" + delimiter + "', line separator: '" + lineSeparator);
+        } else {
+            LOG.debug("\tWith default CSV parser settings.");
+        }
+    }
+
+    private void setSelectedColumns(List<NodeValue> args, CsvParserSettings parserSettings) {
+        if (!args.isEmpty()) {
+            if (args.stream().anyMatch(col -> col == null || !col.isString())) {
+                LOG.debug("Columns names must strings, got: " + args);
+                throw new ExprEvalException("Columns names must be strings, got: " + args);
+            }
+            parserSettings.selectFields(args.stream().map(NodeValue::asString).toArray(String[]::new));
         }
     }
 

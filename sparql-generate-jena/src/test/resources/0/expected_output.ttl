@@ -1,0 +1,6 @@
+@prefix fun:    <http://w3id.org/sparql-generate/fn/> .
+@prefix ite:  <http://w3id.org/sparql-generate/iter/> .
+@base <http://example.com/> .
+
+[] <p>  1 .
+[] <p>  2 .

@@ -4,12 +4,12 @@
 
 <http://airport.example.com/7000>
         a               transit:Stop ;
-        transit:route   "40"^^xsd:int ;
-        wgs84_pos:lat   "56.901389" ;
-        wgs84_pos:long  "4.584444" .
+        transit:route   40 ;
+        wgs84_pos:lat   56.901389 ;
+        wgs84_pos:long  4.584444 .
 
 <http://airport.example.com/6523>
         a               transit:Stop ;
-        transit:route   "25"^^xsd:int ;
-        wgs84_pos:lat   "50.901389" ;
-        wgs84_pos:long  "4.484444" .
+        transit:route   25 ;
+        wgs84_pos:lat   50.901389 ;
+        wgs84_pos:long  4.484444 .

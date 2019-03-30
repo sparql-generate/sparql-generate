@@ -1,0 +1,10 @@
+{
+    "documentset": [
+        {
+            "mediatype": "application/geo+json",
+            "path": "documentset/2.5_month_mini.geojson",
+            "uri": "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_month.geojson"
+        }
+    ],
+    "query": "query.rqg"
+}

@@ -20,6 +20,7 @@ import com.github.thesmartenergy.sparql.generate.jena.graph.Node_Extended;
 import com.github.thesmartenergy.sparql.generate.jena.graph.Node_Expr;
 import com.github.thesmartenergy.sparql.generate.jena.graph.Node_ExtendedLiteral;
 import com.github.thesmartenergy.sparql.generate.jena.graph.Node_ExtendedURI;
+import com.github.thesmartenergy.sparql.generate.jena.graph.Node_List;
 import com.github.thesmartenergy.sparql.generate.jena.graph.SPARQLGenerateNodeVisitor;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -41,6 +42,7 @@ import org.apache.jena.sparql.expr.E_StrEncodeForURI;
 import org.apache.jena.sparql.expr.E_StrLang;
 import org.apache.jena.sparql.expr.Expr;
 import org.apache.jena.sparql.expr.ExprList;
+import org.apache.jena.sparql.expr.ExprVar;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueNode;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueString;
 import org.apache.jena.sparql.syntax.Element;
@@ -64,7 +66,7 @@ public class NodeExprNormalizer implements SPARQLGenerateNodeVisitor {
     /**
      * Already normalized nodes (useful when normalizing Basic Graph Patterns)
      */
-    private final Map<Node_Extended, Var> cache = new HashMap<>();
+    private final Map<Node, Node> cache = new HashMap<>();
 
     /**
      * Expression normalizer
@@ -126,6 +128,28 @@ public class NodeExprNormalizer implements SPARQLGenerateNodeVisitor {
      */
     public List<Element> getBindings() {
         return bindings;
+    }
+
+    /**
+     * {@inheritDoc 
+     */
+    @Override
+    public Object visit(Node_List node) {
+        if (cache.containsKey(node)) {
+            result = cache.get(node);
+            return null;
+        }
+        if(node.getExpr().isVariable()) {
+            result = node;
+            return null;
+        }
+        Var var = Var.alloc(node.getLabel());
+        final Expr expr = nzer.normalize(node.getExpr());
+        bindings.add(new ElementBind(var, expr));
+        Node_List nzedList = new Node_List(new ExprVar(var));
+        cache.put(node, nzedList);
+        this.result = nzedList;
+        return null;
     }
 
     /**
