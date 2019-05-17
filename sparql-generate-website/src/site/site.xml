@@ -43,17 +43,15 @@ See the License for the specific language governing permissions and
             <titleTemplate>%2$s | %1$s</titleTemplate>
             <!-- Use Table of Contents at the top of the page (max 6 elements) -->
             <toc>top</toc>
-            <tocTopMax>6</tocTopMax>-->
+            <tocTopMax>5</tocTopMax>-->
             <topNav>Language|Documentation|About|Contribute</topNav>-->
             <bottomNav>
                 <column>Main</column>
-                <column>Language</column>
                 <column>Documentation</column>
                 <column>About</column>
-                <column>Contribute</column>
             </bottomNav>
             <bottomDescription>
-        <![CDATA[ SPARQL-Generate is <a href="language.html">an extension of SPARQL 1.1</a> for querying not only RDF datasets but also documents in arbitrary formats. It offers a simple template-based option to generate RDF Graphs from documents.]]>
+        <![CDATA[<strong>SPARQL-Generate</strong> is an extension of SPARQL 1.1 for querying not only RDF datasets but also documents in arbitrary formats. It offers a simple and expressive <strong>template-based option to generate RDF Graphs or text, from documents and different streams</strong>.</b>.]]>
             </bottomDescription>
             <pages>
                 <markPageHeader>false</markPageHeader>
@@ -84,12 +82,6 @@ See the License for the specific language governing permissions and
                     <breadcrumbs>false</breadcrumbs>
                     <toc>false</toc>
                     <markPageHeader>false</markPageHeader>
-                    <sections>
-                        <body />
-                        <columns>2</columns>
-                        <body />
-                        <body />
-                    </sections>
                 </language>
                 <grammar>
                     <titleTemplate>SPARQL-Generate - Grammar in EBNF notation</titleTemplate>
@@ -103,12 +95,6 @@ See the License for the specific language governing permissions and
                     <toc>false</toc>
                     <markPageHeader>false</markPageHeader>
                 </playground>
-                <tutorial>
-                    <titleTemplate>SPARQL-Generate - Tutorial</titleTemplate>
-                    <breadcrumbs>false</breadcrumbs>
-                    <toc>false</toc>
-                    <markPageHeader>false</markPageHeader>
-                </tutorial>
                 <language-api>
                     <titleTemplate>SPARQL-Generate - Web API</titleTemplate>
                     <breadcrumbs>false</breadcrumbs>
@@ -137,6 +123,12 @@ See the License for the specific language governing permissions and
                         <columns>2</columns>
                     </sections>
                 </get-started>
+                <iana>
+                    <titleTemplate>SPARQL-Generate - IANA Considerations</titleTemplate>
+                    <breadcrumbs>false</breadcrumbs>
+                    <toc>false</toc>
+                    <markPageHeader>false</markPageHeader>
+                </iana>
                 <tests-reports>
                     <titleTemplate>SPARQL-Generate - Tests reports</titleTemplate>
                     <breadcrumbs>false</breadcrumbs>
@@ -156,7 +148,7 @@ See the License for the specific language governing permissions and
       <meta name="viewport" content="width=device-width, initial-scale=1"/>
       <link rel="stylesheet" type="text/css" href="css/base.css"/>
       <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css"/>
-      <link href='https://thesmartenergy.github.io/sparql-generate-yasqe/dist/yasqe.min.css' rel='stylesheet' type='text/css'/>
+      <link href='https://sparql-generate.github.io/sparql-generate-editor/dist/sge.min.css' rel='stylesheet' type='text/css'/>
       <link href='https://perfectkb.github.io/yate/dist/yate.min.css' rel='stylesheet' type='text/css'/>
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.30.0/codemirror.css"/>
       
@@ -167,43 +159,37 @@ See the License for the specific language governing permissions and
       <script src="https://cdn.jsdelivr.net/clipboard.js/1.6.0/clipboard.min.js"></script>
       <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
       <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-      <script src='https://thesmartenergy.github.io/sparql-generate-yasqe/dist/yasqe.bundled.js'></script>
+      <script src='https://sparql-generate.github.io/sparql-generate-editor/dist/sge.bundled.js'></script>
       <script src='https://perfectkb.github.io/yate/dist/yate.bundled.min.js'></script>
+      <script async='async' defer='defer' src="https://buttons.github.io/buttons.js"></script>
         </head>
         
         <links>
             <item name="Overview" href="index.html"/>
             <item name="Playground" href="playground.html"/>
-            <item name="Tutorial" href="tutorial.html"/>
         </links>
 
         <menu name="Main" inherit="top">
             <item name="Overview" href="index.html"/>
             <item name="Playground" href="playground.html"/>
-            <item name="Tutorial" href="tutorial.html"/>
-        </menu>
-        <menu name="Language">
-            <item name="Overview" href="language.html"/>
-            <item name="Grammar" href="grammar.html"/>
         </menu>
         <menu name="Documentation">
-            <item name="Standalone App" href="standalone-app.html" />  
+            <!--<item name="Standalone App" href="standalone-app.html" />-->
             <item name="Executable JAR" href="language-cli.html" />  
-            <item name="Web API" href="language-api.html" />
-            <item name="Java Library Overview" href="get-started.html"/>
-            <item name="Java Library Documentation" href="apidocs/index.html"/>
+            <item name="Java API Overview" href="get-started.html"/>
+            <item name="Java API Javadoc" href="apidocs/index.html"/>
+            <!--<item name="Web API" href="language-api.html" />-->
+            <item name="Web editor" href="http://sparql-generate.github.io/sparql-generate-editor" target="_blank"/>  
+            <item name="Grammar" href="grammar.html"/>
+            <item name="IANA Considerations" href="iana.html" />  
         </menu>
 
         <menu name="About">
             <item name="Team" href="team-list.html"/>
-            <item name="License" href="license.html" />  
+            <item name="License" href="license.html" />
+            <item name="We are on GitHub" href="http://github.com/sparql-generate/sparql-generate/" target="_blank"/>
         </menu>
 
-        <menu name="Contribute">
-            <item name="Mailing List" href="https://groups.google.com/d/forum/sparql-generate-jena" target="_blank"/>  
-            <item name="Issues" href="http://github.com/thesmartenergy/sparql-generate/issues" target="_blank"/>
-            <item name="Fork on GitHub" href="http://github.com/thesmartenergy/sparql-generate/" target="_blank"/>
-        </menu>
     </body>
     
    

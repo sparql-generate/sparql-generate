@@ -1,0 +1,13 @@
+<p>Simple examples of binding function <a href="http://w3id.org/sparql-generate/fn/dateTime"><code>fun:dateTime</code></a>, that
+converts a given datetime or a UNIX timestamp in milliseconds to an <code>xsd:dateTime</code>.</p>
+
+<ul>
+ <li>args contains the supplied arguments such that
+     <ul>
+         <li>the first argument is either a datetime (String) or a UNIX timestamp in milliseconds (String or integer);</li>
+         <li>the second argument is optional. If provided contains the parsing format string in the <a href="https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html#iso8601timezone">ISO 8601</a> format according to universal time;</li>
+         <li>if there is no second argument, the first argument must be a UNIX timestamp in milliseconds (String or integer);</li>
+         </ul>
+ </li>
+ <li>Result is a <code>xsd:dateTime</code>.</li>
+</ul>

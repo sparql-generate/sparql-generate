@@ -1,0 +1,38 @@
+<p>Simple example with iterator function
+<a href="http://w3id.org/sparql-generate/iter/CSSPath"><code>iter:CSSPath</code></a>, 
+that extracts parts of a HTML document, using CSS-Selector-like queries.
+
+<ul>
+<li>Param 1: (html): the URI of the HTML document (a URI), or the HTML
+document itself (a String);</li>
+<li>Param 2: (cssSelector) is the CSS Selector. See
+<a href="https://jsoup.org/apidocs/org/jsoup/select/Selector.html">
+https://jsoup.org/apidocs/org/jsoup/select/Selector.html</a> for the base
+syntax specification.
+<li>Param 3 .. N : (auxCssSelector ... ) other CSS Selectors, which will be
+executed over each of the results of the execution of xPath, exactly as if
+the binding function
+<a href="http://w3id.org/sparql-generate/fun/CSSPath"><code>fun:CSSPath</code></a> was
+applied. By default, the output is the outer HTML of the first matched
+element. However, two additions to the CSS Selector syntax can change this
+behaviour:</li>
+<ul>
+<li>(if the selector ends with <code>/text()</code>) the output is the
+combined text of the first matched element and all its children. Whitespaces
+are normalized and trimmed.</li>
+<li>(if the selector ends with <code>@attributeName</code>) the output is the
+value of the attribute <code>attributeName</code> for the first matched
+element.</li>
+</ul></li>
+</ul>
+
+The following variables may be bound:
+
+<ul>
+<li>Output 1: (string) outer HTML of the matched element;</li>
+<li>Output 2 .. N-1: (string) result of the execution of the auxiliary CSS
+Selector queries on Output 1, encoded as literals;</li>
+<li>Output N: (integer) the position of the result in the list;</li>
+<li>Output N+1: (boolean) true if this result has a next result in the
+list.</li>
+</ul>

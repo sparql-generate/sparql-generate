@@ -1,9 +1,11 @@
 <div>  
-    <h1>SPARQL-Generate - query heterogeneous documents and generate RDF</h1>
+    <h1>SPARQL-Generate - query and generate both RDF and text</h1>
 
-    <p><b>Generate RDF from web documents in XML, JSON, CSV, GeoJSON, HTML, CBOR, plain text with regular expressions.</b> </p>
-    <p><b>Generate RDF Streams from large CSV documents, MQTT or WebSocket streams, regular HTTP Get operations.</b> </p>
-    <p>SPARQL-Generate is <a href="language.html">an extension of SPARQL 1.1</a> for querying not only RDF datasets but also documents in arbitrary formats. It offers a simple template-based option to generate RDF Graphs from documents and different streams. It presents the following advantages:</p>
+    <p><strong>Generate RDF or text from web documents in XML, JSON, CSV, GeoJSON, HTML, CBOR, plain text with regular expressions.<br/>
+    Generate RDF or text streams from large CSV documents, MQTT or WebSocket streams, repeated HTTP Get operations.<br/>
+    Extend it to support new data sources and formats.</strong> </p>
+    <p>SPARQL-Generate is an extension of SPARQL 1.1 for querying not only RDF datasets but also documents in arbitrary formats. <br/>
+    It offers a simple and expressive template-based option to generate RDF Graphs or text, from documents and different streams. It presents the following advantages:</p>
 
     <ul>
     <li>Anyone familiar with SPARQL can easily learn SPARQL-Generate;</li>
@@ -11,7 +13,7 @@
     <li>It integrates seamlessly with existing standards for consuming Semantic Web data, such as SPARQL or Semantic Web programming frameworks.</li>
     </ul>
 
-    <a id="try-it-online" href="language-form.html">Try it online</a>
+    <a id="try-it-online" href="playground.html">Try it online</a>
 
     <hr/>
 
@@ -27,19 +29,25 @@
 
   <div class="section">
     <h2><a name="Implementation"></a>Implementation</h2>
+    <div>
+        <a class="github-button" href="https://github.com/sparql-generate/sparql-generate/subscription" data-icon="octicon-eye" data-size="large" data-show-count="true" aria-label="Watch sparql-generate/sparql-generate on GitHub">Watch</a>
+        <a class="github-button" href="https://github.com/sparql-generate/sparql-generate" data-icon="octicon-star" data-size="large" data-show-count="true" aria-label="Star sparql-generate/sparql-generate on GitHub">Star</a>
+    </div>
+
     <p><b>Use SPARQL-Generate as:</b></p>
 
     <ul>  
-        <li><a href="standalone-app.html">a standalone Application</a>;</li>
+        <li><a href="playground.html">an web application</a>;</li>
         <li><a href="language-cli.html">an executable JAR</a>;</li>
         <li><a href="get-started.html">a Java library</a> with its <a href="apidocs/index.html">reference Java documentation</a>;</li>
-        <li><a href="language-api.html">a Web API</a>.</li>
+        <!--<li><a href="standalone-app.html">a standalone Application</a>;</li>-->
+        <!--<li><a href="language-api.html">a Web API</a>.</li>-->
     </ul>
 
     <p>See <a href="functions.html">our predefined SPARQL binding functions and SPARQL-Generate iterator functions</a>. You can also leverage the SPARQL 1.1 extension mechanism and implement your own functions to support any other format.</p>
 
     <p><b>Test, evaluate, contribute</b></p>
-    <p>Our <a href="tests-reports.html">tests report</a> contains tests from related work and more. You can request a new unit test, a new binding function or iterator function via the <a href="issue-tracking.html">issue tracker</a>. We also led <a href="evaluation.html">a comparative evaluation with the RML reference implementation</a>.</p>
+    <p>Our <a href="https://github.com/sparql-generate/sparql-generate/tree/master/sparql-generate-jena/src/test/resources">tests</a> contains tests from related work and more. You can request a new unit test, a new binding function or iterator function on <a href="https://github.com/sparql-generate/sparql-generate/issues">GitHub</a>. We also led <a href="evaluation.html">a comparative evaluation with the RML reference implementation</a>.</p>
 
   </div>
   
@@ -47,6 +55,6 @@
 
   <div class="section" style="position: relative; z-index: -1">
     <h2><a name="Acknowledgments"></a>Acknowledgments</h2>
-    <p>This work has been partly funded by the ITEA2 12004 SEAS (Smart Energy Aware Systems) project, the ANR 14-CE24-0029 OpenSensingCity project, and a bilateral research contract with ENGIE R&amp;D.</p>
+    <p>This work has been partly funded by the ITEA2 12004 SEAS (Smart Energy Aware Systems) project, the ANR 14-CE24-0029 OpenSensingCity project, and bilateral research contracts with ENGIE R&amp;D.</p>
   </div>
 </div>

@@ -1,0 +1,21 @@
+{
+  "query": "query.rqg",
+  "documentset": [
+    {
+      "uri": "https://example.org/aqi-report/default",
+      "mediatype": "application/json",
+      "path": "documentset/default.txt"
+    }
+  ],
+  "namedqueries": [
+    {
+      "uri": "https://ci.mines-stetienne.fr/sparql-generate/tutorial/observations",
+      "mediatype": "application/vnd.sparql-generate",
+      "path": "queryset/observations.rqg"
+    }
+  ],
+  "graph": "dataset/default.ttl",
+  "namedgraphs": [],
+  "loglevel": 5,
+  "stream": false
+}

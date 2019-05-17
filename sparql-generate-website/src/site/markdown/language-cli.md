@@ -1,14 +1,14 @@
-# SPARQL-Generate Executable JAR
+# SPARQL Extensions Executable JAR
 
-[![Download button](download.png)](sparql-generate-jena.jar)
+[![Download button](download.png)](sparql-generate-latest.jar)
 
-This executable JAR requires Java JRE 1.8 or above. The default template for calling SPARQL-Generate is as follows:
+This executable JAR requires Java JRE 1.8 or above. The default template for calling SPARQL Extensions is as follows:
 
 ```
-java -jar sparql-generate-jena.jar [arguments]
+java -jar sparql-generate-latest.jar [arguments]
 ```
 
-#### SPARQL-Generate Executable JAR Arguments
+#### SPARQL Extensions Executable JAR Arguments
 
 * `-h,--help` Show help
 * `-d,--dir <arg>` Location of the directory with the queryset, documentset, dataset, and configuration files as explained below. Default value is '.' (the current folder)
@@ -60,4 +60,8 @@ Optionally, the query may be run in a directory with a configuration file `sparq
 - `documentset` is a table specifying named documents. For each of the named documents, `uri` is its URI, `path` is the path to the file that contains the document in UTF-8 encoding, and `mediatype` is the media type of the document.
 - `log` is the default log level (`{ "0": "OFF", "1": "ERROR", "2": "WARN", "3": "INFO", "4": "DEBUG", "5": "TRACE"} `)
 
+
+##### Older versions
+
+Older versions are available [on Maven Central](https://search.maven.org/search?q=g:com.github.thesmartenergy).
 

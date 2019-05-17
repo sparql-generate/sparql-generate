@@ -2,16 +2,16 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>com.github.thesmartenergy</groupId>
+        <groupId>fr.emse.ci</groupId>
         <artifactId>sparql-generate-parent</artifactId>
-        <version>1.3.1-SNAPSHOT</version>
+        <version>2.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>sparql-generate-website</artifactId>
     <packaging>war</packaging>
 
     <name>SPARQL-Generate Website</name>
-    <description>The source of the website that exposes the SPARQL-Generate demonstration website -
+    <description>The source of the website that exposes the demonstration website of SPARQL-Generate -
         http://w3id.org/sparql-generate/
     </description>
     <url>https://w3id.org/sparql-generate/</url>
@@ -25,7 +25,7 @@
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>sparql-generate-jena</artifactId>
+            <artifactId>sparql-generate</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -131,41 +131,23 @@
                                 <outputDirectory>${basedir}/target/generated-webapp/apidocs</outputDirectory>
                                 <resources>
                                     <resource>
-                                        <directory>../sparql-generate-jena/target/apidocs</directory>
+                                        <directory>../sparql-generate/target/apidocs</directory>
                                         <filtering>true</filtering>
                                     </resource>
                                 </resources>
                             </configuration>
                         </execution>
                         <execution>
-                            <id>copy-tests</id>
-                            <phase>generate-resources</phase>
-                            <goals>
-                                <goal>copy-resources</goal>
-                            </goals>
-                            <configuration>
-                                <outputDirectory>${basedir}/target/classes/tests
-                                </outputDirectory>
-                                <resources>
-                                    <resource>
-                                        <directory>../sparql-generate-jena/src/test/resources</directory>
-                                        <filtering>true</filtering>
-                                    </resource>
-                                </resources>
-                            </configuration>
-                        </execution> 
-                        <execution>
-                            <id>copy-generated-webapp</id>
+                            <id>copy-generated-website</id>
                             <phase>prepare-package</phase>
                             <goals>
                                 <goal>copy-resources</goal>
                             </goals>
                             <configuration>
-                                <outputDirectory>${basedir}/target/${project.build.finalName}</outputDirectory>
+                                <outputDirectory>${basedir}/target/sparql-generate</outputDirectory>
                                 <resources>
                                     <resource>
                                         <directory>${basedir}/target/generated-webapp</directory>
-                                        <filtering>true</filtering>
                                     </resource>
                                 </resources>
                             </configuration>
@@ -184,9 +166,9 @@
                                 <goal>copy</goal>
                             </goals>
                             <configuration>
-                                <sourceFile>../sparql-generate-jena/target/sparql-generate-jena-${project.version}.jar
+                                <sourceFile>../sparql-generate/target/sparql-generate-${project.version}.jar
                                 </sourceFile>
-                                <destinationFile>${basedir}/target/generated-webapp/sparql-generate-jena.jar
+                                <destinationFile>${basedir}/target/generated-webapp/sparql-generate-latest.jar
                                 </destinationFile>
                             </configuration>
                         </execution>
@@ -197,7 +179,7 @@
                                 <goal>copy</goal>
                             </goals>
                             <configuration>
-                                <sourceFile>../sparql-generate-jena/target/site/project-summary.html</sourceFile>
+                                <sourceFile>../sparql-generate/target/site/project-summary.html</sourceFile>
                                 <destinationFile>${basedir}/target/generated-webapp/project-summary.html
                                 </destinationFile>
                             </configuration>
@@ -209,7 +191,7 @@
                                 <goal>copy</goal>
                             </goals>
                             <configuration>
-                                <sourceFile>../sparql-generate-jena/target/site/source-repository.html</sourceFile>
+                                <sourceFile>../sparql-generate/target/site/source-repository.html</sourceFile>
                                 <destinationFile>${basedir}/target/generated-webapp/source-repository.html
                                 </destinationFile>
                             </configuration>
@@ -256,13 +238,13 @@
                 <artifactId>jetty-maven-plugin</artifactId>
                 <version>9.4.14.v20181114</version>
                 <configuration>
-                    <scanIntervalSeconds>4</scanIntervalSeconds>
+                    <!--<scanIntervalSeconds>4</scanIntervalSeconds>-->
                     <!--<modules>annotations,websocket</modules>-->
                     <webApp>
                         <resourceBases>
                             src/main/webapp,target/generated-webapp
                         </resourceBases>
-                        <contextPath>/${project.build.finalName}</contextPath>
+                        <contextPath>/sparql-generate</contextPath>
                     </webApp>
                 </configuration>
             </plugin>

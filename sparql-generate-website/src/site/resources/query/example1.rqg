@@ -3,11 +3,11 @@ PREFIX fun: <http://w3id.org/sparql-generate/fn/>
 PREFIX iter: <http://w3id.org/sparql-generate/iter/>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
-ITERATE iter:JSONListKeys( ?message ) AS ?key 
-WHEREVER { 
+GENERATE {
+ <s> <{ ?key }> ?valuedec .
+}
+ITERATOR iter:JSONListKeys( ?message ) AS ?key 
+WHERE { 
  BIND( "{ fun:JSONPath( ?message , "$.{ ?key }" )  }"^^xsd:decimal AS ?valuedec )
  FILTER( ?valuedec > 3 )
-}
-CONSTRUCT {
- <s> <{ ?key }> ?valuedec .
 }

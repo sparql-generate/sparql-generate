@@ -9,7 +9,7 @@ notes.txt
 nbactions.xml
 nb-configuration.xml
 /nbproject/
-/sparql-generate-jena/nbproject/
+/sparql-generate/nbproject/
 
 # Eclipse
 .classpath

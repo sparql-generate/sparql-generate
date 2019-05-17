@@ -1,4 +1,4 @@
-# Comparative evaluation of SPARQL-Generate and RML
+# Comparative evaluation of SPARQL-Generate and RML (old version of SPARQL-Generate)
 
 This comparative evaluation has been conducted for our submission at ESWC 2017 titled: *A SPARQL extension for generating RDF from heterogeneous formats*.
 

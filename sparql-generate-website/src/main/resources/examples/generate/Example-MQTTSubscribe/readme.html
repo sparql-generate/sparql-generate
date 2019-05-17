@@ -1,0 +1,19 @@
+<p>Simple example with iterator function
+<a href="http://w3id.org/sparql-generate/iter/MQTTSubscribe">iter:MQTTSubscribe</a>, which
+connects to a MQTT server, subscribes to some topics, and issues bindings for
+the topic (first variable) and the message (second variable) when they are
+received.</p>
+
+<ul>
+<li>Param 1: (a String or URL) the MQTT server. Two types of connection are
+supported <code>tcp://</code> for a TCP connection and <code>ssl://</code> for a TCP connection secured
+by SSL/TLS;</li>
+<li>Param 2 .. <em>n</em> (optional, Strings): topics to subscribe to.</li>
+</ul>
+
+<p>For SSL configuration (programmatic or using JVM arguments), see
+<a href="https://www.eclipse.org/paho/files/javadoc/org/eclipse/paho/client/mqttv3/MqttClient.html#MqttClient-java.lang.String-java.lang.String-">the
+constructor of MqttClient</a>.</p>
+<p>Additional connection OPTIONS configuration can be programmatically set. See the <a href="http://w3id.org/sparql-generate/iter/MQTTSubscribe">API documentation</a>.</p>
+<p>The MQTT message (<code>byte[]</code>) is assumed to be a UTF-8 string. This behaviour may also be changed programmatically.</p>
+

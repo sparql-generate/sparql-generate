@@ -74,7 +74,7 @@ blockquote p {
     margin: 2px;
 }
 
-.yasqe, .yate, .CodeMirror  {
+.sge, .yate, .CodeMirror  {
     font-size: 12px;
 }
 
@@ -108,11 +108,11 @@ input[type="range"]:before {
 }
 input[type="range"]:before {
     left:0em;
-    content: "none";
+    content: "ERROR";
 }
 input[type="range"]:after {
     right: 0em;
-    content: "all";
+    content: "TRACE";
 }
 
 #log pre {
@@ -206,8 +206,9 @@ input:checked + .slider:before {
   color: #ccc;
   background: #57338b;
   padding: 1em;
-  padding-right: 2.5em;
   border:1px solid grey;
+  margin-right:1em;
+  margin-bottom: 2em;
   border-radius: 1em;
   color:white;
   box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
@@ -227,20 +228,49 @@ input:checked + .slider:before {
   background: #9e85c1;
 }
 
-#stream{
-  display: inline-block;
-  vertical-align: middle;
-  margin-left: -2em;
-  color:white;
-}
-#stream>*{
-  display: block;
-  text-align: center;
-  font-size: .7em;
-  color:white;
+#autocheck, #streamcheck {
+    vertical-align: middle;
+    position: relative;
+    bottom: 1px;
 }
 
+
+
+#selectresult {
+    font-family:Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace;
+    width: 100%;
+    min-height: 250px;
+    height: 100%;
+}
+
+#selectresult > textarea {
+    font-family:Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace;
+    width: 95%;
+    height: 100%;
+    min-height: 250px;
+}
+
+
+#templateresult {
+    font-family:Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace;
+    width: 100%;
+    min-height: 250px;
+    height: 100%;
+}
+
+#templateresult > textarea {
+    font-family:Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace;
+    width: 95%;
+    height: 100%;
+    min-height: 250px;
+}
 /* fix for https://stackoverflow.com/questions/17579750/drop-down-menu-not-working-on-mobile-devices */
 .dropdown-backdrop{
 position: static;
+}
+
+#gh-buttons {
+  display: block;
+  float: left;
+  margin-right: 3em;
 }
