@@ -82,9 +82,11 @@ public class ITER_CSVHeaders extends IteratorFunctionBase1 {
             }
             return listNodeValues;
         } catch (Exception ex) {
-            Node compressed = SPARQLExt.compress(csv.asNode());
-            LOG.debug("No evaluation for " + compressed, ex);
-            throw new ExprEvalException("No evaluation for " + compressed, ex);
+            if(LOG.isDebugEnabled()) {
+                Node compressed = SPARQLExt.compress(csv.asNode());
+                LOG.debug("No evaluation for " + compressed, ex);
+            }
+            throw new ExprEvalException("No evaluation ", ex);
         }
     }
 

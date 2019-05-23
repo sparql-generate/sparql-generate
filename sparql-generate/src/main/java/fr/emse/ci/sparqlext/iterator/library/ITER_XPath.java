@@ -187,9 +187,11 @@ public class ITER_XPath extends IteratorFunctionBase {
             }
             return listNodeValues;
         } catch (Exception ex) {
-            String compressed = SPARQLExt.compress(xmlString);
-            LOG.debug("No evaluation for " + compressed + ", " + xPathNode, ex);
-            throw new ExprEvalException("No evaluation for " + compressed + ", " + xPathNode, ex);
+            if (LOG.isDebugEnabled()) {
+                String compressed = SPARQLExt.compress(xmlString);
+                LOG.debug("No evaluation for " + compressed + ", " + xPathNode, ex);
+            }
+            throw new ExprEvalException("No evaluation for " + xPathNode, ex);
         }
     }
 
@@ -217,10 +219,10 @@ public class ITER_XPath extends IteratorFunctionBase {
 
         try {
             String output = IOUtils.toString(tin.getInputStream(), StandardCharsets.UTF_8);
-            if (LOG.isTraceEnabled()) {
+            if (LOG.isDebugEnabled()) {
                 LOG.debug("Loaded <" + xmlPath + "> ACCEPT "
                         + acceptHeader + ". Enable TRACE level for more.");
-                if(LOG.isTraceEnabled()) {
+                if (LOG.isTraceEnabled()) {
                     LOG.trace("Loaded <" + xmlPath + "> ACCEPT "
                             + acceptHeader + ". returned\n" + SPARQLExt.compress(output));
                 }

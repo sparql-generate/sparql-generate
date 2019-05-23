@@ -124,9 +124,11 @@ public class ITER_CBOR extends IteratorFunctionBase2 {
             }
             return nodeValues;
         } catch (Exception ex) {
-            Node compressed = SPARQLExt.compress(cbor.asNode());
-            LOG.debug("No evaluation of " + compressed + ", " + jsonpath, ex);
-            throw new ExprEvalException("No evaluation of " + compressed + ", " + jsonpath, ex);
+            if(LOG.isDebugEnabled()) {
+                Node compressed = SPARQLExt.compress(cbor.asNode());
+                LOG.debug("No evaluation of " + compressed + ", " + jsonpath, ex);
+            }
+            throw new ExprEvalException("No evaluation of " + jsonpath, ex);
         }
     }
 }

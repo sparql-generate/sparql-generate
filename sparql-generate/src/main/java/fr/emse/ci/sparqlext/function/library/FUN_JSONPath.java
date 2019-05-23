@@ -96,9 +96,11 @@ public final class FUN_JSONPath extends FunctionBase2 {
                     .limit(1).read(jsonpath.getString());
             return nodeForObject(value);
         } catch (Exception ex) {
-            Node compressed = SPARQLExt.compress(json.asNode());
-            LOG.debug("No evaluation of " + compressed + ", " + jsonpath);
-            throw new ExprEvalException("No evaluation of " + compressed + ", " + jsonpath, ex);
+            if(LOG.isDebugEnabled()) {
+                Node compressed = SPARQLExt.compress(json.asNode());
+                LOG.debug("No evaluation of " + compressed + ", " + jsonpath);
+            }
+            throw new ExprEvalException("No evaluation of " + jsonpath);
         }
     }
 

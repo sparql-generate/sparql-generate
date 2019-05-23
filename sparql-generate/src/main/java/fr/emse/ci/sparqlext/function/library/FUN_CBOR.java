@@ -109,7 +109,9 @@ public final class FUN_CBOR extends FunctionBase2 {
                 }
             }
         } catch (Exception ex) {
-            LOG.debug("No evaluation of " + jsonpath + "  on " + SPARQLExt.compress(cbor.asNode()), ex);
+            if(LOG.isDebugEnabled()) {
+                LOG.debug("No evaluation of " + jsonpath + "  on " + SPARQLExt.compress(cbor.asNode()), ex);
+            }
             throw new ExprEvalException("FunctionBase: no evaluation", ex);
         }
     }

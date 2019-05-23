@@ -154,7 +154,7 @@ public class ITER_MQTTSubscribe extends IteratorStreamFunctionBase {
                     executor.execute(() -> {
                         LOG.debug("MQTT message arrived " + topic);
                         if(LOG.isTraceEnabled()) {
-                            LOG.debug("MQTT message arrived " + topic + " -> " + SPARQLExt.compress(PARSER.apply(message.getPayload()).asNode()));                        
+                            LOG.trace("MQTT message arrived " + topic + " -> " + SPARQLExt.compress(PARSER.apply(message.getPayload()).asNode()));                        
                         }
                         List<NodeValue> nv = new ArrayList<>();
                         nv.add(new NodeValueString(topic));

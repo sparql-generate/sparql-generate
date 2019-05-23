@@ -164,9 +164,11 @@ public class ITER_JSONPath extends IteratorFunctionBase {
             }
             return listNodeValues;
         } catch (Exception ex) {
-            Node compressed = SPARQLExt.compress(json.asNode());
-        LOG.debug("No evaluation for " + compressed + ", " + jsonquery, ex);
-            throw new ExprEvalException("No evaluation for " + compressed + ", " + jsonquery);
+            if(LOG.isDebugEnabled()) {
+                Node compressed = SPARQLExt.compress(json.asNode());
+                LOG.debug("No evaluation for " + compressed + ", " + jsonquery, ex);
+            }
+            throw new ExprEvalException("No evaluation for " + jsonquery);
         }
     }
 

@@ -117,9 +117,11 @@ public class FUN_XPath extends FunctionBase2 {
             }
             return nodeForNode(xmlNode);
         } catch (Exception ex) {
-            Node compressed = SPARQLExt.compress(xml.asNode());
-            LOG.debug("No evaluation of " + compressed + ", " + xpath, ex);
-            throw new ExprEvalException("No evaluation of " + compressed + ", " + xpath, ex);
+            if(LOG.isDebugEnabled()) {
+                Node compressed = SPARQLExt.compress(xml.asNode());
+                LOG.debug("No evaluation of " + compressed + ", " + xpath, ex);
+            }
+            throw new ExprEvalException("No evaluation of " + xpath, ex);
         }
     }
 

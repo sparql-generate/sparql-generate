@@ -82,9 +82,11 @@ public class ITER_JSONListKeys extends IteratorFunctionBase1 {
             LOG.trace("end JSONListKeys");
             return listNodeValues;
         } catch (Exception ex) {
-            Node compressed = SPARQLExt.compress(json.asNode());
-            LOG.debug("No evaluation for " + compressed, ex);
-            throw new ExprEvalException("No evaluation for " + compressed, ex);
+            if(LOG.isDebugEnabled()) {
+                Node compressed = SPARQLExt.compress(json.asNode());
+                LOG.debug("No evaluation for " + compressed, ex);
+            }
+            throw new ExprEvalException("No evaluation", ex);
         }
     }
 

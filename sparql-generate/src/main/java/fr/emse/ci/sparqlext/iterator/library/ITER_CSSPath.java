@@ -169,8 +169,10 @@ public class ITER_CSSPath extends IteratorFunctionBase {
                     try {
                         nodeValues.add(function.select(element, subquery));
                     } catch (Exception ex) {
-                        Node compressed = SPARQLExt.compress(n);
-                        LOG.debug("No evaluation for " + compressed + ", " + subquery, ex);
+                        if(LOG.isDebugEnabled()) {
+                            Node compressed = SPARQLExt.compress(n);
+                            LOG.debug("No evaluation for " + compressed + ", " + subquery, ex);
+                        }
                         nodeValues.add(null);
                     }
                 }
@@ -180,9 +182,11 @@ public class ITER_CSSPath extends IteratorFunctionBase {
             }
             return listNodeValues;
         } catch (Exception ex) {
-            Node compressed = SPARQLExt.compress(html.asNode());
-            LOG.debug("No evaluation of " + compressed + ", " + cssSelectorNode, ex);
-            throw new ExprEvalException("No evaluation of " + compressed + ", " + cssSelectorNode, ex);
+            if(LOG.isDebugEnabled()) {
+                Node compressed = SPARQLExt.compress(html.asNode());
+                LOG.debug("No evaluation of " + compressed + ", " + cssSelectorNode, ex);
+            }
+            throw new ExprEvalException("No evaluation of " + cssSelectorNode, ex);
         }
     }
 

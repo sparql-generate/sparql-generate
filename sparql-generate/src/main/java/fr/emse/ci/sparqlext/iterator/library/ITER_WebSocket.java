@@ -56,7 +56,8 @@ import org.apache.jena.query.QueryBuildException;
  * to be retrieved).
  *
  * <ul>
- * <li>Param 1: (a String or URI) is the WebSocket server URI to connect to;</li>
+ * <li>Param 1: (a String or URI) is the WebSocket server URI to connect
+ * to;</li>
  * <li>Param 3: (a String, optional) is the message that will be first sent to
  * the server (e.g., a json query).</li>
  * </ul>
@@ -137,7 +138,9 @@ public class ITER_WebSocket extends IteratorStreamFunctionBase {
                 @Override
                 public void onMessage(String s) {
                     executor.execute(() -> {
-                        LOG.trace("Message arrived " + SPARQLExt.compress(s));
+                        if (LOG.isTraceEnabled()) {
+                            LOG.trace("Message arrived " + SPARQLExt.compress(s));
+                        }
                         Node node = NodeFactory.createLiteral(s);
                         NodeValue nodeValue = new NodeValueNode(node);
                         cfs.add(listListNodeValue.apply(Collections.singletonList(Collections.singletonList(nodeValue))));
@@ -152,11 +155,11 @@ public class ITER_WebSocket extends IteratorStreamFunctionBase {
 
                 @Override
                 public void onError(Exception e) {
-                    if(e instanceof RejectedExecutionException) {
+                    if (e instanceof RejectedExecutionException) {
                         LOG.debug("Websocket interrupted");
                         close();
                     } else {
-                        LOG.debug("An error occurred ", e);                        
+                        LOG.debug("An error occurred ", e);
                     }
                 }
             };

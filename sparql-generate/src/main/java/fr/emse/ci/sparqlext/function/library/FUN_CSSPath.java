@@ -99,9 +99,11 @@ public class FUN_CSSPath extends FunctionBase2 {
         } catch (ExprEvalException ex) {
             throw ex;
         } catch (Exception ex) {
-            Node compressed = SPARQLExt.compress(html.asNode());
-            LOG.debug("No evaluation of " + compressed + ", " + query, ex);
-            throw new ExprEvalException("No evaluation of " + compressed + ", " + query, ex);
+            if(LOG.isDebugEnabled()) {
+                Node compressed = SPARQLExt.compress(html.asNode());
+                LOG.debug("No evaluation of " + compressed + ", " + query, ex);
+            }
+            throw new ExprEvalException("No evaluation of" + query, ex);
         }
     }
 
