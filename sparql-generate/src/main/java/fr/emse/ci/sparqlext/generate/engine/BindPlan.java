@@ -16,7 +16,10 @@
 package fr.emse.ci.sparqlext.generate.engine;
 
 import fr.emse.ci.sparqlext.SPARQLExt;
+import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.Executor;
+import java.util.stream.Collectors;
 import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.expr.Expr;
 import org.apache.jena.sparql.expr.NodeValue;
@@ -47,7 +50,6 @@ public class BindPlan extends BindOrSourcePlan {
      */
     private final Expr expr;
 
-
     /**
      * The generation plan of a <code>{@code (BIND <expr> AS <var>)}</code>
      * clause.
@@ -65,21 +67,27 @@ public class BindPlan extends BindOrSourcePlan {
     }
 
     @Override
-    protected final Binding exec(Binding binding, Context context) {
+    public List<Binding> exec(
+            final List<Binding> futureValues,
+            final Context context,
+            final Executor executor) {
         LOG.debug("Start " + this);
         context.set(ARQConstants.sysCurrentTime, NodeFactoryExtra.nowAsDateTime());
         final FunctionEnv env = new FunctionEnvBase(context);
+        return futureValues.stream().map(binding -> exec(binding, env)).collect(Collectors.toList());
+    }
+
+    private Binding exec(Binding binding, FunctionEnv env) {
         final NodeValue n = expr.eval(binding, env);
         if (LOG.isTraceEnabled()) {
             LOG.trace("New binding " + var + " = " + SPARQLExt.compress(n.asNode()));
         }
         return BindingFactory.binding(binding, var, n.asNode());
+
     }
 
-    
     @Override
     public String toString() {
         return "BIND( " + expr + " AS " + var + ")";
     }
-
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Ecole des Mines de Saint-Etienne.
+ * Copyright 2019 École des Mines de Saint-Étienne.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,9 +17,7 @@ package fr.emse.ci.sparqlext.generate.engine;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
-import java.util.stream.Collectors;
 import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.engine.binding.Binding;
 import org.apache.jena.sparql.util.Context;
@@ -46,23 +44,13 @@ public abstract class BindOrSourcePlan implements BindingsClausePlan {
      * 
      * @return the new binding
      */
-    final public List<CompletableFuture<Binding>> exec(
-            final List<CompletableFuture<Binding>> futureValues,
+    public abstract List<Binding> exec(
+            final List<Binding> futureValues,
             final Context context,
-            final Executor executor) {
-        return futureValues
-                .stream()
-                .map((futureBinding) -> futureBinding.thenApplyAsync(
-                        (binding) -> exec(binding, context), executor))
-                .collect(Collectors.toList());
-    }
-
-    abstract protected Binding exec(
-            final Binding binding,
-            final Context context);
+            final Executor executor);
 
     public final Var getVar() {
         return var;
-    }
+}
 
 }

@@ -163,9 +163,7 @@ public final class RootPlanImpl extends RootPlanBase {
         newContext.set(SPARQLExt.DATASET, inputDataset);
         final Executor executor = (Executor) newContext.get(SPARQLExt.EXECUTOR);
         start(outputGenerate, values, newContext, executor);
-        final List<CompletableFuture<Binding>> firstValues
-                = values.stream().map((b) -> CompletableFuture.completedFuture(b)).collect(Collectors.toList());
-        final CompletableFuture<Void> f = execPlans(inputDataset, variables, firstValues, bNodeMap, 0, newContext, outputGenerate, outputSelect, outputTemplate)
+        final CompletableFuture<Void> f = execPlans(inputDataset, variables, values, bNodeMap, 0, newContext, outputGenerate, outputSelect, outputTemplate)
                 .whenCompleteAsync((n, t) -> {
                     if (initial) {
                         SPARQLExt.close(newContext);
@@ -227,7 +225,7 @@ public final class RootPlanImpl extends RootPlanBase {
      * @param currentFuture the future that will trigger this execution
      * @param inputDataset
      * @param outputStream
-     * @param futureValues the batch
+     * @param values the batch
      * @param bNodeMap
      * @param i the index of the next iterator, source, or bind plan to execute
      * @param context
@@ -236,7 +234,7 @@ public final class RootPlanImpl extends RootPlanBase {
     private CompletableFuture<Void> execPlans(
             final Dataset inputDataset,
             final List<Var> variables,
-            final List<CompletableFuture<Binding>> futureValues,
+            final List<Binding> values,
             final BNodeMap bNodeMap,
             final int i,
             final Context context,
@@ -255,20 +253,18 @@ public final class RootPlanImpl extends RootPlanBase {
                 final BindOrSourcePlan bindOrSourcePlan = (BindOrSourcePlan) plan;
                 final List<Var> newVariables = new ArrayList<>(variables);
                 newVariables.add(bindOrSourcePlan.getVar());
-                final List<CompletableFuture<Binding>> newFutureValues
-                        = bindOrSourcePlan.exec(futureValues, context, executor);
+                final List<Binding> newFutureValues
+                        = bindOrSourcePlan.exec(values, context, executor);
                 return execPlans(inputDataset, newVariables, newFutureValues, bNodeMap, i + 1, context, outputGenerate, outputSelect, outputTemplate)
                         .thenRunAsync(() -> {
                             LOG.debug("Finished source or bind plan " + bindOrSourcePlan);
                         }, executor);
             } else {
                 IteratorPlan iteratorPlan = (IteratorPlan) plan;
-                return iteratorPlan.exec(variables, futureValues, (newValues) -> {
+                return iteratorPlan.exec(variables, values, (newValues) -> {
                     final List<Var> newVariables = new ArrayList<>(variables);
                     newVariables.addAll(iteratorPlan.getVars());
-                    final List<CompletableFuture<Binding>> newFutureValues
-                            = newValues.stream().map((b) -> CompletableFuture.completedFuture(b)).collect(Collectors.toList());
-                    return execPlans(inputDataset, newVariables, newFutureValues, bNodeMap, i + 1, context, outputGenerate, outputSelect, outputTemplate)
+                    return execPlans(inputDataset, newVariables, newValues, bNodeMap, i + 1, context, outputGenerate, outputSelect, outputTemplate)
                             .thenRunAsync(() -> {
                                 LOG.debug("Iterator plan produced batch " + iteratorPlan);
                             }, executor);
@@ -278,29 +274,27 @@ public final class RootPlanImpl extends RootPlanBase {
             }
         } else {
             final List<Var> newVariables = selectPlan.getVars();
-            final CompletableFuture<ResultSet> futureResultSet
-                    = selectPlan.exec(inputDataset, variables, futureValues, context, executor);
+            final ResultSet resultSet
+                    = selectPlan.exec(inputDataset, variables, values, context);
             if (outputSelect != null) {
-                return futureResultSet.thenAcceptAsync(outputSelect::accept, executor);
+                outputSelect.accept(resultSet);
+                return CompletableFuture.completedFuture(null);
             } else if (outputTemplate != null) {
-                return futureResultSet.thenAcceptAsync((results) -> execTemplatePlan(results, outputTemplate, context), executor);
+                execTemplatePlan(resultSet, outputTemplate, context);
+                return CompletableFuture.completedFuture(null);
             } else if (outputGenerate != null) {
-                final CompletableFuture<List<Binding>> f;
-                f = futureResultSet.thenApplyAsync((results) -> {
-                    final List<Binding> newBindings = new ArrayList<>();
-                    while (results.hasNext()) {
-                        final QuerySolution sol = results.next();
+                final List<Binding> newValues = new ArrayList<>();
+                while (resultSet.hasNext()) {
+                    final QuerySolution sol = resultSet.next();
 
-                        final BindingMap p = BindingFactory.create();
-                        for (Iterator<String> it = sol.varNames(); it.hasNext();) {
-                            final String varName = it.next();
-                            p.add(SPARQLExt.allocVar(varName, context), sol.get(varName).asNode());
-                        }
-                        newBindings.add(p);
+                    final BindingMap p = BindingFactory.create();
+                    for (Iterator<String> it = sol.varNames(); it.hasNext();) {
+                        final String varName = it.next();
+                        p.add(SPARQLExt.allocVar(varName, context), sol.get(varName).asNode());
                     }
-                    return newBindings;
-                }, executor);
-                return f.thenComposeAsync((n) -> execGeneratePlan(inputDataset, newVariables, f, outputGenerate, bNodeMap, context), executor);
+                    newValues.add(p);
+                }
+                return execGeneratePlan(inputDataset, newVariables, newValues, outputGenerate, bNodeMap, context);
             } else {
                 throw new SPARQLExtException("One of the outputs should not be null!");
             }
@@ -310,7 +304,7 @@ public final class RootPlanImpl extends RootPlanBase {
     private CompletableFuture<Void> execGeneratePlan(
             final Dataset inputDataset,
             final List<Var> variables,
-            final CompletableFuture<List<Binding>> f,
+            final List<Binding> values,
             final StreamRDF outputGenerate,
             final BNodeMap bNodeMap,
             final Context context) {
@@ -319,19 +313,9 @@ public final class RootPlanImpl extends RootPlanBase {
             future.completeExceptionally(new InterruptedException());
             return future;
         }
-        final Executor executor = (Executor) context.get(SPARQLExt.EXECUTOR);
-        List<CompletableFuture<Void>> futures = new ArrayList<>();
-        return f.thenAcceptAsync((values) -> {
-            final Context forkedContext = SPARQLExt.forkContext(context, values.size());
-            futures.add(outputPlan.exec(inputDataset, variables, values, bNodeMap, forkedContext, outputGenerate, null, null));
-        }, executor)
-                .thenComposeAsync((n) -> {
-                    return allOf(futures).thenRunAsync(() -> LOG.trace("Finished all generatePlan " + futures.size(), executor), executor);
-                }, executor)
-                .exceptionally((ex) -> {
-                    LOG.warn("Exception", ex);
-                    return null;
-                });
+        final Context forkedContext = SPARQLExt.forkContext(context, values.size());
+        return outputPlan.exec(inputDataset, variables, values, bNodeMap, forkedContext, outputGenerate, null, null);
+
     }
 
     private void execTemplatePlan(ResultSet results, Consumer<String> outputTemplate, Context context) {

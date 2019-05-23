@@ -20,7 +20,6 @@ import fr.emse.ci.sparqlext.graph.Node_List;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
 import java.util.function.Consumer;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
@@ -69,10 +68,6 @@ public class GenerateTriplesPlan implements ExecutionPlan {
     private static final Node FIRST = RDF.first.asNode();
     private static final Node REST = RDF.rest.asNode();
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public CompletableFuture<Void> exec(
             final Dataset inputDataset,
             final List<Var> variables,
@@ -82,24 +77,22 @@ public class GenerateTriplesPlan implements ExecutionPlan {
             final StreamRDF outputGenerate,
             final Consumer<ResultSet> outputSelect,
             final Consumer<String> outputTemplate) {
-        final Executor executor = (Executor) context.get(SPARQLExt.EXECUTOR);
         final PrefixMapping pm = (PrefixMapping) context.get(SPARQLExt.PREFIX_MANAGER);
-        return CompletableFuture.runAsync(() -> {
-            final StringBuilder sb = new StringBuilder("Output triples");
-            for (int i = 0; i < values.size(); i++) {
-                sb.append("\nposition ").append(i).append(":");
-                final Binding binding = values.get(i);
-                for (Triple t : bgp.getList()) {
-                    if (t.getObject() instanceof Node_List) {
-                        substAndOutputForList(t.getSubject(), t.getPredicate(), (Node_List) t.getObject(), sb, binding, outputGenerate, bNodeMap, context, i);
-                    } else {
-                        Triple t2 = TemplateLib.subst(t, binding, bNodeMap.asMap());
-                        outputIfConcrete(sb, outputGenerate, t2, pm);
-                    }
+        final StringBuilder sb = new StringBuilder("Output triples");
+        for (int i = 0; i < values.size(); i++) {
+            sb.append("\nposition ").append(i).append(":");
+            final Binding binding = values.get(i);
+            for (Triple t : bgp.getList()) {
+                if (t.getObject() instanceof Node_List) {
+                    substAndOutputForList(t.getSubject(), t.getPredicate(), (Node_List) t.getObject(), sb, binding, outputGenerate, bNodeMap, context, i);
+                } else {
+                    Triple t2 = TemplateLib.subst(t, binding, bNodeMap.asMap());
+                    outputIfConcrete(sb, outputGenerate, t2, pm);
                 }
             }
-            LOG.trace(sb.toString());
-        }, executor);
+        }
+        LOG.trace(sb.toString());
+        return CompletableFuture.completedFuture(null);
     }
     
     private synchronized void outputIfConcrete(

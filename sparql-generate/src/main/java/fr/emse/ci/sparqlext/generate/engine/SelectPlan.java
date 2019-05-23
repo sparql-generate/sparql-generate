@@ -21,9 +21,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
-import java.util.stream.Collectors;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryExecution;
@@ -52,7 +49,8 @@ public class SelectPlan {
      */
     public final Query select;
 
-    private final boolean isSelectType; 
+    private final boolean isSelectType;
+
     /**
      * Constructor.
      *
@@ -77,54 +75,46 @@ public class SelectPlan {
      * @param inputDataset the Dataset to use for the SPARQL SELECT part of the
      * query.
      * @param variables the variables
-     * @param futureValues the list of future bindings.
+     * @param values the list of bindings.
      * @param context the execution context.
-     * @param executor the executor
      * @return the new list of bindings
      */
-    final public CompletableFuture<ResultSet> exec(
+    final public ResultSet exec(
             final Dataset inputDataset,
             final List<Var> variables,
-            final List<CompletableFuture<Binding>> futureValues,
-            final Context context,
-            final Executor executor) {
+            final List<Binding> values,
+            final Context context) {
         if (Thread.interrupted()) {
-            CompletableFuture<ResultSet> future = new CompletableFuture<>();
-            future.completeExceptionally(new InterruptedException());
-            return future;
+            throw new SPARQLExtException(new InterruptedException());
         }
-        final List<Binding> values = new ArrayList<>(futureValues.size());
-        final List<CompletableFuture<Void>> fs
-                = futureValues.stream().map((fb) -> fb.thenAccept(values::add)).collect(Collectors.toList());
-        return CompletableFuture.allOf(fs.toArray(new CompletableFuture[fs.size()])).thenApplyAsync((n) -> {
-            LOG.debug("Executing select with " + futureValues.size() + " bindings");
-            final Query q = createQuery(select, variables, values);
+        LOG.debug("Executing select with " + values.size() + " bindings");
+        final Query q = createQuery(select, variables, values);
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("Query is\n" + q
+                    + " \ninitial values are:\n" + SPARQLExt.log(variables, values));
+        }
+        try {
+            augmentQuery(q, variables, values);
             if (LOG.isTraceEnabled()) {
-                LOG.trace("Query is\n" + q
-                        + " \ninitial values are:\n" + SPARQLExt.log(variables, values));
-            }
-            try {
-                augmentQuery(q, variables, values);
-                if (LOG.isTraceEnabled()) {
-                    final QueryExecution exec = QueryExecutionFactory.create(q, inputDataset);
-                    exec.getContext().putAll(context);
-                    ResultSet result = exec.execSelect();
-                    final List<Var> resultVariables = SPARQLExt.getVariables(result.getResultVars(), context);
-                    final List<Binding> resultBindings = new ArrayList<>();
-                    while (result.hasNext()) {
-                        resultBindings.add(result.nextBinding());
-                    }
-                    LOG.debug("Query output is\n" + SPARQLExt.log(resultVariables, resultBindings));
-                }
                 final QueryExecution exec = QueryExecutionFactory.create(q, inputDataset);
                 exec.getContext().putAll(context);
-                return exec.execSelect();
-            } catch (Exception ex) {
-                LOG.error("Error while executing SELECT Query " + q, ex);
-                throw new SPARQLExtException("Error while executing SELECT "
-                        + "Query" + q, ex);
+                ResultSet result = exec.execSelect();
+                final List<Var> resultVariables = SPARQLExt.getVariables(result.getResultVars(), context);
+                final List<Binding> resultBindings = new ArrayList<>();
+                while (result.hasNext()) {
+                    resultBindings.add(result.nextBinding());
+                }
+                LOG.debug("Query output is\n" + SPARQLExt.log(resultVariables, resultBindings));
             }
-        }, executor);
+            final QueryExecution exec = QueryExecutionFactory.create(q, inputDataset);
+            exec.getContext().putAll(context);
+            return exec.execSelect();
+        } catch (Exception ex) {
+            LOG.error("Error while executing SELECT Query " + q, ex);
+            throw new SPARQLExtException("Error while executing SELECT "
+                    + "Query" + q, ex);
+        }
+
     }
 
     private Query createQuery(

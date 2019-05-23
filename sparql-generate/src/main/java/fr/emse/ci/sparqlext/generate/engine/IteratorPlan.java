@@ -94,7 +94,7 @@ public class IteratorPlan implements BindingsClausePlan {
      * Updates the values block.
      *
      * @param variables the current variables.
-     * @param futureValues the future set of values.
+     * @param values the set of values.
      * @param listBindingFunction where new bindings are emited.
      * @param context the execution context.
      * @param executor the executor.
@@ -102,26 +102,18 @@ public class IteratorPlan implements BindingsClausePlan {
      */
     final public CompletableFuture<Void> exec(
             final List<Var> variables,
-            final List<CompletableFuture<Binding>> futureValues,
+            final List<Binding> values,
             final Function<List<Binding>, CompletableFuture<Void>> listBindingFunction,
             final Context context,
             final Executor executor) {
         context.set(ARQConstants.sysCurrentTime, NodeFactoryExtra.nowAsDateTime());
         final FunctionEnv env = new FunctionEnvBase(context);
-        final Batches batches = new Batches(futureValues, listBindingFunction);
+        final Batches batches = new Batches(values, listBindingFunction);
         try {
-            final List<CompletableFuture<Void>> cfs = futureValues.stream().map((futureBinding) -> {
-                return futureBinding.thenComposeAsync((binding) -> {
-                    LOG.debug("Start " + this);
-                    try {
-                        return iterator.exec(binding, exprList, env, (nodeValues) -> batches.add(futureBinding, binding, nodeValues));
-                    } catch(ExprEvalException ex) {
-                        LOG.debug("No evaluation for " + this + ", caused by " + ex.getMessage());
-                        return CompletableFuture.completedFuture(null);
-                    }
-                }, executor)
-                        .thenComposeAsync((n) -> batches.executionComplete(futureBinding), executor);
-            }).collect(Collectors.toList());
+            final List<CompletableFuture<Void>> cfs = values.stream()
+                    .map(binding -> exec(binding, env, batches)
+                            .thenRunAsync(() -> batches.executionComplete(binding)))
+                    .collect(Collectors.toList());
             return CompletableFuture.allOf(cfs.toArray(new CompletableFuture[cfs.size()]));
         } catch (Exception ex) {
             LOG.warn("Execution failed for " + toString(), ex);
@@ -129,28 +121,40 @@ public class IteratorPlan implements BindingsClausePlan {
         }
     }
 
+    private CompletableFuture<Void> exec(
+            final Binding binding,
+            final FunctionEnv env,
+            final Batches batches) {
+        LOG.debug("Start " + this);
+        try {
+            return iterator.exec(binding, exprList, env, (nodeValues) -> batches.add(binding, nodeValues));
+        } catch (ExprEvalException ex) {
+            LOG.debug("No evaluation for " + this + ", caused by " + ex.getMessage());
+            return CompletableFuture.completedFuture(null);
+        }
+    }
+
     private class Batches {
 
         final Function<List<Binding>, CompletableFuture<Void>> listBindingFunction;
-        final List<CompletableFuture<Binding>> uncompleteExecutions = new ArrayList<>();
+        final List<Binding> uncompleteExecutions = new ArrayList<>();
         final List<Batch> uncompleteBatches = new ArrayList<>();
-        final Map<CompletableFuture<Binding>, Batch> lastBatch = new HashMap<>();
+        final Map<Binding, Batch> lastBatch = new HashMap<>();
 
-        Batches(final List<CompletableFuture<Binding>> executions,
+        Batches(final List<Binding> binding,
                 final Function<List<Binding>, CompletableFuture<Void>> listBindingFunction) {
-            uncompleteExecutions.addAll(executions);
+            uncompleteExecutions.addAll(binding);
             this.listBindingFunction = listBindingFunction;
         }
 
         synchronized CompletableFuture<Void> add(
-                final CompletableFuture<Binding> execution,
                 final Binding binding,
                 final List<List<NodeValue>> nodeValues) {
             final List<Binding> bindings = getListBinding(binding, nodeValues);
-            final Batch batch = getNextBatch(lastBatch.get(execution));
-            LOG.trace("Iterator " + execution + " adds " + nodeValues.size() + " to batch " + batch);
-            lastBatch.put(execution, batch);
-            if (batch.add(execution, bindings)) {
+            final Batch batch = getNextBatch(lastBatch.get(binding));
+            LOG.trace("Iterator adds " + nodeValues.size() + " to batch " + batch);
+            lastBatch.put(binding, batch);
+            if (batch.add(binding, bindings)) {
                 return batchComplete(batch);
             } else {
                 return CompletableFuture.completedFuture(null);
@@ -201,13 +205,13 @@ public class IteratorPlan implements BindingsClausePlan {
         }
 
         synchronized CompletableFuture<Void> executionComplete(
-                final CompletableFuture<Binding> execution) {
-            LOG.trace("Iterator " + execution + " complete");
-            uncompleteExecutions.remove(execution);
-            lastBatch.remove(execution);
+                final Binding binding) {
+            LOG.trace("Iterator " + binding + " complete");
+            uncompleteExecutions.remove(binding);
+            lastBatch.remove(binding);
             List<CompletableFuture<Void>> cfs = new ArrayList<>();
             for (Batch batch : uncompleteBatches) {
-                if (batch.stopWaiting(execution)) {
+                if (batch.stopWaiting(binding)) {
                     cfs.add(batchComplete(batch));
                 }
             }
@@ -224,23 +228,23 @@ public class IteratorPlan implements BindingsClausePlan {
 
     private class Batch {
 
-        final List<CompletableFuture<Binding>> expectedExecutions = new ArrayList<>();
+        final List<Binding> expectedExecutions = new ArrayList<>();
         final List<Binding> bindings = new ArrayList<>();
 
-        Batch(final List<CompletableFuture<Binding>> uncompleteExecutions) {
+        Batch(final List<Binding> uncompleteExecutions) {
             expectedExecutions.addAll(expectedExecutions);
         }
 
         synchronized boolean add(
-                final CompletableFuture<Binding> iterator,
+                final Binding execution,
                 final List<Binding> bindings) {
-            expectedExecutions.remove(iterator);
+            expectedExecutions.remove(execution);
             this.bindings.addAll(bindings);
             return expectedExecutions.isEmpty();
         }
 
         synchronized boolean stopWaiting(
-                final CompletableFuture<Binding> execution) {
+                final Binding execution) {
             expectedExecutions.remove(execution);
             return expectedExecutions.isEmpty();
         }

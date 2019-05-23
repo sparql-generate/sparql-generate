@@ -32,6 +32,13 @@ import org.apache.jena.datatypes.DatatypeFormatException;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
+import java.util.logging.Level;
+import java.util.stream.Collectors;
 import org.apache.jena.sparql.engine.binding.BindingFactory;
 import org.apache.jena.sparql.engine.binding.Binding;
 import org.apache.jena.sparql.util.Context;
@@ -71,8 +78,8 @@ public class SourcePlan extends BindOrSourcePlan {
      * Must not be null.
      * @param accept The IRI or the Variable node that represent the accepted
      * Internet Media Type. May be null.
-     * @param var The variable to bound the potentially retrieved document.
-     * Must not be null.
+     * @param var The variable to bound the potentially retrieved document. Must
+     * not be null.
      */
     public SourcePlan(
             final Node node,
@@ -89,43 +96,62 @@ public class SourcePlan extends BindOrSourcePlan {
         this.accept = accept;
     }
 
-    final protected Binding exec(
-            final Binding binding,
-            final Context context) {
-
+    @Override
+    public List<Binding> exec(
+            final List<Binding> futureValues,
+            final Context context,
+            final Executor executor) {
         LOG.debug("Start " + this);
-        Objects.nonNull(binding);
-        // generate the source URI.
-        final String sourceUri = getActualSource(binding);
-        final String acceptHeader = getAcceptHeader(binding);
-        LOG.trace("... resolved to SOURCE <" + sourceUri + "> ACCEPT " + acceptHeader + " AS " + var);
-        final LookUpRequest request = new LookUpRequest(sourceUri, acceptHeader);
-        final SPARQLExtStreamManager sm = (SPARQLExtStreamManager) context.get(SPARQLExt.STREAM_MANAGER);
-        Objects.requireNonNull(sm);
-        final TypedInputStream stream = sm.open(request);
-        if (stream == null) {
-            LOG.info("Exec SOURCE <" + sourceUri + "> ACCEPT " + acceptHeader + " AS " + var + " returned nothing.");
-            return BindingFactory.binding(binding);
+        Objects.nonNull(futureValues);
+        List<Binding> newValues = new ArrayList<>();
+        List<CompletableFuture<Void>> cfs = futureValues.stream()
+                .map(binding -> exec(binding, context, executor)
+                        .thenAccept(newValues::add))
+                .collect(Collectors.toList());
+        try {
+            CompletableFuture.allOf(cfs.toArray(new CompletableFuture[cfs.size()])).get();
+            return newValues;
+        } catch (InterruptedException | ExecutionException ex) {
+            throw new SPARQLExtException(ex);
         }
-        try (InputStream in = stream.getInputStream()) {
-            final String literal = IOUtils.toString(in, "UTF-8");
-            final RDFDatatype dt;
-            if (stream.getMediaType() != null && stream.getMediaType().getContentType() != null) {
-                dt = tm.getSafeTypeByName("http://www.iana.org/assignments/media-types/" + stream.getMediaType().getContentType());
-            } else {
-                dt = tm.getSafeTypeByName("http://www.w3.org/2001/XMLSchema#string");
+    }
+
+    private CompletableFuture<Binding> exec(
+            final Binding binding,
+            final Context context,
+            final Executor executor) {
+        return CompletableFuture.supplyAsync(() -> {
+            final String sourceUri = getActualSource(binding);
+            final String acceptHeader = getAcceptHeader(binding);
+            LOG.trace("... resolved to SOURCE <" + sourceUri + "> ACCEPT " + acceptHeader + " AS " + var);
+            final LookUpRequest request = new LookUpRequest(sourceUri, acceptHeader);
+            final SPARQLExtStreamManager sm = (SPARQLExtStreamManager) context.get(SPARQLExt.STREAM_MANAGER);
+            Objects.requireNonNull(sm);
+            final TypedInputStream stream = sm.open(request);
+            if (stream == null) {
+                LOG.info("Exec SOURCE <" + sourceUri + "> ACCEPT " + acceptHeader + " AS " + var + " returned nothing.");
+                return BindingFactory.binding(binding);
             }
-            final Node n = NodeFactory.createLiteral(literal, dt);
-            LOG.debug("Exec " + this + " returned. "
-                    + "Enable TRACE level for more.");
-            if (LOG.isTraceEnabled()) {
-                LOG.trace("Exec " + this + " returned\n" + SPARQLExt.compress(n));
+            try (InputStream in = stream.getInputStream()) {
+                final String literal = IOUtils.toString(in, "UTF-8");
+                final RDFDatatype dt;
+                if (stream.getMediaType() != null && stream.getMediaType().getContentType() != null) {
+                    dt = tm.getSafeTypeByName("http://www.iana.org/assignments/media-types/" + stream.getMediaType().getContentType());
+                } else {
+                    dt = tm.getSafeTypeByName("http://www.w3.org/2001/XMLSchema#string");
+                }
+                final Node n = NodeFactory.createLiteral(literal, dt);
+                LOG.debug("Exec " + this + " returned. "
+                        + "Enable TRACE level for more.");
+                if (LOG.isTraceEnabled()) {
+                    LOG.trace("Exec " + this + " returned\n" + SPARQLExt.compress(n));
+                }
+                return BindingFactory.binding(binding, var, n);
+            } catch (IOException | DatatypeFormatException ex) {
+                LOG.warn("Exception while looking up " + sourceUri + ":", ex);
+                return BindingFactory.binding(binding);
             }
-            return BindingFactory.binding(binding, var, n);
-        } catch (IOException | DatatypeFormatException ex) {
-            LOG.warn("Exception while looking up " + sourceUri + ":", ex);
-            return BindingFactory.binding(binding);
-        }
+        }, executor);
     }
 
     /**
@@ -191,7 +217,6 @@ public class SourcePlan extends BindOrSourcePlan {
 
     }
 
-    
     @Override
     public String toString() {
         return "SOURCE " + node + (accept != null ? " ACCEPT " + accept : "") + " AS " + var;

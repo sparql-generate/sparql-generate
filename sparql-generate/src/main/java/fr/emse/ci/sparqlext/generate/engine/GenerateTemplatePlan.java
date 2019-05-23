@@ -89,7 +89,7 @@ public class GenerateTemplatePlan implements ExecutionPlan {
         templateElementPlans.forEach((el) -> {
             if (el instanceof GenerateTriplesPlan) {
                 final GenerateTriplesPlan subPlan = (GenerateTriplesPlan) el;
-                fs.add(subPlan.exec(inputDataset, variables, values, bNodeMap2, context, outputGenerate, outputSelect, outputTemplate));
+                subPlan.exec(inputDataset, variables, values, bNodeMap2, context, outputGenerate, outputSelect, outputTemplate);
             } else if (el instanceof RootPlanImpl) {
                 final RootPlanImpl subPlan = (RootPlanImpl) el;
                 final List<Var> newVariables = getNewVariables(subPlan, variables);
