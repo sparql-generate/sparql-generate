@@ -55,7 +55,6 @@ import org.apache.jena.query.QueryFactory;
 import org.apache.jena.query.QueryParseException;
 import org.apache.jena.sparql.expr.E_Function;
 import org.apache.jena.sparql.expr.E_Str;
-import org.apache.jena.sparql.expr.E_StrConcat;
 import org.apache.jena.sparql.expr.ExprAggregator;
 import org.apache.jena.sparql.expr.aggregate.AggGroupConcat;
 import org.apache.jena.sparql.expr.aggregate.AggGroupConcatDistinct;
@@ -559,13 +558,13 @@ public class PlanFactory {
                     for (int i = 0; i < templateElements.size(); i++) {
                         templateElements.get(i).visit(tproc);
                         Expr result = tproc.result;
-                        if (result instanceof E_StrConcat) {
-                            texprs.addAll(((E_StrConcat) result).getArgs());
+                        if (result instanceof E_Function && ((E_Function) result).getFunctionIRI().equals(ST.concat)) {
+                            texprs.addAll(((E_Function) result).getArgs());
                         } else {
                             texprs.add(result);
                         }
                     }
-                    Expr concat = new E_StrConcat(new ExprList(texprs));
+                    Expr concat = new E_Function(ST.concat, new ExprList(texprs));
                     output.addResultVar(var, concat);
                 }
             }
@@ -622,14 +621,14 @@ public class PlanFactory {
             List<Element> elements = el.getTExpressions();
             for (int i = 0; i < elements.size(); i++) {
                 elements.get(i).visit(this);
-                if (result instanceof E_StrConcat) {
-                    texprs.addAll(((E_StrConcat) result).getArgs());
+                if (result instanceof E_Function && ((E_Function) result).getFunctionIRI().equals(ST.concat)) {
+                    texprs.addAll(((E_Function) result).getArgs());
                 } else {
                     texprs.add(result);
                 }
             }
             texprs.add(new E_Function(ST.decr, new ExprList()));
-            result = new E_StrConcat(new ExprList(texprs));
+            result = new E_Function(ST.concat, new ExprList(texprs));
         }
 
         @Override
@@ -651,7 +650,7 @@ public class PlanFactory {
                 e.visit(this);
                 texprs.add(result);
             });
-            final Expr concat = new E_StrConcat(new ExprList(texprs));
+            final Expr concat = new E_Function(ST.concat, new ExprList(texprs));
             final Aggregator groupConcat;
             if (el.isDistinct()) {
                 groupConcat = new AggGroupConcatDistinct(concat, sep);
