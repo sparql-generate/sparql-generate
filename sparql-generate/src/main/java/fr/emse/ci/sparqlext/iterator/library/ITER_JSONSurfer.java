@@ -17,17 +17,17 @@ package fr.emse.ci.sparqlext.iterator.library;
 
 import fr.emse.ci.sparqlext.SPARQLExt;
 import fr.emse.ci.sparqlext.function.library.FUN_JSONPath;
-import fr.emse.ci.sparqlext.iterator.IteratorFunctionBase;
-import com.jayway.jsonpath.Configuration;
-import com.jayway.jsonpath.JsonPath;
-import com.jayway.jsonpath.Option;
 import fr.emse.ci.sparqlext.stream.LookUpRequest;
 import fr.emse.ci.sparqlext.stream.SPARQLExtStreamManager;
-import com.google.gson.Gson;
+import com.jayway.jsonpath.DocumentContext;
+import fr.emse.ci.sparqlext.iterator.IteratorStreamFunctionBase;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
 import org.apache.commons.io.IOUtils;
 import org.apache.jena.atlas.web.TypedInputStream;
 import org.apache.jena.graph.Node;
@@ -35,23 +35,27 @@ import org.apache.jena.graph.Node;
 import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.ExprList;
 import org.apache.jena.sparql.expr.NodeValue;
-import org.apache.jena.sparql.expr.nodevalue.NodeValueBoolean;
-import org.apache.jena.sparql.expr.nodevalue.NodeValueInteger;
+import org.jsfr.json.JsonPathListener;
+import org.jsfr.json.JsonSurfer;
+import org.jsfr.json.JsonSurferGson;
+import org.jsfr.json.ParsingContext;
+import org.jsfr.json.compiler.JsonPathCompiler;
+import org.jsfr.json.path.JsonPath;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 
 /**
  * Iterator function
- * <a href="http://w3id.org/sparql-generate/iter/JSONPath">iter:JSONPath</a>
+ * <a href="http://w3id.org/sparql-generate/iter/JSONSurfer">iter:JSONSurfer</a>
  * extracts a list of sub-JSON documents of a JSON document, according to a
- * JSONPath expression. See https://github.com/json-path/JsonPath for the
- * JSONPath syntax specification.
+ * forward-only JSONPath expression. See https://github.com/jsurfer/JsonSurfer
+ * for the JSONPath syntax specification.
  *
  * <p>
  * See
- * <a href="https://w3id.org/sparql-generate/playground.html#ex=example/generate/Example-JSON">Live
+ * <a href="https://w3id.org/sparql-generate/playground.html#ex=example/generate/Example-JSONSurfer">Live
  * example</a></p>
- * 
+ *
  * <ul>
  * <li>Param 1: (json): the URI of the JSON document (a URI), or the JSON object
  * itself (a String);</li>
@@ -74,133 +78,189 @@ import org.slf4j.Logger;
  * </ul>
  *
  * Output 2 and 3 can be used to generate RDF lists from the input, but the use
- * of keyword <code>LIST( ?var )</code> as the object of a triple pattern covers most cases
- * more elegantly.
+ * of keyword <code>LIST( ?var )</code> as the object of a triple pattern covers
+ * most cases more elegantly.
  *
  * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */
-public class ITER_JSONPath extends IteratorFunctionBase {
+public class ITER_JSONSurfer extends IteratorStreamFunctionBase {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ITER_JSONPath.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ITER_JSONSurfer.class);
 
-    public static final String URI = SPARQLExt.ITER + "JSONPath";
+    public static final String URI = SPARQLExt.ITER + "JSONSurfer";
 
-    private static final String JSON_URI = "http://www.iana.org/assignments/media-types/application/json";
+    private static final FUN_JSONPath function = new FUN_JSONPath();
 
-    private final static NodeValue TRUE = new NodeValueBoolean(true);
+    private static final JsonSurfer surfer = JsonSurferGson.INSTANCE;
 
-    private final static NodeValue FALSE = new NodeValueBoolean(false);
+    public final CompletableFuture<Void> future = new CompletableFuture<>();
 
-    private final FUN_JSONPath function = new FUN_JSONPath();
-
-    private static Gson GSON = new Gson();
+    public CompletableFuture<Void> returnedFuture = future;
 
     @Override
-    public List<List<NodeValue>> exec(List<NodeValue> args) {
+    public void checkBuild(ExprList args) {
+        Objects.nonNull(args);
+    }
+
+    @Override
+    public CompletableFuture<Void> exec(
+            final List<NodeValue> args,
+            final Function<List<List<NodeValue>>, CompletableFuture<Void>> collectionListNodeValue) {
+        Objects.nonNull(args);
         if (args.size() < 2) {
             LOG.debug("Expecting at least two arguments.");
             throw new ExprEvalException("Expecting at least two arguments.");
         }
-        final NodeValue json = args.get(0);
-        if (!json.isIRI() && !json.isString() && !json.asNode().isLiteral()) {
-            LOG.debug("First argument must be a URI or a String.");
-            throw new ExprEvalException("First argument must be a URI or a String.");
-        }
-        if (!json.isIRI() && json.getDatatypeURI() != null
-                && !json.getDatatypeURI().equals(JSON_URI)
-                && !json.getDatatypeURI().equals("http://www.w3.org/2001/XMLSchema#string")) {
-            LOG.debug("The datatype of the first argument should be"
-                    + " <" + JSON_URI + "> or"
-                    + " <http://www.w3.org/2001/XMLSchema#string>. Got "
-                    + json.getDatatypeURI());
-        }
-        Configuration conf = Configuration.builder()
-                .options(Option.ALWAYS_RETURN_LIST).build();
 
-        String jsonString = getString(json);
+        final NodeValue json = args.remove(0);
+        final NodeValue jsonquery = args.remove(0);
+        try (InputStream jsonInput = getInputStream(json)) {
 
-        final NodeValue jsonquery = args.get(1);
-        if (!jsonquery.isString()) {
-            LOG.debug("Second argument must be a String.");
-            throw new ExprEvalException("Second argument must be a String.");
-        }
+            final JsonPath compiledPath = getCompiledPath(jsonquery);
+            final int rowsInABatch = getRowsInABatch(args);
+            final com.jayway.jsonpath.JsonPath[] subqueries = getSubQueries(args);
 
-        String[] subqueries = new String[args.size() - 2];
-        if (args.size() > 2) {
-            for (int i = 2; i < args.size(); i++) {
-                final NodeValue subquery = args.get(i);
-                if (!subquery.isString()) {
-                    LOG.debug("Argument " + i + " must be a String.");
-                    throw new ExprEvalException("Argument " + i + " must be a String.");
-                }
-                subqueries[i - 2] = subquery.getString();
-            }
-        }
-
-        try {
-            List<Object> values = JsonPath
-                    .using(conf)
-                    .parse(jsonString)
-                    .read(jsonquery.getString());
-            int size = values.size();
-            List<List<NodeValue>> listNodeValues = new ArrayList<>(size);
-            for (int i = 0; i < size; i++) {
-                Object value = values.get(i);
-                List<NodeValue> nodeValues = new ArrayList<>(args.size() + 1);
-                nodeValues.add(function.nodeForObject(value));
-                for (String subquery : subqueries) {
-                    try {
-                        Object subvalue = JsonPath.parse(value)
-                                .limit(1).read(subquery);
-                        nodeValues.add(function.nodeForObject(subvalue));
-                    } catch (Exception ex) {
-                        LOG.debug("No evaluation for " + value + ", " + subquery, ex);
-                        nodeValues.add(null);
-                    }
-                }
-                nodeValues.add(new NodeValueInteger(i));
-                nodeValues.add((i == size - 1) ? FALSE : TRUE);
-                listNodeValues.add(nodeValues);
-            }
-            return listNodeValues;
-        } catch (Exception ex) {
-            if(LOG.isDebugEnabled()) {
+            final Listener listener = new Listener(collectionListNodeValue, rowsInABatch, subqueries);
+            surfer.configBuilder()
+                    .bind(compiledPath, listener)
+                    .buildAndSurf(jsonInput);
+            LOG.debug("built and finished surfing");
+            listener.stop();
+            return returnedFuture;
+        } catch (ExprEvalException | IOException ex) {
+            if (LOG.isDebugEnabled()) {
                 Node compressed = SPARQLExt.compress(json.asNode());
-                LOG.debug("No evaluation for " + compressed + ", " + jsonquery, ex);
+                LOG.debug("No evaluation for " + compressed + ", " + jsonquery);
+            }
+            throw new ExprEvalException("No evaluation for " + jsonquery);
+        } catch (Exception ex) {
+            if (LOG.isDebugEnabled()) {
+                Node compressed = SPARQLExt.compress(json.asNode());
+                LOG.debug("No evaluation for " + compressed + ", " + jsonquery);
             }
             throw new ExprEvalException("No evaluation for " + jsonquery);
         }
     }
 
-    private String getString(NodeValue json) throws ExprEvalException {
+    private InputStream getInputStream(NodeValue json) throws ExprEvalException, IOException {
         if (json.isString()) {
-            return json.getString();
-        } else if (json.isLiteral() && json.asNode().getLiteralDatatypeURI().equals(JSON_URI)) {
-            return json.asNode().getLiteralLexicalForm();
-        } else if (!json.isIRI()) {
+            return IOUtils.toInputStream(json.asString(), StandardCharsets.UTF_8);
+        } else if (json.isLiteral() && json.asNode().getLiteralDatatypeURI().startsWith("http://www.iana.org/assignments/media-types/")) {
+            return IOUtils.toInputStream(json.asNode().getLiteralLexicalForm(), StandardCharsets.UTF_8);
+        } else if (json.isIRI()) {
+            String csvPath = json.asNode().getURI();
+            LookUpRequest req = new LookUpRequest(csvPath, "application/json");
+            final SPARQLExtStreamManager sm = (SPARQLExtStreamManager) getContext().get(SPARQLExt.STREAM_MANAGER);
+            Objects.requireNonNull(sm);
+            TypedInputStream tin = sm.open(req);
+            if (tin == null) {
+                String message = String.format("Could not look up json document %s", csvPath);
+                LOG.warn(message);
+                throw new ExprEvalException(message);
+            }
+            return tin.getInputStream();
+        } else {
             String message = String.format("First argument must be a URI or a String");
             LOG.warn(message);
             throw new ExprEvalException(message);
         }
-        String jsonPath = json.asNode().getURI();
-        LookUpRequest req = new LookUpRequest(jsonPath, "application/json");
-        final SPARQLExtStreamManager sm = (SPARQLExtStreamManager) getContext().get(SPARQLExt.STREAM_MANAGER);
-        Objects.requireNonNull(sm);
-        TypedInputStream tin = sm.open(req);
-        if (tin == null) {
-            String message = String.format("Could not look up json document %s", jsonPath);
-            LOG.warn(message);
-            throw new ExprEvalException(message);
-        }
-        try {
-            return IOUtils.toString(tin.getInputStream(), StandardCharsets.UTF_8);
-        } catch (IOException ex) {
-            throw new ExprEvalException("IOException while looking up json document " + jsonPath, ex);
-        }
     }
 
-    @Override
-    public void checkBuild(ExprList args) {
-        Objects.nonNull(args);
+    private JsonPath getCompiledPath(NodeValue jsonquery) {
+        if (!jsonquery.isString()) {
+            LOG.debug("Second argument must be a String.");
+            throw new ExprEvalException("Second argument must be a String.");
+        }
+        return JsonPathCompiler.compile(jsonquery.getString());
+    }
+
+    private int getRowsInABatch(List<NodeValue> args) {
+        int rowsInABatch;
+        if (!args.isEmpty() && args.get(0).isInteger()) {
+            int batch = args.remove(0).getInteger().intValue();
+            if (batch > 0) {
+                rowsInABatch = batch;
+                LOG.trace("  With batches of " + rowsInABatch + " results.");
+            } else {
+                rowsInABatch = 0;
+                LOG.trace("  As one batch");
+            }
+        } else {
+            rowsInABatch = 0;
+            LOG.trace("  As one batch");
+        }
+        return rowsInABatch;
+    }
+
+    private com.jayway.jsonpath.JsonPath[] getSubQueries(List<NodeValue> args) {
+        com.jayway.jsonpath.JsonPath[] subqueries = new com.jayway.jsonpath.JsonPath[args.size()];
+        for (int i = 0; i < args.size(); i++) {
+            final NodeValue subquery = args.get(i);
+            if (!subquery.isString()) {
+                LOG.debug("Sub-JSONPath query " + i + " must be a String.");
+                throw new ExprEvalException("Sub-JSONPath query " + i + " must be a String.");
+            }
+            subqueries[i] = com.jayway.jsonpath.JsonPath.compile(subquery.getString());
+        }
+        return subqueries;
+    }
+
+    private class Listener implements JsonPathListener {
+
+        private final Function<List<List<NodeValue>>, CompletableFuture<Void>> collectionListNodeValue;
+        private final int rowsInABatch;
+        private final com.jayway.jsonpath.JsonPath[] subqueries;
+
+        public Listener(Function<List<List<NodeValue>>, CompletableFuture<Void>> collectionListNodeValue, int rowsInABatch, com.jayway.jsonpath.JsonPath[] subqueries) {
+            this.collectionListNodeValue = collectionListNodeValue;
+            this.rowsInABatch = rowsInABatch;
+            this.subqueries = subqueries;
+        }
+        
+        private boolean initialized = false;
+        private int rowsInThisBatch = 0;
+        private int total = 0;
+        List<List<NodeValue>> nodeValues = new ArrayList<>();
+
+        @Override
+        public void onValue(Object value, ParsingContext context) {
+            LOG.info("value: " + function.nodeForObject(value));
+            if (!initialized) {
+                initialized = true;
+                SPARQLExt.addTaskOnClose(getContext(), context::stop);
+            }
+            List<NodeValue> list = new ArrayList<>(subqueries.length);
+            list.add(function.nodeForObject(value));
+            DocumentContext doc = com.jayway.jsonpath.JsonPath.parse(value);
+            for (com.jayway.jsonpath.JsonPath subquery : subqueries) {
+                try {
+                    Object subvalue = doc.limit(1).read(subquery);
+                    list.add(function.nodeForObject(subvalue));
+                } catch (Exception ex) {
+                    LOG.debug("No evaluation for " + value + ", " + subquery);
+                    list.add(null);
+                }
+            }
+            nodeValues.add(list);
+            rowsInThisBatch++;
+            total++;
+            if (rowsInABatch > 0 && rowsInThisBatch >= rowsInABatch) {
+                LOG.trace("New batch of " + rowsInThisBatch + " rows, " + total + " total");
+                send();
+                rowsInThisBatch = 0;
+            }
+        }
+        
+        private void send() {
+            returnedFuture = CompletableFuture.allOf(returnedFuture, collectionListNodeValue.apply(nodeValues));
+            nodeValues = new ArrayList<>();
+        }
+
+        private void stop() {
+            if(rowsInThisBatch>0) {
+                send();
+            }
+        }
+
     }
 }
