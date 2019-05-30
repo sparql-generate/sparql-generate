@@ -73,6 +73,11 @@ public class SPARQLExtQuery extends Query {
      */
     public static final int QueryTypePerform = 557;
 
+    /**
+     * The query type of SPARQL-Function queries.
+     */
+    public static final int QueryTypeFunction = 558;
+
     int queryType = QueryTypeUnknown;
 
     /**
@@ -94,6 +99,13 @@ public class SPARQLExtQuery extends Query {
      */
     public void setQueryPerformType() {
         queryType = QueryTypePerform;
+    }
+
+    /**
+     * Specifies that the Query is a SPARQL-Function query.
+     */
+    public void setQueryFunctionType() {
+        queryType = QueryTypeFunction;
     }
 
     public void setQuerySelectType() {
@@ -156,6 +168,14 @@ public class SPARQLExtQuery extends Query {
      */
     public boolean isPerformType() {
         return queryType == QueryTypePerform;
+    }
+
+
+    /**
+     * Gets if the Query is a SPARQL-Function query.
+     */
+    public boolean isFunctionType() {
+        return queryType == QueryTypeFunction;
     }
 
     private boolean hasEmbeddedExpressions;
@@ -435,6 +455,39 @@ public class SPARQLExtQuery extends Query {
     public final void setPerformClause(final List<Element> performClause) {
         this.performClause = performClause;
     }
+
+    /**
+     * the function expression of the query.
+     */
+    private Expr functionExpression = null;
+
+    /**
+     * Gets if the query has a function expression.
+     *
+     * @return -
+     */
+    public final boolean hasFunctionExpression() {
+        return functionExpression != null;
+    }
+
+    /**
+     * Gets the function expression of the query, or null.
+     *
+     * @return the function expression.
+     */
+    public final Expr getFunctionExpression() {
+        return functionExpression;
+    }
+
+    /**
+     * Sets the function expression of the query.
+     *
+     * @param functionExpression the function expression
+     */
+    public final void setFunctionExpression(final Expr functionExpression) {
+        this.functionExpression = functionExpression;
+    }
+
 
     /**
      * the deque of {@code SOURCE} and {@code ITERATOR} clauses of a

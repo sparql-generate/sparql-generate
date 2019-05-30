@@ -15,6 +15,7 @@
  */
 package fr.emse.ci.sparqlext;
 
+import fr.emse.ci.sparqlext.function.SPARQLExtFunctionRegistry;
 import fr.emse.ci.sparqlext.function.library.FUN_CSSPath;
 import fr.emse.ci.sparqlext.function.library.FUN_SplitAtPostion;
 import fr.emse.ci.sparqlext.function.library.FUN_GeoJSONGeometry;
@@ -398,6 +399,9 @@ public final class SPARQLExt {
         String rand = UUID.randomUUID().toString().substring(0, 4);
         String indentControl = "\f" + rand;
         context.set(SPARQLExt.INDENT_CONTROL, indentControl);
+        FunctionRegistry registry = (FunctionRegistry) context.get(ARQConstants.registryFunctions);
+        SPARQLExtFunctionRegistry newRegistry = new SPARQLExtFunctionRegistry(registry, context);
+        context.set(ARQConstants.registryFunctions, newRegistry);
         return context;
     }
 
