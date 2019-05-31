@@ -15,6 +15,7 @@
  */
 package fr.emse.ci.sparqlext;
 
+import static fr.emse.ci.sparqlext.CMDConfigurations.*;
 import fr.emse.ci.sparqlext.utils.Request;
 import fr.emse.ci.sparqlext.generate.engine.PlanFactory;
 import fr.emse.ci.sparqlext.query.SPARQLExtQuery;
@@ -27,17 +28,12 @@ import org.apache.commons.cli.*;
 import org.apache.commons.io.IOUtils;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
-import org.apache.jena.graph.Triple;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetFactory;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFLanguages;
-import org.apache.jena.shared.PrefixMapping;
-import org.apache.jena.sparql.core.Quad;
-import org.apache.jena.sparql.serializer.SerializationContext;
 import org.apache.jena.sparql.syntax.Element;
-import org.apache.jena.sparql.util.FmtUtils;
 import org.apache.log4j.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,11 +46,12 @@ import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import org.apache.jena.riot.system.StreamRDF;
 import fr.emse.ci.sparqlext.generate.engine.RootPlan;
+import java.util.concurrent.ExecutionException;
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryFactory;
 import org.apache.jena.sparql.util.Context;
+import org.rdfhdt.hdt.hdt.HDT;
 
 /**
  * @author Noorani Bakerally <noorani.bakerally at emse.fr>, Maxime Lefrançois
@@ -68,38 +65,14 @@ public class SPARQLExtCli {
     private static final Layout LAYOUT = new PatternLayout("%d %-5p %c{1}:%L - %m%n");
     private static final org.apache.log4j.Logger ROOT_LOGGER = org.apache.log4j.Logger.getRootLogger();
 
-    private static final String ARG_HELP = "h";
-    private static final String ARG_HELP_LONG = "help";
-    private static final String ARG_DIRECTORY = "d";
-    private static final String ARG_DIRECTORY_LONG = "dir";
-    private static final String ARG_DIRECTORY_DEFAULT = ".";
-    private static final String ARG_QUERY = "q";
-    private static final String ARG_QUERY_LONG = "query-file";
-    private static final String ARG_QUERY_DEFAULT = "query.rqg";
-    private static final String ARG_OUTPUT = "o";
-    private static final String ARG_OUTPUT_LONG = "output";
-    private static final String ARG_OUTPUT_APPEND = "oa";
-    private static final String ARG_OUTPUT_APPEND_LONG = "output-append";
-    private static final String ARG_OUTPUT_FORMAT = "of";
-    private static final String ARG_OUTPUT_FORMAT_LONG = "output-format";
-    private static final String ARG_SOURCE_LONG = "source";
-    private static final String ARG_STREAM = "s";
-    private static final String ARG_STREAM_LONG = "stream";
-    private static final String ARG_LOG_LEVEL = "l";
-    private static final String ARG_LOG_LEVEL_LONG = "log-level";
-    private static final String ARG_LOG_FILE = "f";
-    private static final String ARG_LOG_FILE_LONG = "log-file";
-
     public static void main(String[] args) throws ParseException {
         Instant start = Instant.now();
         CommandLine cl = CMDConfigurations.parseArguments(args);
 
-        if (cl.getOptions().length == 0) {
+        if (cl.getOptions().length == 0 || cl.hasOption(ARG_HELP)) {
             CMDConfigurations.displayHelp();
             return;
         }
-
-        setLogging(cl);
 
         String dirPath = cl.getOptionValue(ARG_DIRECTORY, ARG_DIRECTORY_DEFAULT);
         File dir = new File(dirPath);
@@ -117,12 +90,14 @@ public class SPARQLExtCli {
             request = Request.DEFAULT;
         }
 
+        setLogging(cl, request.loglevel);
+
         // initialize stream manager
         SPARQLExtStreamManager sm = SPARQLExtStreamManager
                 .makeStreamManager(new LocatorFileAccept(dir.toURI().getPath()));
         sm.setLocationMapper(request.asLocationMapper());
 
-        String queryPath = cl.getOptionValue(ARG_QUERY, ARG_QUERY_DEFAULT);
+        String queryPath = cl.getOptionValue(ARG_QUERY, request.query);
         String query;
         SPARQLExtQuery q;
         try {
@@ -133,7 +108,7 @@ public class SPARQLExtCli {
                 LOG.error("No file named {} was found in the directory that contains the query to be executed.", queryPath);
                 return;
             }
-            
+
             try {
                 q = (SPARQLExtQuery) QueryFactory.create(query, SPARQLExt.SYNTAX);
             } catch (Exception ex) {
@@ -144,7 +119,7 @@ public class SPARQLExtCli {
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }
-        
+
         final Context context = SPARQLExt.createContext(q.getPrefixMapping(), sm);
         try {
             replaceSourcesIfRequested(cl, q);
@@ -164,10 +139,13 @@ public class SPARQLExtCli {
             Lang outputLang = RDFLanguages.nameToLang(cl.getOptionValue(ARG_OUTPUT_FORMAT, RDFLanguages.strLangTurtle));
 
             boolean stream = cl.hasOption(ARG_STREAM);
-            if (stream) {
-                execAsync(q, plan, ds, context, output, outputAppend);
-            } else {
+            boolean hdt = cl.hasOption(ARG_HDT);
+            if (!stream && !hdt) {
                 execSync(q, plan, ds, context, outputLang, output, outputAppend);
+            } else if(hdt) {
+                execHDT(q, plan, ds, context, output, outputAppend);
+            } else {
+                execStream(q, plan, ds, context, output, outputAppend);
             }
             long millis = Duration.between(start, Instant.now()).toMillis();
             System.out.println("Program finished in " + String.format("%d min, %d sec",
@@ -180,7 +158,37 @@ public class SPARQLExtCli {
         }
     }
 
-    private static void execAsync(Query q, RootPlan plan, Dataset ds, Context context, String output, boolean outputAppend) {
+    private static void execHDT(SPARQLExtQuery q, RootPlan plan, Dataset ds, Context context, String output, boolean outputAppend) {
+        if (output == null) {
+            LOG.error("Output needs to be set with the option HDT.");
+        }
+        HDT hdt = null;
+        try {
+            HDTStreamRDF hdtStreamRDF = new HDTStreamRDF(q.getBaseURI());
+            hdt = hdtStreamRDF.getHDT();
+            plan.execGenerate(ds, hdtStreamRDF, context).get();
+            try (OutputStream out = new FileOutputStream(output)) {
+                // Save generated HDT to a file
+                hdt.saveToHDT(out, null);
+            } catch(IOException ex) {
+                LOG.error("Error while opening the output file.", ex);
+            }
+        } catch (ExecutionException ex) {
+            LOG.error("Error while executing the plan.", ex);
+        } catch (InterruptedException ex) {
+            LOG.error("Interrupted while executing the plan.", ex);
+        } finally {
+            if(hdt!=null) {
+                try {
+                    hdt.close();
+                } catch(IOException ex) {
+                    LOG.error("Error while closing the HDT.", ex);
+                }
+            }
+        }
+    }
+
+    private static void execStream(Query q, RootPlan plan, Dataset ds, Context context, String output, boolean outputAppend) {
         final ConsoleStreamRDF futurePrintStreamRDF;
         if (output == null) {
             futurePrintStreamRDF = new ConsoleStreamRDF(System.out, q.getPrefixMapping());
@@ -193,10 +201,13 @@ public class SPARQLExtCli {
                 return;
             }
         }
-        plan.execGenerate(ds, futurePrintStreamRDF, context).exceptionally((ex) -> {
+        try {
+            plan.execGenerate(ds, futurePrintStreamRDF, context).get();
+        } catch (ExecutionException ex) {
             LOG.error("Error while executing the plan.", ex);
-            return null;
-        });
+        } catch (InterruptedException ex) {
+            LOG.error("Interrupted while executing the plan.", ex);
+        }
     }
 
     private static void execSync(Query q, RootPlan plan, Dataset ds, Context context, Lang outputLang, String output, boolean outputAppend) {
@@ -227,60 +238,10 @@ public class SPARQLExtCli {
         }
     }
 
-    private static class ConsoleStreamRDF implements StreamRDF {
-
-        private final PrefixMapping pm;
-        private final SerializationContext context;
-
-        private PrintStream out;
-
-        int i = 0;
-
-        public ConsoleStreamRDF(PrintStream out, PrefixMapping pm) {
-            this.out = out;
-            this.pm = pm;
-            context = new SerializationContext(pm);
-        }
-
-        @Override
-        public void start() {
-            pm.getNsPrefixMap().forEach((prefix, uri) -> {
-                out.append("@prefix ").append(prefix).append(": <").append(uri).append("> .\n");
-            });
-        }
-
-        @Override
-        public void base(String string) {
-            out.append("@base <").append(string).append(">\n");
-        }
-
-        @Override
-        public void prefix(String prefix, String uri) {
-            out.append("@prefix ").append(prefix).append(": <").append(uri).append("> .\n");
-        }
-
-        @Override
-        public void triple(Triple triple) {
-            out.append(FmtUtils.stringForTriple(triple, context)).append(" .\n");
-            i++;
-            if (i > 1000) {
-                i = 0;
-                out.flush();
-            }
-        }
-
-        @Override
-        public void quad(Quad quad) {
-        }
-
-        @Override
-        public void finish() {
-        }
-    }
-
-    private static void setLogging(CommandLine cl) {
+    private static void setLogging(CommandLine cl, int logLevel) {
+        Level[] levels = new Level[]{Level.OFF, Level.ERROR, Level.WARN, Level.INFO, Level.DEBUG, Level.TRACE};
         try {
-            Level level = Level.toLevel(cl.getOptionValue("l"), Level.DEBUG);
+            Level level = Level.toLevel(cl.getOptionValue("l"), levels[logLevel]);
             ROOT_LOGGER.setLevel(level);
         } catch (Exception ex) {
             ROOT_LOGGER.setLevel(Level.DEBUG);
@@ -289,6 +250,7 @@ public class SPARQLExtCli {
         String logPath = cl.getOptionValue(ARG_LOG_FILE);
         if (logPath != null) {
             try {
+                ROOT_LOGGER.removeAllAppenders();
                 ROOT_LOGGER.addAppender(new org.apache.log4j.RollingFileAppender(LAYOUT, logPath, false));
             } catch (IOException ex) {
                 System.out.println(ex.getClass() + "occurred while initializing the log file: " + ex.getMessage());
@@ -322,58 +284,6 @@ public class SPARQLExtCli {
                 .collect(Collectors.toList());
 
         query.setBindingClauses(updatedSources);
-    }
-
-    private static class CMDConfigurations {
-
-        public static CommandLine parseArguments(String[] args) throws ParseException {
-
-            DefaultParser commandLineParser = new DefaultParser();
-            CommandLine cl = commandLineParser.parse(getCMDOptions(), args);
-
-            /*Process Options*/
-            //print help menu
-            if (cl.hasOption(ARG_HELP)) {
-                CMDConfigurations.displayHelp();
-            }
-
-            return cl;
-        }
-
-        public static Options getCMDOptions() {
-            Option sourcesOpt = Option.builder()
-                    .numberOfArgs(2)
-                    .valueSeparator()
-                    .argName("uri=uri")
-                    .longOpt(ARG_SOURCE_LONG)
-                    .desc("Replaces <source> in a SOURCE clause with the given value, e.g. urn:sg:source=source.json.")
-                    .build();
-
-            return new Options()
-                    .addOption(ARG_HELP, ARG_HELP_LONG, false, "Show help")
-                    .addOption(ARG_DIRECTORY, ARG_DIRECTORY_LONG, true,
-                            "Location of the directory with the queryset, documentset, dataset, and configuration files as explained in https://w3id.org/sparql-generate/language-cli.html. Default value is . (the current folder)")
-                    .addOption(ARG_QUERY, ARG_QUERY_LONG, true,
-                            "Name of the query file in the directory. Default value is ./query.rqg")
-                    .addOption(ARG_OUTPUT, ARG_OUTPUT_LONG, true,
-                            "Location where the output is to be stored. No value means output goes to the console.")
-                    .addOption(ARG_OUTPUT_APPEND, ARG_OUTPUT_APPEND_LONG, false,
-                            "Write from the end of the output file, instead of replacing it.")
-                    .addOption(ARG_OUTPUT_FORMAT, ARG_OUTPUT_FORMAT_LONG, true,
-                            "Format of the output file, e.g. TTL, NT, etc.")
-                    .addOption(ARG_LOG_LEVEL, ARG_LOG_LEVEL_LONG, true,
-                            "Set log level, acceptable values are TRACE < DEBUG < INFO < WARN < ERROR < FATAL < OFF. No value or unrecognized value results in level DEBUG")
-                    .addOption(ARG_LOG_FILE, ARG_LOG_FILE_LONG, true,
-                            "Location where the log is to be stored. No value means output goes to the console.")
-                    .addOption(ARG_STREAM, ARG_STREAM_LONG, false, "Generate output as stream.")
-                    .addOption(sourcesOpt);
-        }
-
-        public static void displayHelp() {
-            HelpFormatter formatter = new HelpFormatter();
-            formatter.printHelp("SPARQL-Generate processor", getCMDOptions());
-            System.exit(1);
-        }
     }
 
 }
