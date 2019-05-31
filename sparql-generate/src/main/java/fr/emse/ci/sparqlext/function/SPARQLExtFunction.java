@@ -24,6 +24,7 @@ import org.apache.jena.sparql.engine.binding.BindingFactory;
 import org.apache.jena.sparql.engine.binding.BindingMap;
 import org.apache.jena.sparql.expr.Expr;
 import org.apache.jena.sparql.expr.ExprEvalException;
+import org.apache.jena.sparql.expr.ExprException;
 import org.apache.jena.sparql.expr.ExprList;
 import org.apache.jena.sparql.expr.NodeValue;
 import org.apache.jena.sparql.function.Function;
@@ -56,7 +57,7 @@ public class SPARQLExtFunction implements Function {
     public NodeValue exec(Binding binding, ExprList args, String uri, FunctionEnv env) {
         List<Var> signature = function.getSignature();
         if(args.size()!=signature.size()) {
-            String message = "the number of parameters (" + args.size() +")is different from the number of arguments in the function " + uri + "(" + signature.size() +")";
+            String message = "the number of parameters (" + args.size() +") is different from the number of arguments in the function " + uri + " (" + signature.size() +")";
             LOG.debug(message);
             throw new ExprEvalException(message);
         }
@@ -67,13 +68,17 @@ public class SPARQLExtFunction implements Function {
             try {
                 NodeValue nv = e.eval(binding, env);
                 newBinding.add(v, nv.asNode());
-            } catch(ExprEvalException ex) {
+            } catch(ExprException ex) {
                 LOG.trace("could not evaluate expression "+ e + " with binding");
             }
         }
         final Expr functionExpression = function.getFunctionExpression();
-        NodeValue nv = functionExpression.eval(newBinding, env);
-        return nv;
+        try {
+            return functionExpression.eval(newBinding, env);
+        } catch(ExprException ex) {
+            LOG.trace("could not evaluate expression "+ functionExpression + " with binding");
+            throw new ExprEvalException("could not evaluate expression "+ functionExpression + " with binding");
+        }
     }
     
 }

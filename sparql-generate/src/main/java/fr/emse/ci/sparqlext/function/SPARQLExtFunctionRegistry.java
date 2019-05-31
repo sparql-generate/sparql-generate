@@ -56,7 +56,7 @@ public class SPARQLExtFunctionRegistry extends FunctionRegistry {
         Iterator<String> uris = parent.keys();
         while (uris.hasNext()) {
             String uri = uris.next();
-            put(uri, parent.get(uris.next()));
+            registry.put(uri, parent.get(uri));
         }
         this.context = context;
     }

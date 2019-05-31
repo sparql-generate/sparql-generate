@@ -26,6 +26,7 @@ import fr.emse.ci.sparqlext.function.library.FUN_XPath;
 import fr.emse.ci.sparqlext.function.library.FUN_JSONPath;
 import fr.emse.ci.sparqlext.function.library.FUN_CBOR;
 import fr.emse.ci.sparqlext.function.library.ST_Call_Template;
+import fr.emse.ci.sparqlext.function.library.ST_Concat;
 import fr.emse.ci.sparqlext.function.library.ST_Decr;
 import fr.emse.ci.sparqlext.function.library.ST_Format;
 import fr.emse.ci.sparqlext.function.library.ST_Incr;
@@ -214,9 +215,8 @@ public final class SPARQLExt {
         fnreg.put(ST_Call_Template.URI, ST_Call_Template.class);
         fnreg.put(ST_Decr.URI, ST_Decr.class);
         fnreg.put(ST_Incr.URI, ST_Incr.class);
-//        fnreg.put(ST_Concat.URI, ST_Concat.class);
+        fnreg.put(ST_Concat.URI, ST_Concat.class);
         fnreg.put(ST_Format.URI, ST_Format.class);
-//        fnreg.put(ST_Call_Template.URI, ST_Call_Template.class);
 
         IteratorFunctionRegistry itereg = IteratorFunctionRegistry.get();
         itereg.put(ITER_JSONPath.URI, ITER_JSONPath.class);

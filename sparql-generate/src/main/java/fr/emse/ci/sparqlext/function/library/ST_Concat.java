@@ -60,11 +60,13 @@ import org.slf4j.LoggerFactory;
  * @author maxime.lefrancois
  */
 public class ST_Concat implements Function {
-
+    
     private static final Logger LOG = LoggerFactory.getLogger(ST_Concat.class);
-
-    public static String URI = ST.callTemplate;
-
+    
+    public static final String URI = ST.concat;
+    
+    public static String DEFAULT = "[NULL]";
+    
     @Override
     public final void build(String uri, ExprList args) {
         if (args.size() < 1) {
@@ -88,10 +90,14 @@ public class ST_Concat implements Function {
         StringBuilder res = new StringBuilder();
         for (int i = 0; i < args.size(); i++) {
             Expr expr = args.get(i);
-            NodeValue arg = expr.eval(binding, env);
-            res.append(arg.asString());
+            try {
+                NodeValue arg = expr.eval(binding, env);
+                res.append(arg.asString());
+            } catch (Exception ex) {
+                res.append(DEFAULT);
+            }
         }
         return new NodeValueString(res.toString());
     }
-
+    
 }
