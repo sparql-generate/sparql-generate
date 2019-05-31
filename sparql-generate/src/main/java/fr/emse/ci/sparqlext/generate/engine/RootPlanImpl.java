@@ -202,6 +202,9 @@ public final class RootPlanImpl extends RootPlanBase {
                 for (String prefix : query.getPrefixMapping().getNsPrefixMap().keySet()) {
                     outputStream.prefix(prefix, query.getPrefixMapping().getNsPrefixURI(prefix));
                 }
+                if(query.getBaseURI()!=null) {
+                    outputStream.base(query.getBaseURI());
+                }
             }
         });
     }
