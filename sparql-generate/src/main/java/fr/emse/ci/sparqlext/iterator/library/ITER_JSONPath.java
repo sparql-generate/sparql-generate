@@ -19,11 +19,11 @@ import fr.emse.ci.sparqlext.SPARQLExt;
 import fr.emse.ci.sparqlext.function.library.FUN_JSONPath;
 import fr.emse.ci.sparqlext.iterator.IteratorFunctionBase;
 import com.jayway.jsonpath.Configuration;
+import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.Option;
 import fr.emse.ci.sparqlext.stream.LookUpRequest;
 import fr.emse.ci.sparqlext.stream.SPARQLExtStreamManager;
-import com.google.gson.Gson;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
@@ -93,8 +93,6 @@ public class ITER_JSONPath extends IteratorFunctionBase {
 
     private final FUN_JSONPath function = new FUN_JSONPath();
 
-    private static Gson GSON = new Gson();
-
     @Override
     public List<List<NodeValue>> exec(List<NodeValue> args) {
         if (args.size() < 2) {
@@ -125,7 +123,9 @@ public class ITER_JSONPath extends IteratorFunctionBase {
             throw new ExprEvalException("Second argument must be a String.");
         }
 
-        String[] subqueries = new String[args.size() - 2];
+        try {
+
+        JsonPath[] subqueries = new JsonPath[args.size() - 2];
         if (args.size() > 2) {
             for (int i = 2; i < args.size(); i++) {
                 final NodeValue subquery = args.get(i);
@@ -133,12 +133,11 @@ public class ITER_JSONPath extends IteratorFunctionBase {
                     LOG.debug("Argument " + i + " must be a String.");
                     throw new ExprEvalException("Argument " + i + " must be a String.");
                 }
-                subqueries[i - 2] = subquery.getString();
+                subqueries[i - 2] = JsonPath.compile(subquery.getString());
             }
         }
-
-        try {
-            List<Object> values = JsonPath
+        
+        List<Object> values = JsonPath
                     .using(conf)
                     .parse(jsonString)
                     .read(jsonquery.getString());
@@ -148,13 +147,13 @@ public class ITER_JSONPath extends IteratorFunctionBase {
                 Object value = values.get(i);
                 List<NodeValue> nodeValues = new ArrayList<>(args.size() + 1);
                 nodeValues.add(function.nodeForObject(value));
-                for (String subquery : subqueries) {
+                DocumentContext context = JsonPath.parse(value);
+                for (JsonPath subquery : subqueries) {
                     try {
-                        Object subvalue = JsonPath.parse(value)
-                                .limit(1).read(subquery);
+                        Object subvalue = context.limit(1).read(subquery);
                         nodeValues.add(function.nodeForObject(subvalue));
                     } catch (Exception ex) {
-                        LOG.debug("No evaluation for " + value + ", " + subquery, ex);
+                        LOG.debug("No evaluation for " + value + ", " + subquery);
                         nodeValues.add(null);
                     }
                 }
@@ -166,7 +165,7 @@ public class ITER_JSONPath extends IteratorFunctionBase {
         } catch (Exception ex) {
             if(LOG.isDebugEnabled()) {
                 Node compressed = SPARQLExt.compress(json.asNode());
-                LOG.debug("No evaluation for " + compressed + ", " + jsonquery, ex);
+                LOG.debug("No evaluation for " + compressed + ", " + jsonquery);
             }
             throw new ExprEvalException("No evaluation for " + jsonquery);
         }

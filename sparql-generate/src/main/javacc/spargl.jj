@@ -95,15 +95,29 @@ void SPARQLExtUnit(): { }
 void ExtQuery() : { }
 {
   Prologue()
-  ( SelectQuery()
-//  | ConstructQuery()
-//  | DescribeQuery()
-//  | AskQuery()
-  | GenerateQuery()
-  | TemplateQuery()
-  | PerformQuery()
+  (
+    ( SelectQuery()
+  //  | ConstructQuery()
+  //  | DescribeQuery()
+  //  | AskQuery()
+    | GenerateQuery()
+    | TemplateQuery()
+    | PerformQuery()
+    )
+    ValuesClause()
+  | Function()
   )
-  ValuesClause()
+}
+void Function() : { Expr expr; }
+{
+  <FUNCTION>
+  { asSPARQLExtQuery().setQueryFunctionType() ; }
+  ( { String uri; } uri = SourceSelector() { asSPARQLExtQuery().setName(NodeFactory.createURI(uri)); } )
+  VarList()
+  <LBRACE>
+  expr = PrimaryExpression()
+  { asSPARQLExtQuery().setFunctionExpression(expr);}
+  <RBRACE>
 }
 void GenerateQuery() : { }
 {

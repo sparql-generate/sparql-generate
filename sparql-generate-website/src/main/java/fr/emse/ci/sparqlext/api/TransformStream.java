@@ -60,7 +60,6 @@ import java.util.concurrent.Executors;
 import java.util.function.Supplier;
 import org.apache.jena.graph.Triple;
 import org.apache.jena.query.Query;
-import org.apache.jena.query.QueryException;
 import org.apache.jena.query.ResultSet;
 import org.apache.jena.query.ResultSetFormatter;
 import org.apache.jena.riot.system.StreamRDF;
@@ -128,7 +127,7 @@ public class TransformStream {
             logError(sessionManager, "ERROR: while reading parameters:", ex);
             return;
         }
-        final Context context = SPARQLExt.createContext(sm, sessionManager.getExecutor());
+        final Context context = SPARQLExt.createContext(sm, sessionManager.getExecutor());        
         final SPARQLExtQuery q;
         try {
             q = supply(sessionManager, ()->(SPARQLExtQuery) QueryFactory.create(defaultquery, SPARQLExt.SYNTAX));
