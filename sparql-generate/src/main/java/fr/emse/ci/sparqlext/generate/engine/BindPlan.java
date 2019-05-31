@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.apache.jena.sparql.ARQConstants;
 import org.apache.jena.sparql.engine.binding.Binding;
 import org.apache.jena.sparql.engine.binding.BindingFactory;
+import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.function.FunctionEnv;
 import org.apache.jena.sparql.function.FunctionEnvBase;
 import org.apache.jena.sparql.util.Context;
@@ -69,11 +70,16 @@ public class BindPlan extends BindOrSourcePlan {
         LOG.debug("Start " + this);
         context.set(ARQConstants.sysCurrentTime, NodeFactoryExtra.nowAsDateTime());
         final FunctionEnv env = new FunctionEnvBase(context);
-        final NodeValue n = expr.eval(binding, env);
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("New binding " + var + " = " + SPARQLExt.compress(n.asNode()));
+        try {
+            final NodeValue n = expr.eval(binding, env);
+            if (LOG.isTraceEnabled()) {
+                LOG.trace("New binding " + var + " = " + SPARQLExt.compress(n.asNode()));
+            }
+            return BindingFactory.binding(binding, var, n.asNode());
+        } catch(ExprEvalException ex) {
+            LOG.trace("No evaluatino for " + this + " " + ex.getMessage());
+            return binding;
         }
-        return BindingFactory.binding(binding, var, n.asNode());
     }
 
     
