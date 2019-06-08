@@ -25,6 +25,10 @@ import fr.emse.ci.sparqlext.function.library.FUN_dateTime;
 import fr.emse.ci.sparqlext.function.library.FUN_XPath;
 import fr.emse.ci.sparqlext.function.library.FUN_JSONPath;
 import fr.emse.ci.sparqlext.function.library.FUN_CBOR;
+import fr.emse.ci.sparqlext.function.library.FUN_CamelCase;
+import fr.emse.ci.sparqlext.function.library.FUN_MixedCase;
+import fr.emse.ci.sparqlext.function.library.FUN_Property;
+import fr.emse.ci.sparqlext.function.library.FUN_TitleCase;
 import fr.emse.ci.sparqlext.function.library.ST_Call_Template;
 import fr.emse.ci.sparqlext.function.library.ST_Concat;
 import fr.emse.ci.sparqlext.function.library.ST_Decr;
@@ -188,6 +192,8 @@ public final class SPARQLExt {
 
     public static final Symbol LIST_NODES = SystemARQ.allocSymbol("list_nodes");
 
+    public static boolean DEBUG_ST_CONCAT = true;
+
     /**
      * Forces the initialization of SPARQL-Generate.
      */
@@ -211,6 +217,10 @@ public final class SPARQLExt {
         fnreg.put(FUN_bnode.URI, FUN_bnode.class);
         fnreg.put(FUN_dateTime.URI, FUN_dateTime.class);
         fnreg.put(FUN_GeoJSONGeometry.URI, FUN_GeoJSONGeometry.class);
+        fnreg.put(FUN_Property.URI, FUN_Property.class);
+        fnreg.put(FUN_CamelCase.URI, FUN_CamelCase.class);
+        fnreg.put(FUN_MixedCase.URI, FUN_MixedCase.class);
+        fnreg.put(FUN_TitleCase.URI, FUN_TitleCase.class);
 
         fnreg.put(ST_Call_Template.URI, ST_Call_Template.class);
         fnreg.put(ST_Decr.URI, ST_Decr.class);
@@ -581,8 +591,8 @@ public final class SPARQLExt {
             throw new SPARQLExtException("The two characters that follow the indentation control sequence " + getIndentControl(context) + " is not an integer. Got " + incrString);
         }
     }
-    
-        private static final Var VAR = Var.alloc("truncated");
+
+    private static final Var VAR = Var.alloc("truncated");
 
     public static Dataset loadDataset(File dir, Request request) {
         Dataset ds = DatasetFactory.create();
@@ -608,7 +618,7 @@ public final class SPARQLExt {
 
         return ds;
     }
-    
+
     public static String log(List<Var> variables, List<Binding> input) {
         return FormatterElement.asString(compress(variables, input));
     }
@@ -620,24 +630,33 @@ public final class SPARQLExt {
             input.forEach((b) -> el.add(SPARQLExt.compress(variables, b)));
             return el;
         }
-        for(int i=0;i<5;i++) {
+        for (int i = 0; i < 5; i++) {
             el.add(compress(variables, input.get(i)));
         }
         BindingMap binding = BindingFactory.create();
         Node n = NodeFactory.createLiteral("[ " + (input.size() - 10) + " more ]");
-        variables.forEach((v)->binding.add(v, n));
+        variables.forEach((v) -> binding.add(v, n));
         el.add(binding);
-        for(int i=input.size()-5;i<input.size();i++) {
+        for (int i = input.size() - 5; i < input.size(); i++) {
             el.add(compress(variables, input.get(i)));
         }
         return el;
     }
 
-    private static Binding compress(List<Var> variables, Binding input) {
+    public static Binding compress(Binding input) {
+        final List<Var> vars = new ArrayList<>();
+        final Iterator<Var> varsIterator = input.vars();
+        while (varsIterator.hasNext()) {
+            vars.add(varsIterator.next());
+        }
+        return compress(vars, input);
+    }
+
+    public static Binding compress(List<Var> variables, Binding input) {
         final BindingMap binding = BindingFactory.create();
         for (Var v : variables) {
             Node n = input.get(v);
-            if(n!=null) {
+            if (n != null) {
                 binding.add(v, compress(input.get(v)));
             }
         }

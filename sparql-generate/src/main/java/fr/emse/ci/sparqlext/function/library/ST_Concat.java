@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import org.apache.commons.io.IOUtils;
@@ -49,6 +50,7 @@ import org.apache.jena.sparql.expr.nodevalue.NodeValueString;
 import org.apache.jena.sparql.function.Function;
 import org.apache.jena.sparql.function.FunctionEnv;
 import org.apache.jena.sparql.util.Context;
+import org.apache.jena.sparql.util.ExprUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,13 +62,11 @@ import org.slf4j.LoggerFactory;
  * @author maxime.lefrancois
  */
 public class ST_Concat implements Function {
-    
+
     private static final Logger LOG = LoggerFactory.getLogger(ST_Concat.class);
-    
+
     public static final String URI = ST.concat;
-    
-    public static String DEFAULT = "[NULL]";
-    
+
     @Override
     public final void build(String uri, ExprList args) {
         if (args.size() < 1) {
@@ -94,10 +94,22 @@ public class ST_Concat implements Function {
                 NodeValue arg = expr.eval(binding, env);
                 res.append(arg.asString());
             } catch (Exception ex) {
-                res.append(DEFAULT);
+                if (LOG.isDebugEnabled()) {
+                    String errorId = UUID.randomUUID().toString().substring(0, 6);
+                    if (SPARQLExt.DEBUG_ST_CONCAT) {
+                        String message = String.format("Error id %s executing st:concat with expression %s and binding %s", errorId, ExprUtils.fmtSPARQL(expr), SPARQLExt.compress(binding).toString());
+                        LOG.debug(message, ex);
+                        res.append(String.format("[WARN %s]", errorId));
+                    } else {
+                        String message = String.format("Error executing st:concat with expression %s and binding %s", errorId, ExprUtils.fmtSPARQL(expr), SPARQLExt.compress(binding).toString());
+                        LOG.debug(message, ex);
+                    }
+                } else if (SPARQLExt.DEBUG_ST_CONCAT) {
+                    res.append(String.format("[NULL]"));
+                }
             }
         }
         return new NodeValueString(res.toString());
     }
-    
+
 }

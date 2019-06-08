@@ -47,6 +47,7 @@ public class SPARQLExtFunction implements Function {
             throw new ARQException("creating function for a query that is not a function");
         }
         this.function = function;
+        function.normalize();
     }
     
     @Override
