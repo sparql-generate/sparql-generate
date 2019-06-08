@@ -242,11 +242,11 @@ public class TransformStream {
                     plan.execGenerate(dataset, model, context);
                 }).get(10, TimeUnit.SECONDS);
             } catch (final TimeoutException ex) {
-                LOG.error("In this web interface query execution cannot exceed 10 s. Consider using the executable jar instead.");
+                logError(sessionManager, "In this web interface query execution cannot exceed 10 s. Consider using the executable jar instead.", ex);
             } catch (final InterruptedException ex) {
-                LOG.error("Interrupted while executing the request");
+                logError(sessionManager, "Interrupted while executing the request", ex);
             } catch (final ExecutionException ex) {
-                LOG.error("An exception occurred", ex);
+                logError(sessionManager, "An exception occurred", ex);
             } finally {
                 final StringWriter sw = new StringWriter();
                 model.write(sw, "TTL", "http://example.org/");
@@ -294,11 +294,11 @@ public class TransformStream {
                     }
                 }, context).get(10, TimeUnit.SECONDS);
             } catch (final TimeoutException ex) {
-                LOG.error("In this web interface query execution cannot exceed 10 s. Consider using the executable jar instead.");
+                logError(sessionManager, "In this web interface query execution cannot exceed 10 s. Consider using the executable jar instead.", ex);
             } catch (final InterruptedException ex) {
-                LOG.error("Interrupted while executing the request");
+                logError(sessionManager, "Interrupted while executing the request", ex);
             } catch (final ExecutionException ex) {
-                LOG.error("An exception occurred", ex);
+                logError(sessionManager, "An exception occurred", ex);
             } finally {
                 final StringWriter sw = new StringWriter();
                 model.write(sw, "TTL", "http://example.org/");
@@ -319,11 +319,11 @@ public class TransformStream {
                     sessionManager.appendResult(output, Response.TYPE.SELECT);
                 }).get(10, TimeUnit.SECONDS);
             } catch (final TimeoutException ex) {
-                LOG.error("In this web interface query execution cannot exceed 10 s. Consider using the executable jar instead.");
+                logError(sessionManager, "In this web interface query execution cannot exceed 10 s. Consider using the executable jar instead.", ex);
             } catch (final InterruptedException ex) {
-                LOG.error("Interrupted while executing the request");
+                logError(sessionManager, "Interrupted while executing the request", ex);
             } catch (final ExecutionException ex) {
-                LOG.error("An exception occurred", ex);
+                logError(sessionManager, "An exception occurred", ex);
             } finally {
                 sessionManager.flush();
                 sessionManager.close();
@@ -339,11 +339,11 @@ public class TransformStream {
                     sessionManager.appendResult(output, Response.TYPE.SELECT);
                 }, context).get(10, TimeUnit.SECONDS);
             } catch (final TimeoutException ex) {
-                LOG.error("In this web interface query execution cannot exceed 10 s. Consider using the executable jar instead.");
+                logError(sessionManager, "In this web interface query execution cannot exceed 10 s. Consider using the executable jar instead.", ex);
             } catch (final InterruptedException ex) {
-                LOG.error("Interrupted while executing the request");
+                logError(sessionManager, "Interrupted while executing the request", ex);
             } catch (final ExecutionException ex) {
-                LOG.error("An exception occurred", ex);
+                logError(sessionManager, "An exception occurred", ex);
             } finally {
                 sessionManager.flush();
                 sessionManager.close();
@@ -360,11 +360,11 @@ public class TransformStream {
                     sessionManager.appendResult(output, Response.TYPE.TEMPLATE);
                 }).get(10, TimeUnit.SECONDS);
             } catch (final TimeoutException ex) {
-                LOG.error("In this web interface query execution cannot exceed 10 s. Consider using the executable jar instead.");
+                logError(sessionManager, "In this web interface query execution cannot exceed 10 s. Consider using the executable jar instead.", ex);
             } catch (final InterruptedException ex) {
-                LOG.error("Interrupted while executing the request");
+                logError(sessionManager, "Interrupted while executing the request", ex);
             } catch (final ExecutionException ex) {
-                LOG.error("An exception occurred", ex);
+                logError(sessionManager, "An exception occurred", ex);
             } finally {
                 sessionManager.flush();
                 sessionManager.close();
@@ -380,11 +380,11 @@ public class TransformStream {
                     sessionManager.appendResult(s, Response.TYPE.TEMPLATE);
                 }, context).get(10, TimeUnit.SECONDS);
             } catch (final TimeoutException ex) {
-                LOG.error("In this web interface query execution cannot exceed 10 s. Consider using the executable jar instead.");
+                logError(sessionManager, "In this web interface query execution cannot exceed 10 s. Consider using the executable jar instead.", ex);
             } catch (final InterruptedException ex) {
-                LOG.error("Interrupted while executing the request");
+                logError(sessionManager, "Interrupted while executing the request", ex);
             } catch (final ExecutionException ex) {
-                LOG.error("An exception occurred", ex);
+                logError(sessionManager, "An exception occurred", ex);
             } finally {
                 sessionManager.flush();
                 sessionManager.close();
