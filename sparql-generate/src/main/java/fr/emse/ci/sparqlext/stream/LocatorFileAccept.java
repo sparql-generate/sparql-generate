@@ -168,7 +168,6 @@ public class LocatorFileAccept extends LocatorAcceptBase {
                 String ct = Files.probeContentType(Paths.get(new File(filenameIRI).getName()));
                 return new TypedInputStream(in, ContentType.create(ct), filenameIRI);
             } catch (Exception ex) {
-                log.trace("Error while trying to probe content type for " + filenameIRI + ": " + ex.getMessage());
                 return new TypedInputStream(in, (ContentType) null, filenameIRI);
             } 
         } catch (IOException ioEx) {
