@@ -49,7 +49,6 @@ class StreamRDFModel implements StreamRDF {
 
     @Override
     public void base(String base) {
-        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override

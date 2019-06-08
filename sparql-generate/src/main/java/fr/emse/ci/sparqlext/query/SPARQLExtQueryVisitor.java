@@ -39,6 +39,13 @@ public interface SPARQLExtQueryVisitor extends QueryVisitor {
     public void visitTemplateClause(SPARQLExtQuery query);
 
     /**
+     * Visits the {@code FUNCTION} clause.
+     *
+     * @param query the SPARQL-Ext query.
+     */
+    public void visitFunctionExpression(SPARQLExtQuery query);
+
+    /**
      * Visits the {@code PERFORM} clause.
      *
      * @param query the SPARQL-Ext query.

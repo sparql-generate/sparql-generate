@@ -54,6 +54,13 @@ public class SPARQLExtQueryVisitorDelegate implements SPARQLExtQueryVisitor {
     }
 
     @Override
+    public void visitFunctionExpression(SPARQLExtQuery query) {
+        if (delegate instanceof SPARQLExtQueryVisitor) {
+            ((SPARQLExtQueryVisitor) delegate).visitFunctionExpression(query);
+        }
+    }
+    
+    @Override
     public void visitPerformClause(SPARQLExtQuery query) {
         if (delegate instanceof SPARQLExtQueryVisitor) {
             ((SPARQLExtQueryVisitor) delegate).visitBindingClauses(query);

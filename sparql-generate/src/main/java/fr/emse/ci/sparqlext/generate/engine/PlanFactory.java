@@ -161,7 +161,7 @@ public class PlanFactory {
     private static RootPlan make(final SPARQLExtQuery query,
             final boolean initial) {
         Objects.requireNonNull(query, "The query must not be null");
-        LOG.trace("Making plan for query\n" + query + " " + query.getQueryType());
+        LOG.trace("Making plan for query\n" + query);
 
         if (query.hasEmbeddedExpressions()) {
             LOG.debug("Query has embedded expressions. Will be normalized");
@@ -546,6 +546,14 @@ public class PlanFactory {
             }
 
             @Override
+            public void visitFunctionExpression(SPARQLExtQuery query) {
+                Var var = Var.alloc("out");
+                ElementBind bind = new ElementBind(var, query.getFunctionExpression());
+                output.setQueryPattern(bind);
+                output.addResultVar(var);
+            }
+
+            @Override
             public void visitTemplateClause(SPARQLExtQuery query) {
                 final TProc tproc = new TProc();
                 Var var = Var.alloc("out");
@@ -585,7 +593,9 @@ public class PlanFactory {
             }
 
         });
-        return new SelectPlan(output.cloneQuery(), query.isSelectType());
+        Query newQuery = output.cloneQuery();
+        LOG.trace(String.format("Generated SELECT query %s", newQuery.toString()));
+        return new SelectPlan(newQuery, query.isSelectType());
     }
 
     /**

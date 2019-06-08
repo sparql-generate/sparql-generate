@@ -124,6 +124,23 @@ public class SPARQLExtQuerySerializer implements SPARQLExtQueryVisitor {
     }
 
     @Override
+    public void visitFunctionExpression(SPARQLExtQuery query) {
+        out.print("FUNCTION ");
+        printName(query);
+        if(!query.hasName() || query.hasPerformClause()) {
+            out.print(" {");
+            if(query.hasFunctionExpression()) {
+                out.newline();
+                out.incIndent(BLOCK_INDENT);
+                fmtExpr.format(query.getFunctionExpression());
+                out.newline();
+                out.decIndent(BLOCK_INDENT);
+            }
+            out.print("}");
+        }
+    }
+
+    @Override
     public void visitBindingClauses(SPARQLExtQuery query) {
         if (query.getBindingClauses() == null) {
             return;

@@ -85,11 +85,12 @@ public class GenerateTemplatePlan implements ExecutionPlan {
             final Consumer<ResultSet> outputSelect,
             final Consumer<String> outputTemplate) {
         final List<CompletableFuture<Void>> fs = new ArrayList<>();
-        final BNodeMap bNodeMap2 = new BNodeMap(bNodeMap, variables, values);
+//        final BNodeMap bNodeMap2 = new BNodeMap(bNodeMap, variables, values);
         templateElementPlans.forEach((el) -> {
             if (el instanceof GenerateTriplesPlan) {
                 final GenerateTriplesPlan subPlan = (GenerateTriplesPlan) el;
-                fs.add(subPlan.exec(inputDataset, variables, values, bNodeMap2, context, outputGenerate, outputSelect, outputTemplate));
+                fs.add(subPlan.exec(inputDataset, variables, values, bNodeMap, context, outputGenerate, outputSelect, outputTemplate));
+//                fs.add(subPlan.exec(inputDataset, variables, values, bNodeMap2, context, outputGenerate, outputSelect, outputTemplate));
             } else if (el instanceof RootPlanImpl) {
                 final RootPlanImpl subPlan = (RootPlanImpl) el;
                 final List<Var> newVariables = getNewVariables(subPlan, variables);
@@ -97,7 +98,7 @@ public class GenerateTemplatePlan implements ExecutionPlan {
                 if (LOG.isTraceEnabled()) {
                     LOG.trace("Entering sub SPARQL-Generate with \n\t" + SPARQLExt.log(variables, newValues));
                 }
-                fs.add(subPlan.exec(inputDataset, newVariables, newValues, bNodeMap2, context, outputGenerate, outputSelect, outputTemplate));
+                fs.add(subPlan.exec(inputDataset, newVariables, newValues, bNodeMap, context, outputGenerate, outputSelect, outputTemplate));
             } else {
                 throw new SPARQLExtException("should not reach this point" + el);
             }

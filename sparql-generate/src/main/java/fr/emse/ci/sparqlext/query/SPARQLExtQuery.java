@@ -581,6 +581,9 @@ public class SPARQLExtQuery extends Query {
         if (this.isTemplateType()) {
             visitor.visitTemplateClause(this);
         }
+        if (this.isFunctionType()) {
+            visitor.visitFunctionExpression(this);
+        }
         if (this.isPerformType()) {
             visitor.visitPerformClause(this);
         }

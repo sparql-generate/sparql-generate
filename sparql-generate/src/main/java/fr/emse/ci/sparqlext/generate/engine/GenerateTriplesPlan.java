@@ -87,13 +87,17 @@ public class GenerateTriplesPlan implements ExecutionPlan {
         return CompletableFuture.runAsync(() -> {
             final StringBuilder sb = new StringBuilder("Output triples");
             for (int i = 0; i < values.size(); i++) {
+                final BNodeMap bNodeMap2 = new BNodeMap(bNodeMap, variables, values);
                 sb.append("\nposition ").append(i).append(":");
                 final Binding binding = values.get(i);
                 for (Triple t : bgp.getList()) {
                     if (t.getObject() instanceof Node_List) {
-                        substAndOutputForList(t.getSubject(), t.getPredicate(), (Node_List) t.getObject(), sb, binding, outputGenerate, bNodeMap, context, i);
+                        substAndOutputForList(t.getSubject(), t.getPredicate(), (Node_List) t.getObject(), sb, binding, outputGenerate, bNodeMap2, context, i);
                     } else {
-                        Triple t2 = TemplateLib.subst(t, binding, bNodeMap.asMap());
+                        if(t.getSubject().isBlank()) {
+                            LOG.info("" + t.getSubject());
+                        }
+                        Triple t2 = TemplateLib.subst(t, binding, bNodeMap2.asMap());
                         outputIfConcrete(sb, outputGenerate, t2, pm);
                     }
                 }
@@ -110,7 +114,7 @@ public class GenerateTriplesPlan implements ExecutionPlan {
         if (t.isConcrete()) {
             if (LOG.isTraceEnabled()) {
                 Triple t2 = SPARQLExt.compress(t);
-                sb.append("\n  ").append(FmtUtils.stringForTriple(t2, pm));
+                sb.append("\n  ").append(t2);
             }
             outputStream.triple(t);
         }

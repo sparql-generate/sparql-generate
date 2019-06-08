@@ -294,7 +294,17 @@ public class SPARQLExtFormatterElement extends SPARQLExtFormatterBase implements
         boolean first = true;      // Has anything been output?
         for (TriplePath tp : pBlk) {
             if (tp.isTriple()) {
-                bgp.add(tp.asTriple());
+                Triple t = tp.asTriple();
+                Node s = t.getSubject();
+                if(s.isVariable()) {
+                    s = Var.alloc(Var.canonical(((Var)s).getVarName()));
+                }
+                Node p = t.getPredicate();
+                Node o = t.getObject();
+                if(o.isVariable()) {
+                    o = Var.alloc(Var.canonical(((Var)o).getVarName()));
+                }
+                bgp.add(new Triple(s, p, o));
                 continue;
             }
 

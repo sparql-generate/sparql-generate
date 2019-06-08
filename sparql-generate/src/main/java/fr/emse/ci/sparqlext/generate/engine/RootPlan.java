@@ -91,6 +91,19 @@ public interface RootPlan extends ExecutionPlan {
     Model execGenerate(Model inputModel, Context context);
 
     /**
+     * Executes a SPARQL-Generate query. Uses the given {@code inputDataset} for
+     * the SPARQL SELECT part of the query. And returns the generated RDF
+     * triples.
+     *
+     * @param inputModel the Model to use for the SPARQL SELECT part of the
+     * query.
+     * @param initialBindings one map of variable-RDF nodes bindings.
+     * @param context the execution context
+     * @return the Model that contains the generated RDF triples.
+     */
+    Model execGenerate(Model inputModel, QuerySolution initialBindings, Context context);
+
+    /**
      * Executes a SPARQL-Generate query. Uses the given {@code inputModel} for
      * the SPARQL SELECT part of the query. Emit generated triples to the
      * stream.
@@ -137,6 +150,19 @@ public interface RootPlan extends ExecutionPlan {
      * @return the Model that contains the generated RDF triples.
      */
     Model execGenerate(Dataset inputDataset, Context context);
+
+    /**
+     * Executes a SPARQL-Generate query. Uses the given {@code inputDataset} for
+     * the SPARQL SELECT part of the query. And returns the generated RDF
+     * triples.
+     *
+     * @param inputDataset the Dataset to use for the SPARQL SELECT part of the
+     * query.
+     * @param initialBindings one map of variable-RDF nodes bindings.
+     * @param context the execution context
+     * @return the Model that contains the generated RDF triples.
+     */
+    Model execGenerate(Dataset inputDataset, QuerySolution initialBindings, Context context);
 
     /**
      * Executes a SPARQL-Generate query. Uses the given {@code inputDataset} for

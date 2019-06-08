@@ -101,7 +101,7 @@ public class SPARQLExtQueryCompare implements SPARQLExtQueryVisitor {
     @Override
     public void visitGenerateClause(SPARQLExtQuery query) {
         if (query.hasName()) {
-            boolean b1 = query.getName().equals(query.getName());
+            boolean b1 = query.getName().equals(query2.getName());
             try {
                 check("Generate name", b1);
             } catch (Exception e) {
@@ -118,9 +118,21 @@ public class SPARQLExtQueryCompare implements SPARQLExtQueryVisitor {
     }
 
     @Override
+    public void visitFunctionExpression(SPARQLExtQuery query) {
+        if (query.hasFunctionExpression()) {
+            boolean b1 = query.getFunctionExpression().equals(query2.getFunctionExpression());
+            try {
+                check("Function Expression", b1);
+            } catch (Exception e) {
+                LOG.debug("", e);
+            }
+        }
+    }
+
+    @Override
     public void visitTemplateClause(SPARQLExtQuery query) {
         if (query.hasName()) {
-            boolean b1 = query.getName().equals(query.getName());
+            boolean b1 = query.getName().equals(query2.getName());
             try {
                 check("Template name", b1);
             } catch (Exception e) {
@@ -139,7 +151,7 @@ public class SPARQLExtQueryCompare implements SPARQLExtQueryVisitor {
     @Override
     public void visitPerformClause(SPARQLExtQuery query) {
         if (query.hasName()) {
-            boolean b1 = query.getName().equals(query.getName());
+            boolean b1 = query.getName().equals(query2.getName());
             try {
                 check("Perform name", b1);
             } catch (Exception e) {

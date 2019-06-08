@@ -118,6 +118,12 @@ public class QueryNormalizer implements SPARQLExtQueryVisitor {
     }
 
     @Override
+    public void visitFunctionExpression(SPARQLExtQuery query) {
+        Expr expr = enzer.normalize(query.getFunctionExpression());
+        query.setFunctionExpression(expr);
+    }
+
+    @Override
     public void visitPerformClause(SPARQLExtQuery query) {
         final NodeExprNormalizer nenzer = new NodeExprNormalizer();
         normalizeNameAndParams(query, nenzer);

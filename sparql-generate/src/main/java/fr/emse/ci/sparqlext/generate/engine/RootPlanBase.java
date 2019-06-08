@@ -109,6 +109,20 @@ public abstract class RootPlanBase implements RootPlan {
      */
     @Override
     public final Model execGenerate(
+            final Model inputModel,
+            final QuerySolution initialBinding,
+            final Context context) {
+        final Dataset inputDataset = DatasetFactory.create(inputModel);
+        final Model initialModel = ModelFactory.createDefaultModel();
+        execGenerate(inputDataset, initialBinding, initialModel, context);
+        return initialModel;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public final Model execGenerate(
             final Dataset inputDataset) {
         final QuerySolution initialBinding = new QuerySolutionMap();
         final Model initialModel = ModelFactory.createDefaultModel();
@@ -130,6 +144,18 @@ public abstract class RootPlanBase implements RootPlan {
         return initialModel;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public final Model execGenerate(
+            final Dataset inputDataset,
+            final QuerySolution initialBinding,
+            final Context context) {
+        final Model initialModel = ModelFactory.createDefaultModel();
+        execGenerate(inputDataset, initialBinding, initialModel, context);
+        return initialModel;
+    }
     /**
      * {@inheritDoc}
      */
