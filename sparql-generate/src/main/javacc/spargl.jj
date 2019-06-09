@@ -206,34 +206,35 @@ void TemplateClause() : {}
 void TemplateInnerClause() : { List<Element> exprs = new ArrayList<Element>(); String sep = null;}
 {
   { allowAggregatesInExpressions = true ; }
-  (
-    Once(true)
-    ( TExpression(exprs) )*
-    ( sep = Separator() )?
-    ( Once(false) )?
-  |
-    ( TExpression(exprs) )+
-    ( sep = Separator() )?
-    ( Once(false) )?
-  )
-  { 
-    asSPARQLExtQuery().setTemplateClause(exprs);
-    asSPARQLExtQuery().setTemplateClauseSeparator(sep);
-  }
+  ( TemplateBefore() )?
+  ( TExpression(exprs) )*
+  { asSPARQLExtQuery().setTemplateClause(exprs); }
+  ( 
+    <SEMICOLON>
+    ( 
+      TemplateSeparator()
+      ( <SEMICOLON> TemplateAfter() )?
+    | 
+      TemplateAfter()
+    )
+  )?
   { allowAggregatesInExpressions = false ; }
 }
 
-void Once(boolean isStart) : {String s;}
+void TemplateBefore() : { String before; }
 {
-  <ONCE>
-  s = String()
-  { 
-    if(isStart) {
-      asSPARQLExtQuery().setTemplateStart(s);
-    } else {
-      asSPARQLExtQuery().setTemplateEnd(s);
-    }
-  }
+  <BEFORE> <EQ> before = String() <SEMICOLON>
+  { asSPARQLExtQuery().setTemplateClauseBefore(before); }
+}
+void TemplateAfter() : { String after; }
+{
+  <AFTER> <EQ> after = String()
+  { asSPARQLExtQuery().setTemplateClauseAfter(after); }
+}
+void TemplateSeparator() : { String sep; }
+{
+  <SEPARATOR> <EQ> sep = String()
+  { asSPARQLExtQuery().setTemplateClauseSeparator(sep); }
 }
 void TExpression(List<Element> elems) : { Element elem; }
 {
@@ -1984,7 +1985,8 @@ TOKEN [IGNORE_CASE] :
 |  < FORMAT: "format" >
 |  < PRAGMA: "pragma" >
 |  < FUNCTION: "function" >
-|  < ONCE: "once" >
+|  < BEFORE: "before" >
+|  < AFTER: "after" >
 
 |  < PERFORM: "perform" >
 }

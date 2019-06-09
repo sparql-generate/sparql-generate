@@ -86,11 +86,11 @@ public class SPARQLExtQuerySerializer implements SPARQLExtQueryVisitor {
         printName(query);
         if(!query.hasName() || query.hasTemplateClause()) {
             out.print("{");
-            if(query.getTemplateStart()!=null) {
-                out.print(" ONCE ");
-                NodeValue n = new NodeValueString(query.getTemplateStart());
+            if(query.hasTemplateClauseBefore()) {
+                out.print(" BEFORE = ");
+                NodeValue n = new NodeValueString(query.getTemplateClauseBefore());
                 fmtExpr.format(n);
-                out.print(" ");
+                out.print(" ; ");
             }
             if(query.hasTemplateClause()) {
                 out.newline();
@@ -101,16 +101,15 @@ public class SPARQLExtQuerySerializer implements SPARQLExtQueryVisitor {
                 });
                 if(query.hasTemplateClauseSeparator()) {
                     NodeValue n = new NodeValueString(query.getTemplateClauseSeparator());
-                    out.print("; SEPARATOR = ");
+                    out.print(" ; SEPARATOR = ");
                     fmtExpr.format(n);
                 }
                 out.decIndent(BLOCK_INDENT);
             }
-            if(query.getTemplateEnd()!=null) {
-                out.print(" ONCE ");
-                NodeValue n = new NodeValueString(query.getTemplateEnd());
+            if(query.hasTemplateClauseAfter()) {
+                out.print(" ; AFTER = ");
+                NodeValue n = new NodeValueString(query.getTemplateClauseAfter());
                 fmtExpr.format(n);
-                out.print(" ");
             }
             out.print("}");
         }   

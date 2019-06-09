@@ -423,27 +423,71 @@ public class SPARQLExtQuery extends Query {
     public void setTemplateClauseSeparator(String templateClauseSeparator) {
         this.templateClauseSeparator = templateClauseSeparator;
     }
-    
-    private String templateStart = null;
-    
-    public String getTemplateStart() {
-        return templateStart;
-    }
-    
-    public void setTemplateStart(String start) {
-        this.templateStart = start;
+
+    /**
+     * the before string in the {@code TEMPLATE} clause of the query.
+     */
+    private String templateClauseBefore = null;
+
+    /**
+     * Returns if this query has a before string in the {@code TEMPLATE} clause.
+     *
+     * @return if this query has a before string in the {@code TEMPLATE} clause
+     */
+    public boolean hasTemplateClauseBefore() {
+        return templateClauseBefore != null;
     }
 
-    private String templateEnd = null;
-    
-    public String getTemplateEnd() {
-        return templateEnd;
-    }
-    
-    public void setTemplateEnd(String End) {
-        this.templateEnd = End;
+    /**
+     * Returns the before string in the {@code TEMPLATE} clause.
+     *
+     * @return the before string in the {@code TEMPLATE} clause
+     */
+    public String getTemplateClauseBefore() {
+        return templateClauseBefore;
     }
 
+    /**
+     * Set the before string in the {@code TEMPLATE} clause.
+     *
+     * @param templateClauseBefore the before string.
+     */
+    public void setTemplateClauseBefore(String templateClauseBefore) {
+        this.templateClauseBefore = templateClauseBefore;
+    }
+    
+    /**
+     * the after string in the {@code TEMPLATE} clause of the query.
+     */
+    private String templateClauseAfter = null;
+
+    /**
+     * Returns if this query has a after string in the {@code TEMPLATE} clause.
+     *
+     * @return if this query has a after string in the {@code TEMPLATE} clause
+     */
+    public boolean hasTemplateClauseAfter() {
+        return templateClauseAfter != null;
+    }
+
+    /**
+     * Returns the after string in the {@code TEMPLATE} clause.
+     *
+     * @return the after string in the {@code TEMPLATE} clause
+     */
+    public String getTemplateClauseAfter() {
+        return templateClauseAfter;
+    }
+
+    /**
+     * Set the after string in the {@code TEMPLATE} clause.
+     *
+     * @param templateClauseAfter the after string.
+     */
+    public void setTemplateClauseAfter(String templateClauseAfter) {
+        this.templateClauseAfter = templateClauseAfter;
+    }
+    
     /**
      * the {@code PERFORM} clause of the query.
      */

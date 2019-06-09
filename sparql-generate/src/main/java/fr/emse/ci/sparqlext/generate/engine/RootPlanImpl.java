@@ -340,14 +340,14 @@ public final class RootPlanImpl extends RootPlanBase {
     private void execTemplatePlan(ResultSet results, Consumer<String> outputTemplate, Context context) {
         final StringBuilder sb = new StringBuilder();
         boolean first = true;
-        if(query.getTemplateStart()!=null) {
-            String out = query.getTemplateStart();
-            sb.append(processNewLines(out, context));
-        }
         while (results.hasNext()) {
+            if(first && query.hasTemplateClauseBefore()) {
+                String before = query.getTemplateClauseBefore();
+                sb.append(processNewLines(before, context));
+            }
             if (!first && query.hasTemplateClauseSeparator()) {
-                String out = query.getTemplateClauseSeparator();
-                sb.append(processNewLines(out, context));
+                String separator = query.getTemplateClauseSeparator();
+                sb.append(processNewLines(separator, context));
             }
             QuerySolution sol = results.next();
             if (!sol.contains("out")) {
@@ -361,10 +361,10 @@ public final class RootPlanImpl extends RootPlanBase {
             String out = sol.getLiteral("out").getLexicalForm();
             sb.append(processNewLines(out, context));
             first = false;
-        }
-        if(query.getTemplateEnd()!=null) {
-            String out = query.getTemplateEnd();
-            sb.append(processNewLines(out, context));
+            if(!results.hasNext() && query.hasTemplateClauseAfter()) {
+                String after = query.getTemplateClauseAfter();
+                sb.append(processNewLines(after, context));
+            }
         }
         outputTemplate.accept(sb.toString());
     }
