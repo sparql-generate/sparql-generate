@@ -27,6 +27,7 @@ import fr.emse.ci.sparqlext.function.library.FUN_JSONPath;
 import fr.emse.ci.sparqlext.function.library.FUN_CBOR;
 import fr.emse.ci.sparqlext.function.library.FUN_CamelCase;
 import fr.emse.ci.sparqlext.function.library.FUN_MixedCase;
+import fr.emse.ci.sparqlext.function.library.FUN_PrefixedIRI;
 import fr.emse.ci.sparqlext.function.library.FUN_Property;
 import fr.emse.ci.sparqlext.function.library.FUN_TitleCase;
 import fr.emse.ci.sparqlext.function.library.ST_Call_Template;
@@ -47,6 +48,7 @@ import fr.emse.ci.sparqlext.iterator.library.ITER_for;
 import fr.emse.ci.sparqlext.iterator.library.ITER_CBOR;
 import fr.emse.ci.sparqlext.iterator.library.ITER_JSONPath;
 import fr.emse.ci.sparqlext.iterator.IteratorFunctionRegistry;
+import fr.emse.ci.sparqlext.iterator.library.ITER_DefaultGraphNamespaces;
 import fr.emse.ci.sparqlext.iterator.library.ITER_HTTPGet;
 import fr.emse.ci.sparqlext.iterator.library.ITER_MQTTSubscribe;
 import fr.emse.ci.sparqlext.iterator.library.ITER_WebSocket;
@@ -192,7 +194,7 @@ public final class SPARQLExt {
 
     public static final Symbol LIST_NODES = SystemARQ.allocSymbol("list_nodes");
 
-    public static final Symbol DEBUG_ST_CONCAT = SystemARQ.allocSymbol("debug_st_concat");
+    public static final Symbol DEBUG_ST_CONCAT = SystemARQ.allocSymbol("debug_st_concat");    
 
     /**
      * Forces the initialization of SPARQL-Generate.
@@ -221,6 +223,7 @@ public final class SPARQLExt {
         fnreg.put(FUN_CamelCase.URI, FUN_CamelCase.class);
         fnreg.put(FUN_MixedCase.URI, FUN_MixedCase.class);
         fnreg.put(FUN_TitleCase.URI, FUN_TitleCase.class);
+        fnreg.put(FUN_PrefixedIRI.URI, FUN_PrefixedIRI.class);
 
         fnreg.put(ST_Call_Template.URI, ST_Call_Template.class);
         fnreg.put(ST_Decr.URI, ST_Decr.class);
@@ -243,6 +246,7 @@ public final class SPARQLExt {
         itereg.put(ITER_HTTPGet.URI, ITER_HTTPGet.class);
         itereg.put(ITER_MQTTSubscribe.URI, ITER_MQTTSubscribe.class);
         itereg.put(ITER_WebSocket.URI, ITER_WebSocket.class);
+        itereg.put(ITER_DefaultGraphNamespaces.URI, ITER_DefaultGraphNamespaces.class);
 
         SPARQLParserRegistry.get()
                 .add(SYNTAX, new SPARQLParserFactory() {
