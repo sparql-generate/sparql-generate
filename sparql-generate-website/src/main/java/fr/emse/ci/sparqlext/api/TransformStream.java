@@ -127,7 +127,8 @@ public class TransformStream {
             logError(sessionManager, "ERROR: while reading parameters:", ex);
             return;
         }
-        final Context context = SPARQLExt.createContext(sm, sessionManager.getExecutor());        
+        final Context context = SPARQLExt.createContext(sm, sessionManager.getExecutor());
+        SPARQLExt.setDebugStConcat(context, request.debugTemplate);
         final SPARQLExtQuery q;
         try {
             q = supply(sessionManager, ()->(SPARQLExtQuery) QueryFactory.create(defaultquery, SPARQLExt.SYNTAX));

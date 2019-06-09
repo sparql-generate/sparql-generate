@@ -49,7 +49,6 @@ import org.apache.jena.sparql.expr.NodeValue;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueString;
 import org.apache.jena.sparql.function.Function;
 import org.apache.jena.sparql.function.FunctionEnv;
-import org.apache.jena.sparql.util.Context;
 import org.apache.jena.sparql.util.ExprUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -96,7 +95,7 @@ public class ST_Concat implements Function {
             } catch (Exception ex) {
                 if (LOG.isDebugEnabled()) {
                     String errorId = UUID.randomUUID().toString().substring(0, 6);
-                    if (SPARQLExt.DEBUG_ST_CONCAT) {
+                    if (SPARQLExt.isDebugStConcat(env.getContext())) {
                         String message = String.format("Error id %s executing st:concat with expression %s and binding %s", errorId, ExprUtils.fmtSPARQL(expr), SPARQLExt.compress(binding).toString());
                         LOG.debug(message, ex);
                         res.append(String.format("[WARN %s]", errorId));
@@ -104,7 +103,7 @@ public class ST_Concat implements Function {
                         String message = String.format("Error executing st:concat with expression %s and binding %s", errorId, ExprUtils.fmtSPARQL(expr), SPARQLExt.compress(binding).toString());
                         LOG.debug(message, ex);
                     }
-                } else if (SPARQLExt.DEBUG_ST_CONCAT) {
+                } else if (SPARQLExt.isDebugStConcat(env.getContext())) {
                     res.append(String.format("[NULL]"));
                 }
             }

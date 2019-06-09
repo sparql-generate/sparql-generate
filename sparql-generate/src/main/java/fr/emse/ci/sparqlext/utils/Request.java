@@ -48,6 +48,7 @@ public class Request {
         namedgraphs = new ArrayList<>();
         documentset = new ArrayList<>();
         stream = false;
+        debugTemplate = false;
     }
 
     public boolean cancel; // true to cancel transformation
@@ -61,6 +62,7 @@ public class Request {
     public List<Document> namedgraphs;
     public List<Document> documentset;
     public boolean stream;
+    public boolean debugTemplate;
 
     public Model asLocationMapper() {
         Model model = ModelFactory.createDefaultModel();

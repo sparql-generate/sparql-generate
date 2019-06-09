@@ -15,6 +15,7 @@ var valid = true;
 var open = false;
 var auto = false;
 var stream = false;
+var debugTemplate = true;
 var timers = [];
 var loglevel = 5;
 
@@ -156,6 +157,7 @@ var validate = function() {
         namedgraphs: namedgraphs,
         documentset: documentset,
         stream: stream,
+        debugTemplate: debugTemplate,
         loglevel: loglevel
     };
     timers.push(window.setTimeout(function(msg) {
@@ -208,6 +210,7 @@ var run = function() {
         namedgraphs: namedgraphs,
         documentset: documentset,
         stream: stream,
+        debugTemplate: debugTemplate,
         loglevel: loglevel
     };
     send(msg);
@@ -863,6 +866,13 @@ var load_result = function() {
         auto = false;
     }
   });
+  $('#debugtemplatecheck').change(function () {
+    if ($("#debugtemplatecheck").is(":checked")) {
+        debugTemplate = true;
+    } else {
+        debugTemplate = false;
+    }
+  });
   $('#streamcheck').change(function () {
     if ($("#streamcheck").is(":checked")) {
         stream = true;
@@ -956,6 +966,9 @@ var load = function(idd) {
         localStorage.setItem('documentset', JSON.stringify(data.documentset));
         if(data.stream === true || data.stream === false) {
           stream = data.stream;
+        }
+        if(data.debugTemplate === true || data.debugTemplate === false) {
+          debugTemplate = data.debugTemplate;
         }
         if(data.loglevel >= 1 && data.loglevel <=5) {
           loglevel = data.loglevel;
@@ -1093,6 +1106,7 @@ var init = function() {
           <button id="run">Run Query</button>
           <label><input type="checkbox" id="autocheck"/> run automatically</label>
           <label><input type="checkbox" id="streamcheck"/> return stream</label>
+          <label><input type="checkbox" id="debugtemplatecheck" checked="checked"/> debug Template</label>
           <legend>Result</legend>
           <textarea id="generateresult"> </textarea>
           <div id="selectresult" style="display:none;" readonly><textarea> </textarea></div>
@@ -1123,6 +1137,7 @@ var init = function() {
   $("#readme").html(localStorage.getItem('readme'));
   $("#autocheck").prop("checked", auto);
   $("#streamcheck").prop("checked", stream);
+  $("#debugtemplatecheck").prop("checked", debugTemplate);
   $("#loglevel").val(loglevel);
 
   load_queryset();

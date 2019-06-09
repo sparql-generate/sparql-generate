@@ -192,7 +192,7 @@ public final class SPARQLExt {
 
     public static final Symbol LIST_NODES = SystemARQ.allocSymbol("list_nodes");
 
-    public static boolean DEBUG_ST_CONCAT = true;
+    public static final Symbol DEBUG_ST_CONCAT = SystemARQ.allocSymbol("debug_st_concat");
 
     /**
      * Forces the initialization of SPARQL-Generate.
@@ -406,6 +406,7 @@ public final class SPARQLExt {
         context.set(SPARQLExt.CLOSE_TASKS, new HashSet<>());
         context.set(SPARQLExt.SIZE, 0);
         context.set(SPARQLExt.LIST_NODES, new HashMap<>());
+        context.set(SPARQLExt.DEBUG_ST_CONCAT, false);
         String rand = UUID.randomUUID().toString().substring(0, 4);
         String indentControl = "\f" + rand;
         context.set(SPARQLExt.INDENT_CONTROL, indentControl);
@@ -427,6 +428,7 @@ public final class SPARQLExt {
         newContext.set(SPARQLExt.CLOSE_TASKS, newContext.get(SPARQLExt.CLOSE_TASKS, new HashSet<>()));
         newContext.set(SPARQLExt.SIZE, newContext.get(SPARQLExt.SIZE, 0));
         newContext.set(SPARQLExt.LIST_NODES, newContext.get(SPARQLExt.LIST_NODES, new HashMap<>()));
+        newContext.set(SPARQLExt.DEBUG_ST_CONCAT, newContext.get(SPARQLExt.DEBUG_ST_CONCAT, false));
         return newContext;
     }
 
@@ -590,6 +592,14 @@ public final class SPARQLExt {
         } catch (Exception ex) {
             throw new SPARQLExtException("The two characters that follow the indentation control sequence " + getIndentControl(context) + " is not an integer. Got " + incrString);
         }
+    }
+    
+    public static void setDebugStConcat(Context context, boolean debugStConcat) {
+        context.set(SPARQLExt.DEBUG_ST_CONCAT, debugStConcat);
+    }
+
+    public static boolean isDebugStConcat(Context context) {
+        return (Boolean) context.get(SPARQLExt.DEBUG_ST_CONCAT, false);
     }
 
     private static final Var VAR = Var.alloc("truncated");
