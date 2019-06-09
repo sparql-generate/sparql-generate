@@ -197,18 +197,43 @@ void VarList() : { }
     )
   { asSPARQLExtQuery().setSignature(signature); }
 }
-void TemplateClause() : { List<Element> exprs = new ArrayList<Element>(); String sep = null;}
+void TemplateClause() : {}
 {
   <LBRACE>
+  TemplateInnerClause()
+  <RBRACE>
+}
+void TemplateInnerClause() : { List<Element> exprs = new ArrayList<Element>(); String sep = null;}
+{
   { allowAggregatesInExpressions = true ; }
-  ( TExpression(exprs) )*
-  ( sep = Separator() )?
+  (
+    Once(true)
+    ( TExpression(exprs) )*
+    ( sep = Separator() )?
+    ( Once(false) )?
+  |
+    ( TExpression(exprs) )+
+    ( sep = Separator() )?
+    ( Once(false) )?
+  )
   { 
     asSPARQLExtQuery().setTemplateClause(exprs);
     asSPARQLExtQuery().setTemplateClauseSeparator(sep);
   }
   { allowAggregatesInExpressions = false ; }
-  <RBRACE>
+}
+
+void Once(boolean isStart) : {String s;}
+{
+  <ONCE>
+  s = String()
+  { 
+    if(isStart) {
+      asSPARQLExtQuery().setTemplateStart(s);
+    } else {
+      asSPARQLExtQuery().setTemplateEnd(s);
+    }
+  }
 }
 void TExpression(List<Element> elems) : { Element elem; }
 {
@@ -1959,6 +1984,7 @@ TOKEN [IGNORE_CASE] :
 |  < FORMAT: "format" >
 |  < PRAGMA: "pragma" >
 |  < FUNCTION: "function" >
+|  < ONCE: "once" >
 
 |  < PERFORM: "perform" >
 }

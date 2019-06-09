@@ -423,6 +423,26 @@ public class SPARQLExtQuery extends Query {
     public void setTemplateClauseSeparator(String templateClauseSeparator) {
         this.templateClauseSeparator = templateClauseSeparator;
     }
+    
+    private String templateStart = null;
+    
+    public String getTemplateStart() {
+        return templateStart;
+    }
+    
+    public void setTemplateStart(String start) {
+        this.templateStart = start;
+    }
+
+    private String templateEnd = null;
+    
+    public String getTemplateEnd() {
+        return templateEnd;
+    }
+    
+    public void setTemplateEnd(String End) {
+        this.templateEnd = End;
+    }
 
     /**
      * the {@code PERFORM} clause of the query.
