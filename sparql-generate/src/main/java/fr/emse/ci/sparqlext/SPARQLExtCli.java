@@ -24,6 +24,7 @@ import fr.emse.ci.sparqlext.stream.LookUpRequest;
 import fr.emse.ci.sparqlext.stream.SPARQLExtStreamManager;
 import fr.emse.ci.sparqlext.syntax.ElementSource;
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import org.apache.commons.cli.*;
 import org.apache.commons.io.IOUtils;
 import org.apache.jena.graph.Node;
@@ -47,9 +48,16 @@ import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import fr.emse.ci.sparqlext.generate.engine.RootPlan;
+import fr.emse.ci.sparqlext.stream.LocationMapperAccept;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.concurrent.ExecutionException;
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryFactory;
+import org.apache.jena.query.ResultSet;
+import org.apache.jena.query.ResultSetFormatter;
+import org.apache.jena.sparql.resultset.ResultsFormat;
 import org.apache.jena.sparql.util.Context;
 import org.rdfhdt.hdt.hdt.HDT;
 
@@ -62,7 +70,7 @@ public class SPARQLExtCli {
     private static final Logger LOG = LoggerFactory.getLogger(SPARQLExtCli.class);
     private static final Gson GSON = new Gson();
 
-    private static final Layout LAYOUT = new PatternLayout("%d %-5p %c{1}:%L - %m%n");
+    private static final Layout LAYOUT = new PatternLayout("%-5p - %d - %c{1}:%L - %m%n");
     private static final org.apache.log4j.Logger ROOT_LOGGER = org.apache.log4j.Logger.getRootLogger();
 
     public static void main(String[] args) throws ParseException {
@@ -74,28 +82,27 @@ public class SPARQLExtCli {
             return;
         }
 
-        String dirPath = cl.getOptionValue(ARG_DIRECTORY, ARG_DIRECTORY_DEFAULT);
-        File dir = new File(dirPath);
-
         SPARQLExt.init();
+        String dir = cl.getOptionValue(ARG_DIRECTORY, ARG_DIRECTORY_DEFAULT);
+        File dirFile = new File(dir);
 
         // read sparql-generate-conf.json
         Request request;
         try {
             String conf = IOUtils.toString(
-                    new FileInputStream(new File(dir, "sparql-generate-conf.json")), StandardCharsets.UTF_8);
+                    new FileInputStream(new File(dirFile, "sparql-generate-conf.json")), StandardCharsets.UTF_8);
             request = GSON.fromJson(conf, Request.class);
-        } catch (Exception ex) {
-            LOG.warn("Error while loading the location mapping model for the queryset. No named queries will be used");
+        } catch (IOException ex) {
+            LOG.warn("IOException while loading the location mapping model for the queryset.");
+            request = Request.DEFAULT;
+        } catch (JsonSyntaxException ex) {
+            LOG.warn("JSON Syntax exceptioun while loading the location mapping model for the queryset.", ex);
             request = Request.DEFAULT;
         }
 
-        setLogging(cl, request.loglevel);
+        SPARQLExtStreamManager sm = prepareStreamManager(dirFile, request, cl);
 
-        // initialize stream manager
-        SPARQLExtStreamManager sm = SPARQLExtStreamManager
-                .makeStreamManager(new LocatorFileAccept(dir.toURI().getPath()));
-        sm.setLocationMapper(request.asLocationMapper());
+        setLogging(cl, request.loglevel);
 
         String queryPath = cl.getOptionValue(ARG_QUERY, request.query);
         String query;
@@ -121,6 +128,9 @@ public class SPARQLExtCli {
         }
 
         final Context context = SPARQLExt.createContext(q.getPrefixMapping(), sm);
+
+        SPARQLExt.setDebugStConcat(context, cl.hasOption(ARG_DEBUG_TEMPLATE));
+
         try {
             replaceSourcesIfRequested(cl, q);
 
@@ -132,21 +142,42 @@ public class SPARQLExtCli {
                 return;
             }
 
-            final Dataset ds = getDataset(dir, request);
+            final Dataset ds = getDataset(dirFile, request);
 
             String output = cl.getOptionValue(ARG_OUTPUT);
             boolean outputAppend = cl.hasOption(ARG_OUTPUT_APPEND);
-            Lang outputLang = RDFLanguages.nameToLang(cl.getOptionValue(ARG_OUTPUT_FORMAT, RDFLanguages.strLangTurtle));
+            String outputLang = cl.getOptionValue(ARG_OUTPUT_FORMAT, null);
 
             boolean stream = cl.hasOption(ARG_STREAM);
             boolean hdt = cl.hasOption(ARG_HDT);
-            if (!stream && !hdt) {
-                execSync(q, plan, ds, context, outputLang, output, outputAppend);
-            } else if(hdt) {
-                execHDT(q, plan, ds, context, output, outputAppend);
-            } else {
-                execStream(q, plan, ds, context, output, outputAppend);
+
+            if (!q.isGenerateType() && hdt) {
+                LOG.error("Option HDT is only for queries of type GENERATE");
+                return;
             }
+            if (q.isTemplateType() && outputLang != null) {
+                LOG.error("Option outputLang is only for queries of type GENERATE or SELECT");
+                return;
+            }
+
+            if (q.isGenerateType() && !stream && !hdt) {
+                execGenerate(q, plan, ds, context, outputLang, output, outputAppend);
+            } else if (q.isGenerateType() && hdt) {
+                execGenerateHDT(q, plan, ds, context, output, outputAppend);
+            } else if (q.isGenerateType()) {
+                execGenerateStream(q, plan, ds, context, output, outputAppend);
+            } else if (q.isSelectType() && !stream) {
+                execSelect(q, plan, ds, context, outputLang, output, outputAppend);
+            } else if (q.isSelectType()) {
+                execSelectStream(q, plan, ds, context, outputLang, output, outputAppend);
+            } else if (q.isTemplateType() && !stream) {
+                execTemplate(q, plan, ds, context, output, outputAppend);
+            } else if (q.isTemplateType()) {
+                execTemplateStream(q, plan, ds, context, output, outputAppend);
+            } else {
+                LOG.error("Error: unsupported query type");
+            }
+
             long millis = Duration.between(start, Instant.now()).toMillis();
             System.out.println("Program finished in " + String.format("%d min, %d sec",
                     TimeUnit.MILLISECONDS.toMinutes(millis),
@@ -158,7 +189,7 @@ public class SPARQLExtCli {
         }
     }
 
-    private static void execHDT(SPARQLExtQuery q, RootPlan plan, Dataset ds, Context context, String output, boolean outputAppend) {
+    private static void execGenerateHDT(SPARQLExtQuery q, RootPlan plan, Dataset ds, Context context, String output, boolean outputAppend) {
         if (output == null) {
             LOG.error("Output needs to be set with the option HDT.");
         }
@@ -170,7 +201,7 @@ public class SPARQLExtCli {
             try (OutputStream out = new FileOutputStream(output)) {
                 // Save generated HDT to a file
                 hdt.saveToHDT(out, null);
-            } catch(IOException ex) {
+            } catch (IOException ex) {
                 LOG.error("Error while opening the output file.", ex);
             }
         } catch (ExecutionException ex) {
@@ -178,17 +209,17 @@ public class SPARQLExtCli {
         } catch (InterruptedException ex) {
             LOG.error("Interrupted while executing the plan.", ex);
         } finally {
-            if(hdt!=null) {
+            if (hdt != null) {
                 try {
                     hdt.close();
-                } catch(IOException ex) {
+                } catch (IOException ex) {
                     LOG.error("Error while closing the HDT.", ex);
                 }
             }
         }
     }
 
-    private static void execStream(Query q, RootPlan plan, Dataset ds, Context context, String output, boolean outputAppend) {
+    private static void execGenerateStream(Query q, RootPlan plan, Dataset ds, Context context, String output, boolean outputAppend) {
         final ConsoleStreamRDF futurePrintStreamRDF;
         if (output == null) {
             futurePrintStreamRDF = new ConsoleStreamRDF(System.out, q.getPrefixMapping());
@@ -210,14 +241,18 @@ public class SPARQLExtCli {
         }
     }
 
-    private static void execSync(Query q, RootPlan plan, Dataset ds, Context context, Lang outputLang, String output, boolean outputAppend) {
+    private static void execGenerate(Query q, RootPlan plan, Dataset ds, Context context, String outputLang, String output, boolean outputAppend) {
+        if (outputLang == null) {
+            outputLang = RDFLanguages.strLangTurtle;
+        }
+        Lang lang = RDFLanguages.nameToLang(outputLang);
         try {
             Model model = plan.execGenerate(ds, context);
             if (output == null) {
-                model.write(System.out, outputLang.getLabel());
+                model.write(System.out, lang.getLabel());
             } else {
                 try {
-                    model.write(new FileOutputStream(output, outputAppend), outputLang.getLabel());
+                    model.write(new FileOutputStream(output, outputAppend), lang.getLabel());
                 } catch (IOException ex) {
                     LOG.error("Error while opening the output file.", ex);
                     return;
@@ -226,7 +261,78 @@ public class SPARQLExtCli {
         } catch (Exception ex) {
             LOG.error("Error while executing the plan.", ex);
         }
+    }
 
+    private static void execSelect(Query q, RootPlan plan, Dataset ds, Context context, String outputLang, String output, boolean outputAppend) {
+        try {
+            ResultSet result = plan.execSelect(ds, context);
+            OutputStream out;
+            try {
+                if (output == null) {
+                    out = System.out;
+                } else {
+                    out = new FileOutputStream(output, outputAppend);
+                }
+                ResultsFormat format = getResultsFormat(outputLang);
+                ResultSetFormatter.output(out, result, format);
+            } catch (IOException ex) {
+                LOG.error("Error while opening the output file.", ex);
+            }
+        } catch (Exception ex) {
+            LOG.error("Error while executing the plan.", ex);
+        }
+    }
+
+    private static void execSelectStream(Query q, RootPlan plan, Dataset ds, Context context, String outputLang, String output, boolean outputAppend) {
+        try {
+            OutputStream out;
+            try {
+                if (output == null) {
+                    out = System.out;
+                } else {
+                    out = new FileOutputStream(output, outputAppend);
+                }
+                ResultsFormat format = getResultsFormat(outputLang);
+                plan.execSelect(ds,
+                        (result) -> {
+                            ResultSetFormatter.output(out, result, format);
+                        },
+                        context).get();
+            } catch (IOException ex) {
+                LOG.error("Error while opening the output file.", ex);
+            }
+        } catch (Exception ex) {
+            LOG.error("Error while executing the plan.", ex);
+        }
+    }
+
+    private static void execTemplate(Query q, RootPlan plan, Dataset ds, Context context, String output, boolean outputAppend) {
+        try {
+            PrintStream ps;
+            if (output == null) {
+                ps = System.out;
+            } else {
+                ps = new PrintStream(new FileOutputStream(output, outputAppend));
+            }
+            String result = plan.execTemplate(ds, context);
+            ps.print(result);
+        } catch (Exception ex) {
+            LOG.error("Error while executing the plan.", ex);
+        }
+    }
+
+    private static void execTemplateStream(Query q, RootPlan plan, Dataset ds, Context context, String output, boolean outputAppend) {
+        try {
+            PrintStream ps;
+            if (output == null) {
+                ps = System.out;
+            } else {
+                ps = new PrintStream(new FileOutputStream(output, outputAppend));
+            }
+            plan.execTemplate(ds, ps::print, context).get();
+        } catch (FileNotFoundException | InterruptedException | ExecutionException ex) {
+            LOG.error("Error while executing the plan.", ex);
+        }
     }
 
     private static Dataset getDataset(File dir, Request request) {
@@ -284,6 +390,69 @@ public class SPARQLExtCli {
                 .collect(Collectors.toList());
 
         query.setBindingClauses(updatedSources);
+    }
+
+    private static SPARQLExtStreamManager prepareStreamManager(File dirFile, Request request, CommandLine cl) {
+        Path dirPath = Paths.get(dirFile.toURI());
+        // initialize stream manager
+        LocatorFileAccept locator = new LocatorFileAccept(dirFile.toURI().getPath());
+        LocationMapperAccept mapper = new LocationMapperAccept();
+        SPARQLExtStreamManager sm = SPARQLExtStreamManager.makeStreamManager(locator);
+        sm.setLocationMapper(mapper);
+
+        if (request.namedqueries != null) {
+            request.namedqueries.forEach((doc) -> {
+                LookUpRequest req = new LookUpRequest(doc.uri, doc.mediatype);
+                LookUpRequest alt = new LookUpRequest(doc.path);
+                mapper.addAltEntry(req, alt);
+            });
+        }
+        if (request.documentset != null) {
+            request.documentset.forEach((doc) -> {
+                LookUpRequest req = new LookUpRequest(doc.uri, doc.mediatype);
+                LookUpRequest alt = new LookUpRequest(doc.path);
+                mapper.addAltEntry(req, alt);
+            });
+        }
+        if (cl.hasOption(ARG_BASE)) {
+            String base = cl.getOptionValue(ARG_BASE);
+            try {
+                Files.walk(dirPath)
+                        .filter((p) -> {
+                            return p.toFile().isFile();
+                        })
+                        .forEach((p) -> {
+                            String relativePath = dirPath.relativize(p).toString();
+                            String url = base + relativePath.replace("\\", "/");
+                            mapper.addAltEntry(url, p.toString());
+                        });
+            } catch (IOException ex) {
+                LOG.warn("Error while computing the URIs for the files in the working directory.", ex);
+            }
+        }
+        return sm;
+    }
+
+    private static ResultsFormat getResultsFormat(String outputLang) {
+        if (outputLang == null) {
+            return ResultsFormat.FMT_TEXT;
+        } else {
+            switch (outputLang) {
+                case "XML":
+                    return ResultsFormat.FMT_RS_XML;
+                case "CSV":
+                    return ResultsFormat.FMT_RS_CSV;
+                case "JSON":
+                    return ResultsFormat.FMT_RS_JSON;
+                case "TSV":
+                    return ResultsFormat.FMT_RS_TSV;
+                case "TEXT":
+                    return ResultsFormat.FMT_TEXT;
+                default:
+                    LOG.warn("Output lang not valid for SELECT queries. Expecting one of XML, CSV, JSON, TSV, or TEXT.");
+                    return ResultsFormat.FMT_TEXT;
+            }
+        }
     }
 
 }
