@@ -202,7 +202,7 @@ public final class RootPlanImpl extends RootPlanBase {
                 for (String prefix : query.getPrefixMapping().getNsPrefixMap().keySet()) {
                     outputStream.prefix(prefix, query.getPrefixMapping().getNsPrefixURI(prefix));
                 }
-                if(query.getBaseURI()!=null) {
+                if (query.getBaseURI() != null) {
                     outputStream.base(query.getBaseURI());
                 }
             }
@@ -340,14 +340,18 @@ public final class RootPlanImpl extends RootPlanBase {
     private void execTemplatePlan(ResultSet results, Consumer<String> outputTemplate, Context context) {
         final StringBuilder sb = new StringBuilder();
         boolean first = true;
-        String control = SPARQLExt.getIndentControl(context);
+        if(query.getTemplateStart()!=null) {
+            String out = query.getTemplateStart();
+            sb.append(processNewLines(out, context));
+        }
         while (results.hasNext()) {
             if (!first && query.hasTemplateClauseSeparator()) {
-                sb.append(query.getTemplateClauseSeparator());
+                String out = query.getTemplateClauseSeparator();
+                sb.append(processNewLines(out, context));
             }
             QuerySolution sol = results.next();
             if (!sol.contains("out")) {
-                LOG.debug("Variable ?out not bounded");
+                LOG.debug("Variable ?out not bound");
                 continue;
             }
             if (!sol.get("out").isLiteral()) {
@@ -355,28 +359,37 @@ public final class RootPlanImpl extends RootPlanBase {
                 continue;
             }
             String out = sol.getLiteral("out").getLexicalForm();
-            StringBuffer buf = new StringBuffer(out);
-            int cursor = 0;
-            while (cursor < buf.length()) {
-                if (cursor + 5 <= buf.length() && buf.substring(cursor, cursor + 5).equals(control)) {
-                    buf.delete(cursor, cursor + 5);
-                    SPARQLExt.updateIndent(context, buf.substring(cursor, cursor + 2));
-                    buf.delete(cursor, cursor + 2);
-                } else if (buf.substring(cursor, cursor + 1).equals("\n")) {
-                    cursor++;
-                    int indent = SPARQLExt.getIndent(context);
-                    for (int i = 0; i < indent; i++) {
-                        buf.insert(cursor, " ");
-                        cursor++;
-                    }
-                } else {
-                    cursor++;
-                }
-            }
-            sb.append(buf);
+            sb.append(processNewLines(out, context));
             first = false;
         }
+        if(query.getTemplateEnd()!=null) {
+            String out = query.getTemplateEnd();
+            sb.append(processNewLines(out, context));
+        }
         outputTemplate.accept(sb.toString());
+    }
+
+    private String processNewLines(final String out, final Context context) {
+        StringBuilder buf = new StringBuilder(out);
+        String control = SPARQLExt.getIndentControl(context);
+        int cursor = 0;
+        while (cursor < buf.length()) {
+            if (cursor + 5 <= buf.length() && buf.substring(cursor, cursor + 5).equals(control)) {
+                buf.delete(cursor, cursor + 5);
+                SPARQLExt.updateIndent(context, buf.substring(cursor, cursor + 2));
+                buf.delete(cursor, cursor + 2);
+            } else if (buf.substring(cursor, cursor + 1).equals("\n")) {
+                cursor++;
+                int indent = SPARQLExt.getIndent(context);
+                for (int i = 0; i < indent; i++) {
+                    buf.insert(cursor, " ");
+                    cursor++;
+                }
+            } else {
+                cursor++;
+            }
+        }
+        return buf.toString();
     }
 
     private <T> CompletableFuture<Void> allOf(Collection<CompletableFuture<T>> futures) {
