@@ -21,7 +21,9 @@ import org.apache.jena.sparql.expr.NodeValue;
 import fr.emse.ci.sparqlext.stream.LookUpRequest;
 import fr.emse.ci.sparqlext.stream.SPARQLExtStreamManager;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.StringReader;
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.Properties;
 import org.apache.jena.atlas.web.TypedInputStream;
@@ -116,7 +118,7 @@ public final class FUN_Property implements Function {
             LOG.warn(message);
             throw new ExprEvalException(message);
         }
-        properties.load(tin.getInputStream());
+        properties.load(new InputStreamReader(tin.getInputStream(), StandardCharsets.UTF_8));
         return properties;
     }
 
