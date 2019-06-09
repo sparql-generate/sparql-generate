@@ -394,6 +394,13 @@
                 </plugins>
             </build>
         </profile>
+
+        <profile>
+            <id>skip</id>
+            <properties>
+                <skip>true</skip>
+            </properties>
+        </profile>
     </profiles>
 
 </project>

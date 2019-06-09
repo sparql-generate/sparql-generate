@@ -271,30 +271,6 @@
                 </plugin>
 
                 <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>findbugs-maven-plugin</artifactId>
-                    <version>3.0.3</version>
-                    <inherited>true</inherited>
-                    <configuration>
-                        <skip>${skip}</skip>
-                        <maxHeap>512</maxHeap>
-                        <xmlOutput>true</xmlOutput>
-                        <includeTests>true</includeTests>
-                        <effort>max</effort>
-                        <sourceEncoding>${project.build.sourceEncoding}</sourceEncoding>
-                    </configuration>
-                    <executions>
-                        <execution>
-                            <id>run-findbugs</id>
-                            <phase>verify</phase>
-                            <goals>
-                                <goal>findbugs</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
-
-                <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-javadoc-plugin</artifactId>
                     <configuration>
@@ -320,6 +296,9 @@
                             <goals>
                                 <goal>site</goal>
                             </goals>
+                            <configuration>
+                                <generateReports>${skip}</generateReports>
+                            </configuration>
                         </execution>
                     </executions>
                     <configuration>
@@ -383,9 +362,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <configuration>
-                    <skip>false</skip>
-                </configuration>
             </plugin>
 
             <plugin>
@@ -418,13 +394,6 @@
                 </configuration>
             </plugin>
 
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>findbugs-maven-plugin</artifactId>
-                <configuration>
-                    <skip>${skip}</skip>
-                </configuration>
-            </plugin>
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -435,14 +404,6 @@
                     <forkCount>3</forkCount>
                     <reuseForks>true</reuseForks>
                     <argLine>-Xmx2048m -XX:MaxPermSize=512m</argLine>
-                </configuration>
-            </plugin>
-
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>findbugs-maven-plugin</artifactId>
-                <configuration>
-                    <skip>${skip}</skip>
                 </configuration>
             </plugin>
 
