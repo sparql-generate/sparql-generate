@@ -81,31 +81,42 @@ public class ST_Call_Template implements Function {
      * @return
      */
     @Override
-    public NodeValue exec(Binding binding, ExprList args, String uri, FunctionEnv env) {
+    public NodeValue exec(
+            final Binding binding, 
+            final ExprList args, 
+            final String uri, 
+            final FunctionEnv env) {
         if (args == null) {
             throw new ARQInternalErrorException("FunctionBase: Null args list");
         }
         if (args.size() < 1) {
             throw new ExprEvalException("Expecting at least one argument");
         }
-        final String queryName = getQueryName(binding, args, env);
-        final RootPlan plan = getPlan(queryName, env);
-        final Binding newBinding
-                = getNewBinding(binding, queryName, args, env);
+        NodeValue queryNode = args.get(0).eval(binding, env);
+        if (!( queryNode.isIRI() || queryNode.isLiteral()&&SPARQLExt.MEDIA_TYPE_URI.equals(queryNode.getDatatypeURI()))) {
+            throw new ExprEvalException("Name of sub query "
+                    + "should be a URI or a literal with datatype " + SPARQLExt.MEDIA_TYPE_URI + ". Got: " + queryNode);
+        }
+        if(queryNode.isLiteral() && args.size()>1) {
+            throw new ExprEvalException("Expecting at most one argument wher first argument is a literal.");
+        }
+        
+        RootPlan plan;
+        final Binding newBinding;
+        if(queryNode.isIRI()) {
+            String queryName = queryNode.asNode().getURI();
+            plan = getPlanforName(queryName, env);
+            newBinding = getNewBindingForName(binding, queryName, args, env);
+        } else {
+            String queryString = queryNode.asNode().getLiteralLexicalForm();
+            plan = getPlanforString(queryString, env);
+            newBinding = getNewBindingForString(binding, queryString, env);
+        }
         final String output = exec(plan, newBinding, env);
         return new NodeValueString(output);
     }
 
-    private String getQueryName(Binding binding, ExprList args, FunctionEnv env) {
-        NodeValue queryNode = args.get(0).eval(binding, env);
-        if (!queryNode.isIRI()) {
-            throw new ExprEvalException("Name of sub query "
-                    + "resolved to something else than a URI: " + queryNode);
-        }
-        return queryNode.asNode().getURI();
-    }
-
-    private RootPlan getPlan(
+    private RootPlan getPlanforName(
             String queryName,
             FunctionEnv env) {
         try {
@@ -132,7 +143,31 @@ public class ST_Call_Template implements Function {
         }
     }
 
-    private Binding getNewBinding(
+
+    private RootPlan getPlanforString(
+            String queryString,
+            FunctionEnv env) {
+        try {
+            final Context context = env.getContext();
+            final Map<String, RootPlan> loadedPlans = (Map<String, RootPlan>) context.get(SPARQLExt.LOADED_PLANS);
+            final Map<String, SPARQLExtQuery> loadedQueries = (Map<String, SPARQLExtQuery>) context.get(SPARQLExt.LOADED_QUERIES);
+            if (loadedPlans.containsKey(queryString)) {
+                return loadedPlans.get(queryString);
+            }
+            final SPARQLExtQuery q
+                    = (SPARQLExtQuery) QueryFactory.create(queryString,
+                            SPARQLExt.SYNTAX);
+            loadedQueries.put(queryString, q);
+            final RootPlan plan = PlanFactory.createPlanForSubQuery(q);
+            loadedPlans.put(queryString, plan);
+            return plan;
+        } catch (NullPointerException | QueryParseException ex) {
+            String message = "Error while loading the query file " + queryString;
+            throw new ExprEvalException(message, ex);
+        }
+    }
+
+    private Binding getNewBindingForName(
             final Binding binding,
             final String queryName,
             final ExprList args,
@@ -157,6 +192,23 @@ public class ST_Call_Template implements Function {
                     newBinding.add(parameter, node.asNode());
                 }
             }
+        }
+        return newBinding;
+    }
+
+
+    private Binding getNewBindingForString(
+            final Binding binding,
+            final String queryString,
+            final FunctionEnv env) {
+        final Map<String, SPARQLExtQuery> loadedQueries = (Map<String, SPARQLExtQuery>) env.getContext().get(SPARQLExt.LOADED_QUERIES);
+        final SPARQLExtQuery expandedQuery = loadedQueries.get(queryString);
+        if(!expandedQuery.hasSignature()) {
+            BindingFactory.binding(binding);
+        }
+        final BindingMap newBinding = BindingFactory.create();
+        for(Var v : expandedQuery.getSignature()) {
+            newBinding.add(v, binding.get(v));
         }
         return newBinding;
     }
