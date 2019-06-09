@@ -7,6 +7,7 @@ notes.txt
 
 # NetBeans
 nbactions.xml
+nbactions-skip.xml
 nb-configuration.xml
 /nbproject/
 /sparql-generate/nbproject/
