@@ -62,6 +62,7 @@ import org.apache.jena.sparql.expr.aggregate.AggGroupConcat;
 import org.apache.jena.sparql.expr.aggregate.AggGroupConcatDistinct;
 import org.apache.jena.sparql.expr.aggregate.Aggregator;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueDT;
+import org.apache.jena.sparql.expr.nodevalue.NodeValueNode;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueString;
 import org.apache.jena.sparql.serializer.FmtExprSPARQL;
 import org.apache.jena.sparql.syntax.ElementGroup;
@@ -683,8 +684,14 @@ public class PlanFactory {
         @Override
         public void visit(ElementSubExtQuery el) {
             SPARQLExtQuery query = el.getQuery();
-            NodeValue n = NodeValue.makeNode(query.toString(), null, SPARQLExt.MEDIA_TYPE_URI);
-            result = new E_Function(ST.callTemplate, new ExprList(n));
+            if(query.isNamedSubQuery()) {
+                ExprList exprList = new ExprList(NodeValueNode.makeNode(query.getName()));
+                exprList.addAll(query.getCallParameters());
+                result = new E_Function(ST.callTemplate, exprList);
+            } else {
+                NodeValue n = NodeValue.makeNode(query.toString(), null, SPARQLExt.MEDIA_TYPE_URI);
+                result = new E_Function(ST.callTemplate, new ExprList(n));
+            }
         }
 
     };
