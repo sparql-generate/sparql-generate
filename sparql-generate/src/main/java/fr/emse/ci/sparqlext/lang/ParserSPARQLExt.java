@@ -88,11 +88,32 @@ public class ParserSPARQLExt extends SPARQLParser {
      * @param queryString
      * @return
      */
-    public static Query parseSubQuery(final Query query, String queryString) {
+    public static SPARQLExtQuery parseSubQuery(final Query query, String queryString) {
 
         SPARQLExtQuery q = new SPARQLExtQuery();
         q.setSyntax(query.getSyntax());
         q.setResolver(query.getResolver());
+
+        Action action = new Action() {
+            @Override
+            public void exec(SPARQLExtParser parser) throws Exception {
+                parser.SubQueryUnit();
+            }
+        };
+
+        perform(q, queryString, action);
+        return q;
+    }
+    
+    /**
+     * Parses the query.
+     *
+     * @param queryString
+     * @return
+     */
+    public static SPARQLExtQuery parseSubQuery(String queryString) {
+
+        SPARQLExtQuery q = new SPARQLExtQuery();
 
         Action action = new Action() {
             @Override
@@ -152,7 +173,11 @@ public class ParserSPARQLExt extends SPARQLParser {
     }
 
     // Do any testing of queries after the construction of the parse tree.
+    @Override
     protected void validateParsedQuery(Query query) {
         SyntaxVarScope.check(query);
+        if(query instanceof SPARQLExtQuery) {
+            SPARQLExtSyntaxVarScope.check((SPARQLExtQuery) query);
+        }
     }
 }

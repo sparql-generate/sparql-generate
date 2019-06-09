@@ -221,19 +221,19 @@ void TemplateInnerClause() : { List<Element> exprs = new ArrayList<Element>(); S
   { allowAggregatesInExpressions = false ; }
 }
 
-void TemplateBefore() : { String before; }
+void TemplateBefore() : { Expr before; }
 {
-  <BEFORE> <EQ> before = String() <SEMICOLON>
+  <BEFORE> <EQ> before = Expression() <SEMICOLON>
   { asSPARQLExtQuery().setTemplateClauseBefore(before); }
 }
-void TemplateAfter() : { String after; }
+void TemplateAfter() : { Expr after; }
 {
-  <AFTER> <EQ> after = String()
+  <AFTER> <EQ> after = Expression()
   { asSPARQLExtQuery().setTemplateClauseAfter(after); }
 }
-void TemplateSeparator() : { String sep; }
+void TemplateSeparator() : { Expr sep; }
 {
-  <SEPARATOR> <EQ> sep = String()
+  <SEPARATOR> <EQ> sep = Expression()
   { asSPARQLExtQuery().setTemplateClauseSeparator(sep); }
 }
 void TExpression(List<Element> elems) : { Element elem; }
@@ -322,7 +322,7 @@ Token SubTemplateQuery() : { Token t; }
       { asSPARQLExtQuery().setCallParameters(params); }
     )?
   |
-    ( VarList() )?
+    VarList()
     TemplateClause()
   )
   ( DatasetClause() )*

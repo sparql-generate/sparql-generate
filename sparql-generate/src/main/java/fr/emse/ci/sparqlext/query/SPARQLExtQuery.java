@@ -393,98 +393,98 @@ public class SPARQLExtQuery extends Query {
     }
 
     /**
-     * the separator in the {@code TEMPLATE} clause of the query.
+     * the separator expression in the {@code TEMPLATE} clause of the query.
      */
-    private String templateClauseSeparator = null;
+    private Expr templateClauseSeparator = null;
 
     /**
-     * Returns if this query has a separator in the {@code TEMPLATE} clause.
+     * Returns if this query has a separator expression in the {@code TEMPLATE} clause.
      *
-     * @return if this query has a separator in the {@code TEMPLATE} clause
+     * @return if this query has a separator expression in the {@code TEMPLATE} clause
      */
     public boolean hasTemplateClauseSeparator() {
         return templateClauseSeparator != null;
     }
 
     /**
-     * Returns the separator in the {@code TEMPLATE} clause.
+     * Returns the separator expression in the {@code TEMPLATE} clause.
      *
-     * @return the separator in the {@code TEMPLATE} clause
+     * @return the separator expression in the {@code TEMPLATE} clause
      */
-    public String getTemplateClauseSeparator() {
+    public Expr getTemplateClauseSeparator() {
         return templateClauseSeparator;
     }
 
     /**
-     * Set the separator in the {@code TEMPLATE} clause.
+     * Set the separator expression in the {@code TEMPLATE} clause.
      *
      * @param templateClauseSeparator the separator.
      */
-    public void setTemplateClauseSeparator(String templateClauseSeparator) {
+    public void setTemplateClauseSeparator(Expr templateClauseSeparator) {
         this.templateClauseSeparator = templateClauseSeparator;
     }
 
     /**
-     * the before string in the {@code TEMPLATE} clause of the query.
+     * the before expression in the {@code TEMPLATE} clause of the query.
      */
-    private String templateClauseBefore = null;
+    private Expr templateClauseBefore = null;
 
     /**
-     * Returns if this query has a before string in the {@code TEMPLATE} clause.
+     * Returns if this query has a before expression in the {@code TEMPLATE} clause.
      *
-     * @return if this query has a before string in the {@code TEMPLATE} clause
+     * @return if this query has a before expression in the {@code TEMPLATE} clause
      */
     public boolean hasTemplateClauseBefore() {
         return templateClauseBefore != null;
     }
 
     /**
-     * Returns the before string in the {@code TEMPLATE} clause.
+     * Returns the before expression in the {@code TEMPLATE} clause.
      *
-     * @return the before string in the {@code TEMPLATE} clause
+     * @return the before expression in the {@code TEMPLATE} clause
      */
-    public String getTemplateClauseBefore() {
+    public Expr getTemplateClauseBefore() {
         return templateClauseBefore;
     }
 
     /**
-     * Set the before string in the {@code TEMPLATE} clause.
+     * Set the before expression in the {@code TEMPLATE} clause.
      *
      * @param templateClauseBefore the before string.
      */
-    public void setTemplateClauseBefore(String templateClauseBefore) {
+    public void setTemplateClauseBefore(Expr templateClauseBefore) {
         this.templateClauseBefore = templateClauseBefore;
     }
     
     /**
-     * the after string in the {@code TEMPLATE} clause of the query.
+     * the after expression in the {@code TEMPLATE} clause of the query.
      */
-    private String templateClauseAfter = null;
+    private Expr templateClauseAfter = null;
 
     /**
-     * Returns if this query has a after string in the {@code TEMPLATE} clause.
+     * Returns if this query has a after expression in the {@code TEMPLATE} clause.
      *
-     * @return if this query has a after string in the {@code TEMPLATE} clause
+     * @return if this query has a after expression in the {@code TEMPLATE} clause
      */
     public boolean hasTemplateClauseAfter() {
         return templateClauseAfter != null;
     }
 
     /**
-     * Returns the after string in the {@code TEMPLATE} clause.
+     * Returns the after expression in the {@code TEMPLATE} clause.
      *
-     * @return the after string in the {@code TEMPLATE} clause
+     * @return the after expression in the {@code TEMPLATE} clause
      */
-    public String getTemplateClauseAfter() {
+    public Expr getTemplateClauseAfter() {
         return templateClauseAfter;
     }
 
     /**
-     * Set the after string in the {@code TEMPLATE} clause.
+     * Set the after expression in the {@code TEMPLATE} clause.
      *
      * @param templateClauseAfter the after string.
      */
-    public void setTemplateClauseAfter(String templateClauseAfter) {
+    public void setTemplateClauseAfter(Expr templateClauseAfter) {
         this.templateClauseAfter = templateClauseAfter;
     }
     

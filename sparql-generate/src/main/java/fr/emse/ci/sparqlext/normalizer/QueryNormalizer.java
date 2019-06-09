@@ -108,9 +108,21 @@ public class QueryNormalizer implements SPARQLExtQueryVisitor {
     public void visitTemplateClause(SPARQLExtQuery query) {
         final NodeExprNormalizer nenzer = new NodeExprNormalizer();
         normalizeNameAndParams(query, nenzer);
+        if(query.hasTemplateClauseBefore()) {
+            Expr expr = enzer.normalize(query.getTemplateClauseBefore());
+            query.setTemplateClauseBefore(expr);
+        }
         if (query.hasTemplateClause()) {
             List<Element> group = normalizeOutput(query.getTemplateClause(), nenzer);
             query.setTemplateClause(group);
+        }
+        if(query.hasTemplateClauseSeparator()) {
+            Expr expr = enzer.normalize(query.getTemplateClauseSeparator());
+            query.setTemplateClauseSeparator(expr);
+        }
+        if(query.hasTemplateClauseAfter()) {
+            Expr expr = enzer.normalize(query.getTemplateClauseAfter());
+            query.setTemplateClauseAfter(expr);
         }
         if (nenzer.hasBindings()) {
             throw new SPARQLExtException("Should not expect bindings here.");

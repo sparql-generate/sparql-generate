@@ -39,6 +39,11 @@ import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.engine.binding.Binding;
 import org.apache.jena.sparql.engine.binding.BindingFactory;
 import org.apache.jena.sparql.engine.binding.BindingMap;
+import org.apache.jena.sparql.expr.Expr;
+import org.apache.jena.sparql.expr.ExprEvalException;
+import org.apache.jena.sparql.expr.NodeValue;
+import org.apache.jena.sparql.function.FunctionEnv;
+import org.apache.jena.sparql.function.FunctionEnvBase;
 import org.apache.jena.sparql.util.Context;
 
 /**
@@ -292,13 +297,7 @@ public final class RootPlanImpl extends RootPlanBase {
                 f = futureResultSet.thenApplyAsync((results) -> {
                     final List<Binding> newBindings = new ArrayList<>();
                     while (results.hasNext()) {
-                        final QuerySolution sol = results.next();
-
-                        final BindingMap p = BindingFactory.create();
-                        for (Iterator<String> it = sol.varNames(); it.hasNext();) {
-                            final String varName = it.next();
-                            p.add(SPARQLExt.allocVar(varName, context), sol.get(varName).asNode());
-                        }
+                        final Binding p = createBinding(results.next(), context);
                         newBindings.add(p);
                     }
                     return newBindings;
@@ -340,16 +339,17 @@ public final class RootPlanImpl extends RootPlanBase {
     private void execTemplatePlan(ResultSet results, Consumer<String> outputTemplate, Context context) {
         final StringBuilder sb = new StringBuilder();
         boolean first = true;
+        final FunctionEnv env = new FunctionEnvBase(context);
         while (results.hasNext()) {
+            QuerySolution sol = results.next();
             if(first && query.hasTemplateClauseBefore()) {
-                String before = query.getTemplateClauseBefore();
-                sb.append(processNewLines(before, context));
+                Expr before = query.getTemplateClauseBefore();
+                sb.append(getExprEval(before, sol, context, env));
             }
             if (!first && query.hasTemplateClauseSeparator()) {
-                String separator = query.getTemplateClauseSeparator();
-                sb.append(processNewLines(separator, context));
+                Expr separator = query.getTemplateClauseSeparator();
+                sb.append(getExprEval(separator, sol, context, env));
             }
-            QuerySolution sol = results.next();
             if (!sol.contains("out")) {
                 LOG.debug("Variable ?out not bound");
                 continue;
@@ -362,13 +362,13 @@ public final class RootPlanImpl extends RootPlanBase {
             sb.append(processNewLines(out, context));
             first = false;
             if(!results.hasNext() && query.hasTemplateClauseAfter()) {
-                String after = query.getTemplateClauseAfter();
-                sb.append(processNewLines(after, context));
+                Expr after = query.getTemplateClauseSeparator();
+                sb.append(getExprEval(after, sol, context, env));
             }
         }
         outputTemplate.accept(sb.toString());
     }
-
+    
     private String processNewLines(final String out, final Context context) {
         StringBuilder buf = new StringBuilder(out);
         String control = SPARQLExt.getIndentControl(context);
@@ -394,6 +394,34 @@ public final class RootPlanImpl extends RootPlanBase {
 
     private <T> CompletableFuture<Void> allOf(Collection<CompletableFuture<T>> futures) {
         return CompletableFuture.allOf(futures.toArray(new CompletableFuture[futures.size()]));
+    }
+
+    private Binding createBinding(
+            final QuerySolution sol,
+            final Context context) {
+        final BindingMap p = BindingFactory.create();
+        for (Iterator<String> it = sol.varNames(); it.hasNext();) {
+            final String varName = it.next();
+            p.add(SPARQLExt.allocVar(varName, context), sol.get(varName).asNode());
+        }
+        return p;
+    }
+
+    private String getExprEval(Expr before, QuerySolution sol, Context context, FunctionEnv env) {
+        Binding binding = createBinding(sol, context);
+        try {
+            NodeValue nv = before.eval(binding, env);
+            if(nv == null) {
+                return "";
+            }
+            if(!nv.isLiteral()) {
+                throw new ExprEvalException("Expr did not eval as a literal.");
+            }
+            return processNewLines(nv.asNode().getLiteralLexicalForm(), context);
+        } catch(ExprEvalException ex) {
+            LOG.debug("Could not evaluate expression 'before'" + ex.getMessage());
+        }
+        return "";
     }
 
 }
