@@ -362,7 +362,7 @@ public final class RootPlanImpl extends RootPlanBase {
             sb.append(processNewLines(out, context));
             first = false;
             if(!results.hasNext() && query.hasTemplateClauseAfter()) {
-                Expr after = query.getTemplateClauseSeparator();
+                Expr after = query.getTemplateClauseAfter();
                 sb.append(getExprEval(after, sol, context, env));
             }
         }
