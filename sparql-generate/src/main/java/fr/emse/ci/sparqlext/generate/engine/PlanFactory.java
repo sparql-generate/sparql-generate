@@ -171,10 +171,10 @@ public class PlanFactory {
             LOG.debug("Query has embedded expressions. Will be normalized");
             String qs = query.toString();
             SPARQLExtQuery query2;
-            if (!query.isNamedSubQuery()) {
-                query2 = (SPARQLExtQuery) QueryFactory.create(qs, SPARQLExt.SYNTAX);
-            } else {
+            if(query.isNamedSubQuery() || !query.hasName() && query.hasSignature()) {
                 query2 = (SPARQLExtQuery) ParserSPARQLExt.parseSubQuery(query, qs);
+            } else {
+                query2 = (SPARQLExtQuery) QueryFactory.create(qs, SPARQLExt.SYNTAX);
             }
             query2.normalize();
             return make(query2, initial);
@@ -598,6 +598,11 @@ public class PlanFactory {
 
         });
         Query newQuery = output.cloneQuery();
+        if(newQuery.hasAggregators()) {
+            if(query.hasSignature()) {
+                query.getSignature().forEach(newQuery::addGroupBy);
+            }
+        }
         LOG.trace(String.format("Generated SELECT query %s", newQuery.toString()));
         return new SelectPlan(newQuery, query.isSelectType());
     }
