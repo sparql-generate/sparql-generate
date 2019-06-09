@@ -43,6 +43,7 @@ import org.apache.jena.sparql.syntax.ElementBind;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 import fr.emse.ci.sparqlext.query.SPARQLExtQueryVisitor;
+import fr.emse.ci.sparqlext.serializer.SPARQLExtFmtExprSPARQL;
 import fr.emse.ci.sparqlext.syntax.ElementBox;
 import fr.emse.ci.sparqlext.syntax.ElementExpr;
 import fr.emse.ci.sparqlext.syntax.ElementFormat;
@@ -56,10 +57,13 @@ import org.apache.jena.query.QueryParseException;
 import org.apache.jena.sparql.expr.E_Function;
 import org.apache.jena.sparql.expr.E_Str;
 import org.apache.jena.sparql.expr.ExprAggregator;
+import org.apache.jena.sparql.expr.NodeValue;
 import org.apache.jena.sparql.expr.aggregate.AggGroupConcat;
 import org.apache.jena.sparql.expr.aggregate.AggGroupConcatDistinct;
 import org.apache.jena.sparql.expr.aggregate.Aggregator;
+import org.apache.jena.sparql.expr.nodevalue.NodeValueDT;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueString;
+import org.apache.jena.sparql.serializer.FmtExprSPARQL;
 import org.apache.jena.sparql.syntax.ElementGroup;
 
 /**
@@ -673,7 +677,9 @@ public class PlanFactory {
 
         @Override
         public void visit(ElementSubExtQuery el) {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            SPARQLExtQuery query = el.getQuery();
+            NodeValue n = NodeValue.makeNode(query.toString(), null, SPARQLExt.MEDIA_TYPE_URI);
+            result = new E_Function(ST.callTemplate, new ExprList(n));
         }
 
     };

@@ -87,7 +87,7 @@ public class SPARQLExtQuerySerializer implements SPARQLExtQueryVisitor {
         if(!query.hasName() || query.hasTemplateClause()) {
             out.print("{");
             if(query.getTemplateStart()!=null) {
-                out.print("ONCE ");
+                out.print(" ONCE ");
                 NodeValue n = new NodeValueString(query.getTemplateStart());
                 fmtExpr.format(n);
                 out.print(" ");
@@ -107,7 +107,7 @@ public class SPARQLExtQuerySerializer implements SPARQLExtQueryVisitor {
                 out.decIndent(BLOCK_INDENT);
             }
             if(query.getTemplateEnd()!=null) {
-                out.print("ONCE ");
+                out.print(" ONCE ");
                 NodeValue n = new NodeValueString(query.getTemplateEnd());
                 fmtExpr.format(n);
                 out.print(" ");
