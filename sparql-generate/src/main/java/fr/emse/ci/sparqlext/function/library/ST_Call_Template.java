@@ -19,6 +19,7 @@ import fr.emse.ci.sparqlext.SPARQLExt;
 import fr.emse.ci.sparqlext.generate.engine.BNodeMap;
 import fr.emse.ci.sparqlext.generate.engine.PlanFactory;
 import fr.emse.ci.sparqlext.generate.engine.RootPlan;
+import fr.emse.ci.sparqlext.lang.ParserSPARQLExt;
 import fr.emse.ci.sparqlext.query.SPARQLExtQuery;
 import fr.emse.ci.sparqlext.stream.LookUpRequest;
 import fr.emse.ci.sparqlext.stream.SPARQLExtStreamManager;
@@ -154,9 +155,7 @@ public class ST_Call_Template implements Function {
             if (loadedPlans.containsKey(queryString)) {
                 return loadedPlans.get(queryString);
             }
-            final SPARQLExtQuery q
-                    = (SPARQLExtQuery) QueryFactory.create(queryString,
-                            SPARQLExt.SYNTAX);
+            final SPARQLExtQuery q = ParserSPARQLExt.parseSubQuery(queryString);
             loadedQueries.put(queryString, q);
             final RootPlan plan = PlanFactory.createPlanForSubQuery(q);
             loadedPlans.put(queryString, plan);
