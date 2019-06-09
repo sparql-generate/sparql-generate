@@ -75,9 +75,9 @@ public class SPARQLExtFmtUtils {
                     cString = sb.toString();
                     cString = cString.replace("{", "\\{");
                     cString = cString.replace("}", "\\}");
-                    cString = cString.replace("\\\\n", "\\n");
-                    cString = cString.replace("\\\\{", "\\{");
-                    cString = cString.replace("\\\\}", "\\}");
+//                    cString = cString.replace("\\\\n", "\\n");
+//                    cString = cString.replace("\\\\{", "\\{");
+//                    cString = cString.replace("\\\\}", "\\}");
                     out.print(cString);
                 } else {
                     out.print("{ ");
@@ -122,7 +122,7 @@ public class SPARQLExtFmtUtils {
             String s = FmtUtils.stringForNode(n, context);
             s = s.replace("{", "\\{");
             s = s.replace("}", "\\}");
-            s = s.replace("\\\\", "\\");
+//            s = s.replace("\\\\", "\\");
             out.print(s);
         }
     }

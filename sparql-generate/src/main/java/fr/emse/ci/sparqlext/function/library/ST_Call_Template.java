@@ -204,7 +204,7 @@ public class ST_Call_Template implements Function {
         final Map<String, SPARQLExtQuery> loadedQueries = (Map<String, SPARQLExtQuery>) env.getContext().get(SPARQLExt.LOADED_QUERIES);
         final SPARQLExtQuery expandedQuery = loadedQueries.get(queryString);
         if(!expandedQuery.hasSignature()) {
-            BindingFactory.binding(binding);
+            return BindingFactory.binding(binding);
         }
         final BindingMap newBinding = BindingFactory.create();
         for(Var v : expandedQuery.getSignature()) {
