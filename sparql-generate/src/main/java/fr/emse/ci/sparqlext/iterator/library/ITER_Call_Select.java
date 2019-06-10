@@ -1,0 +1,139 @@
+/*
+ * Copyright 2016 Ecole des Mines de Saint-Etienne.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package fr.emse.ci.sparqlext.iterator.library;
+
+import fr.emse.ci.sparqlext.SPARQLExt;
+import fr.emse.ci.sparqlext.generate.engine.PlanFactory;
+import fr.emse.ci.sparqlext.generate.engine.RootPlan;
+import fr.emse.ci.sparqlext.iterator.IteratorStreamFunctionBase1;
+import fr.emse.ci.sparqlext.query.SPARQLExtQuery;
+import fr.emse.ci.sparqlext.stream.LookUpRequest;
+import fr.emse.ci.sparqlext.stream.SPARQLExtStreamManager;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.Charset;
+
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import org.apache.commons.io.IOUtils;
+
+import org.apache.jena.query.Dataset;
+import org.apache.jena.query.QueryFactory;
+import org.apache.jena.query.QueryParseException;
+import org.apache.jena.query.QuerySolution;
+import org.apache.jena.query.ResultSet;
+import org.apache.jena.rdf.model.RDFNode;
+import org.apache.jena.sparql.expr.ExprEvalException;
+import org.apache.jena.sparql.expr.NodeValue;
+import org.apache.jena.sparql.expr.nodevalue.NodeValueNode;
+import org.apache.jena.sparql.util.Context;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
+
+/**
+ * Iterator function
+ * <a href="http://w3id.org/sparql-generate/iter/call-select">iter:call-select</a>
+ * takes as input a IRI to a SPARQL-Select document, runs it on the current 
+ * Dataset, and binds the given variables to the output of the select query, in
+ * order.
+ *
+ * <ul>
+ * <li>Param 1: (select) is the IRI to a SPARQL-Select document</li>
+ * </ul>
+ * 
+ * Multiple variables may be bound: variable <em>n</em> is bound to the value of the
+ * <em>n</em><sup>th</sup> project variable of the select query.
+ *
+ * @author Maxime Lefrançois <maxime.lefrançois@emse.fr>
+ */
+public class ITER_Call_Select extends IteratorStreamFunctionBase1 {
+    
+    private static final Logger LOG = LoggerFactory.getLogger(ITER_Call_Select.class);
+
+    public static final String URI = SPARQLExt.ITER + "call-select";
+
+    @Override
+    public void exec(
+            final NodeValue select, 
+            final Consumer<List<List<NodeValue>>> collectionListNodeValue) {
+        if (!select.isIRI()) {
+            LOG.debug("The first parameter must be a IRI.");
+            throw new ExprEvalException("The first parameter must be a IRI.");
+        }
+        String queryName = select.asNode().getURI();
+        final Context context = getContext();
+        RootPlan plan = getQuery(queryName, context);
+        Dataset dataset = (Dataset) context.get(SPARQLExt.DATASET);
+        Context newContext = SPARQLExt.createContext(context);
+
+        CompletableFuture<Void> planExecution = plan.execSelect(dataset,(result)->{
+            List<List<NodeValue>> list = getListNodeValues(result);
+            collectionListNodeValue.accept(list);
+        }, newContext);
+        registerFuture(planExecution);
+        complete();
+    }
+    
+    private RootPlan getQuery(String queryName, Context context) {
+        try {
+            final Map<String, RootPlan> loadedPlans = (Map<String, RootPlan>) context.get(SPARQLExt.LOADED_PLANS);
+            final Map<String, SPARQLExtQuery> loadedQueries = (Map<String, SPARQLExtQuery>) context.get(SPARQLExt.LOADED_QUERIES);
+            if (loadedPlans.containsKey(queryName)) {
+                return loadedPlans.get(queryName);
+            }
+            final SPARQLExtStreamManager sm = (SPARQLExtStreamManager) context.get(SPARQLExt.STREAM_MANAGER);
+            final LookUpRequest request = new LookUpRequest(queryName, SPARQLExt.MEDIA_TYPE);
+            final InputStream in = sm.open(request);
+            String qString = IOUtils.toString(in, Charset.forName("UTF-8"));
+            final SPARQLExtQuery q
+                    = (SPARQLExtQuery) QueryFactory.create(qString,
+                            SPARQLExt.SYNTAX);
+            if(!q.isSelectType()) {
+                throw new ExprEvalException("Expecting a SELECT query. Got " + q.getQueryType());
+            }
+            loadedQueries.put(queryName, q);
+            final RootPlan plan = PlanFactory.createPlanForSubQuery(q);
+            loadedPlans.put(queryName, plan);
+            return plan;
+        } catch (NullPointerException | IOException | QueryParseException ex) {
+            String message = "Error while loading the query file " + queryName;
+            throw new ExprEvalException(message, ex);
+        }        
+    }
+
+    private List<List<NodeValue>> getListNodeValues(ResultSet result) {
+        List<String> resultVars = result.getResultVars();
+        List<List<NodeValue>> listNodeValues = new ArrayList<>();
+        while(result.hasNext()) {
+            List<NodeValue> nodeValues = new ArrayList<>();
+            QuerySolution sol = result.next();
+            for(String var : resultVars) {
+                RDFNode rdfNode = sol.get(var);
+                if(rdfNode != null) {
+                    NodeValue n = new NodeValueNode(rdfNode.asNode());
+                    nodeValues.add(n);
+                } else {
+                    nodeValues.add(null);
+                }
+            }
+            listNodeValues.add(nodeValues);
+        }
+        return listNodeValues;
+    }
+    
+}
