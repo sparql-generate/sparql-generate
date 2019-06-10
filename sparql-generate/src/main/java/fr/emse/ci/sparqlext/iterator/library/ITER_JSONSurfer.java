@@ -26,8 +26,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.function.Function;
+import java.util.function.Consumer;
 import org.apache.commons.io.IOUtils;
 import org.apache.jena.atlas.web.TypedInputStream;
 import org.apache.jena.graph.Node;
@@ -93,19 +92,15 @@ public class ITER_JSONSurfer extends IteratorStreamFunctionBase {
 
     private static final JsonSurfer surfer = JsonSurferGson.INSTANCE;
 
-    public final CompletableFuture<Void> future = new CompletableFuture<>();
-
-    public CompletableFuture<Void> returnedFuture = future;
-
     @Override
     public void checkBuild(ExprList args) {
         Objects.nonNull(args);
     }
 
     @Override
-    public CompletableFuture<Void> exec(
+    public void exec(
             final List<NodeValue> args,
-            final Function<List<List<NodeValue>>, CompletableFuture<Void>> collectionListNodeValue) {
+            final Consumer<List<List<NodeValue>>> collectionListNodeValue) {
         Objects.nonNull(args);
         if (args.size() < 2) {
             LOG.debug("Expecting at least two arguments.");
@@ -126,7 +121,6 @@ public class ITER_JSONSurfer extends IteratorStreamFunctionBase {
                     .buildAndSurf(jsonInput);
             LOG.debug("built and finished surfing");
             listener.stop();
-            return returnedFuture;
         } catch (ExprEvalException | IOException ex) {
             if (LOG.isDebugEnabled()) {
                 Node compressed = SPARQLExt.compress(json.asNode());
@@ -207,11 +201,11 @@ public class ITER_JSONSurfer extends IteratorStreamFunctionBase {
 
     private class Listener implements JsonPathListener {
 
-        private final Function<List<List<NodeValue>>, CompletableFuture<Void>> collectionListNodeValue;
+        private final Consumer<List<List<NodeValue>>> collectionListNodeValue;
         private final int rowsInABatch;
         private final com.jayway.jsonpath.JsonPath[] subqueries;
 
-        public Listener(Function<List<List<NodeValue>>, CompletableFuture<Void>> collectionListNodeValue, int rowsInABatch, com.jayway.jsonpath.JsonPath[] subqueries) {
+        public Listener(Consumer<List<List<NodeValue>>> collectionListNodeValue, int rowsInABatch, com.jayway.jsonpath.JsonPath[] subqueries) {
             this.collectionListNodeValue = collectionListNodeValue;
             this.rowsInABatch = rowsInABatch;
             this.subqueries = subqueries;
@@ -252,7 +246,7 @@ public class ITER_JSONSurfer extends IteratorStreamFunctionBase {
         }
         
         private void send() {
-            returnedFuture = CompletableFuture.allOf(returnedFuture, collectionListNodeValue.apply(nodeValues));
+            collectionListNodeValue.accept(nodeValues);
             nodeValues = new ArrayList<>();
         }
 
@@ -260,6 +254,7 @@ public class ITER_JSONSurfer extends IteratorStreamFunctionBase {
             if(rowsInThisBatch>0) {
                 send();
             }
+            complete();
         }
 
     }

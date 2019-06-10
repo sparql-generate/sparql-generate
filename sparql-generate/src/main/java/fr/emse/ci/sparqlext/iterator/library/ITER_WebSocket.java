@@ -28,14 +28,12 @@ import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
-import java.util.function.Function;
+import java.util.function.Consumer;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.query.QueryBuildException;
@@ -99,8 +97,6 @@ public class ITER_WebSocket extends IteratorStreamFunctionBase {
      */
     public static final String URI = SPARQLExt.ITER + "WebSocket";
 
-    private final CompletableFuture<Void> future = new CompletableFuture<>();
-
     @Override
     public void checkBuild(ExprList args) {
         if (args.size() != 1 && args.size() != 2) {
@@ -112,7 +108,7 @@ public class ITER_WebSocket extends IteratorStreamFunctionBase {
     }
 
     @Override
-    public CompletableFuture<Void> exec(List<NodeValue> args, Function<List<List<NodeValue>>, CompletableFuture<Void>> listListNodeValue) {
+    public void exec(List<NodeValue> args, Consumer<List<List<NodeValue>>> listListNodeValue) {
         if (!args.get(0).isString() && !args.get(0).isIRI()) {
             LOG.debug("First argument must be a string or a URI, got: " + args.get(0));
             throw new ExprEvalException("First argument must be a string or a URI, got: " + args.get(0));
@@ -126,8 +122,6 @@ public class ITER_WebSocket extends IteratorStreamFunctionBase {
         String query = args.size() == 2 ? args.get(1).asString() : "";
 
         final Executor executor = (Executor) getContext().get(SPARQLExt.EXECUTOR);
-        final List<CompletableFuture<Void>> cfs = new ArrayList<>();
-        cfs.add(future);
         try {
             WebSocketClient webSocketClient = new WebSocketClient(new URI(url_s)) {
                 @Override
@@ -143,14 +137,14 @@ public class ITER_WebSocket extends IteratorStreamFunctionBase {
                         }
                         Node node = NodeFactory.createLiteral(s);
                         NodeValue nodeValue = new NodeValueNode(node);
-                        cfs.add(listListNodeValue.apply(Collections.singletonList(Collections.singletonList(nodeValue))));
+                        listListNodeValue.accept(Collections.singletonList(Collections.singletonList(nodeValue)));
                     });
                 }
 
                 @Override
                 public void onClose(int i, String s, boolean b) {
                     LOG.debug("Websocket connection closed, stopping iterator.");
-                    future.complete(null);
+                    complete();
                 }
 
                 @Override
@@ -178,7 +172,6 @@ public class ITER_WebSocket extends IteratorStreamFunctionBase {
             LOG.debug("WebSocket interrupted " + args);
             throw new ExprEvalException("InterruptedException " + args, e);
         }
-        return CompletableFuture.allOf(cfs.toArray(new CompletableFuture[cfs.size()]));
     }
 
 }

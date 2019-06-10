@@ -30,8 +30,8 @@ import java.util.ArrayList;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import org.apache.commons.io.IOUtils;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueString;
@@ -104,8 +104,6 @@ public class ITER_MQTTSubscribe extends IteratorStreamFunctionBase {
         return OPTIONS;
     }
 
-    private final CompletableFuture<Void> future = new CompletableFuture<>();
-
     @Override
     public void checkBuild(ExprList args) {
         if (args.size() < 1) {
@@ -115,7 +113,7 @@ public class ITER_MQTTSubscribe extends IteratorStreamFunctionBase {
     }
 
     @Override
-    public CompletableFuture<Void> exec(List<NodeValue> args, Function<List<List<NodeValue>>, CompletableFuture<Void>> listListNodeValue) {
+    public void exec(List<NodeValue> args, Consumer<List<List<NodeValue>>> listListNodeValue) {
         if (!args.get(0).isString() && !args.get(0).isIRI()) {
             LOG.debug("First argument must be a string or a URI, got: " + args.get(0));
             throw new ExprEvalException("First argument must be a string, got: " + args.get(0));
@@ -132,8 +130,6 @@ public class ITER_MQTTSubscribe extends IteratorStreamFunctionBase {
         }
 
         final Executor executor = (Executor) getContext().get(SPARQLExt.EXECUTOR);
-        final List<CompletableFuture<Void>> cfs = new ArrayList<>();
-        cfs.add(future);
         try {
             IMqttClient mqttClient = new MqttClient(url_s, MqttClient.generateClientId());
 
@@ -145,7 +141,7 @@ public class ITER_MQTTSubscribe extends IteratorStreamFunctionBase {
                     executor.execute(() -> {
                         LOG.debug("MQTT Connection is lost", cause);
                     });
-                    future.complete(null);
+                    complete();
                 }
 
                 @Override
@@ -159,7 +155,7 @@ public class ITER_MQTTSubscribe extends IteratorStreamFunctionBase {
                         List<NodeValue> nv = new ArrayList<>();
                         nv.add(new NodeValueString(topic));
                         nv.add(PARSER.apply(message.getPayload()));
-                        cfs.add(listListNodeValue.apply(Collections.singletonList(nv)));
+                        listListNodeValue.accept(Collections.singletonList(nv));
                     });
                 }
 
@@ -190,7 +186,6 @@ public class ITER_MQTTSubscribe extends IteratorStreamFunctionBase {
                 throw new ExprEvalException("A MqttException occurred", e);
             }
         }
-        return CompletableFuture.allOf(cfs.toArray(new CompletableFuture[cfs.size()]));
     }
 
 }

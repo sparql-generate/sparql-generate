@@ -39,6 +39,7 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import org.apache.commons.io.IOUtils;
 
@@ -116,14 +117,10 @@ public class ITER_CSV extends IteratorStreamFunctionBase {
      */
     public static final String URI = SPARQLExt.ITER + "CSV";
 
-    public final CompletableFuture<Void> future = new CompletableFuture<>();
-
-    public CompletableFuture<Void> returnedFuture = future;
-
     @Override
-    public CompletableFuture<Void> exec(
+    public void exec(
             final List<NodeValue> args,
-            final Function<List<List<NodeValue>>, CompletableFuture<Void>> collectionListNodeValue) {
+            final Consumer<List<List<NodeValue>>> collectionListNodeValue) {
         Objects.nonNull(args);
         if (args.isEmpty()) {
             LOG.debug("Must have at leat one argument");
@@ -144,7 +141,6 @@ public class ITER_CSV extends IteratorStreamFunctionBase {
         } catch (Exception ex) {
             LOG.warn("Exception while fetching or parsing CSV document", ex);
         }
-        return returnedFuture;
     }
 
     @Override
@@ -154,7 +150,7 @@ public class ITER_CSV extends IteratorStreamFunctionBase {
     private void setProcessor(
             final List<NodeValue> args,
             final CsvParserSettings parserSettings,
-            final Function<List<List<NodeValue>>, CompletableFuture<Void>> collectionListNodeValue) {
+            final Consumer<List<List<NodeValue>>> collectionListNodeValue) {
         final int rowsInABatch;
         if (!args.isEmpty() && args.get(0).isInteger()) {
             int batch = args.remove(0).getInteger().intValue();
@@ -205,11 +201,11 @@ public class ITER_CSV extends IteratorStreamFunctionBase {
             public void processEnded(ParsingContext context) {
                 LOG.trace("Last batch of " + rowsInThisBatch + " rows, " + total + " total.");
                 send();
-                future.complete(null);
+                complete();
             }
 
             private void send() {
-                returnedFuture = CompletableFuture.allOf(returnedFuture, collectionListNodeValue.apply(nodeValues));
+                collectionListNodeValue.accept(nodeValues);
                 nodeValues = new ArrayList<>();
             }
 

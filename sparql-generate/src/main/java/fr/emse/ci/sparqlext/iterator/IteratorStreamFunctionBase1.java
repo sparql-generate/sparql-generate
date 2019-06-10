@@ -18,8 +18,7 @@
 package fr.emse.ci.sparqlext.iterator;
 
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.function.Function;
+import java.util.function.Consumer;
 import org.apache.jena.query.QueryBuildException;
 import org.apache.jena.sparql.ARQInternalErrorException;
 import org.apache.jena.sparql.expr.ExprEvalException;
@@ -46,7 +45,7 @@ public abstract class IteratorStreamFunctionBase1 extends IteratorStreamFunction
      * {@inheritDoc}
      */
     @Override
-    public final CompletableFuture<Void> exec(List<NodeValue> args, Function<List<List<NodeValue>>, CompletableFuture<Void>> nodeValuesStream) {
+    public final void exec(List<NodeValue> args, Consumer<List<List<NodeValue>>> nodeValuesStream) {
         if (args == null) {
             throw new ARQInternalErrorException("SelectorBase1:"
                     + " Null args list");
@@ -56,11 +55,11 @@ public abstract class IteratorStreamFunctionBase1 extends IteratorStreamFunction
                     + " arguments: Wanted 1, got " + args.size());
         }
         NodeValue v1 = args.get(0);
-        return exec(v1, nodeValuesStream);
+        exec(v1, nodeValuesStream);
     }
 
     /**
      * {@inheritDoc}
      */
-    public abstract CompletableFuture<Void> exec(NodeValue v, Function<List<List<NodeValue>>, CompletableFuture<Void>> nodeValuesStream);
+    public abstract void exec(NodeValue v, Consumer<List<List<NodeValue>>> nodeValuesStream);
 }

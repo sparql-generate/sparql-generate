@@ -16,13 +16,16 @@
 package fr.emse.ci.sparqlext.iterator;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import org.apache.jena.query.QueryBuildException;
 import org.apache.jena.sparql.ARQInternalErrorException;
 import org.apache.jena.sparql.engine.binding.Binding;
 import org.apache.jena.sparql.expr.Expr;
+import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.ExprList;
 import org.apache.jena.sparql.expr.NodeValue;
 import org.apache.jena.sparql.function.FunctionEnv;
@@ -45,6 +48,45 @@ public abstract class IteratorStreamFunctionBase implements IteratorFunction {
      * The function environment.
      */
     private FunctionEnv env;
+
+    private final CompletableFuture<Void> returnedFuture = new CompletableFuture<>();
+
+    private final List<CompletableFuture<Void>> pendingFutures = Collections.synchronizedList(new ArrayList<>());
+
+    private final CompletableFuture<Void> future = new CompletableFuture<>();
+
+    private void waitFor(CompletableFuture<Void> future) {
+        pendingFutures.add(future);
+        LOG.info("Will wait for " + future + " now waiting for " + pendingFutures.size());
+    }
+
+    protected final void registerFuture(CompletableFuture<Void> newFuture) {
+        waitFor(newFuture);
+        newFuture.thenRun(() -> stopWaiting(newFuture));
+    }
+
+    private void stopWaiting(CompletableFuture<Void> completedFuture) {
+        LOG.info("stop waiting " + completedFuture);
+        if (completedFuture.isCancelled()) {
+            returnedFuture.completeExceptionally(new InterruptedException());
+        } else if (completedFuture.isCompletedExceptionally()) {
+            completedFuture.exceptionally((t) -> {
+                returnedFuture.completeExceptionally(t);
+                return null;
+            });
+        } else if (completedFuture.isDone()) {
+            pendingFutures.remove(completedFuture);
+        }
+        LOG.info("still waiting " + pendingFutures.size());
+        if (pendingFutures.isEmpty()) {
+            returnedFuture.complete(null);
+        }
+    }
+    
+    protected final void complete() {
+        future.complete(null);
+        stopWaiting(future);
+    }
 
     /**
      * Build a iterator function execution with the given arguments, and operate
@@ -71,8 +113,12 @@ public abstract class IteratorStreamFunctionBase implements IteratorFunction {
     public abstract void checkBuild(ExprList args);
 
     @Override
-    public CompletableFuture<Void> exec(
-            Binding binding, ExprList args, FunctionEnv env, Function<List<List<NodeValue>>, CompletableFuture<Void>> collectionListNodeValue) {
+    public final CompletableFuture<Void> exec(
+            final Binding binding,
+            final ExprList args,
+            final FunctionEnv env,
+            final Function<List<List<NodeValue>>, CompletableFuture<Void>> collectionListNodeValue) {
+        registerFuture(future);
         this.env = env;
         if (args == null) {
             throw new ARQInternalErrorException("IteratorFunctionBase:"
@@ -84,9 +130,17 @@ public abstract class IteratorStreamFunctionBase implements IteratorFunction {
             NodeValue x = e.eval(binding, env);
             evalArgs.add(x);
         }
-
-        return exec(evalArgs, collectionListNodeValue);
+        try {
+            exec(evalArgs, (listNodeValues) -> {
+                registerFuture(collectionListNodeValue.apply(listNodeValues));
+            });
+        } catch (ExprEvalException ex) {
+            returnedFuture.completeExceptionally(ex);
+        }
+        return returnedFuture;
     }
+    
+    
 
     /**
      * Return the Context object for this execution.
@@ -104,6 +158,6 @@ public abstract class IteratorStreamFunctionBase implements IteratorFunction {
      * @param collectionListNodeValue - where to emit new future collections of
      * lists of values
      */
-    public abstract CompletableFuture<Void> exec(List<NodeValue> args, Function<List<List<NodeValue>>, CompletableFuture<Void>> collectionListNodeValue);
+    public abstract void exec(List<NodeValue> args, Consumer<List<List<NodeValue>>> collectionListNodeValue);
 
 }

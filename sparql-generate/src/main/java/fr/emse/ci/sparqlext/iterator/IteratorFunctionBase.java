@@ -16,8 +16,7 @@
 package fr.emse.ci.sparqlext.iterator;
 
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.function.Function;
+import java.util.function.Consumer;
 import org.apache.jena.sparql.expr.NodeValue;
 
 /**
@@ -26,9 +25,9 @@ import org.apache.jena.sparql.expr.NodeValue;
 public abstract class IteratorFunctionBase extends IteratorStreamFunctionBase {
 
     @Override
-    public final CompletableFuture<Void> exec(List<NodeValue> args, Function<List<List<NodeValue>>, CompletableFuture<Void>> nodeValuesStream) {
-        List<List<NodeValue>> nodeValues = exec(args);
-        return nodeValuesStream.apply(nodeValues);
+    public final void exec(List<NodeValue> args, Consumer<List<List<NodeValue>>> nodeValuesStream) {
+        nodeValuesStream.accept(exec(args));
+        complete();
     }
 
     /**

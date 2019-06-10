@@ -35,9 +35,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
+import java.util.function.Consumer;
 import org.apache.commons.io.IOUtils;
 import org.apache.jena.atlas.web.TypedInputStream;
 import org.apache.jena.datatypes.RDFDatatype;
@@ -92,7 +91,7 @@ public class ITER_HTTPGet extends IteratorStreamFunctionBase {
     }
 
     @Override
-    public CompletableFuture<Void> exec(List<NodeValue> args, Function<List<List<NodeValue>>, CompletableFuture<Void>> listNodeValues) {
+    public void exec(List<NodeValue> args, Consumer<List<List<NodeValue>>> listNodeValues) {
         if (!args.get(0).isString() && !args.get(0).isIRI()) {
             throw new ExprEvalException("First argument must be a string or a URI, got: " + args.get(0));
         }
@@ -110,7 +109,6 @@ public class ITER_HTTPGet extends IteratorStreamFunctionBase {
         int times = args.size() == 3 ? args.get(2).getInteger().intValue() : Integer.MAX_VALUE;
 
         final SPARQLExtStreamManager sm = (SPARQLExtStreamManager) getContext().get(SPARQLExt.STREAM_MANAGER);
-        final Collection<CompletableFuture<Void>> cfs = new HashSet<>();
         for (int i = 0; i < times; i++) {
             long start = System.nanoTime();
             LOG.info("Call HTTPGet #" + i + " to " + url_s);
@@ -129,7 +127,7 @@ public class ITER_HTTPGet extends IteratorStreamFunctionBase {
                         LOG.debug("Message retrieved: \"\"\"" + compressed + "\"\"\"^^<" + datatypeUri + ">");
                     }
 
-                    cfs.add(listNodeValues.apply(Collections.singletonList(Collections.singletonList(outNode))));
+                    listNodeValues.accept(Collections.singletonList(Collections.singletonList(outNode)));
 
                 } catch (IOException ex) {
                     throw new ExprEvalException("An IOException occurred", ex);
@@ -144,7 +142,7 @@ public class ITER_HTTPGet extends IteratorStreamFunctionBase {
                 throw new ExprEvalException("Call HTTPGET to " + url_s + " Interrupted");
             }
         }
-        return CompletableFuture.allOf(cfs.toArray(new CompletableFuture[cfs.size()]));
+        complete();
     }
 
 }
