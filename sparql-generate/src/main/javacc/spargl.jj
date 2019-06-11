@@ -96,7 +96,8 @@ void ExtQuery() : { }
 {
   Prologue()
   (
-    ( SelectQuery()
+    ( 
+  SelectQuery() // extended with name and varlist
   //  | ConstructQuery()
   //  | DescribeQuery()
   //  | AskQuery()
@@ -164,7 +165,6 @@ void TemplateQuery() : { }
   { asSPARQLExtQuery().setBindingClauses(bindingClauses);}
   ( WhereClause() )?
   SolutionModifier()
-//  ( PostSelectClause() )?
 }
 void PerformQuery() : { }
 {
@@ -310,34 +310,30 @@ Token SubTemplateQuery() : { Token t; }
 {
   t = <TEMPLATE>
     { asSPARQLExtQuery().setQueryTemplateType() ; }
-
   ( 
     { Node n; } 
     n = VarOrXIri() 
     { asSPARQLExtQuery().setName(n); 
     asSPARQLExtQuery().isNamedSubQuery(true); }
-    (
-      { ExprList params; }
-      params = ArgList()
-      { asSPARQLExtQuery().setCallParameters(params); }
-    )?
+    { ExprList params; }
+    params = ArgList()
+    { asSPARQLExtQuery().setCallParameters(params); }
   |
     VarList()
     TemplateClause()
+    ( DatasetClause() )*
+    { List<Element> bindingClauses = new ArrayList<Element> (); Element elem;}
+    ( elem = BindingClauses() { bindingClauses.add(elem); } )*
+    { asSPARQLExtQuery().setBindingClauses(bindingClauses);}
+    ( 
+      <WHERE>
+      { Element el ; }
+      { startWherePattern() ; }
+      el = GroupGraphPattern() { getQuery().setQueryPattern(el) ; }
+      { finishWherePattern() ; }
+    )?
+    SolutionModifier()
   )
-  ( DatasetClause() )*
-  { List<Element> bindingClauses = new ArrayList<Element> (); Element elem;}
-  ( elem = BindingClauses() { bindingClauses.add(elem); } )*
-  { asSPARQLExtQuery().setBindingClauses(bindingClauses);}
-  ( 
-    <WHERE>
-    { Element el ; }
-    { startWherePattern() ; }
-    el = GroupGraphPattern() { getQuery().setQueryPattern(el) ; }
-    { finishWherePattern() ; }
-  )?
-  SolutionModifier()
-//  ( PostSelectClause() )?
   { return t; }
 }
 void Pragma() : { } 
@@ -552,7 +548,7 @@ void PrefixDecl() : { Token t ; String iri ; }
 }
 void SelectQuery() : { }
 {
-  SelectClause()
+  NamedSelectClause()
   ( DatasetClause() )*
   { List<Element> bindingClauses = new ArrayList<Element> (); Element elem;}
   ( elem = BindingClauses() { bindingClauses.add(elem); } )*
@@ -566,6 +562,37 @@ void SubSelect() :{ }
   WhereClause()
   SolutionModifier()
   ValuesClause()
+}
+void NamedSelectClause() : { Var v ; Expr expr ; Node n ; }
+{
+  <SELECT>
+  { getQuery().setQuerySelectType() ; }
+  (
+    ( { String uri; } uri = SourceSelector() { asSPARQLExtQuery().setName(NodeFactory.createURI(uri)); } )
+    VarList()
+  )?
+  ( <DISTINCT> { getQuery().setDistinct(true);}
+  | <REDUCED> { getQuery().setReduced(true); }
+  )?
+  { allowAggregatesInExpressions = true ; }
+  (
+    (
+      v = Var() { getQuery().addResultVar(v) ; }
+    |
+      (
+        { v = null ; }
+        <LPAREN>
+        expr = Expression()
+        <AS> v = Var()
+        <RPAREN>
+        { getQuery().addResultVar(v, expr) ; }
+      )
+      { getQuery().setQueryResultStar(false) ; }
+    )+
+  |
+    <STAR> { getQuery().setQueryResultStar(true) ; }
+  )
+  { allowAggregatesInExpressions = false ; }
 }
 void SelectClause() : { Var v ; Expr expr ; Node n ; }
 {

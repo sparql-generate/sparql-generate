@@ -15,6 +15,7 @@
  */
 package fr.emse.ci.sparqlext.serializer;
 
+import fr.emse.ci.sparqlext.SPARQLExtException;
 import org.apache.jena.atlas.io.IndentedWriter;
 import org.apache.jena.sparql.core.Prologue;
 import fr.emse.ci.sparqlext.query.SPARQLExtQuery;
@@ -34,8 +35,6 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 import fr.emse.ci.sparqlext.query.SPARQLExtQueryVisitor;
 import org.apache.jena.query.Query;
-import org.apache.jena.sparql.expr.NodeValue;
-import org.apache.jena.sparql.expr.nodevalue.NodeValueString;
 
 /**
  * Extends the ARQ Query Serializer with SPARQL-Ext specificities.
@@ -178,8 +177,13 @@ public class SPARQLExtQuerySerializer implements SPARQLExtQueryVisitor {
     }
 
     @Override
-    public void visitSelectResultForm(Query query) {
+    public void visitSelectResultForm(Query q) {
+        if(!(q instanceof SPARQLExtQuery)) {
+            throw new SPARQLExtException("Expecting an instance of type SPARQLExtQuery:" + q);
+        }
+        SPARQLExtQuery query = (SPARQLExtQuery) q;
         out.print("SELECT ");
+        printName(query);
         if (query.isDistinct()) {
             out.print("DISTINCT ");
         }

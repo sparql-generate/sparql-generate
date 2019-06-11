@@ -172,7 +172,7 @@ public class PlanFactory {
             LOG.debug("Query has embedded expressions. Will be normalized");
             String qs = query.toString();
             SPARQLExtQuery query2;
-            if(query.isNamedSubQuery() || !query.hasName() && query.hasSignature()) {
+            if (query.isNamedSubQuery() || !query.hasName() && query.hasSignature()) {
                 query2 = (SPARQLExtQuery) ParserSPARQLExt.parseSubQuery(query, qs);
             } else {
                 query2 = (SPARQLExtQuery) QueryFactory.create(qs, SPARQLExt.SYNTAX);
@@ -599,12 +599,12 @@ public class PlanFactory {
 
         });
         Query newQuery = output.cloneQuery();
-        if(newQuery.hasAggregators()) {
-            if(query.hasSignature()) {
+        if (newQuery.hasAggregators()) {
+            if (query.hasSignature()) {
                 query.getSignature().forEach(newQuery::addGroupBy);
             }
         }
-        LOG.trace(String.format("Generated SELECT query %s", newQuery.toString()));
+        LOG.trace(String.format("Generated SELECT query\n%s", newQuery.toString()));
         return new SelectPlan(newQuery, query.isSelectType());
     }
 
@@ -684,7 +684,7 @@ public class PlanFactory {
         @Override
         public void visit(ElementSubExtQuery el) {
             SPARQLExtQuery query = el.getQuery();
-            if(query.isNamedSubQuery()) {
+            if (query.isNamedSubQuery()) {
                 ExprList exprList = new ExprList(NodeValueNode.makeNode(query.getName()));
                 exprList.addAll(query.getCallParameters());
                 result = new E_Function(ST.callTemplate, exprList);

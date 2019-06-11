@@ -224,13 +224,14 @@ public class ST_Call_Template implements Function {
         final List<Binding> values = new ArrayList<>();
         values.add(binding);
         BNodeMap bNodeMap = new BNodeMap();
+        Context newContext = SPARQLExt.createContext(env.getContext());
         StringBuilder sb = new StringBuilder();
-        final CompletableFuture<Void> future = plan.exec(inputDataset, vars, values, bNodeMap, env.getContext(), null, null, sb::append);
+        final CompletableFuture<Void> future = plan.exec(inputDataset, vars, values, bNodeMap, newContext, null, null, sb::append);
         try {
             future.get();
             return sb.toString();
         } catch (InterruptedException | ExecutionException ex) {
-            LOG.error("Error while executing the SPARQL-Select query", ex);
+            LOG.warn("Error while executing the SPARQL-Template query", ex);
             throw new ExprEvalException(ex);
         }
 
