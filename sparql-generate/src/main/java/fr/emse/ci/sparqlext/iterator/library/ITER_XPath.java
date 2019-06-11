@@ -182,7 +182,7 @@ public class ITER_XPath extends IteratorFunctionBase {
                     }
                 }
                 nodeValues.add(new NodeValueInteger(i));
-                nodeValues.add((i == size - 1) ? TRUE : FALSE);
+                nodeValues.add((i == size - 1) ? FALSE : TRUE);
                 listNodeValues.add(nodeValues);
             }
             return listNodeValues;
