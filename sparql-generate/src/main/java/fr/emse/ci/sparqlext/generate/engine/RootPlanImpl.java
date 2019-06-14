@@ -285,7 +285,9 @@ public final class RootPlanImpl extends RootPlanBase {
                 }, executor);
             }
         } else {
-            final List<Var> newVariables = selectPlan.getVars();
+            final List<Var> newVariables = new ArrayList<>();
+            newVariables.addAll(variables);
+            newVariables.addAll(selectPlan.getVars());
             final CompletableFuture<ResultSet> futureResultSet
                     = selectPlan.exec(inputDataset, variables, futureValues, context, executor);
             if (outputSelect != null) {

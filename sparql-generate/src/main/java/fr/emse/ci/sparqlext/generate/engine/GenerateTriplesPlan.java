@@ -35,7 +35,6 @@ import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.engine.binding.Binding;
 import org.apache.jena.sparql.modify.TemplateLib;
 import org.apache.jena.sparql.util.Context;
-import org.apache.jena.sparql.util.FmtUtils;
 import org.apache.jena.vocabulary.RDF;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
