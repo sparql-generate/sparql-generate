@@ -285,11 +285,11 @@ public final class RootPlanImpl extends RootPlanBase {
                 }, executor);
             }
         } else {
-            final List<Var> newVariables = new ArrayList<>();
-            newVariables.addAll(variables);
-            newVariables.addAll(selectPlan.getVars());
             final CompletableFuture<ResultSet> futureResultSet
                     = selectPlan.exec(inputDataset, variables, futureValues, context, executor);
+            final List<Var> newVariables = new ArrayList<>();
+            newVariables.addAll(variables);
+            selectPlan.getVars().stream().filter((v)->!newVariables.contains(v)).forEach(newVariables::add);
             if (outputSelect != null) {
                 return futureResultSet.thenAcceptAsync(outputSelect::accept, executor);
             } else if (outputTemplate != null) {
