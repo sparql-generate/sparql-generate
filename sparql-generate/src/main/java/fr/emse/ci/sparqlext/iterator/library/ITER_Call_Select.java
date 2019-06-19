@@ -19,8 +19,8 @@ import fr.emse.ci.sparqlext.SPARQLExt;
 import fr.emse.ci.sparqlext.generate.engine.BNodeMap;
 import fr.emse.ci.sparqlext.generate.engine.PlanFactory;
 import fr.emse.ci.sparqlext.generate.engine.RootPlan;
+import fr.emse.ci.sparqlext.iterator.ExecutionControl;
 import fr.emse.ci.sparqlext.iterator.IteratorStreamFunctionBase;
-import fr.emse.ci.sparqlext.iterator.IteratorStreamFunctionBase1;
 import fr.emse.ci.sparqlext.query.SPARQLExtQuery;
 import fr.emse.ci.sparqlext.stream.LookUpRequest;
 import fr.emse.ci.sparqlext.stream.SPARQLExtStreamManager;
@@ -30,9 +30,7 @@ import java.nio.charset.Charset;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import org.apache.commons.io.IOUtils;
 
 import org.apache.jena.query.Dataset;
@@ -45,12 +43,10 @@ import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.engine.binding.Binding;
 import org.apache.jena.sparql.engine.binding.BindingFactory;
 import org.apache.jena.sparql.engine.binding.BindingMap;
-import org.apache.jena.sparql.expr.Expr;
 import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.ExprList;
 import org.apache.jena.sparql.expr.NodeValue;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueNode;
-import org.apache.jena.sparql.function.FunctionEnv;
 import org.apache.jena.sparql.util.Context;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
@@ -81,7 +77,8 @@ public class ITER_Call_Select extends IteratorStreamFunctionBase {
     @Override
     public void exec(
             final List<NodeValue> args,
-            final Consumer<List<List<NodeValue>>> collectionListNodeValue) {
+            final Consumer<List<List<NodeValue>>> collectionListNodeValue, 
+            final ExecutionControl control) {
         if (args.isEmpty()) {
             LOG.debug("There should be at least one IRI parameter.");
             throw new ExprEvalException("There should be at least one IRI parameter.");
@@ -101,8 +98,8 @@ public class ITER_Call_Select extends IteratorStreamFunctionBase {
             List<List<NodeValue>> list = getListNodeValues(result);
             collectionListNodeValue.accept(list);
         });
-        registerFuture(planExecution);
-        complete();
+        control.registerFuture(planExecution);
+        control.complete();
     }
 
     @Override

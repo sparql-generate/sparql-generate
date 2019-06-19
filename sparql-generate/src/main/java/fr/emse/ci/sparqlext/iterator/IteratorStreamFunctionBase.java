@@ -49,45 +49,6 @@ public abstract class IteratorStreamFunctionBase implements IteratorFunction {
      */
     private FunctionEnv env;
 
-    private final CompletableFuture<Void> returnedFuture = new CompletableFuture<>();
-
-    private final List<CompletableFuture<Void>> pendingFutures = Collections.synchronizedList(new ArrayList<>());
-
-    private final CompletableFuture<Void> future = new CompletableFuture<>();
-
-    private void waitFor(CompletableFuture<Void> future) {
-        pendingFutures.add(future);
-        LOG.info("Will wait for " + future + " now waiting for " + pendingFutures.size());
-    }
-
-    protected final void registerFuture(CompletableFuture<Void> newFuture) {
-        waitFor(newFuture);
-        newFuture.thenRun(() -> stopWaiting(newFuture));
-    }
-
-    private void stopWaiting(CompletableFuture<Void> completedFuture) {
-        LOG.info("stop waiting " + completedFuture);
-        if (completedFuture.isCancelled()) {
-            returnedFuture.completeExceptionally(new InterruptedException());
-        } else if (completedFuture.isCompletedExceptionally()) {
-            completedFuture.exceptionally((t) -> {
-                returnedFuture.completeExceptionally(t);
-                return null;
-            });
-        } else if (completedFuture.isDone()) {
-            pendingFutures.remove(completedFuture);
-        }
-        LOG.info("still waiting " + pendingFutures.size());
-        if (pendingFutures.isEmpty()) {
-            returnedFuture.complete(null);
-        }
-    }
-    
-    protected final void complete() {
-        future.complete(null);
-        stopWaiting(future);
-    }
-
     /**
      * Build a iterator function execution with the given arguments, and operate
      * a check of the build.
@@ -98,6 +59,7 @@ public abstract class IteratorStreamFunctionBase implements IteratorFunction {
      */
     @Override
     public final void build(ExprList args) {
+        LOG.info("Building the iterator " + System.identityHashCode(this));
         arguments = args;
         checkBuild(args);
     }
@@ -118,7 +80,8 @@ public abstract class IteratorStreamFunctionBase implements IteratorFunction {
             final ExprList args,
             final FunctionEnv env,
             final Function<List<List<NodeValue>>, CompletableFuture<Void>> collectionListNodeValue) {
-        registerFuture(future);
+        ExecutionControl control = new ExecutionControl();        
+
         this.env = env;
         if (args == null) {
             throw new ARQInternalErrorException("IteratorFunctionBase:"
@@ -132,15 +95,13 @@ public abstract class IteratorStreamFunctionBase implements IteratorFunction {
         }
         try {
             exec(evalArgs, (listNodeValues) -> {
-                registerFuture(collectionListNodeValue.apply(listNodeValues));
-            });
+                control.registerFuture(collectionListNodeValue.apply(listNodeValues));
+            }, control);
         } catch (ExprEvalException ex) {
-            returnedFuture.completeExceptionally(ex);
+            control.getReturnedFuture().completeExceptionally(ex);
         }
-        return returnedFuture;
+        return control.getReturnedFuture();
     }
-    
-    
 
     /**
      * Return the Context object for this execution.
@@ -156,8 +117,10 @@ public abstract class IteratorStreamFunctionBase implements IteratorFunction {
      *
      * @param args -
      * @param collectionListNodeValue - where to emit new future collections of
+     * @param control - the control on the execution. Method complete() needs to
+     * be called when the iterator completed.
      * lists of values
      */
-    public abstract void exec(List<NodeValue> args, Consumer<List<List<NodeValue>>> collectionListNodeValue);
+    public abstract void exec(List<NodeValue> args, Consumer<List<List<NodeValue>>> collectionListNodeValue, ExecutionControl control);
 
 }

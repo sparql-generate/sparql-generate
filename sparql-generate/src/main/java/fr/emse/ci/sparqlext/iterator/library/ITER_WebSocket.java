@@ -16,6 +16,7 @@
 package fr.emse.ci.sparqlext.iterator.library;
 
 import fr.emse.ci.sparqlext.SPARQLExt;
+import fr.emse.ci.sparqlext.iterator.ExecutionControl;
 import fr.emse.ci.sparqlext.iterator.IteratorStreamFunctionBase;
 import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.ExprList;
@@ -108,7 +109,10 @@ public class ITER_WebSocket extends IteratorStreamFunctionBase {
     }
 
     @Override
-    public void exec(List<NodeValue> args, Consumer<List<List<NodeValue>>> listListNodeValue) {
+    public void exec(
+            final List<NodeValue> args,
+            final Consumer<List<List<NodeValue>>> listListNodeValue,
+            final ExecutionControl control) {
         if (!args.get(0).isString() && !args.get(0).isIRI()) {
             LOG.debug("First argument must be a string or a URI, got: " + args.get(0));
             throw new ExprEvalException("First argument must be a string or a URI, got: " + args.get(0));
@@ -144,7 +148,7 @@ public class ITER_WebSocket extends IteratorStreamFunctionBase {
                 @Override
                 public void onClose(int i, String s, boolean b) {
                     LOG.debug("Websocket connection closed, stopping iterator.");
-                    complete();
+                    control.complete();
                 }
 
                 @Override

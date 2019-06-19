@@ -187,7 +187,7 @@ public class PlanFactory {
                 BindingsClausePlan iteratorOrSourcePlan;
                 if (el instanceof ElementIterator) {
                     ElementIterator elementIterator = (ElementIterator) el;
-                    iteratorOrSourcePlan = makeIteratorPlan(elementIterator);
+                    iteratorOrSourcePlan = makeIteratorPlan(elementIterator, query.isTemplateType());
                 } else if (el instanceof ElementSource) {
                     ElementSource elementSource = (ElementSource) el;
                     iteratorOrSourcePlan = makeSourcePlan(elementSource);
@@ -220,7 +220,8 @@ public class PlanFactory {
      * @return -
      */
     static IteratorPlan makeIteratorPlan(
-            final ElementIterator elementIterator)
+            final ElementIterator elementIterator, 
+            boolean sync)
             throws SPARQLExtException {
         Objects.requireNonNull(elementIterator, "The Iterator must not be null");
 
@@ -242,7 +243,11 @@ public class PlanFactory {
         IteratorFunction iterator = factory.create(iri);
         ExprList exprList = new ExprList(function.getArgs());
         iterator.build(exprList);
-        return new IteratorPlan(iterator, exprList, vars);
+        if(sync) {
+            return new SyncIteratorPlan(iterator, exprList, vars);
+        } else {
+            return new AsyncIteratorPlan(iterator, exprList, vars);
+        }
     }
 
     /**

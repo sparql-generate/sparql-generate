@@ -31,9 +31,11 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.ResultSet;
+import org.apache.jena.query.ResultSetFactory;
 import org.apache.jena.shared.PrefixMapping;
 import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.engine.binding.Binding;
@@ -167,64 +169,65 @@ public final class RootPlanImpl extends RootPlanBase {
         final Context newContext = SPARQLExt.createContext(context);
         newContext.set(SPARQLExt.DATASET, inputDataset);
         final Executor executor = (Executor) newContext.get(SPARQLExt.EXECUTOR);
-        start(outputGenerate, values, newContext, executor);
-        final List<CompletableFuture<Binding>> firstValues
-                = values.stream().map((b) -> CompletableFuture.completedFuture(b)).collect(Collectors.toList());
-        final CompletableFuture<Void> f = execPlans(inputDataset, variables, firstValues, bNodeMap, 0, newContext, outputGenerate, outputSelect, outputTemplate)
-                .whenCompleteAsync((n, t) -> {
-                    if (initial) {
-                        SPARQLExt.close(newContext);
-                    }
-                });
-        return finish(f, outputGenerate, executor);
+        final CompletableFuture<Void> future = start(outputGenerate, values, newContext, executor);
+        return future.thenComposeAsync((n) -> {
+            final List<CompletableFuture<Binding>> firstValues
+                    = values.stream().map((b) -> CompletableFuture.completedFuture(b)).collect(Collectors.toList());
+            final CompletableFuture<Void> f = execPlans(inputDataset, variables, firstValues, bNodeMap, 0, newContext, outputGenerate, outputSelect, outputTemplate);
+            return finish(f, outputGenerate, newContext, executor);
+        }, executor);
     }
 
-    private void start(
+    private CompletableFuture<Void> start(
             final StreamRDF outputStream,
             final List<Binding> values,
             final Context context,
             final Executor executor) {
         if (!initial) {
-            return;
+            return CompletableFuture.completedFuture(null);
+        } else {
+            return CompletableFuture.runAsync(() -> {
+                LOG.info("Starting transformation");
+                if (outputStream != null) {
+                    outputStream.start();
+                }
+                if (query.getName() != null) {
+                    if (!query.getName().isURI()) {
+                        throw new UnsupportedOperationException("not implemented yet");
+                    }
+                    String name = query.getName().getURI();
+                    final Map<String, RootPlan> loadedPlans = (Map<String, RootPlan>) context.get(SPARQLExt.LOADED_PLANS);
+                    loadedPlans.put(name, this);
+                    final Map<String, SPARQLExtQuery> loadedQueries = (Map<String, SPARQLExtQuery>) context.get(SPARQLExt.LOADED_QUERIES);
+                    loadedQueries.put(name, query);
+                    SPARQLExt.registerExecution(context, name, values);
+                }
+                if (outputStream != null) {
+                    for (String prefix : query.getPrefixMapping().getNsPrefixMap().keySet()) {
+                        outputStream.prefix(prefix, query.getPrefixMapping().getNsPrefixURI(prefix));
+                    }
+                    if (query.getBaseURI() != null) {
+                        outputStream.base(query.getBaseURI());
+                    }
+                }
+            }, executor);
         }
-        executor.execute(() -> {
-            LOG.info("Starting transformation");
-            if (outputStream != null) {
-                outputStream.start();
-            }
-            if (query.getName() != null) {
-                if (!query.getName().isURI()) {
-                    throw new UnsupportedOperationException("not implemented yet");
-                }
-                String name = query.getName().getURI();
-                final Map<String, RootPlan> loadedPlans = (Map<String, RootPlan>) context.get(SPARQLExt.LOADED_PLANS);
-                loadedPlans.put(name, this);
-                final Map<String, SPARQLExtQuery> loadedQueries = (Map<String, SPARQLExtQuery>) context.get(SPARQLExt.LOADED_QUERIES);
-                loadedQueries.put(name, query);
-                SPARQLExt.registerExecution(context, name, values);
-            }
-            if (outputStream != null) {
-                for (String prefix : query.getPrefixMapping().getNsPrefixMap().keySet()) {
-                    outputStream.prefix(prefix, query.getPrefixMapping().getNsPrefixURI(prefix));
-                }
-                if (query.getBaseURI() != null) {
-                    outputStream.base(query.getBaseURI());
-                }
-            }
-        });
     }
 
     private CompletableFuture<Void> finish(
-            final CompletableFuture<Void> future,
+            CompletableFuture<Void> future,
             final StreamRDF outputStream,
+            final Context newContext,
             final Executor executor) {
         if (initial) {
-            return future.thenRunAsync(() -> {
+            future = future.thenRunAsync(() -> {
                 if (outputStream != null) {
                     outputStream.finish();
                 }
+                SPARQLExt.close(newContext);
                 LOG.info("End of transformation");
             }, executor);
+            return future;
         } else {
             return future;
         }
@@ -252,6 +255,7 @@ public final class RootPlanImpl extends RootPlanBase {
             final Consumer<ResultSet> outputSelect,
             final Consumer<String> outputTemplate) {
         if (Thread.interrupted()) {
+            LOG.warn("Interrupted " + System.identityHashCode(this) + " " + i);
             CompletableFuture<Void> future = new CompletableFuture<>();
             future.completeExceptionally(new InterruptedException());
             return future;
@@ -276,10 +280,7 @@ public final class RootPlanImpl extends RootPlanBase {
                     newVariables.addAll(iteratorPlan.getVars());
                     final List<CompletableFuture<Binding>> newFutureValues
                             = newValues.stream().map((b) -> CompletableFuture.completedFuture(b)).collect(Collectors.toList());
-                    return execPlans(inputDataset, newVariables, newFutureValues, bNodeMap, i + 1, context, outputGenerate, outputSelect, outputTemplate)
-                            .thenRunAsync(() -> {
-                                LOG.debug("Iterator plan produced batch " + iteratorPlan);
-                            }, executor);
+                    return execPlans(inputDataset, newVariables, newFutureValues, bNodeMap, i + 1, context, outputGenerate, outputSelect, outputTemplate);
                 }, context, executor).thenRunAsync(() -> {
                     LOG.debug("Finished iterator plan " + iteratorPlan);
                 }, executor);
@@ -289,7 +290,7 @@ public final class RootPlanImpl extends RootPlanBase {
                     = selectPlan.exec(inputDataset, variables, futureValues, context, executor);
             final List<Var> newVariables = new ArrayList<>();
             newVariables.addAll(variables);
-            selectPlan.getVars().stream().filter((v)->!newVariables.contains(v)).forEach(newVariables::add);
+            selectPlan.getVars().stream().filter((v) -> !newVariables.contains(v)).forEach(newVariables::add);
             if (outputSelect != null) {
                 return futureResultSet.thenAcceptAsync(outputSelect::accept, executor);
             } else if (outputTemplate != null) {
@@ -344,7 +345,7 @@ public final class RootPlanImpl extends RootPlanBase {
         final FunctionEnv env = new FunctionEnvBase(context);
         while (results.hasNext()) {
             QuerySolution sol = results.next();
-            if(first && query.hasTemplateClauseBefore()) {
+            if (first && query.hasTemplateClauseBefore()) {
                 Expr before = query.getTemplateClauseBefore();
                 sb.append(getExprEval(before, sol, context, env));
             }
@@ -363,14 +364,14 @@ public final class RootPlanImpl extends RootPlanBase {
             String out = sol.getLiteral("out").getLexicalForm();
             sb.append(processNewLines(out, context));
             first = false;
-            if(!results.hasNext() && query.hasTemplateClauseAfter()) {
+            if (!results.hasNext() && query.hasTemplateClauseAfter()) {
                 Expr after = query.getTemplateClauseAfter();
                 sb.append(getExprEval(after, sol, context, env));
             }
         }
         outputTemplate.accept(sb.toString());
     }
-    
+
     private String processNewLines(final String out, final Context context) {
         StringBuilder buf = new StringBuilder(out);
         String control = SPARQLExt.getIndentControl(context);
@@ -413,14 +414,14 @@ public final class RootPlanImpl extends RootPlanBase {
         Binding binding = createBinding(sol, context);
         try {
             NodeValue nv = before.eval(binding, env);
-            if(nv == null) {
+            if (nv == null) {
                 return "";
             }
-            if(!nv.isLiteral()) {
+            if (!nv.isLiteral()) {
                 throw new ExprEvalException("Expr did not eval as a literal.");
             }
             return processNewLines(nv.asNode().getLiteralLexicalForm(), context);
-        } catch(ExprEvalException ex) {
+        } catch (ExprEvalException ex) {
             LOG.debug("Could not evaluate expression 'before'" + ex.getMessage());
         }
         return "";

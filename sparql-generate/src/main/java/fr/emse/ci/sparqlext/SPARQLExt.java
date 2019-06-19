@@ -53,6 +53,7 @@ import fr.emse.ci.sparqlext.iterator.library.ITER_DefaultGraphNamespaces;
 import fr.emse.ci.sparqlext.iterator.library.ITER_HTTPGet;
 import fr.emse.ci.sparqlext.iterator.library.ITER_MQTTSubscribe;
 import fr.emse.ci.sparqlext.iterator.library.ITER_WebSocket;
+import fr.emse.ci.sparqlext.iterator.library.ITER_dummy;
 import fr.emse.ci.sparqlext.lang.ParserSPARQLExt;
 import fr.emse.ci.sparqlext.serializer.SPARQLExtQuerySerializer;
 import fr.emse.ci.sparqlext.stream.SPARQLExtStreamManager;
@@ -249,6 +250,7 @@ public final class SPARQLExt {
         itereg.put(ITER_WebSocket.URI, ITER_WebSocket.class);
         itereg.put(ITER_DefaultGraphNamespaces.URI, ITER_DefaultGraphNamespaces.class);
         itereg.put(ITER_Call_Select.URI, ITER_Call_Select.class);
+        itereg.put(ITER_dummy.URI, ITER_dummy.class);
 
         SPARQLParserRegistry.get()
                 .add(SYNTAX, new SPARQLParserFactory() {
@@ -616,7 +618,7 @@ public final class SPARQLExt {
         try {
             ds.setDefaultModel(RDFDataMgr.loadModel(new File(dir, dgfile).toString(), Lang.TTL));
         } catch (Exception ex) {
-            LOG.debug("Cannot load default graph " + dgfile + ": " + ex.getMessage());
+            LOG.debug("No default graph provided: " + ex.getMessage());
         }
 
         if (request.namedgraphs == null) {
@@ -637,6 +639,42 @@ public final class SPARQLExt {
 
     public static String log(List<Var> variables, List<Binding> input) {
         return FormatterElement.asString(compress(variables, input));
+    }
+
+    public static String log(List<Binding> input) {
+        return FormatterElement.asString(compress(input));
+    }
+
+    private static ElementData compress(List<Binding> input) {
+        ElementData el = new ElementData();
+        
+        if (input.size() < 10) {
+            input.forEach((b) -> {
+                addCompressedToElementData(el, b);
+            });
+            return el;
+        }
+        for (int i = 0; i < 5; i++) {
+            addCompressedToElementData(el, input.get(i));
+        }
+        BindingMap binding = BindingFactory.create();
+        Node n = NodeFactory.createLiteral("[ " + (input.size() - 10) + " more ]");
+        el.getVars().forEach((v) -> binding.add(v, n));
+        el.add(binding);
+        for (int i = input.size() - 5; i < input.size(); i++) {
+            addCompressedToElementData(el, input.get(i));
+        }
+        return el;
+    }
+
+
+    private static void addCompressedToElementData(ElementData el, Binding b) {
+        final Binding compressed = compress(b);
+        final Iterator<Var> varsIterator = compressed.vars();
+        while (varsIterator.hasNext()) {
+            el.add(varsIterator.next());
+        }
+        el.add(compressed);
     }
 
     private static ElementData compress(List<Var> variables, List<Binding> input) {

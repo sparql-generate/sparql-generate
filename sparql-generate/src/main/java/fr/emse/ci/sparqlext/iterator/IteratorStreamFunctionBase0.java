@@ -28,16 +28,16 @@ import org.apache.jena.sparql.expr.NodeValue;
 /**
  * Support for a iterator function of one argument.
  */
-public abstract class IteratorStreamFunctionBase1 extends IteratorStreamFunctionBase {
+public abstract class IteratorStreamFunctionBase0 extends IteratorStreamFunctionBase {
 
     /**
      * {@inheritDoc}
      */
     @Override
     public void checkBuild(ExprList args) {
-        if (args.size() != 1) {
+        if (!args.isEmpty()) {
             throw new QueryBuildException("Selector '"
-                    + this.getClass().getName() + "' takes one argument");
+                    + this.getClass().getName() + "' takes zero arguments");
         }
     }
 
@@ -47,19 +47,17 @@ public abstract class IteratorStreamFunctionBase1 extends IteratorStreamFunction
     @Override
     public final void exec(List<NodeValue> args, Consumer<List<List<NodeValue>>> nodeValuesStream, ExecutionControl control) {
         if (args == null) {
-            throw new ARQInternalErrorException("SelectorBase1:"
-                    + " Null args list");
+            throw new ARQInternalErrorException("Null args list");
         }
-        if (args.size() != 1) {
-            throw new ExprEvalException("SelectorBase1: Wrong number of"
-                    + " arguments: Wanted 1, got " + args.size());
+        if (!args.isEmpty()) {
+            throw new ExprEvalException("Wrong number of"
+                    + " arguments: Wanted 0, got " + args.size());
         }
-        NodeValue v1 = args.get(0);
-        exec(v1, nodeValuesStream, control);
+        exec(nodeValuesStream, control);
     }
 
     /**
      * {@inheritDoc}
      */
-    public abstract void exec(NodeValue v, Consumer<List<List<NodeValue>>> nodeValuesStream, ExecutionControl control);
+    public abstract void exec(Consumer<List<List<NodeValue>>> nodeValuesStream, ExecutionControl control);
 }

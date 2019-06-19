@@ -16,6 +16,7 @@
 package fr.emse.ci.sparqlext.iterator.library;
 
 import fr.emse.ci.sparqlext.SPARQLExt;
+import fr.emse.ci.sparqlext.iterator.ExecutionControl;
 import fr.emse.ci.sparqlext.iterator.IteratorStreamFunctionBase;
 import fr.emse.ci.sparqlext.stream.LookUpRequest;
 import fr.emse.ci.sparqlext.stream.SPARQLExtStreamManager;
@@ -30,10 +31,8 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.Collection;
 
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
@@ -91,7 +90,10 @@ public class ITER_HTTPGet extends IteratorStreamFunctionBase {
     }
 
     @Override
-    public void exec(List<NodeValue> args, Consumer<List<List<NodeValue>>> listNodeValues) {
+    public void exec(
+            final List<NodeValue> args, 
+            final Consumer<List<List<NodeValue>>> listNodeValues, 
+            final ExecutionControl control) {
         if (!args.get(0).isString() && !args.get(0).isIRI()) {
             throw new ExprEvalException("First argument must be a string or a URI, got: " + args.get(0));
         }
@@ -142,7 +144,7 @@ public class ITER_HTTPGet extends IteratorStreamFunctionBase {
                 throw new ExprEvalException("Call HTTPGET to " + url_s + " Interrupted");
             }
         }
-        complete();
+        control.complete();
     }
 
 }

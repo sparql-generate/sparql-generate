@@ -16,6 +16,7 @@
 package fr.emse.ci.sparqlext.iterator.library;
 
 import fr.emse.ci.sparqlext.SPARQLExt;
+import fr.emse.ci.sparqlext.iterator.ExecutionControl;
 import fr.emse.ci.sparqlext.iterator.IteratorStreamFunctionBase;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -42,7 +43,7 @@ import org.apache.jena.sparql.expr.nodevalue.NodeValueString;
  * connects to a MQTT server, subscribes to some topics, and issues bindings for
  * the topic (first variable) and the message (second variable) when they are
  * received.
- * 
+ *
  * <p>
  * See
  * <a href="https://w3id.org/sparql-generate/playground.html#ex=example/generate/Example-MQTTSubscribe">Live
@@ -113,7 +114,10 @@ public class ITER_MQTTSubscribe extends IteratorStreamFunctionBase {
     }
 
     @Override
-    public void exec(List<NodeValue> args, Consumer<List<List<NodeValue>>> listListNodeValue) {
+    public void exec(
+            final List<NodeValue> args,
+            final Consumer<List<List<NodeValue>>> listListNodeValue,
+            final ExecutionControl control) {
         if (!args.get(0).isString() && !args.get(0).isIRI()) {
             LOG.debug("First argument must be a string or a URI, got: " + args.get(0));
             throw new ExprEvalException("First argument must be a string, got: " + args.get(0));
@@ -141,7 +145,7 @@ public class ITER_MQTTSubscribe extends IteratorStreamFunctionBase {
                     executor.execute(() -> {
                         LOG.debug("MQTT Connection is lost", cause);
                     });
-                    complete();
+                    control.complete();
                 }
 
                 @Override
@@ -149,8 +153,8 @@ public class ITER_MQTTSubscribe extends IteratorStreamFunctionBase {
                     LOG.debug("MQTT message arrived");
                     executor.execute(() -> {
                         LOG.debug("MQTT message arrived " + topic);
-                        if(LOG.isTraceEnabled()) {
-                            LOG.trace("MQTT message arrived " + topic + " -> " + SPARQLExt.compress(PARSER.apply(message.getPayload()).asNode()));                        
+                        if (LOG.isTraceEnabled()) {
+                            LOG.trace("MQTT message arrived " + topic + " -> " + SPARQLExt.compress(PARSER.apply(message.getPayload()).asNode()));
                         }
                         List<NodeValue> nv = new ArrayList<>();
                         nv.add(new NodeValueString(topic));
@@ -179,7 +183,7 @@ public class ITER_MQTTSubscribe extends IteratorStreamFunctionBase {
                 }
             });
         } catch (MqttException e) {
-            if(e.getCause() instanceof InterruptedException) {
+            if (e.getCause() instanceof InterruptedException) {
                 LOG.debug("Execution interrupted");
             } else {
                 LOG.debug("A MqttException occurred", e);

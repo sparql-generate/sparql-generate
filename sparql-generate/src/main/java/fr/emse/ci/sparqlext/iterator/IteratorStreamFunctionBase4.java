@@ -37,7 +37,7 @@ public abstract class IteratorStreamFunctionBase4 extends IteratorStreamFunction
      * {@inheritDoc}
      */
     @Override
-    public final void exec(List<NodeValue> args, Consumer<List<List<NodeValue>>> nodeValuesStream) {
+    public final void exec(List<NodeValue> args, Consumer<List<List<NodeValue>>> nodeValuesStream, ExecutionControl control) {
         if (args == null) {
             throw new ARQInternalErrorException(this.getClass().getName()
                     + ": Null args list");
@@ -47,11 +47,11 @@ public abstract class IteratorStreamFunctionBase4 extends IteratorStreamFunction
         NodeValue v2 = args.size() >= 2 ? args.get(1) : null;
         NodeValue v3 = args.size() >= 3 ? args.get(2) : null;
         NodeValue v4 = args.size() >= 4 ? args.get(3) : null;
-        exec(v1, v2, v3, v4, nodeValuesStream);
+        exec(v1, v2, v3, v4, nodeValuesStream, control);
     }
 
     /**
      * {@inheritDoc}
      */
-    public abstract void exec(NodeValue v1, NodeValue v2, NodeValue v3, NodeValue v4, Consumer<List<List<NodeValue>>> nodeValuesStream);
+    public abstract void exec(NodeValue v1, NodeValue v2, NodeValue v3, NodeValue v4, Consumer<List<List<NodeValue>>> nodeValuesStream, ExecutionControl control);
 }

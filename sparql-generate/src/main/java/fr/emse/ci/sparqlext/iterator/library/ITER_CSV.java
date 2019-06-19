@@ -24,6 +24,7 @@ import com.univocity.parsers.common.processor.AbstractRowProcessor;
 import com.univocity.parsers.common.processor.core.Processor;
 import com.univocity.parsers.csv.CsvParser;
 import com.univocity.parsers.csv.CsvParserSettings;
+import fr.emse.ci.sparqlext.iterator.ExecutionControl;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -38,9 +39,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import org.apache.commons.io.IOUtils;
 
 /**
@@ -120,7 +119,8 @@ public class ITER_CSV extends IteratorStreamFunctionBase {
     @Override
     public void exec(
             final List<NodeValue> args,
-            final Consumer<List<List<NodeValue>>> collectionListNodeValue) {
+            final Consumer<List<List<NodeValue>>> collectionListNodeValue,
+            final ExecutionControl control) {
         Objects.nonNull(args);
         if (args.isEmpty()) {
             LOG.debug("Must have at leat one argument");
@@ -132,7 +132,7 @@ public class ITER_CSV extends IteratorStreamFunctionBase {
             final CsvParserSettings parserSettings = new CsvParserSettings();
             parserSettings.setHeaderExtractionEnabled(true);
             setFormatInformation(args, parserSettings);
-            setProcessor(args, parserSettings, collectionListNodeValue);
+            setProcessor(args, parserSettings, collectionListNodeValue, control);
             setSelectedColumns(args, parserSettings);
             CsvParser parser = new CsvParser(parserSettings);
             parser.parse(in, StandardCharsets.UTF_8);
@@ -150,7 +150,8 @@ public class ITER_CSV extends IteratorStreamFunctionBase {
     private void setProcessor(
             final List<NodeValue> args,
             final CsvParserSettings parserSettings,
-            final Consumer<List<List<NodeValue>>> collectionListNodeValue) {
+            final Consumer<List<List<NodeValue>>> collectionListNodeValue, 
+            final ExecutionControl control) {
         final int rowsInABatch;
         if (!args.isEmpty() && args.get(0).isInteger()) {
             int batch = args.remove(0).getInteger().intValue();
@@ -201,7 +202,7 @@ public class ITER_CSV extends IteratorStreamFunctionBase {
             public void processEnded(ParsingContext context) {
                 LOG.trace("Last batch of " + rowsInThisBatch + " rows, " + total + " total.");
                 send();
-                complete();
+                control.complete();
             }
 
             private void send() {

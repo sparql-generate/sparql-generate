@@ -20,6 +20,7 @@ import fr.emse.ci.sparqlext.function.library.FUN_JSONPath;
 import fr.emse.ci.sparqlext.stream.LookUpRequest;
 import fr.emse.ci.sparqlext.stream.SPARQLExtStreamManager;
 import com.jayway.jsonpath.DocumentContext;
+import fr.emse.ci.sparqlext.iterator.ExecutionControl;
 import fr.emse.ci.sparqlext.iterator.IteratorStreamFunctionBase;
 import java.io.IOException;
 import java.io.InputStream;
@@ -100,7 +101,8 @@ public class ITER_JSONSurfer extends IteratorStreamFunctionBase {
     @Override
     public void exec(
             final List<NodeValue> args,
-            final Consumer<List<List<NodeValue>>> collectionListNodeValue) {
+            final Consumer<List<List<NodeValue>>> collectionListNodeValue,
+            final ExecutionControl control) {
         Objects.nonNull(args);
         if (args.size() < 2) {
             LOG.debug("Expecting at least two arguments.");
@@ -115,7 +117,7 @@ public class ITER_JSONSurfer extends IteratorStreamFunctionBase {
             final int rowsInABatch = getRowsInABatch(args);
             final com.jayway.jsonpath.JsonPath[] subqueries = getSubQueries(args);
 
-            final Listener listener = new Listener(collectionListNodeValue, rowsInABatch, subqueries);
+            final Listener listener = new Listener(collectionListNodeValue, rowsInABatch, subqueries, control);
             surfer.configBuilder()
                     .bind(compiledPath, listener)
                     .buildAndSurf(jsonInput);
@@ -204,13 +206,19 @@ public class ITER_JSONSurfer extends IteratorStreamFunctionBase {
         private final Consumer<List<List<NodeValue>>> collectionListNodeValue;
         private final int rowsInABatch;
         private final com.jayway.jsonpath.JsonPath[] subqueries;
+        private final ExecutionControl control;
 
-        public Listener(Consumer<List<List<NodeValue>>> collectionListNodeValue, int rowsInABatch, com.jayway.jsonpath.JsonPath[] subqueries) {
+        public Listener(
+                final Consumer<List<List<NodeValue>>> collectionListNodeValue,
+                int rowsInABatch,
+                final com.jayway.jsonpath.JsonPath[] subqueries,
+                final ExecutionControl control) {
             this.collectionListNodeValue = collectionListNodeValue;
             this.rowsInABatch = rowsInABatch;
             this.subqueries = subqueries;
+            this.control = control;
         }
-        
+
         private boolean initialized = false;
         private int rowsInThisBatch = 0;
         private int total = 0;
@@ -244,17 +252,17 @@ public class ITER_JSONSurfer extends IteratorStreamFunctionBase {
                 rowsInThisBatch = 0;
             }
         }
-        
+
         private void send() {
             collectionListNodeValue.accept(nodeValues);
             nodeValues = new ArrayList<>();
         }
 
         private void stop() {
-            if(rowsInThisBatch>0) {
+            if (rowsInThisBatch > 0) {
                 send();
             }
-            complete();
+            control.complete();
         }
 
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Ecole des Mines de Saint-Etienne.
+ * Copyright 2019 École des Mines de Saint-Étienne.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,52 +15,46 @@
  */
 package fr.emse.ci.sparqlext.generate.engine;
 
+import fr.emse.ci.sparqlext.SPARQLExt;
 import fr.emse.ci.sparqlext.iterator.IteratorFunction;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.function.Function;
-import java.util.stream.Collectors;
+import java.util.logging.Level;
 import org.apache.jena.graph.Node;
-import org.apache.jena.sparql.ARQConstants;
 import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.engine.binding.Binding;
 import org.apache.jena.sparql.engine.binding.BindingFactory;
 import org.apache.jena.sparql.engine.binding.BindingMap;
-import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.ExprList;
 import org.apache.jena.sparql.expr.NodeValue;
-import org.apache.jena.sparql.function.FunctionEnv;
-import org.apache.jena.sparql.function.FunctionEnvBase;
 import org.apache.jena.sparql.util.Context;
-import org.apache.jena.sparql.util.NodeFactoryExtra;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Executes the ITERATOR clause.
  *
- * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
+ * @author maxime.lefrancois
  */
-public class IteratorPlan implements BindingsClausePlan {
+public abstract class IteratorPlan implements BindingsClausePlan {
 
-    /**
-     * The logger.
-     */
     private static final Logger LOG = LoggerFactory.getLogger(IteratorPlan.class);
 
     /**
      * The SPARQL-Generate iterator.
      */
-    private final IteratorFunction iterator;
+    protected final IteratorFunction iterator;
 
     /**
      * The list of expressions on which to evaluate the iterator.
      */
-    private final ExprList exprList;
+    protected final ExprList exprList;
 
     /**
      * The variable that will be bound to each result of the iterator
@@ -100,41 +94,19 @@ public class IteratorPlan implements BindingsClausePlan {
      * @param executor the executor.
      * @return the future that will be completed when the iterator completes.
      */
-    final public CompletableFuture<Void> exec(
-            final List<Var> variables,
-            final List<CompletableFuture<Binding>> futureValues,
-            final Function<List<Binding>, CompletableFuture<Void>> listBindingFunction,
-            final Context context,
-            final Executor executor) {
-        context.set(ARQConstants.sysCurrentTime, NodeFactoryExtra.nowAsDateTime());
-        final FunctionEnv env = new FunctionEnvBase(context);
-        final Batches batches = new Batches(futureValues, listBindingFunction);
-        try {
-            final List<CompletableFuture<Void>> cfs = futureValues.stream().map((futureBinding) -> {
-                return futureBinding.thenComposeAsync((binding) -> {
-                    LOG.debug("Start " + this);
-                    try {
-                        return iterator.exec(binding, exprList, env, (nodeValues) -> batches.add(futureBinding, binding, nodeValues));
-                    } catch(ExprEvalException ex) {
-                        LOG.debug("No evaluation for " + this + ", caused by " + ex.getMessage());
-                        return CompletableFuture.completedFuture(null);
-                    }
-                }, executor)
-                        .thenComposeAsync((n) -> batches.executionComplete(futureBinding), executor);
-            }).collect(Collectors.toList());
-            return CompletableFuture.allOf(cfs.toArray(new CompletableFuture[cfs.size()]));
-        } catch (Exception ex) {
-            LOG.warn("Execution failed for " + toString(), ex);
-            return CompletableFuture.completedFuture(null);
-        }
-    }
+    abstract public CompletableFuture<Void> exec(
+            List<Var> variables,
+            List<CompletableFuture<Binding>> futureValues,
+            Function<List<Binding>, CompletableFuture<Void>> listBindingFunction,
+            Context context,
+            Executor executor);
 
-    private class Batches {
+    protected class Batches {
 
         final Function<List<Binding>, CompletableFuture<Void>> listBindingFunction;
-        final List<CompletableFuture<Binding>> uncompleteExecutions = new ArrayList<>();
-        final List<Batch> uncompleteBatches = new ArrayList<>();
-        final Map<CompletableFuture<Binding>, Batch> lastBatch = new HashMap<>();
+        final List<CompletableFuture<Binding>> uncompleteExecutions = Collections.synchronizedList(new ArrayList<>());
+        final List<Batch> uncompleteBatches = Collections.synchronizedList(new ArrayList<>());
+        final Map<CompletableFuture<Binding>, Batch> lastBatch = Collections.synchronizedMap(new HashMap<>());
 
         Batches(final List<CompletableFuture<Binding>> executions,
                 final Function<List<Binding>, CompletableFuture<Void>> listBindingFunction) {
@@ -147,10 +119,9 @@ public class IteratorPlan implements BindingsClausePlan {
                 final Binding binding,
                 final List<List<NodeValue>> nodeValues) {
             final List<Binding> bindings = getListBinding(binding, nodeValues);
-            final Batch batch = getNextBatch(lastBatch.get(execution));
-            LOG.trace("Iterator " + execution + " adds " + nodeValues.size() + " to batch " + batch);
+            final Batch batch = getNextBatch(execution);
             lastBatch.put(execution, batch);
-            if (batch.add(execution, bindings)) {
+            if (batch.addAndCheckIfEmpty(execution, bindings)) {
                 return batchComplete(batch);
             } else {
                 return CompletableFuture.completedFuture(null);
@@ -179,7 +150,8 @@ public class IteratorPlan implements BindingsClausePlan {
         }
 
         synchronized Batch getNextBatch(
-                final Batch last) {
+                final CompletableFuture<Binding> execution) {
+            Batch last = lastBatch.get(execution);
             if (last == null) {
                 if (uncompleteBatches.isEmpty()) {
                     final Batch batch = new Batch(uncompleteExecutions);
@@ -200,24 +172,48 @@ public class IteratorPlan implements BindingsClausePlan {
             }
         }
 
-        synchronized CompletableFuture<Void> executionComplete(
-                final CompletableFuture<Binding> execution) {
-            LOG.trace("Iterator " + execution + " complete");
-            uncompleteExecutions.remove(execution);
-            lastBatch.remove(execution);
+        CompletableFuture<Void> allExecutionComplete() {
             List<CompletableFuture<Void>> cfs = new ArrayList<>();
-            for (Batch batch : uncompleteBatches) {
-                if (batch.stopWaiting(execution)) {
-                    cfs.add(batchComplete(batch));
-                }
+            if (!uncompleteBatches.isEmpty()) {
+                LOG.info("Forcing completion of remaining batches");
             }
+            for (Batch batch : uncompleteBatches) {
+                batch.expectedExecutions.clear();
+                LOG.trace("A batch is complete " + batch);
+                cfs.add(listBindingFunction.apply(batch.bindings));
+            }
+            uncompleteExecutions.clear();
+            uncompleteBatches.clear();
+            lastBatch.clear();
             return CompletableFuture.allOf(cfs.toArray(new CompletableFuture[cfs.size()]));
         }
 
+//        CompletableFuture<Void> executionComplete(
+//                final CompletableFuture<Binding> execution) {
+//            uncompleteExecutions.remove(execution);
+//            lastBatch.remove(execution);
+//            List<CompletableFuture<Void>> cfs = new ArrayList<>();
+//            for (Batch batch : uncompleteBatches) {
+//                if (batch.expectedExecutions.remove(execution) && batch.expectedExecutions.isEmpty()) {
+//                    cfs.add(listBindingFunction.apply(batch.bindings));
+//                    uncompleteBatches.remove(batch);
+//                    LOG.info("Forcing completion of batch " + batch);
+//                }
+//            }
+//            return CompletableFuture.allOf(cfs.toArray(new CompletableFuture[cfs.size()]));
+//        }
+
         private CompletableFuture<Void> batchComplete(final Batch batch) {
-            LOG.trace("Batch  " + batch + " complete with " + batch.bindings.size() + " bindings");
             uncompleteBatches.remove(batch);
+            if (LOG.isTraceEnabled()) {
+                LOG.trace("A batch is complete " + batch);
+            }
             return listBindingFunction.apply(batch.bindings);
+        }
+
+        @Override
+        public String toString() {
+            return "Batches " + System.identityHashCode(this);
         }
 
     }
@@ -228,10 +224,10 @@ public class IteratorPlan implements BindingsClausePlan {
         final List<Binding> bindings = new ArrayList<>();
 
         Batch(final List<CompletableFuture<Binding>> uncompleteExecutions) {
-            expectedExecutions.addAll(expectedExecutions);
+            expectedExecutions.addAll(uncompleteExecutions);
         }
 
-        synchronized boolean add(
+        synchronized boolean addAndCheckIfEmpty(
                 final CompletableFuture<Binding> iterator,
                 final List<Binding> bindings) {
             expectedExecutions.remove(iterator);
@@ -239,16 +235,25 @@ public class IteratorPlan implements BindingsClausePlan {
             return expectedExecutions.isEmpty();
         }
 
-        synchronized boolean stopWaiting(
-                final CompletableFuture<Binding> execution) {
-            expectedExecutions.remove(execution);
-            return expectedExecutions.isEmpty();
+        @Override
+        public String toString() {
+            StringBuilder sb = new StringBuilder("Batch ");
+            sb.append(System.identityHashCode(this));
+            if (expectedExecutions.isEmpty()) {
+                sb.append(" complete with ");
+            } else {
+                sb.append(" still waiting for ");
+                sb.append(expectedExecutions.size());
+                sb.append(" and has ");
+            }
+            sb.append(SPARQLExt.log(bindings));
+            return sb.toString();
         }
+
     }
 
     @Override
     public String toString() {
         return "ITERATOR " + iterator.getClass().getSimpleName() + " " + exprList + " AS " + vars;
     }
-
 }
