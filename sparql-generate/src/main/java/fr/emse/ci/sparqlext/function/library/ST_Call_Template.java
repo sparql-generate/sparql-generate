@@ -83,9 +83,9 @@ public class ST_Call_Template implements Function {
      */
     @Override
     public NodeValue exec(
-            final Binding binding, 
-            final ExprList args, 
-            final String uri, 
+            final Binding binding,
+            final ExprList args,
+            final String uri,
             final FunctionEnv env) {
         if (args == null) {
             throw new ARQInternalErrorException("FunctionBase: Null args list");
@@ -94,17 +94,17 @@ public class ST_Call_Template implements Function {
             throw new ExprEvalException("Expecting at least one argument");
         }
         NodeValue queryNode = args.get(0).eval(binding, env);
-        if (!( queryNode.isIRI() || queryNode.isLiteral()&&SPARQLExt.MEDIA_TYPE_URI.equals(queryNode.getDatatypeURI()))) {
+        if (!(queryNode.isIRI() || queryNode.isLiteral() && SPARQLExt.MEDIA_TYPE_URI.equals(queryNode.getDatatypeURI()))) {
             throw new ExprEvalException("Name of sub query "
                     + "should be a URI or a literal with datatype " + SPARQLExt.MEDIA_TYPE_URI + ". Got: " + queryNode);
         }
-        if(queryNode.isLiteral() && args.size()>1) {
+        if (queryNode.isLiteral() && args.size() > 1) {
             throw new ExprEvalException("Expecting at most one argument wher first argument is a literal.");
         }
-        
+
         RootPlan plan;
         final Binding newBinding;
-        if(queryNode.isIRI()) {
+        if (queryNode.isIRI()) {
             String queryName = queryNode.asNode().getURI();
             plan = getPlanforName(queryName, env);
             newBinding = getNewBindingForName(binding, queryName, args, env);
@@ -143,7 +143,6 @@ public class ST_Call_Template implements Function {
             throw new ExprEvalException(message, ex);
         }
     }
-
 
     private RootPlan getPlanforString(
             String queryString,
@@ -195,18 +194,17 @@ public class ST_Call_Template implements Function {
         return newBinding;
     }
 
-
     private Binding getNewBindingForString(
             final Binding binding,
             final String queryString,
             final FunctionEnv env) {
         final Map<String, SPARQLExtQuery> loadedQueries = (Map<String, SPARQLExtQuery>) env.getContext().get(SPARQLExt.LOADED_QUERIES);
         final SPARQLExtQuery expandedQuery = loadedQueries.get(queryString);
-        if(!expandedQuery.hasSignature()) {
+        if (!expandedQuery.hasSignature()) {
             return BindingFactory.binding(binding);
         }
         final BindingMap newBinding = BindingFactory.create();
-        for(Var v : expandedQuery.getSignature()) {
+        for (Var v : expandedQuery.getSignature()) {
             newBinding.add(v, binding.get(v));
         }
         return newBinding;
@@ -218,7 +216,7 @@ public class ST_Call_Template implements Function {
             final FunctionEnv env) {
         Dataset inputDataset = env.getContext().get(SPARQLExt.DATASET);
         List<Var> vars = new ArrayList<>();
-        for(Iterator<Var> vs = binding.vars(); vs.hasNext();  ) {
+        for (Iterator<Var> vs = binding.vars(); vs.hasNext();) {
             vars.add(vs.next());
         }
         final List<Binding> values = new ArrayList<>();
@@ -230,7 +228,14 @@ public class ST_Call_Template implements Function {
         try {
             future.get();
             return sb.toString();
-        } catch (InterruptedException | ExecutionException ex) {
+        } catch (InterruptedException ex) {
+            LOG.warn("Interrupted while executing the SPARQL-Template query");
+            throw new ExprEvalException(ex);
+        } catch (ExecutionException ex) {
+            if (ex.getCause() instanceof ExprEvalException) {
+                LOG.warn("ExprEvalException while executing the SPARQL-Template query", ex.getCause());
+                throw (ExprEvalException) ex.getCause();
+            }
             LOG.warn("Error while executing the SPARQL-Template query", ex);
             throw new ExprEvalException(ex);
         }
