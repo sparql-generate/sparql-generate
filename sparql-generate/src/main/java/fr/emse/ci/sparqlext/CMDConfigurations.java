@@ -49,7 +49,7 @@ public class CMDConfigurations {
     public static final String ARG_OUTPUT_APPEND_MAN = "Write from the end of the output file, instead of replacing it.";
     public static final String ARG_OUTPUT_FORMAT = "of";
     public static final String ARG_OUTPUT_FORMAT_LONG = "output-format";
-    public static final String ARG_OUTPUT_FORMAT_MAN = "Format of the output file, e.g. TTL, NT, etc.";
+    public static final String ARG_OUTPUT_FORMAT_MAN = "Format of the output file, e.g. TTL, NT, etc. for GENERATE, or TEXT, XML, CSV, etc. for SELECT.";
     public static final String ARG_SOURCE_LONG = "source";
     public static final String ARG_SOURCE_MAN = "Replaces <source> in a SOURCE clause with the given value, e.g. urn:sg:source=source.json.";
     public static final String ARG_STREAM = "s";

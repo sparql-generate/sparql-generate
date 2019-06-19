@@ -59,6 +59,7 @@ import org.apache.jena.query.ResultSet;
 import org.apache.jena.query.ResultSetFormatter;
 import org.apache.jena.sparql.resultset.ResultsFormat;
 import org.apache.jena.sparql.util.Context;
+import org.apache.jena.sparql.util.ResultSetUtils;
 import org.rdfhdt.hdt.hdt.HDT;
 
 /**
@@ -274,7 +275,11 @@ public class SPARQLExtCli {
                     out = new FileOutputStream(output, outputAppend);
                 }
                 ResultsFormat format = getResultsFormat(outputLang);
-                ResultSetFormatter.output(out, result, format);
+                if(format.equals(ResultsFormat.FMT_TEXT)) {
+                    ResultSetFormatter.out(out, result);
+                } else {
+                    ResultSetFormatter.output(out, result, format);                    
+                }
             } catch (IOException ex) {
                 LOG.error("Error while opening the output file.", ex);
             }
@@ -294,8 +299,14 @@ public class SPARQLExtCli {
                 }
                 ResultsFormat format = getResultsFormat(outputLang);
                 plan.execSelect(ds,
-                        (result) -> {
-                            ResultSetFormatter.output(out, result, format);
+                       (result) -> {
+                            LOG.info("entering accept");
+                            if(format.equals(ResultsFormat.FMT_TEXT)) {
+                                ResultSetFormatter.out(out, result);
+                            } else{
+                                ResultSetFormatter.output(out, result, format);                            
+                            }
+                            LOG.info("exiting accept");
                         },
                         context).get();
             } catch (IOException ex) {
@@ -316,6 +327,7 @@ public class SPARQLExtCli {
             }
             String result = plan.execTemplate(ds, context);
             ps.print(result);
+            ps.flush();
         } catch (Exception ex) {
             LOG.error("Error while executing the plan.", ex);
         }

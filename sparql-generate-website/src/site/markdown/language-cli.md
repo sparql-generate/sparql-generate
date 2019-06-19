@@ -11,15 +11,18 @@ java -jar sparql-generate-latest.jar [arguments]
 #### SPARQL Extensions Executable JAR Arguments
 
 * `-h,--help` Show help
+* `-b,--base <arg>`  Base URI of the working directory. If set, each file in the working directory is identified by a URI resolved against the base.
 * `-d,--dir <arg>` Location of the directory with the queryset, documentset, dataset, and configuration files as explained below. Default value is '.' (the current folder)
-* `-q,--query-file <arg>` Name of the query file in the directory. Default value is ./query.rqg
+* `-q,--query-file <arg>` Name of the query file in the directory. Default value is `./query.rqg`
 * `-o,--output <arg>` Location where the output is to be stored. No value means output goes to the console.
 * `-oa,--output-append` Write from the end of the output file, instead of replacing it.
-* `-of,--output-format` Format of the output file, e.g. TTL, NT, etc.
+* `-of,--output-format` Format of the output file, e.g. TTL, NT, etc. for GENERATE, or TEXT, XML, CSV, etc. for SELECT. 
 * `-l,--log-level <arg>` Set log level, acceptable values are TRACE < DEBUG < INFO < WARN < ERROR < OFF. No value or unrecognized value results in level TRACE
 * `-f,--log-file <arg>` Location where the log is to be stored. No value means output goes to the console.
 * `-s,--stream` Generate output as stream.
 * `-hdt,--hdt` Generate output as HDT.
+* `-dt,--debug-template` Debug the template output: insert warning identifiers that refer to the log.
+* `--source` Replaces `<source>` in a `SOURCE` clause with the given value, e.g. `urn:sg:source=source.json`.
 
 
 
