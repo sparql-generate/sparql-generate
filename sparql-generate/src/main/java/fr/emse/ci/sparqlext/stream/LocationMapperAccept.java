@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import org.apache.jena.query.Query;
+import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.QueryExecutionFactory;
 import org.apache.jena.query.QueryFactory;
 import org.apache.jena.rdf.model.Model;
@@ -56,17 +57,19 @@ public class LocationMapperAccept extends LocationMapper {
                 + "?e lm:name ?name ; lm:altName ?alt ."
                 + "OPTIONAL { ?e lm:media ?media . } "
                 + "}");
-        QueryExecutionFactory.create(q, configurationModel).execSelect().forEachRemaining((result) -> {
-            String name = null, altName = null, media = null;
-            try {
-                name = result.getLiteral("name").getString();
-                altName = result.getLiteral("alt").getString();
-                media = (result.getLiteral("media") == null ? null : result.getLiteral("media").getString());
-                altLocations.put(new LookUpRequest(name, media), new LookUpRequest(altName, media));
-            } catch (Exception ex) {
-                log.debug("Error while reading mapping in configuration model for name " + name + ", alt " + altName + ", media " + media, ex);
-            }
-        });
+        try (QueryExecution exec = QueryExecutionFactory.create(q, configurationModel)){
+            exec.execSelect().forEachRemaining((result) -> {
+                String name = null, altName = null, media = null;
+                try {
+                    name = result.getLiteral("name").getString();
+                    altName = result.getLiteral("alt").getString();
+                    media = (result.getLiteral("media") == null ? null : result.getLiteral("media").getString());
+                    altLocations.put(new LookUpRequest(name, media), new LookUpRequest(altName, media));
+                } catch (Exception ex) {
+                    log.debug("Error while reading mapping in configuration model for name " + name + ", alt " + altName + ", media " + media, ex);
+                }
+            });
+        }
     }
 
     /**

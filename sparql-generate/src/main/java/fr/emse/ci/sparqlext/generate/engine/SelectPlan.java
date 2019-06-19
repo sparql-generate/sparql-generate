@@ -29,6 +29,8 @@ import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.QueryExecutionFactory;
 import org.apache.jena.query.ResultSet;
+import org.apache.jena.query.ResultSetFactory;
+import org.apache.jena.query.ResultSetRewindable;
 import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.engine.binding.Binding;
 import org.apache.jena.sparql.engine.binding.BindingHashMap;
@@ -52,11 +54,13 @@ public class SelectPlan {
      */
     public final Query select;
 
-    private final boolean isSelectType; 
+    private final boolean isSelectType;
+
     /**
      * Constructor.
      *
      * @param query the SPARQL SELECT query.
+     * @param isSelectType
      */
     public SelectPlan(final Query query, final boolean isSelectType) {
         if (!query.isSelectType()) {
@@ -97,28 +101,40 @@ public class SelectPlan {
         final List<CompletableFuture<Void>> fs
                 = futureValues.stream().map((fb) -> fb.thenAccept(values::add)).collect(Collectors.toList());
         return CompletableFuture.allOf(fs.toArray(new CompletableFuture[fs.size()])).thenApplyAsync((n) -> {
-            LOG.debug("Executing select with " + futureValues.size() + " bindings");
             final Query q = createQuery(select, variables, values);
             if (LOG.isTraceEnabled()) {
-                LOG.trace("Query is\n" + q
-                        + " \ninitial values are:\n" + SPARQLExt.log(variables, values));
+                StringBuilder sb = new StringBuilder("Executing select query:\n");
+                sb.append(q.toString());
+                if (variables.size() > 0 && values.size() > 0) {
+                    sb.append(" \nwith initial values:\n");
+                    sb.append(SPARQLExt.log(variables, values));
+                } else {
+                    sb.append(" \nwithout initial values.");
+                }
+                LOG.trace(sb.toString());
+            } else if (LOG.isDebugEnabled()) {
+                LOG.debug("Executing select query with " + futureValues.size() + " bindings.");
             }
             try {
                 augmentQuery(q, variables, values);
-                if (LOG.isTraceEnabled()) {
-                    final QueryExecution exec = QueryExecutionFactory.create(q, inputDataset);
+                ResultSetRewindable rewindable;
+                try (QueryExecution exec = QueryExecutionFactory.create(q, inputDataset)) {
                     exec.getContext().putAll(context);
                     ResultSet result = exec.execSelect();
-                    final List<Var> resultVariables = SPARQLExt.getVariables(result.getResultVars(), context);
-                    final List<Binding> resultBindings = new ArrayList<>();
-                    while (result.hasNext()) {
-                        resultBindings.add(result.nextBinding());
-                    }
-                    LOG.debug("Query output is\n" + SPARQLExt.log(resultVariables, resultBindings));
+                    rewindable = ResultSetFactory.copyResults(result);
                 }
-                final QueryExecution exec = QueryExecutionFactory.create(q, inputDataset);
-                exec.getContext().putAll(context);
-                return exec.execSelect();
+                if (LOG.isTraceEnabled()) {
+                    final List<Var> resultVariables = SPARQLExt.getVariables(rewindable.getResultVars(), context);
+                    final List<Binding> resultBindings = new ArrayList<>();
+                    while (rewindable.hasNext()) {
+                        resultBindings.add(rewindable.nextBinding());
+                    }
+                    rewindable.reset();
+                    LOG.trace("Query output is\n" + SPARQLExt.log(resultVariables, resultBindings));
+                } else if (LOG.isDebugEnabled()) {
+                    LOG.debug("Query has " + rewindable.size() + " output for variables " + rewindable.getResultVars());
+                }
+                return rewindable;
             } catch (Exception ex) {
                 LOG.error("Error while executing SELECT Query " + q, ex);
                 throw new SPARQLExtException("Error while executing SELECT "
@@ -164,7 +180,11 @@ public class SelectPlan {
             values.forEach(data::add);
             newQueryPattern.addElement(data);
             old.getElements().forEach(newQueryPattern::addElement);
-            LOG.debug("New query has " + data.getRows().size() + " initial values");
+            if (LOG.isDebugEnabled()) {
+                if (data.getVars().size() > 0 && data.getRows().size() > 0) {
+                    LOG.debug("New query has " + data.getRows().size() + " initial values " + data);
+                }
+            }
             // unexplainable, but did happen
             check(data, values);
         }
