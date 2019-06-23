@@ -37,6 +37,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.QueryFactory;
 import org.apache.jena.query.QueryParseException;
+import org.apache.jena.riot.SysRIOT;
 import org.apache.jena.sparql.ARQInternalErrorException;
 import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.engine.binding.Binding;
@@ -127,7 +128,7 @@ public class ST_Call_Template implements Function {
             if (loadedPlans.containsKey(queryName)) {
                 return loadedPlans.get(queryName);
             }
-            final SPARQLExtStreamManager sm = (SPARQLExtStreamManager) context.get(SPARQLExt.STREAM_MANAGER);
+            final SPARQLExtStreamManager sm = (SPARQLExtStreamManager) context.get(SysRIOT.sysStreamManager);
             final LookUpRequest request = new LookUpRequest(queryName, SPARQLExt.MEDIA_TYPE);
             final InputStream in = sm.open(request);
             String qString = IOUtils.toString(in, Charset.forName("UTF-8"));

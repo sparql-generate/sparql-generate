@@ -15,7 +15,6 @@
  */
 package fr.emse.ci.sparqlext.function.library;
 
-import fr.emse.ci.sparqlext.SPARQLExt;
 import fr.emse.ci.sparqlext.stream.LookUpRequest;
 import fr.emse.ci.sparqlext.stream.SPARQLExtStreamManager;
 import fr.emse.ci.sparqlext.utils.ST;
@@ -27,6 +26,7 @@ import java.util.List;
 import java.util.Objects;
 import org.apache.commons.io.IOUtils;
 import org.apache.jena.atlas.web.TypedInputStream;
+import org.apache.jena.riot.SysRIOT;
 import org.apache.jena.sparql.ARQInternalErrorException;
 import org.apache.jena.sparql.engine.binding.Binding;
 import org.apache.jena.sparql.expr.Expr;
@@ -109,7 +109,7 @@ public class ST_Format implements Function {
         String tPath = template.asNode().getURI();
         String acceptHeader = "*/*";
         LookUpRequest req = new LookUpRequest(tPath, acceptHeader);
-        final SPARQLExtStreamManager sm = (SPARQLExtStreamManager) env.getContext().get(SPARQLExt.STREAM_MANAGER);
+        final SPARQLExtStreamManager sm = (SPARQLExtStreamManager) env.getContext().get(SysRIOT.sysStreamManager);
         Objects.requireNonNull(sm);
         TypedInputStream tin = sm.open(req);
         if (tin == null) {

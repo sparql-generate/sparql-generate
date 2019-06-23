@@ -104,6 +104,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static org.apache.jena.riot.RDFLanguages.strLangRDFXML;
+import org.apache.jena.riot.SysRIOT;
 import static org.apache.jena.riot.WebContent.contentTypeRDFXML;
 import org.apache.jena.shared.PrefixMapping;
 import org.apache.jena.sparql.ARQConstants;
@@ -142,7 +143,8 @@ public final class SPARQLExt {
     public static final String MEDIA_TYPE_URI = "http://www.iana.org/assignments/media-types/" + MEDIA_TYPE;
 
     /**
-     * The namespace of SPARQL-Generate.
+     * The namespace of SPARQL-Generate, also the root of
+     * SPARQL-Genearte-defined parameter names
      */
     public static final String NS = "http://w3id.org/sparql-generate/";
 
@@ -171,33 +173,31 @@ public final class SPARQLExt {
      */
     public static final Syntax SYNTAX;
 
-    public static final Symbol PREFIX_MANAGER = SystemARQ.allocSymbol("prefixManager");
+    public static final Symbol PREFIX_MANAGER = SystemARQ.allocSymbol(NS, "prefixManager");
 
-    public static final Symbol INDENT = SystemARQ.allocSymbol("indent");
+    public static final Symbol INDENT = SystemARQ.allocSymbol(NS, "indent");
 
-    public static final Symbol INDENT_CONTROL = SystemARQ.allocSymbol("indent_control");
+    public static final Symbol INDENT_CONTROL = SystemARQ.allocSymbol(NS, "indent_control");
 
-    public static final Symbol LOADED_QUERIES = SystemARQ.allocSymbol("loaded_queries");
+    public static final Symbol LOADED_QUERIES = SystemARQ.allocSymbol(NS, "loaded_queries");
 
-    public static final Symbol LOADED_PLANS = SystemARQ.allocSymbol("loaded_plans");
+    public static final Symbol LOADED_PLANS = SystemARQ.allocSymbol(NS, "loaded_plans");
 
-    public static final Symbol EXECUTION_CALLS = SystemARQ.allocSymbol("execution_calls");
+    public static final Symbol EXECUTION_CALLS = SystemARQ.allocSymbol(NS, "execution_calls");
 
-    public static final Symbol STREAM_MANAGER = SystemARQ.allocSymbol("stream_manager");
+    public static final Symbol VARS = SystemARQ.allocSymbol(NS, "vars");
 
-    public static final Symbol VARS = SystemARQ.allocSymbol("vars");
+    public static final Symbol DATASET = SystemARQ.allocSymbol(NS, "dataset");
 
-    public static final Symbol DATASET = SystemARQ.allocSymbol("dataset");
+    public static final Symbol EXECUTOR = SystemARQ.allocSymbol(NS, "executor");
 
-    public static final Symbol EXECUTOR = SystemARQ.allocSymbol("executor");
+    public static final Symbol CLOSE_TASKS = SystemARQ.allocSymbol(NS, "close_tasks");
 
-    public static final Symbol CLOSE_TASKS = SystemARQ.allocSymbol("close_tasks");
+    public static final Symbol SIZE = SystemARQ.allocSymbol(NS, "size");
 
-    public static final Symbol SIZE = SystemARQ.allocSymbol("size");
+    public static final Symbol LIST_NODES = SystemARQ.allocSymbol(NS, "list_nodes");
 
-    public static final Symbol LIST_NODES = SystemARQ.allocSymbol("list_nodes");
-
-    public static final Symbol DEBUG_ST_CONCAT = SystemARQ.allocSymbol("debug_st_concat");    
+    public static final Symbol DEBUG_ST_CONCAT = SystemARQ.allocSymbol(NS, "debug_st_concat");
 
     /**
      * Forces the initialization of SPARQL-Generate.
@@ -385,7 +385,7 @@ public final class SPARQLExt {
          * The selectors library registry key.
          */
         public static final Symbol registryIterators
-                = SystemARQ.allocSymbol("registryIterators");
+                = SystemARQ.allocSymbol(NS, "registryIterators");
     }
 
     public static synchronized Context createContext(PrefixMapping pm) {
@@ -410,7 +410,7 @@ public final class SPARQLExt {
         context.set(SPARQLExt.LOADED_QUERIES, new HashMap<>());
         context.set(SPARQLExt.LOADED_PLANS, new HashMap<>());
         context.set(SPARQLExt.EXECUTION_CALLS, new HashMap<>());
-        context.set(SPARQLExt.STREAM_MANAGER, sm);
+        context.set(SysRIOT.sysStreamManager, sm);
         context.set(SPARQLExt.VARS, new HashMap<>());
         context.set(SPARQLExt.EXECUTOR, executor);
         context.set(SPARQLExt.CLOSE_TASKS, new HashSet<>());
@@ -432,7 +432,7 @@ public final class SPARQLExt {
         newContext.set(SPARQLExt.LOADED_QUERIES, newContext.get(SPARQLExt.LOADED_QUERIES, new HashMap<>()));
         newContext.set(SPARQLExt.LOADED_PLANS, newContext.get(SPARQLExt.LOADED_PLANS, new HashMap<>()));
         newContext.set(SPARQLExt.EXECUTION_CALLS, newContext.get(SPARQLExt.EXECUTION_CALLS, new HashMap<>()));
-        newContext.set(SPARQLExt.STREAM_MANAGER, newContext.get(SPARQLExt.STREAM_MANAGER, SPARQLExtStreamManager.makeStreamManager()));
+        newContext.set(SysRIOT.sysStreamManager, newContext.get(SysRIOT.sysStreamManager, SPARQLExtStreamManager.makeStreamManager()));
         newContext.set(SPARQLExt.VARS, newContext.get(SPARQLExt.VARS, new HashMap<>()));
         newContext.set(SPARQLExt.EXECUTOR, newContext.get(SPARQLExt.EXECUTOR, Executors.newWorkStealingPool()));
         newContext.set(SPARQLExt.CLOSE_TASKS, newContext.get(SPARQLExt.CLOSE_TASKS, new HashSet<>()));
@@ -603,7 +603,7 @@ public final class SPARQLExt {
             throw new SPARQLExtException("The two characters that follow the indentation control sequence " + getIndentControl(context) + " is not an integer. Got " + incrString);
         }
     }
-    
+
     public static void setDebugStConcat(Context context, boolean debugStConcat) {
         context.set(SPARQLExt.DEBUG_ST_CONCAT, debugStConcat);
     }
@@ -649,7 +649,7 @@ public final class SPARQLExt {
 
     private static ElementData compress(List<Binding> input) {
         ElementData el = new ElementData();
-        
+
         if (input.size() < 10) {
             input.forEach((b) -> {
                 addCompressedToElementData(el, b);
@@ -668,7 +668,6 @@ public final class SPARQLExt {
         }
         return el;
     }
-
 
     private static void addCompressedToElementData(ElementData el, Binding b) {
         final Binding compressed = compress(b);

@@ -33,6 +33,7 @@ import org.apache.jena.datatypes.TypeMapper;
 
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
+import org.apache.jena.riot.SysRIOT;
 import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.ExprList;
 import org.apache.jena.sparql.expr.NodeValue;
@@ -202,7 +203,7 @@ public class ITER_CSSPath extends IteratorFunctionBase {
         }
         String htmlPath = html.asNode().getURI();
         LookUpRequest req = new LookUpRequest(htmlPath, "text/html");
-        final SPARQLExtStreamManager sm = (SPARQLExtStreamManager) getContext().get(SPARQLExt.STREAM_MANAGER);
+        final SPARQLExtStreamManager sm = (SPARQLExtStreamManager) getContext().get(SysRIOT.sysStreamManager);
         Objects.requireNonNull(sm);
         TypedInputStream tin = sm.open(req);
         if (tin == null) {

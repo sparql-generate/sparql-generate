@@ -17,6 +17,7 @@ package fr.emse.ci.sparqlext.generate.engine;
 
 import fr.emse.ci.sparqlext.SPARQLExt;
 import fr.emse.ci.sparqlext.SPARQLExtException;
+import fr.emse.ci.sparqlext.query.SPARQLExtQuery;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -27,13 +28,13 @@ import java.util.stream.Collectors;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryExecution;
-import org.apache.jena.query.QueryExecutionFactory;
 import org.apache.jena.query.ResultSet;
 import org.apache.jena.query.ResultSetFactory;
 import org.apache.jena.query.ResultSetRewindable;
 import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.engine.binding.Binding;
 import org.apache.jena.sparql.engine.binding.BindingHashMap;
+import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.syntax.ElementData;
 import org.apache.jena.sparql.syntax.ElementGroup;
 import org.apache.jena.sparql.util.Context;
@@ -118,10 +119,12 @@ public class SelectPlan {
             try {
                 augmentQuery(q, variables, values);
                 ResultSetRewindable rewindable;
-                try (QueryExecution exec = QueryExecutionFactory.create(q, inputDataset)) {
-                    exec.getContext().putAll(context);
+                try (QueryExecution exec = new SPARQLExtSelectExecution((SPARQLExtQuery) q, inputDataset, context)) {
                     ResultSet result = exec.execSelect();
                     rewindable = ResultSetFactory.copyResults(result);
+                } catch (ClassCastException ex) {
+                    LOG.warn("Expecting a SPARQLExt query");
+                    throw new ExprEvalException("Expecting a SPARQLExt query");
                 }
                 if (LOG.isTraceEnabled()) {
                     final List<Var> resultVariables = SPARQLExt.getVariables(rewindable.getResultVars(), context);

@@ -27,6 +27,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.Properties;
 import org.apache.jena.atlas.web.TypedInputStream;
+import org.apache.jena.riot.SysRIOT;
 import org.apache.jena.sparql.ARQInternalErrorException;
 import org.apache.jena.sparql.engine.binding.Binding;
 import org.apache.jena.sparql.expr.ExprList;
@@ -110,7 +111,7 @@ public final class FUN_Property implements Function {
         }
         String filePath = file.asNode().getURI();
         LookUpRequest req = new LookUpRequest(filePath);
-        final SPARQLExtStreamManager sm = (SPARQLExtStreamManager) context.get(SPARQLExt.STREAM_MANAGER);
+        final SPARQLExtStreamManager sm = (SPARQLExtStreamManager) context.get(SysRIOT.sysStreamManager);
         Objects.requireNonNull(sm);
         TypedInputStream tin = sm.open(req);
         if (tin == null) {

@@ -32,6 +32,7 @@ import org.apache.jena.datatypes.DatatypeFormatException;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 import java.io.InputStream;
+import org.apache.jena.riot.SysRIOT;
 import org.apache.jena.sparql.engine.binding.BindingFactory;
 import org.apache.jena.sparql.engine.binding.Binding;
 import org.apache.jena.sparql.util.Context;
@@ -100,7 +101,7 @@ public class SourcePlan extends BindOrSourcePlan {
         final String acceptHeader = getAcceptHeader(binding);
         LOG.trace("... resolved to SOURCE <" + sourceUri + "> ACCEPT " + acceptHeader + " AS " + var);
         final LookUpRequest request = new LookUpRequest(sourceUri, acceptHeader);
-        final SPARQLExtStreamManager sm = (SPARQLExtStreamManager) context.get(SPARQLExt.STREAM_MANAGER);
+        final SPARQLExtStreamManager sm = (SPARQLExtStreamManager) context.get(SysRIOT.sysStreamManager);
         Objects.requireNonNull(sm);
         final TypedInputStream stream = sm.open(request);
         if (stream == null) {

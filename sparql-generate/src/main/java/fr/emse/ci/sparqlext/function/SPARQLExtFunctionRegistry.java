@@ -32,6 +32,7 @@ import org.apache.jena.atlas.logging.Log;
 
 import org.apache.jena.atlas.web.TypedInputStream;
 import org.apache.jena.query.QueryFactory;
+import org.apache.jena.riot.SysRIOT;
 import org.apache.jena.sparql.function.Function;
 import org.apache.jena.sparql.function.FunctionFactory;
 import org.apache.jena.sparql.function.FunctionRegistry;
@@ -113,7 +114,7 @@ public class SPARQLExtFunctionRegistry extends FunctionRegistry {
             return null;
         }
         final LookUpRequest req = new LookUpRequest(uri, "application/vnd.sparql-generate");
-        final SPARQLExtStreamManager sm = (SPARQLExtStreamManager) context.get(SPARQLExt.STREAM_MANAGER);
+        final SPARQLExtStreamManager sm = (SPARQLExtStreamManager) context.get(SysRIOT.sysStreamManager);
         Objects.requireNonNull(sm);
         TypedInputStream tin = sm.open(req);
         if (tin == null) {

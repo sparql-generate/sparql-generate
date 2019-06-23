@@ -39,6 +39,7 @@ import org.apache.jena.query.QueryParseException;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.ResultSet;
 import org.apache.jena.rdf.model.RDFNode;
+import org.apache.jena.riot.SysRIOT;
 import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.engine.binding.Binding;
 import org.apache.jena.sparql.engine.binding.BindingFactory;
@@ -113,7 +114,7 @@ public class ITER_Call_Select extends IteratorStreamFunctionBase {
             if (loadedPlans.containsKey(queryName)) {
                 return loadedPlans.get(queryName);
             }
-            final SPARQLExtStreamManager sm = (SPARQLExtStreamManager) context.get(SPARQLExt.STREAM_MANAGER);
+            final SPARQLExtStreamManager sm = (SPARQLExtStreamManager) context.get(SysRIOT.sysStreamManager);
             final LookUpRequest request = new LookUpRequest(queryName, SPARQLExt.MEDIA_TYPE);
             final InputStream in = sm.open(request);
             String qString = IOUtils.toString(in, Charset.forName("UTF-8"));

@@ -31,6 +31,7 @@ import java.util.function.Consumer;
 import org.apache.commons.io.IOUtils;
 import org.apache.jena.atlas.web.TypedInputStream;
 import org.apache.jena.graph.Node;
+import org.apache.jena.riot.SysRIOT;
 
 import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.ExprList;
@@ -146,7 +147,7 @@ public class ITER_JSONSurfer extends IteratorStreamFunctionBase {
         } else if (json.isIRI()) {
             String csvPath = json.asNode().getURI();
             LookUpRequest req = new LookUpRequest(csvPath, "application/json");
-            final SPARQLExtStreamManager sm = (SPARQLExtStreamManager) getContext().get(SPARQLExt.STREAM_MANAGER);
+            final SPARQLExtStreamManager sm = (SPARQLExtStreamManager) getContext().get(SysRIOT.sysStreamManager);
             Objects.requireNonNull(sm);
             TypedInputStream tin = sm.open(req);
             if (tin == null) {

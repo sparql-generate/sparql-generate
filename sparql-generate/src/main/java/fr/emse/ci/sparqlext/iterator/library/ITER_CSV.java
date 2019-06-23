@@ -41,6 +41,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 import org.apache.commons.io.IOUtils;
+import org.apache.jena.riot.SysRIOT;
 
 /**
  * Iterator function
@@ -222,7 +223,7 @@ public class ITER_CSV extends IteratorStreamFunctionBase {
         } else if (csv.isIRI()) {
             String csvPath = csv.asNode().getURI();
             LookUpRequest req = new LookUpRequest(csvPath, "text/csv");
-            final SPARQLExtStreamManager sm = (SPARQLExtStreamManager) getContext().get(SPARQLExt.STREAM_MANAGER);
+            final SPARQLExtStreamManager sm = (SPARQLExtStreamManager) getContext().get(SysRIOT.sysStreamManager);
             Objects.requireNonNull(sm);
             TypedInputStream tin = sm.open(req);
             if (tin == null) {

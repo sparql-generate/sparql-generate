@@ -19,11 +19,9 @@ import fr.emse.ci.sparqlext.SPARQLExt;
 import fr.emse.ci.sparqlext.generate.engine.BNodeMap;
 import fr.emse.ci.sparqlext.generate.engine.PlanFactory;
 import fr.emse.ci.sparqlext.generate.engine.RootPlan;
-import fr.emse.ci.sparqlext.lang.ParserSPARQLExt;
 import fr.emse.ci.sparqlext.query.SPARQLExtQuery;
 import fr.emse.ci.sparqlext.stream.LookUpRequest;
 import fr.emse.ci.sparqlext.stream.SPARQLExtStreamManager;
-import fr.emse.ci.sparqlext.utils.ST;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
@@ -39,6 +37,7 @@ import org.apache.jena.query.Dataset;
 import org.apache.jena.query.QueryFactory;
 import org.apache.jena.query.QueryParseException;
 import org.apache.jena.query.ResultSet;
+import org.apache.jena.riot.SysRIOT;
 import org.apache.jena.sparql.ARQInternalErrorException;
 import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.engine.binding.Binding;
@@ -149,7 +148,7 @@ public class FUN_Select_Call_Template implements Function {
                 final RootPlan plan = loadedPlans.get(templateName);
                 return new QueryAndPlan(q, plan, templateName);
             }
-            final SPARQLExtStreamManager sm = (SPARQLExtStreamManager) context.get(SPARQLExt.STREAM_MANAGER);
+            final SPARQLExtStreamManager sm = (SPARQLExtStreamManager) context.get(SysRIOT.sysStreamManager);
             final LookUpRequest request = new LookUpRequest(templateName, SPARQLExt.MEDIA_TYPE);
             final InputStream in = sm.open(request);
             String qString = IOUtils.toString(in, Charset.forName("UTF-8"));

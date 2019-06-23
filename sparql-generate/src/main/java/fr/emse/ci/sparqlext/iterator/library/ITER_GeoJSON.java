@@ -42,6 +42,7 @@ import java.util.List;
 import java.util.Objects;
 import org.apache.commons.io.IOUtils;
 import org.apache.jena.atlas.web.TypedInputStream;
+import org.apache.jena.riot.SysRIOT;
 import org.apache.jena.sparql.expr.ExprEvalException;
 
 /**
@@ -133,7 +134,7 @@ public class ITER_GeoJSON extends IteratorFunctionBase1 {
         }
         String jsonPath = geojson.asNode().getURI();
         LookUpRequest req = new LookUpRequest(jsonPath, "application/geo+json");
-        final SPARQLExtStreamManager sm = (SPARQLExtStreamManager) getContext().get(SPARQLExt.STREAM_MANAGER);
+        final SPARQLExtStreamManager sm = (SPARQLExtStreamManager) getContext().get(SysRIOT.sysStreamManager);
         Objects.requireNonNull(sm);
         TypedInputStream tin = sm.open(req);
         if (tin == null) {

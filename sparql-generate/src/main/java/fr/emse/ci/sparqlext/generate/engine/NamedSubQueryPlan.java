@@ -41,6 +41,7 @@ import java.util.function.Consumer;
 import org.apache.jena.query.QueryFactory;
 import org.apache.jena.query.QueryParseException;
 import org.apache.jena.query.ResultSet;
+import org.apache.jena.riot.SysRIOT;
 import org.apache.jena.riot.system.StreamRDF;
 import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.engine.binding.Binding;
@@ -142,7 +143,7 @@ public class NamedSubQueryPlan implements ExecutionPlan {
                 return loadedPlans.get(queryName);
             }
             final LookUpRequest request = new LookUpRequest(queryName, SPARQLExt.MEDIA_TYPE);
-            final SPARQLExtStreamManager sm = (SPARQLExtStreamManager) context.get(SPARQLExt.STREAM_MANAGER);
+            final SPARQLExtStreamManager sm = (SPARQLExtStreamManager) context.get(SysRIOT.sysStreamManager);
             final InputStream in = sm.open(request);
             String qString = IOUtils.toString(in, Charset.forName("UTF-8"));
             final SPARQLExtQuery q

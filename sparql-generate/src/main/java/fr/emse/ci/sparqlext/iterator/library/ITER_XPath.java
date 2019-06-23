@@ -44,6 +44,7 @@ import java.util.Objects;
 import javax.xml.transform.TransformerFactory;
 import org.apache.commons.io.IOUtils;
 import org.apache.jena.atlas.web.TypedInputStream;
+import org.apache.jena.riot.SysRIOT;
 import org.apache.jena.sparql.expr.ExprList;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
@@ -208,7 +209,7 @@ public class ITER_XPath extends IteratorFunctionBase {
         String xmlPath = xml.asNode().getURI();
         String acceptHeader = "application/xml";
         LookUpRequest req = new LookUpRequest(xmlPath, acceptHeader);
-        final SPARQLExtStreamManager sm = (SPARQLExtStreamManager) getContext().get(SPARQLExt.STREAM_MANAGER);
+        final SPARQLExtStreamManager sm = (SPARQLExtStreamManager) getContext().get(SysRIOT.sysStreamManager);
         Objects.requireNonNull(sm);
         TypedInputStream tin = sm.open(req);
         if (tin == null) {

@@ -40,6 +40,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.jena.atlas.web.TypedInputStream;
 import org.apache.jena.datatypes.RDFDatatype;
 import org.apache.jena.datatypes.TypeMapper;
+import org.apache.jena.riot.SysRIOT;
 
 /**
  * Iterator function
@@ -110,7 +111,7 @@ public class ITER_HTTPGet extends IteratorStreamFunctionBase {
         }
         int times = args.size() == 3 ? args.get(2).getInteger().intValue() : Integer.MAX_VALUE;
 
-        final SPARQLExtStreamManager sm = (SPARQLExtStreamManager) getContext().get(SPARQLExt.STREAM_MANAGER);
+        final SPARQLExtStreamManager sm = (SPARQLExtStreamManager) getContext().get(SysRIOT.sysStreamManager);
         for (int i = 0; i < times; i++) {
             long start = System.nanoTime();
             LOG.info("Call HTTPGet #" + i + " to " + url_s);
