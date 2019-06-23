@@ -29,6 +29,7 @@ import fr.emse.ci.sparqlext.function.library.FUN_CamelCase;
 import fr.emse.ci.sparqlext.function.library.FUN_MixedCase;
 import fr.emse.ci.sparqlext.function.library.FUN_PrefixedIRI;
 import fr.emse.ci.sparqlext.function.library.FUN_Property;
+import fr.emse.ci.sparqlext.function.library.FUN_Select_Call_Template;
 import fr.emse.ci.sparqlext.function.library.FUN_TitleCase;
 import fr.emse.ci.sparqlext.function.library.ST_Call_Template;
 import fr.emse.ci.sparqlext.function.library.ST_Concat;
@@ -226,6 +227,7 @@ public final class SPARQLExt {
         fnreg.put(FUN_MixedCase.URI, FUN_MixedCase.class);
         fnreg.put(FUN_TitleCase.URI, FUN_TitleCase.class);
         fnreg.put(FUN_PrefixedIRI.URI, FUN_PrefixedIRI.class);
+        fnreg.put(FUN_Select_Call_Template.URI, FUN_Select_Call_Template.class);
 
         fnreg.put(ST_Call_Template.URI, ST_Call_Template.class);
         fnreg.put(ST_Decr.URI, ST_Decr.class);

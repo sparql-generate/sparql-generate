@@ -24,6 +24,7 @@ import org.apache.jena.sparql.expr.ExprList;
 import org.apache.jena.sparql.syntax.Element;
 import fr.emse.ci.sparqlext.SPARQLExt;
 import fr.emse.ci.sparqlext.SPARQLExtException;
+import fr.emse.ci.sparqlext.function.library.FUN_Select_Call_Template;
 import fr.emse.ci.sparqlext.query.SPARQLExtQuery;
 import fr.emse.ci.sparqlext.iterator.IteratorFunctionRegistry;
 import fr.emse.ci.sparqlext.syntax.ElementIterator;
@@ -689,10 +690,18 @@ public class PlanFactory {
         @Override
         public void visit(ElementSubExtQuery el) {
             SPARQLExtQuery query = el.getQuery();
-            if (query.isNamedSubQuery()) {
-                ExprList exprList = new ExprList(NodeValueNode.makeNode(query.getName()));
+            if (query.isNamedSubQuery()) { 
+                String qs = query.toString();
+                SPARQLExtQuery query2 = (SPARQLExtQuery) ParserSPARQLExt.parseSubQuery(query, qs);
+                query2.setQuerySelectType();
+                query2.setQueryResultStar(true);
+                query2.setName(null);
+                query2.setCallParameters(null);
+                NodeValue selectQuery = NodeValue.makeNode(query2.toString(), null, SPARQLExt.MEDIA_TYPE_URI);
+                ExprList exprList = new ExprList(selectQuery);
+                exprList.add(NodeValueNode.makeNode(query.getName()));
                 exprList.addAll(query.getCallParameters());
-                result = new E_Function(ST.callTemplate, exprList);
+                result = new E_Function(FUN_Select_Call_Template.URI, exprList);
             } else {
                 NodeValue n = NodeValue.makeNode(query.toString(), null, SPARQLExt.MEDIA_TYPE_URI);
                 result = new E_Function(ST.callTemplate, new ExprList(n));

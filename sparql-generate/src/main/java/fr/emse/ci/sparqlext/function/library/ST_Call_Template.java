@@ -99,7 +99,7 @@ public class ST_Call_Template implements Function {
                     + "should be a URI or a literal with datatype " + SPARQLExt.MEDIA_TYPE_URI + ". Got: " + queryNode);
         }
         if (queryNode.isLiteral() && args.size() > 1) {
-            throw new ExprEvalException("Expecting at most one argument wher first argument is a literal.");
+            throw new ExprEvalException("Expecting at most one argument when first argument is a literal.");
         }
 
         RootPlan plan;

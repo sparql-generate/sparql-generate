@@ -319,21 +319,21 @@ Token SubTemplateQuery() : { Token t; }
     params = ArgList()
     { asSPARQLExtQuery().setCallParameters(params); }
   |
-    VarList()
+    ( VarList() )?
     TemplateClause()
-    ( DatasetClause() )*
-    { List<Element> bindingClauses = new ArrayList<Element> (); Element elem;}
-    ( elem = BindingClauses() { bindingClauses.add(elem); } )*
-    { asSPARQLExtQuery().setBindingClauses(bindingClauses);}
-    ( 
-      <WHERE>
-      { Element el ; }
-      { startWherePattern() ; }
-      el = GroupGraphPattern() { getQuery().setQueryPattern(el) ; }
-      { finishWherePattern() ; }
-    )?
-    SolutionModifier()
   )
+  ( DatasetClause() )*
+  { List<Element> bindingClauses = new ArrayList<Element> (); Element elem;}
+  ( elem = BindingClauses() { bindingClauses.add(elem); } )*
+  { asSPARQLExtQuery().setBindingClauses(bindingClauses);}
+  ( 
+    <WHERE>
+    { Element el ; }
+    { startWherePattern() ; }
+    el = GroupGraphPattern() { getQuery().setQueryPattern(el) ; }
+    { finishWherePattern() ; }
+  )?
+  SolutionModifier()
   { return t; }
 }
 void Pragma() : { } 
