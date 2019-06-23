@@ -57,7 +57,7 @@ public class LocationMapperAccept extends LocationMapper {
                 + "?e lm:name ?name ; lm:altName ?alt ."
                 + "OPTIONAL { ?e lm:media ?media . } "
                 + "}");
-        try (QueryExecution exec = QueryExecutionFactory.create(q, configurationModel)){
+        try (QueryExecution exec = QueryExecutionFactory.create(q, configurationModel)) {
             exec.execSelect().forEachRemaining((result) -> {
                 String name = null, altName = null, media = null;
                 try {
@@ -98,13 +98,13 @@ public class LocationMapperAccept extends LocationMapper {
     }
 
     @Override
-    @Deprecated
     public String altMapping(String uri) {
-        throw new UnsupportedOperationException("Unsupported, use altRequest instead");
+        LookUpRequest lookUpRequest = altRequest(uri);
+        return lookUpRequest == null ? null : lookUpRequest.getFilenameOrURI();
     }
 
     public LookUpRequest altRequest(String uri) {
-        return altRequest(new LookUpRequest(uri));
+        return altRequest(getLookUpRequest(uri));
     }
 
     public LookUpRequest altRequest(LookUpRequest request) {
@@ -121,13 +121,13 @@ public class LocationMapperAccept extends LocationMapper {
      * @return The alternative location choosen
      */
     @Override
-    @Deprecated
     public String altMapping(String uri, String otherwise) {
-        throw new UnsupportedOperationException("Unsupported, use altRequest instead");
+        LookUpRequest lookUpRequest = altRequest(uri, otherwise);
+        return lookUpRequest == null ? null : lookUpRequest.getFilenameOrURI();
     }
 
     public LookUpRequest altRequest(String uri, String otherwise) {
-        return altRequest(new LookUpRequest(uri), new LookUpRequest(otherwise));
+        return altRequest(getLookUpRequest(uri), getLookUpRequest(otherwise));
     }
 
     public LookUpRequest altRequest(LookUpRequest request, LookUpRequest otherwise) {
@@ -257,6 +257,13 @@ public class LocationMapperAccept extends LocationMapper {
             model.add(e, LocationMappingVocab.altName, altLocations.get(s1).getFilenameOrURI());
             model.add(e, accept, s1.getAccept());
         }
+    }
+
+    private LookUpRequest getLookUpRequest(String uri) {
+        if (uri == null) {
+            return null;
+        }
+        return new LookUpRequest(uri);
     }
 
 }

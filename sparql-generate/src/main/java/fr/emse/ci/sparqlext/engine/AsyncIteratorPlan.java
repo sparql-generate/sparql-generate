@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package fr.emse.ci.sparqlext.generate.engine;
+package fr.emse.ci.sparqlext.engine;
 
 import fr.emse.ci.sparqlext.iterator.IteratorFunction;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.apache.jena.sparql.ARQConstants;
 import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.engine.binding.Binding;
@@ -38,12 +38,12 @@ import org.slf4j.LoggerFactory;
  *
  * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */
-public class SyncIteratorPlan extends IteratorPlan {
+public class AsyncIteratorPlan extends IteratorPlan {
 
     /**
      * The logger.
      */
-    private static final Logger LOG = LoggerFactory.getLogger(SyncIteratorPlan.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AsyncIteratorPlan.class);
 
     /**
      * The constructor.
@@ -54,7 +54,7 @@ public class SyncIteratorPlan extends IteratorPlan {
      * @param vars - The list of variables that will be bound to each result of
      * the iterator function evaluation.
      */
-    public SyncIteratorPlan(
+    public AsyncIteratorPlan(
             final IteratorFunction s,
             final ExprList e,
             final List<Var> vars) {
@@ -80,21 +80,20 @@ public class SyncIteratorPlan extends IteratorPlan {
             final Executor executor) {
         context.set(ARQConstants.sysCurrentTime, NodeFactoryExtra.nowAsDateTime());
         final FunctionEnv env = new FunctionEnvBase(context);
-        final IteratorPlan.Batches batches = new IteratorPlan.Batches(futureValues, listBindingFunction);
+        final Batches batches = new Batches(futureValues, listBindingFunction);
         try {
-            CompletableFuture<Void> future = CompletableFuture.completedFuture(null);
-            for (CompletableFuture<Binding> futureBinding : futureValues) {
-                future = future.thenComposeAsync((n) -> futureBinding.thenComposeAsync((binding) -> {
+            final List<CompletableFuture<Void>> cfs = futureValues.stream().map((futureBinding) -> {
+                return futureBinding.thenComposeAsync((binding) -> {
                     try {
                         return iterator.exec(binding, exprList, env, (nodeValues) -> batches.add(futureBinding, binding, nodeValues));
-                                //.thenRunAsync(()->batches.executionComplete(futureBinding),executor);
+                        //.thenRunAsync(()->batches.executionComplete(futureBinding),executor);
                     } catch (ExprEvalException ex) {
                         LOG.debug("No evaluation for " + this + ", caused by " + ex.getMessage());
                         return CompletableFuture.completedFuture(null);
                     }
-                }, executor),
-                        executor);
-            }
+                }, executor);
+            }).collect(Collectors.toList());
+            CompletableFuture future = CompletableFuture.allOf(cfs.toArray(new CompletableFuture[cfs.size()])).thenCompose((n) -> batches.allExecutionComplete());
             return future.thenCompose((n) -> {
                 return batches.allExecutionComplete();
             });

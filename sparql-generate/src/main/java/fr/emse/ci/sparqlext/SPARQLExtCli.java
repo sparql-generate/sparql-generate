@@ -17,7 +17,7 @@ package fr.emse.ci.sparqlext;
 
 import static fr.emse.ci.sparqlext.CMDConfigurations.*;
 import fr.emse.ci.sparqlext.utils.Request;
-import fr.emse.ci.sparqlext.generate.engine.PlanFactory;
+import fr.emse.ci.sparqlext.engine.PlanFactory;
 import fr.emse.ci.sparqlext.query.SPARQLExtQuery;
 import fr.emse.ci.sparqlext.stream.LocatorFileAccept;
 import fr.emse.ci.sparqlext.stream.LookUpRequest;
@@ -47,7 +47,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import fr.emse.ci.sparqlext.generate.engine.RootPlan;
+import fr.emse.ci.sparqlext.engine.RootPlan;
 import fr.emse.ci.sparqlext.stream.LocationMapperAccept;
 import java.nio.file.Files;
 import java.nio.file.Path;

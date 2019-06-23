@@ -16,9 +16,9 @@
 package fr.emse.ci.sparqlext.iterator.library;
 
 import fr.emse.ci.sparqlext.SPARQLExt;
-import fr.emse.ci.sparqlext.generate.engine.BNodeMap;
-import fr.emse.ci.sparqlext.generate.engine.PlanFactory;
-import fr.emse.ci.sparqlext.generate.engine.RootPlan;
+import fr.emse.ci.sparqlext.engine.BNodeMap;
+import fr.emse.ci.sparqlext.engine.PlanFactory;
+import fr.emse.ci.sparqlext.engine.RootPlan;
 import fr.emse.ci.sparqlext.iterator.ExecutionControl;
 import fr.emse.ci.sparqlext.iterator.IteratorStreamFunctionBase;
 import fr.emse.ci.sparqlext.query.SPARQLExtQuery;

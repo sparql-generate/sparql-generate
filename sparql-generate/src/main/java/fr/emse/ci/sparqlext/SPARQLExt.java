@@ -106,6 +106,7 @@ import org.slf4j.LoggerFactory;
 import static org.apache.jena.riot.RDFLanguages.strLangRDFXML;
 import org.apache.jena.riot.SysRIOT;
 import static org.apache.jena.riot.WebContent.contentTypeRDFXML;
+import org.apache.jena.riot.web.HttpOp;
 import org.apache.jena.shared.PrefixMapping;
 import org.apache.jena.sparql.ARQConstants;
 import org.apache.jena.sparql.SystemARQ;

@@ -15,7 +15,6 @@
  */
 package fr.emse.ci.sparqlext.engine;
 
-import fr.emse.ci.sparqlext.generate.engine.PlanFactory;
 import fr.emse.ci.sparqlext.SPARQLExt;
 import fr.emse.ci.sparqlext.utils.Request;
 import fr.emse.ci.sparqlext.stream.LocatorFileAccept;
@@ -49,7 +48,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
-import fr.emse.ci.sparqlext.generate.engine.RootPlan;
 import fr.emse.ci.sparqlext.query.SPARQLExtQuery;
 import org.apache.jena.sparql.util.Context;
 import static org.junit.Assert.assertTrue;

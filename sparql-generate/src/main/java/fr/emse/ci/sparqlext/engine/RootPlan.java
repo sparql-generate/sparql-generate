@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package fr.emse.ci.sparqlext.generate.engine;
+package fr.emse.ci.sparqlext.engine;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;

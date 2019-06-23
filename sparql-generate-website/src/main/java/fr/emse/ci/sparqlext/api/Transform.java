@@ -15,7 +15,7 @@
  */
 package fr.emse.ci.sparqlext.api;
 
-import fr.emse.ci.sparqlext.generate.engine.PlanFactory;
+import fr.emse.ci.sparqlext.engine.PlanFactory;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.net.HttpURLConnection;
@@ -37,7 +37,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.jena.rdf.model.Model;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import fr.emse.ci.sparqlext.generate.engine.RootPlan;
+import fr.emse.ci.sparqlext.engine.RootPlan;
 
 /**
  *

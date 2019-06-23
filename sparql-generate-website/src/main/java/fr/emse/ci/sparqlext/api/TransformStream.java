@@ -17,7 +17,7 @@ package fr.emse.ci.sparqlext.api;
 
 import fr.emse.ci.sparqlext.utils.Request;
 import fr.emse.ci.sparqlext.SPARQLExt;
-import fr.emse.ci.sparqlext.generate.engine.PlanFactory;
+import fr.emse.ci.sparqlext.engine.PlanFactory;
 import fr.emse.ci.sparqlext.stream.LocatorStringMap;
 import fr.emse.ci.sparqlext.stream.SPARQLExtStreamManager;
 import com.google.gson.Gson;
@@ -51,7 +51,7 @@ import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
-import fr.emse.ci.sparqlext.generate.engine.RootPlan;
+import fr.emse.ci.sparqlext.engine.RootPlan;
 import fr.emse.ci.sparqlext.query.SPARQLExtQuery;
 import fr.emse.ci.sparqlext.utils.Response;
 import java.util.concurrent.CompletableFuture;

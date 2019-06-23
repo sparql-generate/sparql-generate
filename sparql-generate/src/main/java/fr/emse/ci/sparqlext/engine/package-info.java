@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 École des Mines de Saint-Étienne.
+ * Copyright 2016 Ecole des Mines de Saint-Etienne.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,13 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package fr.emse.ci.sparqlext.generate.engine;
-
 /**
- * Executes a BIND or SOURCE or ITERATOR clause.
+ * Classes to create and execute generation plans.
+ * Create an execution plan with {@link fr.emse.ci.sparqlext.generate.engine.PlanFactory},
+ * and execute it using one of the {@code exec} methods.
  *
- * @author maxime.lefrancois
+ * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */
-public interface BindingsClausePlan {
-
-}
+package fr.emse.ci.sparqlext.engine;
