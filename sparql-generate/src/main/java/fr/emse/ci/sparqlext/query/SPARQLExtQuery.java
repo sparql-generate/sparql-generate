@@ -18,10 +18,13 @@ package fr.emse.ci.sparqlext.query;
 import org.apache.jena.sparql.core.Prologue;
 import fr.emse.ci.sparqlext.SPARQLExt;
 import fr.emse.ci.sparqlext.normalizer.QueryNormalizer;
+import fr.emse.ci.sparqlext.syntax.FromClause;
+import java.util.ArrayList;
 import java.util.List;
 import org.apache.jena.graph.Node;
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryVisitor;
+import org.apache.jena.sparql.core.DatasetDescription;
 import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.core.VarExprList;
 import org.apache.jena.sparql.expr.Expr;
@@ -170,7 +173,6 @@ public class SPARQLExtQuery extends Query {
         return queryType == QueryTypePerform;
     }
 
-
     /**
      * Gets if the Query is a SPARQL-Function query.
      */
@@ -235,7 +237,7 @@ public class SPARQLExtQuery extends Query {
     /**
      * the name of the query.
      */
-    private Node name = null;
+    private Expr name = null;
 
     /**
      * Gets if the query has a name.
@@ -251,7 +253,7 @@ public class SPARQLExtQuery extends Query {
      *
      * @return the name node.
      */
-    public final Node getName() {
+    public final Expr getName() {
         return name;
     }
 
@@ -260,7 +262,7 @@ public class SPARQLExtQuery extends Query {
      *
      * @param name the name of the query
      */
-    public final void setName(final Node name) {
+    public final void setName(final Expr name) {
         this.name = name;
     }
 
@@ -398,9 +400,11 @@ public class SPARQLExtQuery extends Query {
     private Expr templateClauseSeparator = null;
 
     /**
-     * Returns if this query has a separator expression in the {@code TEMPLATE} clause.
+     * Returns if this query has a separator expression in the {@code TEMPLATE}
+     * clause.
      *
-     * @return if this query has a separator expression in the {@code TEMPLATE} clause
+     * @return if this query has a separator expression in the {@code TEMPLATE}
+     * clause
      */
     public boolean hasTemplateClauseSeparator() {
         return templateClauseSeparator != null;
@@ -430,9 +434,11 @@ public class SPARQLExtQuery extends Query {
     private Expr templateClauseBefore = null;
 
     /**
-     * Returns if this query has a before expression in the {@code TEMPLATE} clause.
+     * Returns if this query has a before expression in the {@code TEMPLATE}
+     * clause.
      *
-     * @return if this query has a before expression in the {@code TEMPLATE} clause
+     * @return if this query has a before expression in the {@code TEMPLATE}
+     * clause
      */
     public boolean hasTemplateClauseBefore() {
         return templateClauseBefore != null;
@@ -455,16 +461,18 @@ public class SPARQLExtQuery extends Query {
     public void setTemplateClauseBefore(Expr templateClauseBefore) {
         this.templateClauseBefore = templateClauseBefore;
     }
-    
+
     /**
      * the after expression in the {@code TEMPLATE} clause of the query.
      */
     private Expr templateClauseAfter = null;
 
     /**
-     * Returns if this query has a after expression in the {@code TEMPLATE} clause.
+     * Returns if this query has a after expression in the {@code TEMPLATE}
+     * clause.
      *
-     * @return if this query has a after expression in the {@code TEMPLATE} clause
+     * @return if this query has a after expression in the {@code TEMPLATE}
+     * clause
      */
     public boolean hasTemplateClauseAfter() {
         return templateClauseAfter != null;
@@ -487,7 +495,7 @@ public class SPARQLExtQuery extends Query {
     public void setTemplateClauseAfter(Expr templateClauseAfter) {
         this.templateClauseAfter = templateClauseAfter;
     }
-    
+
     /**
      * the {@code PERFORM} clause of the query.
      */
@@ -552,6 +560,123 @@ public class SPARQLExtQuery extends Query {
         this.functionExpression = functionExpression;
     }
 
+    /**
+     * the list of FROM clauses
+     */
+    private List<FromClause> fromClauses = new ArrayList<>();
+
+    /**
+     * Gets the list of FROM clauses
+     * @return 
+     */
+    public List<FromClause> getFromClauses() {
+        return fromClauses;
+    }
+    
+    /**
+     * adds a FROM varOrIri clause
+     *
+     * @param expr
+     */
+    public void addGraphExpr(Expr expr) {
+        fromClauses.add(new FromClause(expr));
+    }
+
+    /**
+     * adds a FROM NAMED varOrIri clause
+     *
+     * @param expr
+     */
+    public void addNamedGraphExpr(Expr expr) {
+        fromClauses.add(new FromClause(true, expr));
+    }
+
+    /**
+     * adds a FROM NAMED varOrIri clause
+     *
+     * @param expr
+     */
+    public void addNamedGraphQuery(Expr expr, SPARQLExtQuery generate) {
+        fromClauses.add(new FromClause(generate, expr));
+    }
+
+    /**
+     * adds a FROM GENERATE clause
+     *
+     * @param q
+     */
+    public void addGraphQuery(SPARQLExtQuery generate) {
+        fromClauses.add(new FromClause(generate));
+    }
+
+    @Override
+    @Deprecated
+    public List<String> getGraphURIs() {
+        throw new UnsupportedOperationException("Not for SPARQLExtQuery");
+    }
+        
+    /**
+     * Throws UnsupportedOperationException
+     */
+    @Override
+    @Deprecated
+    public void addGraphURI(String s) {
+        throw new UnsupportedOperationException("Not for SPARQLExtQuery");
+    }
+
+    /**
+     * Throws UnsupportedOperationException
+     */
+    @Override
+    @Deprecated
+    public void addNamedGraphURI(String s) {
+        throw new UnsupportedOperationException("Not for SPARQLExtQuery");
+    }
+
+    /**
+     * Throws UnsupportedOperationException
+     */
+    @Override
+    @Deprecated
+    public boolean usesGraphURI(String uri) {
+        throw new UnsupportedOperationException("Not for SPARQLExtQuery");
+    }
+
+    /**
+     * Throws UnsupportedOperationException
+     */
+    @Override
+    @Deprecated
+    public List<String> getNamedGraphURIs() {
+        throw new UnsupportedOperationException("Not for SPARQLExtQuery");
+    }
+
+    /**
+     * Throws UnsupportedOperationException
+     */
+    @Override
+    @Deprecated
+    public boolean usesNamedGraphURI(String uri) {
+        throw new UnsupportedOperationException("Not for SPARQLExtQuery");
+    }
+
+    /**
+     * Throws UnsupportedOperationException
+     */
+    @Override
+    @Deprecated
+    public boolean hasDatasetDescription() {
+        throw new UnsupportedOperationException("Not for SPARQLExtQuery");
+    }
+
+    /**
+     * Throws UnsupportedOperationException
+     */
+    @Override
+    @Deprecated
+    public DatasetDescription getDatasetDescription() {
+        throw new UnsupportedOperationException("Not for SPARQLExtQuery");
+    }
 
     /**
      * the deque of {@code SOURCE} and {@code ITERATOR} clauses of a

@@ -31,11 +31,9 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.ResultSet;
-import org.apache.jena.query.ResultSetFactory;
 import org.apache.jena.shared.PrefixMapping;
 import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.engine.binding.Binding;
@@ -191,16 +189,16 @@ public final class RootPlanImpl extends RootPlanBase {
                 if (outputStream != null) {
                     outputStream.start();
                 }
-                if (query.getName() != null) {
-                    if (!query.getName().isURI()) {
-                        throw new UnsupportedOperationException("not implemented yet");
+                if (!query.isNamedSubQuery() && query.getName() != null && query.getName().isConstant()) {
+                    NodeValue nameNode = query.getName().getConstant();
+                    if (nameNode.isIRI()) {
+                        final String name = nameNode.asNode().getURI();
+                        final Map<String, RootPlan> loadedPlans = (Map<String, RootPlan>) context.get(SPARQLExt.LOADED_PLANS);
+                        loadedPlans.put(name, this);
+                        final Map<String, SPARQLExtQuery> loadedQueries = (Map<String, SPARQLExtQuery>) context.get(SPARQLExt.LOADED_QUERIES);
+                        loadedQueries.put(name, query);
+                        SPARQLExt.registerExecution(context, name, values);
                     }
-                    String name = query.getName().getURI();
-                    final Map<String, RootPlan> loadedPlans = (Map<String, RootPlan>) context.get(SPARQLExt.LOADED_PLANS);
-                    loadedPlans.put(name, this);
-                    final Map<String, SPARQLExtQuery> loadedQueries = (Map<String, SPARQLExtQuery>) context.get(SPARQLExt.LOADED_QUERIES);
-                    loadedQueries.put(name, query);
-                    SPARQLExt.registerExecution(context, name, values);
                 }
                 if (outputStream != null) {
                     for (String prefix : query.getPrefixMapping().getNsPrefixMap().keySet()) {

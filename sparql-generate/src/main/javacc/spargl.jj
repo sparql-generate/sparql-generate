@@ -113,7 +113,7 @@ void Function() : { Expr expr; }
 {
   <FUNCTION>
   { asSPARQLExtQuery().setQueryFunctionType() ; }
-  ( { String uri; } uri = SourceSelector() { asSPARQLExtQuery().setName(NodeFactory.createURI(uri)); } )
+  ( { String uri; } uri = SourceSelector() { asSPARQLExtQuery().setName(asExpr(NodeFactory.createURI(uri))); } )
   VarList()
   <LBRACE>
   expr = PrimaryExpression()
@@ -125,7 +125,7 @@ void GenerateQuery() : { }
   <GENERATE>
     { asSPARQLExtQuery().setQueryGenerateType() ; }
     ( 
-      ( { String uri; } uri = SourceSelector() { asSPARQLExtQuery().setName(NodeFactory.createURI(uri)); } )
+      ( { String uri; } uri = SourceSelector() { asSPARQLExtQuery().setName(asExpr(NodeFactory.createURI(uri))); } )
       ( VarList() )?
     ) ?
     GenerateClause() 
@@ -155,7 +155,7 @@ void TemplateQuery() : { }
   <TEMPLATE>
     { asSPARQLExtQuery().setQueryTemplateType() ; }
     ( 
-      ( { String uri; } uri = SourceSelector() { asSPARQLExtQuery().setName(NodeFactory.createURI(uri)); } )
+      ( { String uri; } uri = SourceSelector() { asSPARQLExtQuery().setName(asExpr(NodeFactory.createURI(uri))); } )
       ( VarList() )?
     ) ?
     TemplateClause() 
@@ -171,7 +171,7 @@ void PerformQuery() : { }
   <PERFORM>
     { asSPARQLExtQuery().setQueryPerformType() ; }
     ( 
-      ( { String uri; } uri = SourceSelector() { asSPARQLExtQuery().setName(NodeFactory.createURI(uri)); } )
+      ( { String uri; } uri = SourceSelector() { asSPARQLExtQuery().setName(asExpr(NodeFactory.createURI(uri))); } )
       ( VarList() )?
     ) ?
     PerformClause() 
@@ -311,10 +311,20 @@ Token SubTemplateQuery() : { Token t; }
   t = <TEMPLATE>
     { asSPARQLExtQuery().setQueryTemplateType() ; }
   ( 
-    { Node n; } 
-    n = VarOrXIri() 
-    { asSPARQLExtQuery().setName(n); 
-    asSPARQLExtQuery().isNamedSubQuery(true); }
+    (
+      { Node n; } 
+      n = VarOrXIri() 
+      { asSPARQLExtQuery().setName(asExpr(n)); }
+    |
+      { Expr expr; } 
+      <IRI> <LPAREN> expr = Expression() <RPAREN>
+      { asSPARQLExtQuery().setName(new E_IRI(expr)); }
+    |
+      { Expr expr; } 
+      <URI> <LPAREN> expr = Expression() <RPAREN>
+      { asSPARQLExtQuery().setName(new E_IRI(expr)); }
+    )
+    { asSPARQLExtQuery().isNamedSubQuery(true); }
     { ExprList params; }
     params = ArgList()
     { asSPARQLExtQuery().setCallParameters(params); }
@@ -375,10 +385,20 @@ Token SubPerformQuery( ) : { Token t;}
     { asSPARQLExtQuery().setQueryPerformType() ; }
 
   ( 
-    { Node n; } 
-    n = VarOrXIri() 
-    { asSPARQLExtQuery().setName(n); 
-    asSPARQLExtQuery().isNamedSubQuery(true); }
+    (
+      { Node n; } 
+      n = VarOrXIri() 
+      { asSPARQLExtQuery().setName(asExpr(n)); }
+    |
+      { Expr expr; } 
+      <IRI> <LPAREN> expr = Expression() <RPAREN>
+      { asSPARQLExtQuery().setName(new E_IRI(expr)); }
+    |
+      { Expr expr; } 
+      <URI> <LPAREN> expr = Expression() <RPAREN>
+      { asSPARQLExtQuery().setName(new E_IRI(expr)); }
+    )
+    { asSPARQLExtQuery().isNamedSubQuery(true); }
     (
       { ExprList params; }
       params = ArgList()
@@ -500,10 +520,20 @@ Token SubGenerateQuery( ) : { Token t;}
     { asSPARQLExtQuery().setQueryGenerateType() ; }
 
   ( 
-    { Node n; } 
-    n = VarOrXIri() 
-    { asSPARQLExtQuery().setName(n); 
-    asSPARQLExtQuery().isNamedSubQuery(true); }
+    (
+      { Node n; } 
+      n = VarOrXIri() 
+      { asSPARQLExtQuery().setName(asExpr(n)); }
+    |
+      { Expr expr; } 
+      <IRI> <LPAREN> expr = Expression() <RPAREN>
+      { asSPARQLExtQuery().setName(new E_IRI(expr)); }
+    |
+      { Expr expr; } 
+      <URI> <LPAREN> expr = Expression() <RPAREN>
+      { asSPARQLExtQuery().setName(new E_IRI(expr)); }
+    )
+    { asSPARQLExtQuery().isNamedSubQuery(true); }
     (
       { ExprList params; }
       params = ArgList()
@@ -568,7 +598,7 @@ void NamedSelectClause() : { Var v ; Expr expr ; Node n ; }
   <SELECT>
   { getQuery().setQuerySelectType() ; }
   (
-    ( { String uri; } uri = SourceSelector() { asSPARQLExtQuery().setName(NodeFactory.createURI(uri)); } )
+    ( { String uri; } uri = SourceSelector() { asSPARQLExtQuery().setName(asExpr(NodeFactory.createURI(uri))); } )
     VarList()
   )?
   ( <DISTINCT> { getQuery().setDistinct(true);}
@@ -688,22 +718,34 @@ void AskQuery() : {}
 void DatasetClause() : {}
 {
   <FROM>
-  ( DefaultGraphClause() | NamedGraphClause() )
+  ( DefaultGraphClause() | NamedGraphClause() | GenerateGraphClause() )
 }
-void DefaultGraphClause() : { String iri ; }
+void DefaultGraphClause() : { Expr n ; }
 {
-  iri = SourceSelector()
-  {
-    getQuery().addGraphURI(iri) ;
-  }
+  n = Expression()
+  { asSPARQLExtQuery().addGraphExpr(n); }
 }
-void NamedGraphClause() : { String iri ; }
+void NamedGraphClause() : { Expr n ; }
 {
   <NAMED>
-  iri = SourceSelector()
-  {
-    getQuery().addNamedGraphURI(iri) ;
-  }
+  n = Expression()
+  { asSPARQLExtQuery().addNamedGraphExpr(n); }
+}
+void GenerateGraphClause() : { }
+{
+  { startSubQueryExt() ; Token t = null;}
+  t = SubGenerateQuery() 
+  { int beginLine = t.beginLine; int beginColumn = t.beginColumn; t = null; }
+  { SPARQLExtQuery q = endSubQueryExt(beginLine, beginColumn) ; } 
+  (
+    <NAMED>
+    { Expr n; }
+    n = Expression()
+    { asSPARQLExtQuery().addNamedGraphQuery( n , q ) ; }
+  | 
+    { asSPARQLExtQuery().addGraphQuery( q ) ; }
+  )
+  <DOT>
 }
 String SourceSelector() : { String iri ; }
 {

@@ -30,6 +30,7 @@ import org.apache.jena.sparql.expr.Expr;
 import org.apache.jena.sparql.syntax.Element;
 import org.apache.jena.sparql.syntax.ElementBind;
 import fr.emse.ci.sparqlext.query.SPARQLExtQueryVisitor;
+import fr.emse.ci.sparqlext.syntax.FromClause;
 import org.apache.jena.query.Query;
 import org.apache.jena.sparql.expr.ExprList;
 import org.slf4j.Logger;
@@ -50,12 +51,10 @@ public class QueryNormalizer implements SPARQLExtQueryVisitor {
     private static final Logger LOG = LoggerFactory.getLogger(QueryNormalizer.class);
 
     private static final ExprNormalizer enzer = new ExprNormalizer();
-    
+
     @Override
     public void startVisit(Query query) {
-        if (!(query instanceof SPARQLExtQuery)) {
-            throw new IllegalArgumentException("Expecting a SPARQL-Generate query.");
-        }
+        asSPARQLExtQuery(query);
     }
 
     @Override
@@ -96,7 +95,7 @@ public class QueryNormalizer implements SPARQLExtQueryVisitor {
     @Override
     public void visitGenerateClause(SPARQLExtQuery query) {
         final NodeExprNormalizer nenzer = new NodeExprNormalizer();
-        normalizeNameAndParams(query, nenzer);
+        normalizeNameAndParams(query);
         if (query.hasGenerateClause()) {
             List<Element> group = normalizeOutput(query.getGenerateClause(), nenzer);
             query.setGenerateClause(group);
@@ -107,8 +106,8 @@ public class QueryNormalizer implements SPARQLExtQueryVisitor {
     @Override
     public void visitTemplateClause(SPARQLExtQuery query) {
         final NodeExprNormalizer nenzer = new NodeExprNormalizer();
-        normalizeNameAndParams(query, nenzer);
-        if(query.hasTemplateClauseBefore()) {
+        normalizeNameAndParams(query);
+        if (query.hasTemplateClauseBefore()) {
             Expr expr = enzer.normalize(query.getTemplateClauseBefore());
             query.setTemplateClauseBefore(expr);
         }
@@ -116,11 +115,11 @@ public class QueryNormalizer implements SPARQLExtQueryVisitor {
             List<Element> group = normalizeOutput(query.getTemplateClause(), nenzer);
             query.setTemplateClause(group);
         }
-        if(query.hasTemplateClauseSeparator()) {
+        if (query.hasTemplateClauseSeparator()) {
             Expr expr = enzer.normalize(query.getTemplateClauseSeparator());
             query.setTemplateClauseSeparator(expr);
         }
-        if(query.hasTemplateClauseAfter()) {
+        if (query.hasTemplateClauseAfter()) {
             Expr expr = enzer.normalize(query.getTemplateClauseAfter());
             query.setTemplateClauseAfter(expr);
         }
@@ -138,7 +137,7 @@ public class QueryNormalizer implements SPARQLExtQueryVisitor {
     @Override
     public void visitPerformClause(SPARQLExtQuery query) {
         final NodeExprNormalizer nenzer = new NodeExprNormalizer();
-        normalizeNameAndParams(query, nenzer);
+        normalizeNameAndParams(query);
         if (query.hasPerformClause()) {
             List<Element> group = normalizeOutput(query.getPerformClause(), nenzer);
             query.setPerformClause(group);
@@ -196,7 +195,22 @@ public class QueryNormalizer implements SPARQLExtQueryVisitor {
     }
 
     @Override
-    public void visitDatasetDecl(Query query) {
+    public void visitDatasetDecl(Query q) {
+        SPARQLExtQuery query = asSPARQLExtQuery(q);
+        query.getFromClauses().replaceAll((fromClause) -> {
+            if (fromClause.getGenerate() == null) {
+                Expr nzed = enzer.normalize(fromClause.getName());
+                return new FromClause(fromClause.isNamed(), nzed);
+            } else {
+                SPARQLExtQuery gnzed = fromClause.getGenerate();
+                gnzed.normalize();
+                if (!fromClause.isNamed()) {
+                    return new FromClause(gnzed);
+                }
+                Expr nnzed = enzer.normalize(fromClause.getName());
+                return new FromClause(gnzed, nnzed);
+            }
+        });
     }
 
     @Override
@@ -276,7 +290,7 @@ public class QueryNormalizer implements SPARQLExtQueryVisitor {
             return;
         }
         for (Element element : nenzer.getBindings()) {
-            if(element instanceof ElementBind) {
+            if (element instanceof ElementBind) {
                 ElementBind b = (ElementBind) element;
                 query.addPostSelect(b.getVar(), b.getExpr());
             }
@@ -287,10 +301,9 @@ public class QueryNormalizer implements SPARQLExtQueryVisitor {
     public void visitPragma(SPARQLExtQuery query) {
     }
 
-    private void normalizeNameAndParams(SPARQLExtQuery query, NodeExprNormalizer nenzer) {
+    private void normalizeNameAndParams(SPARQLExtQuery query) {
         if (query.hasName()) {
-            query.getName().visitWith(nenzer);
-            query.setName(nenzer.getResult());
+            query.setName(enzer.normalize(query.getName()));
         }
         if (query.hasCallParameters()) {
             final List<Expr> parameters = query.getCallParameters().getList();

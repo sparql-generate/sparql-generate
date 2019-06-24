@@ -113,6 +113,7 @@ import org.apache.jena.sparql.SystemARQ;
 import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.engine.binding.Binding;
 import org.apache.jena.sparql.engine.binding.BindingFactory;
+import org.apache.jena.sparql.engine.binding.BindingHashMap;
 import org.apache.jena.sparql.engine.binding.BindingMap;
 import org.apache.jena.sparql.serializer.FormatterElement;
 import org.apache.jena.sparql.syntax.ElementData;
@@ -737,6 +738,21 @@ public final class SPARQLExt {
                     + " ... " + s.substring(s.length() - 15);
         }
         return s;
+    }
+
+    public static Binding bindingForSignature(List<Binding> bindings, List<Var> signature) {
+        if (signature == null || signature.isEmpty()) {
+            return BindingFactory.binding();
+        }
+        if (bindings == null || bindings.isEmpty()) {
+            return BindingFactory.binding();
+        }
+        BindingMap binding = new BindingHashMap();
+        Binding firstBinding = bindings.get(0);
+        signature.forEach((var) -> {
+            binding.add(var, firstBinding.get(var));
+        });
+        return binding;
     }
 
 }

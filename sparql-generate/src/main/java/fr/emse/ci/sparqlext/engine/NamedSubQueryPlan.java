@@ -66,11 +66,11 @@ public class NamedSubQueryPlan implements ExecutionPlan {
      */
     private static final Logger LOG = LoggerFactory.getLogger(NamedSubQueryPlan.class);
 
-    private final Node name;
+    private final Expr name;
 
     private final ExprList callParameters;
 
-    public NamedSubQueryPlan(Node name, ExprList callParameters) {
+    public NamedSubQueryPlan(Expr name, ExprList callParameters) {
         Objects.requireNonNull(name, "name must not be null");
         this.name = name;
         this.callParameters = callParameters;
@@ -86,7 +86,8 @@ public class NamedSubQueryPlan implements ExecutionPlan {
             final StreamRDF outputGenerate,
             final Consumer<ResultSet> outputSelect,
             final Consumer<String> outputTemplate) {
-        final Map<String, List<Binding>> queriesValues = getQueryNames(values);
+        final FunctionEnv env = new FunctionEnvBase(context);
+        final Map<String, List<Binding>> queriesValues = getQueryNames(values, env);
         final Set<CompletableFuture<Void>> cfs = new HashSet<>();
         for (String queryName : queriesValues.keySet()) {
             final List<Binding> queryValues = queriesValues.get(queryName);
@@ -94,7 +95,7 @@ public class NamedSubQueryPlan implements ExecutionPlan {
             final List<Var> newVariables = getNewVariables(queryName, variables, context);
 
             final List<Binding> newValues
-                    = getQueryValues(newVariables, queryValues, context);
+                    = getQueryValues(newVariables, queryValues, context, env);
 
             if (SPARQLExt.alreadyExecuted(context, queryName, newValues)) {
                 LOG.debug("Already executed " + queryName + " with same values.");
@@ -113,10 +114,13 @@ public class NamedSubQueryPlan implements ExecutionPlan {
         return CompletableFuture.allOf(cfs.toArray(new CompletableFuture[cfs.size()]));
     }
 
-    private Map<String, List<Binding>> getQueryNames(List<Binding> values) {
+    private Map<String, List<Binding>> getQueryNames(
+            final List<Binding> values,
+            final FunctionEnv env) {
         final Map<String, List<Binding>> queryValues = new HashMap<>();
         for (Binding binding : values) {
-            final Node n = Substitute.substitute(name, binding);
+            NodeValue nodeName = name.eval(binding, env);
+            final Node n = Substitute.substitute(nodeName.asNode(), binding);
             if (!n.isURI()) {
                 LOG.warn("Name of sub query resolved to something else than a"
                         + " URI: " + n);
@@ -192,8 +196,8 @@ public class NamedSubQueryPlan implements ExecutionPlan {
     private List<Binding> getQueryValues(
             final List<Var> variables,
             final List<Binding> values,
-            final Context context) {
-        final FunctionEnv env = new FunctionEnvBase(context);
+            final Context context,
+            final FunctionEnv env) {
         final List<Binding> newValues = new ArrayList<>();
         for (Binding binding : values) {
             BindingMap newBinding = BindingFactory.create();

@@ -94,8 +94,14 @@ public class SPARQLExtQueryCompare implements SPARQLExtQueryVisitor {
     }
 
     @Override
-    public void visitDatasetDecl(Query query1) {
-        qc.visitDatasetDecl(query1);
+    public void visitDatasetDecl(Query q1) {
+        SPARQLExtQuery query1 = asSPARQLExtQuery(q1);
+        boolean b1 = Lib.equalsListAsSet(query1.getFromClauses(), query2.getFromClauses());
+        try {
+            check("From clauses", b1);
+        } catch (Exception e) {
+            LOG.debug("", e);
+        }
     }
 
     @Override

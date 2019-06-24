@@ -15,7 +15,7 @@
  */
 package fr.emse.ci.sparqlext.serializer;
 
-import fr.emse.ci.sparqlext.SPARQLExtException;
+import fr.emse.ci.sparqlext.SPARQLExt;
 import org.apache.jena.atlas.io.IndentedWriter;
 import org.apache.jena.sparql.core.Prologue;
 import fr.emse.ci.sparqlext.query.SPARQLExtQuery;
@@ -30,11 +30,14 @@ import org.apache.jena.sparql.serializer.PrologueSerializer;
 import org.apache.jena.sparql.serializer.SerializationContext;
 import org.apache.jena.sparql.syntax.Element;
 import org.apache.jena.sparql.syntax.Template;
-import org.apache.jena.sparql.util.FmtUtils;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 import fr.emse.ci.sparqlext.query.SPARQLExtQueryVisitor;
+import fr.emse.ci.sparqlext.syntax.FromClause;
 import org.apache.jena.query.Query;
+import static org.apache.jena.sparql.serializer.FormatterElement.INDENT;
+import org.apache.jena.sparql.serializer.QuerySerializerFactory;
+import org.apache.jena.sparql.serializer.SerializerRegistry;
 
 /**
  * Extends the ARQ Query Serializer with SPARQL-Ext specificities.
@@ -64,9 +67,9 @@ public class SPARQLExtQuerySerializer implements SPARQLExtQueryVisitor {
     public void visitGenerateClause(SPARQLExtQuery query) {
         out.print("GENERATE ");
         printName(query);
-        if(!query.hasName() || query.hasGenerateClause()) {
+        if (!query.hasName() || query.hasGenerateClause()) {
             out.print(" {");
-            if(query.hasGenerateClause()) {
+            if (query.hasGenerateClause()) {
                 out.newline();
                 out.incIndent(BLOCK_INDENT);
                 query.getGenerateClause().forEach(e -> {
@@ -83,41 +86,41 @@ public class SPARQLExtQuerySerializer implements SPARQLExtQueryVisitor {
     public void visitTemplateClause(SPARQLExtQuery query) {
         out.print("TEMPLATE");
         printName(query);
-        if(!query.hasName() || query.hasTemplateClause()) {
+        if (!query.hasName() || query.hasTemplateClause()) {
             out.print("{");
-            if(query.hasTemplateClauseBefore()) {
+            if (query.hasTemplateClauseBefore()) {
                 out.print(" BEFORE = ");
                 fmtExpr.format(query.getTemplateClauseBefore());
                 out.print(" ; ");
             }
-            if(query.hasTemplateClause()) {
+            if (query.hasTemplateClause()) {
                 out.newline();
                 out.incIndent(BLOCK_INDENT);
                 query.getTemplateClause().forEach(e -> {
                     e.visit(fmtElement);
                     out.print(" ");
                 });
-                if(query.hasTemplateClauseSeparator()) {
+                if (query.hasTemplateClauseSeparator()) {
                     out.print(" ; SEPARATOR = ");
                     fmtExpr.format(query.getTemplateClauseSeparator());
                 }
                 out.decIndent(BLOCK_INDENT);
             }
-            if(query.hasTemplateClauseAfter()) {
+            if (query.hasTemplateClauseAfter()) {
                 out.print(" ; AFTER = ");
                 fmtExpr.format(query.getTemplateClauseAfter());
             }
             out.print("}");
-        }   
+        }
     }
 
     @Override
     public void visitPerformClause(SPARQLExtQuery query) {
         out.print("PERFORM ");
         printName(query);
-        if(!query.hasName() || query.hasPerformClause()) {
+        if (!query.hasName() || query.hasPerformClause()) {
             out.print(" {");
-            if(query.hasPerformClause()) {
+            if (query.hasPerformClause()) {
                 out.newline();
                 out.incIndent(BLOCK_INDENT);
                 query.getPerformClause().forEach(e -> {
@@ -134,9 +137,9 @@ public class SPARQLExtQuerySerializer implements SPARQLExtQueryVisitor {
     public void visitFunctionExpression(SPARQLExtQuery query) {
         out.print("FUNCTION ");
         printName(query);
-        if(!query.hasName() || query.hasPerformClause()) {
+        if (!query.hasName() || query.hasPerformClause()) {
             out.print(" {");
-            if(query.hasFunctionExpression()) {
+            if (query.hasFunctionExpression()) {
                 out.newline();
                 out.incIndent(BLOCK_INDENT);
                 fmtExpr.format(query.getFunctionExpression());
@@ -178,10 +181,7 @@ public class SPARQLExtQuerySerializer implements SPARQLExtQueryVisitor {
 
     @Override
     public void visitSelectResultForm(Query q) {
-        if(!(q instanceof SPARQLExtQuery)) {
-            throw new SPARQLExtException("Expecting an instance of type SPARQLExtQuery:" + q);
-        }
-        SPARQLExtQuery query = (SPARQLExtQuery) q;
+        SPARQLExtQuery query = asSPARQLExtQuery(q);
         out.print("SELECT ");
         printName(query);
         if (query.isDistinct()) {
@@ -242,21 +242,24 @@ public class SPARQLExtQuerySerializer implements SPARQLExtQueryVisitor {
     }
 
     @Override
-    public void visitDatasetDecl(Query query) {
-        if (query.getGraphURIs() != null && query.getGraphURIs().size() != 0) {
-            for (String uri : query.getGraphURIs()) {
-                out.print("FROM ");
-                out.print(FmtUtils.stringForURI(uri, query));
-                out.newline();
+    public void visitDatasetDecl(Query q) {
+        SPARQLExtQuery query = asSPARQLExtQuery(q);
+        for (FromClause fromClause : query.getFromClauses()) {
+            out.print("FROM ");
+            if (fromClause.getGenerate() == null) {
+                if (fromClause.isNamed()) {
+                    out.print(" NAMED ");
+                }
+                fmtExpr.format(fromClause.getName());
+            } else {
+                printSubGenerate(fromClause.getGenerate());
+                if (fromClause.isNamed()) {
+                    out.print(" NAMED ");
+                    fmtExpr.format(fromClause.getName());
+                }
+                out.print(" . ");
             }
-        }
-        if (query.getNamedGraphURIs() != null && query.getNamedGraphURIs().size() != 0) {
-            for (String uri : query.getNamedGraphURIs()) {
-                // One per line
-                out.print("FROM NAMED ");
-                out.print(FmtUtils.stringForURI(uri, query));
-                out.newline();
-            }
+            out.newline();
         }
     }
 
@@ -471,9 +474,9 @@ public class SPARQLExtQuerySerializer implements SPARQLExtQueryVisitor {
     private void printName(SPARQLExtQuery query) {
         if (query.hasName()) {
             out.print(" ");
-            SPARQLExtFmtUtils.printNode(out, query.getName(), context);
+            fmtExpr.format(query.getName());
         }
-        if(!query.hasSignature() && !query.hasCallParameters()) {
+        if (!query.hasSignature() && !query.hasCallParameters()) {
             out.print(" ");
         }
         if (query.hasSignature()) {
@@ -490,7 +493,7 @@ public class SPARQLExtQuerySerializer implements SPARQLExtQueryVisitor {
         List<Var> signature = query.getSignature();
         for (int i = 0; i < signature.size(); i++) {
             Var var = signature.get(i);
-            if (i!=0) {
+            if (i != 0) {
                 out.print(", ");
             }
             out.print("?");
@@ -504,7 +507,7 @@ public class SPARQLExtQuerySerializer implements SPARQLExtQueryVisitor {
         out.print("(");
         List<Expr> parameters = query.getCallParameters().getList();
         for (int i = 0; i < parameters.size(); i++) {
-            if (i!=0) {
+            if (i != 0) {
                 out.print(", ");
             }
             Expr param = parameters.get(i);
@@ -520,6 +523,30 @@ public class SPARQLExtQuerySerializer implements SPARQLExtQueryVisitor {
             appendNamedExprList(query, out, query.getPostSelect());
             out.newline();
         }
+    }
+
+    private void printSubGenerate(SPARQLExtQuery q) {
+        if (!q.isGenerateType()) {
+            throw new IllegalArgumentException("FROM GENERATE: expecting a generate query");
+        }
+        out.incIndent(INDENT);
+        QuerySerializerFactory factory = SerializerRegistry.get().getQuerySerializerFactory(SPARQLExt.SYNTAX);
+        SPARQLExtQueryVisitor visitor = (SPARQLExtQueryVisitor) factory.create(SPARQLExt.SYNTAX, new SerializationContext(q.getPrologue()), out);
+
+        visitor.startVisit(q);
+        visitor.visitGenerateClause(q);
+        visitor.visitBindingClauses(q);
+        visitor.visitQueryPattern(q);
+        visitor.visitGroupBy(q);
+        visitor.visitHaving(q);
+        visitor.visitOrderBy(q);
+        visitor.visitOffset(q);
+        visitor.visitLimit(q);
+        visitor.visitPostSelect(q);
+        visitor.visitValues(q);
+        visitor.finishVisit(q);
+
+        out.decIndent(INDENT);
     }
 
 }

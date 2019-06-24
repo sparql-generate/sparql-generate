@@ -16,6 +16,8 @@
 package fr.emse.ci.sparqlext.lang;
 
 import fr.emse.ci.sparqlext.query.SPARQLExtQuery;
+import fr.emse.ci.sparqlext.syntax.FromClause;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import org.apache.jena.query.QueryParseException;
@@ -39,12 +41,45 @@ public class SPARQLExtSyntaxVarScope {
     }
 
     private static void checkTemplateClauseExpressions(SPARQLExtQuery query) {
-        if (!query.isTemplateType() || !query.hasSignature()) {
+        final List<Var> signature;
+        if (query.getSignature() != null) {
+            signature = query.getSignature();
+        } else {
+            signature = new ArrayList<>();
+        }
+        if (query.isTemplateType()) {
+            checkVarsInExpr(query.getTemplateClauseBefore(), signature, "Before expression should only have vars from the signature");
+            checkVarsInExpr(query.getTemplateClauseSeparator(), signature, "Separator expression should only have vars from the signature");
+            checkVarsInExpr(query.getTemplateClauseAfter(), signature, "After expression should only have vars from the signature");
+        }
+        if(query.isSelectType() && !query.hasName()) {
             return;
         }
-        checkVarsInExpr(query.getTemplateClauseBefore(), query.getSignature(), "Before expression should only have vars from the signature");
-        checkVarsInExpr(query.getTemplateClauseSeparator(), query.getSignature(), "Separator expression should only have vars from the signature");
-        checkVarsInExpr(query.getTemplateClauseAfter(), query.getSignature(), "After expression should only have vars from the signature");
+        for (FromClause fromClause : query.getFromClauses()) {
+            if (fromClause.getName() != null) {
+                checkVarsInExpr(fromClause.getName(), signature, "FROM expression should only have vars from the signature");
+            }
+            if (fromClause.getGenerate() != null) {
+                SPARQLExtQuery generate = fromClause.getGenerate();
+                if (generate.hasSignature()) {
+                    checkVarsInList(generate.getSignature(), signature, "Signature of FROM GENERATE should be a subset of the signature");
+                }
+                if (generate.hasName()) {
+                    checkVarsInExpr(generate.getName(), signature, "Call parameters of FROM GENERATE should only have vars from the signature");
+                }
+                if (generate.hasCallParameters()) {
+                    generate.getCallParameters().forEach((callParameter) -> {
+                        checkVarsInExpr(callParameter, signature, "Call parameters of FROM GENERATE should only have vars from the signature");
+                    });
+                }
+            }
+        }
+    }
+
+    private static void checkVarsInList(List<Var> vars, List<Var> signature, String message) {
+        if (!signature.containsAll(vars)) {
+            throw new QueryParseException(message, -1, -1);
+        }
     }
 
     private static void checkVarsInExpr(Expr expr, List<Var> signature, String message) {

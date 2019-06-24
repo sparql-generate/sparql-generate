@@ -56,20 +56,26 @@ public class SelectPlan {
     public final Query select;
 
     private final boolean isSelectType;
+    
+    private final List<Var> signature;
 
     /**
      * Constructor.
      *
-     * @param query the SPARQL SELECT query.
-     * @param isSelectType
+     * @param query the SPARQL SELECT part of the query.
+     * @param isSelectType if the query itself is a SELECT query
+     * @param signature the signature of the query
      */
-    public SelectPlan(final Query query, final boolean isSelectType) {
+    public SelectPlan(final Query query,
+            final boolean isSelectType,
+            final List<Var> signature) {
         if (!query.isSelectType()) {
             LOG.error("Should be select query. " + query);
             throw new IllegalArgumentException("Should be select query.");
         }
         this.select = query;
         this.isSelectType = isSelectType;
+        this.signature = signature;
     }
 
     public List<Var> getVars() {
@@ -102,6 +108,7 @@ public class SelectPlan {
         final List<CompletableFuture<Void>> fs
                 = futureValues.stream().map((fb) -> fb.thenAccept(values::add)).collect(Collectors.toList());
         return CompletableFuture.allOf(fs.toArray(new CompletableFuture[fs.size()])).thenApplyAsync((n) -> {
+            final Binding signatureBinding = SPARQLExt.bindingForSignature(values, signature);
             final Query q = createQuery(select, variables, values);
             if (LOG.isTraceEnabled()) {
                 StringBuilder sb = new StringBuilder("Executing select query:\n");
@@ -119,7 +126,7 @@ public class SelectPlan {
             try {
                 augmentQuery(q, variables, values);
                 ResultSetRewindable rewindable;
-                try (QueryExecution exec = new SPARQLExtSelectExecution((SPARQLExtQuery) q, inputDataset, context)) {
+                try (QueryExecution exec = new SPARQLExtSelectExecution((SPARQLExtQuery) q, inputDataset, signatureBinding, context)) {
                     ResultSet result = exec.execSelect();
                     rewindable = ResultSetFactory.copyResults(result);
                 } catch (ClassCastException ex) {

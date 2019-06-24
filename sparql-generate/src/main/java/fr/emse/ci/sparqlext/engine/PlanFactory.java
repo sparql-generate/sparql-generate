@@ -221,7 +221,7 @@ public class PlanFactory {
      * @return -
      */
     static IteratorPlan makeIteratorPlan(
-            final ElementIterator elementIterator, 
+            final ElementIterator elementIterator,
             boolean sync)
             throws SPARQLExtException {
         Objects.requireNonNull(elementIterator, "The Iterator must not be null");
@@ -244,7 +244,7 @@ public class PlanFactory {
         IteratorFunction iterator = factory.create(iri);
         ExprList exprList = new ExprList(function.getArgs());
         iterator.build(exprList);
-        if(sync) {
+        if (sync) {
             return new SyncIteratorPlan(iterator, exprList, vars);
         } else {
             return new AsyncIteratorPlan(iterator, exprList, vars);
@@ -348,7 +348,7 @@ public class PlanFactory {
      */
     private static SelectPlan makeSelectPlan(final SPARQLExtQuery query) {
         Objects.requireNonNull(query, "The query must not be null");
-        final Query output = new SPARQLExtQuery();
+        final SPARQLExtQuery output = new SPARQLExtQuery();
         query.visit(new SPARQLExtQueryVisitor() {
             @Override
             public void startVisit(final Query query) {
@@ -366,7 +366,9 @@ public class PlanFactory {
             }
 
             @Override
-            public void visitSelectResultForm(final Query query) {
+            public void visitSelectResultForm(final Query q) {
+                SPARQLExtQuery query = asSPARQLExtQuery(q);
+                output.setSignature(query.getSignature());
                 output.setDistinct(query.isDistinct());
                 output.setReduced(query.isReduced());
                 output.setQueryResultStar(query.isQueryResultStar());
@@ -395,19 +397,9 @@ public class PlanFactory {
             }
 
             @Override
-            public void visitDatasetDecl(final Query query) {
-                if (query.getGraphURIs() != null
-                        && !query.getGraphURIs().isEmpty()) {
-                    for (String uri : query.getGraphURIs()) {
-                        output.addGraphURI(uri);
-                    }
-                }
-                if (query.getNamedGraphURIs() != null
-                        && !query.getNamedGraphURIs().isEmpty()) {
-                    for (String uri : query.getNamedGraphURIs()) {
-                        output.addNamedGraphURI(uri);
-                    }
-                }
+            public void visitDatasetDecl(final Query q) {
+                SPARQLExtQuery query = asSPARQLExtQuery(q);
+                output.getFromClauses().addAll(query.getFromClauses());
             }
 
             @Override
@@ -611,7 +603,7 @@ public class PlanFactory {
             }
         }
         LOG.trace(String.format("Generated SELECT query\n%s", newQuery.toString()));
-        return new SelectPlan(newQuery, query.isSelectType());
+        return new SelectPlan(newQuery, query.isSelectType(), query.getSignature());
     }
 
     /**
@@ -690,7 +682,7 @@ public class PlanFactory {
         @Override
         public void visit(ElementSubExtQuery el) {
             SPARQLExtQuery query = el.getQuery();
-            if (query.isNamedSubQuery()) { 
+            if (query.isNamedSubQuery()) {
                 String qs = query.toString();
                 SPARQLExtQuery query2 = (SPARQLExtQuery) ParserSPARQLExt.parseSubQuery(query, qs);
                 query2.setQuerySelectType();
@@ -699,7 +691,7 @@ public class PlanFactory {
                 query2.setCallParameters(null);
                 NodeValue selectQuery = NodeValue.makeNode(query2.toString(), null, SPARQLExt.MEDIA_TYPE_URI);
                 ExprList exprList = new ExprList(selectQuery);
-                exprList.add(NodeValueNode.makeNode(query.getName()));
+                exprList.add(query.getName());
                 exprList.addAll(query.getCallParameters());
                 result = new E_Function(FUN_Select_Call_Template.URI, exprList);
             } else {

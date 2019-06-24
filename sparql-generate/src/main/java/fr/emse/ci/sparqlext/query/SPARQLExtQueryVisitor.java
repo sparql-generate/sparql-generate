@@ -15,6 +15,8 @@
  */
 package fr.emse.ci.sparqlext.query;
 
+import fr.emse.ci.sparqlext.SPARQLExtException;
+import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryVisitor;
 
 /**
@@ -73,5 +75,13 @@ public interface SPARQLExtQueryVisitor extends QueryVisitor {
      * @param query the SPARQL-Ext query.
      */
     public void visitPragma(SPARQLExtQuery query);
+    
+    
+    public default SPARQLExtQuery asSPARQLExtQuery(Query q)  {
+        if (!(q instanceof SPARQLExtQuery)) {
+            throw new SPARQLExtException("Expecting an instance of type SPARQLExtQuery:" + q);
+        }
+        return (SPARQLExtQuery) q;
+    }
 
 }
