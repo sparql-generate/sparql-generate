@@ -186,9 +186,13 @@ public class ST_Call_Template implements Function {
             }
             for (int i = 0; i < max; i++) {
                 final Var parameter = querySignature.get(i);
-                final NodeValue node = callParameters.get(i).eval(binding, env);
-                if (node.asNode().isConcrete()) {
-                    newBinding.add(parameter, node.asNode());
+                try {
+                    final NodeValue node = callParameters.get(i).eval(binding, env);
+                    if (node.asNode().isConcrete()) {
+                        newBinding.add(parameter, node.asNode());
+                    }
+                } catch (Exception ex) {
+                    LOG.trace("call parameter " + i + " for template " + queryName + " cannot be evaluated");
                 }
             }
         }
