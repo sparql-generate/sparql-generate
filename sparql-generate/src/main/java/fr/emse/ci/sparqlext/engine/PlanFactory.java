@@ -557,6 +557,8 @@ public class PlanFactory {
 
             @Override
             public void visitTemplateClause(SPARQLExtQuery query) {
+                output.setDistinct(query.isDistinct());
+                output.setReduced(query.isReduced());
                 final TProc tproc = new TProc();
                 Var var = Var.alloc("out");
                 List<Element> templateElements = query.getTemplateClause();

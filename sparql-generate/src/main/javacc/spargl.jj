@@ -163,7 +163,12 @@ void TemplateQuery() : { }
   { List<Element> bindingClauses = new ArrayList<Element> (); Element elem;}
   ( elem = BindingClauses() { bindingClauses.add(elem); } )*
   { asSPARQLExtQuery().setBindingClauses(bindingClauses);}
-  ( WhereClause() )?
+  (
+    ( <DISTINCT> { getQuery().setDistinct(true);}
+    | <REDUCED> { getQuery().setReduced(true); }
+    )?
+    WhereClause()
+  )?
   SolutionModifier()
 }
 void PerformQuery() : { }
@@ -179,7 +184,12 @@ void PerformQuery() : { }
   { List<Element> bindingClauses = new ArrayList<Element> (); Element elem;}
   ( elem = BindingClauses() { bindingClauses.add(elem); } )*
   { asSPARQLExtQuery().setBindingClauses(bindingClauses);}
-  ( WhereClause() )?
+  (
+    ( <DISTINCT> { getQuery().setDistinct(true);}
+    | <REDUCED> { getQuery().setReduced(true); }
+    )?
+    WhereClause()
+  )?
   SolutionModifier()
   ( PostSelectClause() )?
 }
@@ -337,6 +347,9 @@ Token SubTemplateQuery() : { Token t; }
   ( elem = BindingClauses() { bindingClauses.add(elem); } )*
   { asSPARQLExtQuery().setBindingClauses(bindingClauses);}
   ( 
+    ( <DISTINCT> { getQuery().setDistinct(true);}
+    | <REDUCED> { getQuery().setReduced(true); }
+    )?
     <WHERE>
     { Element el ; }
     { startWherePattern() ; }

@@ -264,7 +264,16 @@ public class SPARQLExtQuerySerializer implements SPARQLExtQueryVisitor {
     }
 
     @Override
-    public void visitQueryPattern(Query query) {
+    public void visitQueryPattern(Query q) {
+        SPARQLExtQuery query = asSPARQLExtQuery(q);
+        if(query.isTemplateType()) {
+            if (query.isDistinct()) {
+                out.print("DISTINCT ");
+            }
+            if (query.isReduced()) {
+                out.print("REDUCED ");
+            }
+        }
         if (query.getQueryPattern() != null) {
             out.print("WHERE ");
             Element el = query.getQueryPattern();
