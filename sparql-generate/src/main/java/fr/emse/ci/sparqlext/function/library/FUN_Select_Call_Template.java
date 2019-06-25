@@ -235,9 +235,13 @@ public class FUN_Select_Call_Template implements Function {
             for (int i = 0; i < querySignature.size(); i++) {
                 final Var var = querySignature.get(i);
                 final Expr callParameter = callParameters.get(i);
-                final NodeValue node = callParameter.eval(binding, env);
-                if (node.asNode().isConcrete()) {
-                    newBinding.add(var, node.asNode());
+                try {
+                    final NodeValue node = callParameter.eval(binding, env);
+                    if (node.asNode().isConcrete()) {
+                        newBinding.add(var, node.asNode());
+                    }
+                } catch (ExprEvalException ex) {
+                    LOG.trace("Exception " + ex.getMessage());
                 }
             }
             newValues.add(newBinding);
