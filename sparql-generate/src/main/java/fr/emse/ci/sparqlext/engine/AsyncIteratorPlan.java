@@ -48,17 +48,17 @@ public class AsyncIteratorPlan extends IteratorPlan {
     /**
      * The constructor.
      *
-     * @param s - The SPARQL-Generate iterator function.
+     * @param iri - The SPARQL-Generate iterator function iri.
      * @param e - The list of expressions on which to evaluate the iterator
      * function.
      * @param vars - The list of variables that will be bound to each result of
      * the iterator function evaluation.
      */
     public AsyncIteratorPlan(
-            final IteratorFunction s,
+            final String iri,
             final ExprList e,
             final List<Var> vars) {
-        super(s, e, vars);
+        super(iri, e, vars);
     }
 
     /**
@@ -85,6 +85,7 @@ public class AsyncIteratorPlan extends IteratorPlan {
             final List<CompletableFuture<Void>> cfs = futureValues.stream().map((futureBinding) -> {
                 return futureBinding.thenComposeAsync((binding) -> {
                     try {
+                        final IteratorFunction iterator = getIterator(context);
                         return iterator.exec(binding, exprList, env, (nodeValues) -> batches.add(futureBinding, binding, nodeValues));
                         //.thenRunAsync(()->batches.executionComplete(futureBinding),executor);
                     } catch (ExprEvalException ex) {

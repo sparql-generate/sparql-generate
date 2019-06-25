@@ -16,7 +16,10 @@
 package fr.emse.ci.sparqlext.engine;
 
 import fr.emse.ci.sparqlext.SPARQLExt;
+import fr.emse.ci.sparqlext.SPARQLExtException;
 import fr.emse.ci.sparqlext.iterator.IteratorFunction;
+import fr.emse.ci.sparqlext.iterator.IteratorFunctionFactory;
+import fr.emse.ci.sparqlext.iterator.IteratorFunctionRegistry;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -45,9 +48,14 @@ public abstract class IteratorPlan implements BindingsClausePlan {
     private static final Logger LOG = LoggerFactory.getLogger(IteratorPlan.class);
 
     /**
+     * The SPARQL-Generate iterator IRI.
+     */
+    private final String iri;
+
+    /**
      * The SPARQL-Generate iterator.
      */
-    protected final IteratorFunction iterator;
+    private IteratorFunction iterator;
 
     /**
      * The list of expressions on which to evaluate the iterator.
@@ -63,19 +71,33 @@ public abstract class IteratorPlan implements BindingsClausePlan {
     /**
      * The constructor.
      *
-     * @param s - The SPARQL-Generate iterator function.
+     * @param iri - The SPARQL-Generate iterator iri.
      * @param e - The list of expressions on which to evaluate the iterator
      * function.
      * @param vars - The list of variables that will be bound to each result of
      * the iterator function evaluation.
      */
     public IteratorPlan(
-            final IteratorFunction s,
+            final String iri,
             final ExprList e,
             final List<Var> vars) {
-        this.iterator = s;
+        this.iri = iri;
         this.exprList = e;
         this.vars = vars;
+    }
+
+    public IteratorFunction getIterator(Context context) {
+        if (iterator != null) {
+            return iterator;
+        }
+        final IteratorFunctionRegistry sr = IteratorFunctionRegistry.get(context);
+        IteratorFunctionFactory factory = sr.get(iri);
+        if (factory == null) {
+            throw new SPARQLExtException("Unknown Iterator Function: " + iri);
+        }
+        iterator = factory.create(iri);
+        iterator.build(exprList);
+        return iterator;
     }
 
     public List<Var> getVars() {
@@ -200,7 +222,6 @@ public abstract class IteratorPlan implements BindingsClausePlan {
 //            }
 //            return CompletableFuture.allOf(cfs.toArray(new CompletableFuture[cfs.size()]));
 //        }
-
         private CompletableFuture<Void> batchComplete(final Batch batch) {
             uncompleteBatches.remove(batch);
             if (LOG.isTraceEnabled()) {
@@ -252,6 +273,6 @@ public abstract class IteratorPlan implements BindingsClausePlan {
 
     @Override
     public String toString() {
-        return "ITERATOR " + iterator.getClass().getSimpleName() + " " + exprList + " AS " + vars;
+        return "ITERATOR " + iri + " " + exprList + " AS " + vars;
     }
 }

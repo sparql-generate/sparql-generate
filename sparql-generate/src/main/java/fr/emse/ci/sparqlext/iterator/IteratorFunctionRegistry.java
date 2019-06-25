@@ -16,31 +16,44 @@
 package fr.emse.ci.sparqlext.iterator;
 
 import fr.emse.ci.sparqlext.SPARQLExt;
+import fr.emse.ci.sparqlext.query.SPARQLExtQuery;
+import fr.emse.ci.sparqlext.stream.LookUpRequest;
+import fr.emse.ci.sparqlext.stream.SPARQLExtStreamManager;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.jena.atlas.logging.Log;
 import org.apache.jena.query.ARQ;
 import org.apache.jena.sparql.util.Context;
-import org.apache.jena.sparql.util.MappedLoader;
 import java.util.Iterator;
+import java.util.Objects;
+import org.apache.commons.io.IOUtils;
+import org.apache.jena.atlas.web.TypedInputStream;
+import org.apache.jena.query.QueryFactory;
+import org.apache.jena.riot.SysRIOT;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Registry of iterator functions.
- * 
+ *
  * @author maxime.lefrancois
  */
 public class IteratorFunctionRegistry //extends HashMap<String, Iterator>
 {
 
+    private static final Logger LOG = LoggerFactory.getLogger(IteratorFunctionRegistry.class);
+
     // Extract a Registry class and do casting and initialization here.
-    Map<String, IteratorFunctionFactory> registry = new HashMap<>();
-    Set<String> attemptedLoads = new HashSet<>();
+    private final Context context;
+    private final Map<String, IteratorFunctionFactory> registry = new HashMap<>();
+    private final Set<String> attemptedLoads = new HashSet<>();
 
     public synchronized static IteratorFunctionRegistry standardRegistry() {
-        IteratorFunctionRegistry reg = new IteratorFunctionRegistry();
+        IteratorFunctionRegistry reg = new IteratorFunctionRegistry(ARQ.getContext());
         return reg;
     }
 
@@ -67,17 +80,20 @@ public class IteratorFunctionRegistry //extends HashMap<String, Iterator>
     }
 
     public IteratorFunctionRegistry() {
+        this(ARQ.getContext());
     }
 
-    /**
-     * Insert a function. Re-inserting with the same URI overwrites the old
-     * entry.
-     *
-     * @param uri
-     * @param f
-     */
-    public void put(String uri, IteratorFunctionFactory f) {
-        registry.put(uri, f);
+    public IteratorFunctionRegistry(Context context) {
+        this.context = context;
+    }
+
+    public IteratorFunctionRegistry(IteratorFunctionRegistry parent, Context context) {
+        this(context);
+        Iterator<String> uris = parent.keys();
+        while (uris.hasNext()) {
+            String uri = uris.next();
+            registry.put(uri, parent.get(uri));
+        }
     }
 
     /**
@@ -88,46 +104,25 @@ public class IteratorFunctionRegistry //extends HashMap<String, Iterator>
      */
     public void put(String uri, Class<?> funcClass) {
         if (!IteratorFunction.class.isAssignableFrom(funcClass)) {
-            Log.warn(this, "Class " + funcClass.getName() + " is not a Iterator");
+            LOG.warn("Class " + funcClass.getName() + " is not a Iterator");
             return;
         }
-
         registry.put(uri, new IteratorFunctionFactoryAuto(funcClass));
     }
 
     /**
-     * Lookup by URI
+     * Insert a iterator. Re-inserting with the same URI overwrites the old
+     * entry.
+     *
+     * @param uri
+     * @param f
      */
-    public IteratorFunctionFactory get(String uri) {
-        IteratorFunctionFactory function = registry.get(uri);
-        if (function != null) {
-            return function;
-        }
-
-        if (attemptedLoads.contains(uri)) {
-            return null;
-        }
-
-        Class<?> functionClass = MappedLoader.loadClass(uri, IteratorFunction.class);
-        if (functionClass == null) {
-            return null;
-        }
-        // Registry it
-        put(uri, functionClass);
-        attemptedLoads.add(uri);
-        // Call again to get it.
-        return registry.get(uri);
+    public void put(String uri, IteratorFunctionFactory f) {
+        registry.put(uri, f);
     }
 
     public boolean isRegistered(String uri) {
         return registry.containsKey(uri);
-    }
-
-    /**
-     * Remove by URI
-     */
-    public IteratorFunctionFactory remove(String uri) {
-        return registry.remove(uri);
     }
 
     /**
@@ -137,4 +132,75 @@ public class IteratorFunctionRegistry //extends HashMap<String, Iterator>
         return registry.keySet().iterator();
     }
 
+    /**
+     * Remove by URI
+     *
+     * @param uri
+     * @return
+     */
+    public IteratorFunctionFactory remove(String uri) {
+        return registry.remove(uri);
+    }
+
+    /**
+     * Lookup by URI
+     *
+     * @return the iterator, or null
+     */
+    public IteratorFunctionFactory get(String uri) {
+        if (registry.get(uri) != null) {
+            return registry.get(uri);
+        }
+        if (attemptedLoads.contains(uri)) {
+            return null;
+        }
+        final LookUpRequest req = new LookUpRequest(uri, "application/vnd.sparql-generate");
+        final SPARQLExtStreamManager sm = (SPARQLExtStreamManager) context.get(SysRIOT.sysStreamManager);
+        Objects.requireNonNull(sm);
+        TypedInputStream tin = sm.open(req);
+        if (tin == null) {
+            LOG.warn(String.format("Could not look up iterator %s", uri));
+            attemptedLoads.add(uri);
+            return null;
+        }
+        String selectString;
+        try {
+            selectString = IOUtils.toString(tin.getInputStream(), StandardCharsets.UTF_8);
+        } catch (IOException ex) {
+            LOG.warn(String.format("Could not read function %s as UTF-8 string", uri));
+            attemptedLoads.add(uri);
+            return null;
+        }
+        SPARQLExtQuery selectQuery;
+        try {
+            selectQuery = (SPARQLExtQuery) QueryFactory.create(selectString, SPARQLExt.SYNTAX);
+        } catch (Exception ex) {
+            LOG.warn(String.format("Could not parse iterator %s", uri), ex);
+            attemptedLoads.add(uri);
+            return null;
+        }
+        if (!selectQuery.isSelectType()) {
+            LOG.warn(String.format("The query is not a SELECT: %s", uri));
+            attemptedLoads.add(uri);
+            return null;
+        }
+        final SPARQLExtIteratorFunctionFactory iterator = new SPARQLExtIteratorFunctionFactory(selectQuery);
+        put(uri, iterator);
+        attemptedLoads.add(uri);
+        return iterator;
+    }
+
+    class SPARQLExtIteratorFunctionFactory implements IteratorFunctionFactory {
+
+        final SPARQLExtQuery selectQuery;
+
+        public SPARQLExtIteratorFunctionFactory(final SPARQLExtQuery selectQuery) {
+            this.selectQuery = selectQuery;
+        }
+
+        @Override
+        public IteratorFunction create(String uri) {
+            return new SPARQLExtIteratorFunction(selectQuery, context);
+        }
+    }
 }

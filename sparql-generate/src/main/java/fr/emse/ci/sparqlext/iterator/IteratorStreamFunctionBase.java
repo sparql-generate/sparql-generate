@@ -90,8 +90,13 @@ public abstract class IteratorStreamFunctionBase implements IteratorFunction {
 
         List<NodeValue> evalArgs = new ArrayList<>();
         for (Expr e : args) {
-            NodeValue x = e.eval(binding, env);
-            evalArgs.add(x);
+            try {
+                NodeValue x = e.eval(binding, env);
+                evalArgs.add(x);
+            } catch (ExprEvalException ex) {
+                LOG.trace("Cannot evaluate node " + e + ": " + ex.getMessage());
+                evalArgs.add(null);
+            }
         }
         try {
             exec(evalArgs, (listNodeValues) -> {
@@ -108,7 +113,7 @@ public abstract class IteratorStreamFunctionBase implements IteratorFunction {
      *
      * @return -
      */
-    public Context getContext() {
+    public final Context getContext() {
         return (Context) env.getContext();
     }
 

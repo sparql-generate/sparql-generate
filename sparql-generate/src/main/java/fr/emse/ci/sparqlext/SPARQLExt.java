@@ -106,7 +106,6 @@ import org.slf4j.LoggerFactory;
 import static org.apache.jena.riot.RDFLanguages.strLangRDFXML;
 import org.apache.jena.riot.SysRIOT;
 import static org.apache.jena.riot.WebContent.contentTypeRDFXML;
-import org.apache.jena.riot.web.HttpOp;
 import org.apache.jena.shared.PrefixMapping;
 import org.apache.jena.sparql.ARQConstants;
 import org.apache.jena.sparql.SystemARQ;
@@ -425,6 +424,9 @@ public final class SPARQLExt {
         FunctionRegistry registry = (FunctionRegistry) context.get(ARQConstants.registryFunctions);
         SPARQLExtFunctionRegistry newRegistry = new SPARQLExtFunctionRegistry(registry, context);
         context.set(ARQConstants.registryFunctions, newRegistry);
+        IteratorFunctionRegistry iteratorRegistry = (IteratorFunctionRegistry) context.get(SPARQLExt.Constants.registryIterators);
+        IteratorFunctionRegistry newIteratorRegistry = new IteratorFunctionRegistry(iteratorRegistry, context);
+        context.set(SPARQLExt.Constants.registryIterators, newIteratorRegistry);
         return context;
     }
 
