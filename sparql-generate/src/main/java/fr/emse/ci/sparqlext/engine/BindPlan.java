@@ -77,7 +77,7 @@ public class BindPlan extends BindOrSourcePlan {
             }
             return BindingFactory.binding(binding, var, n.asNode());
         } catch(ExprEvalException ex) {
-            LOG.trace("No evaluatino for " + this + " " + ex.getMessage());
+            LOG.trace("No evaluation for " + this + " " + ex.getMessage());
             return binding;
         }
     }

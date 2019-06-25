@@ -48,6 +48,7 @@ import org.apache.jena.sparql.engine.binding.Binding;
 import org.apache.jena.sparql.engine.binding.BindingFactory;
 import org.apache.jena.sparql.engine.binding.BindingMap;
 import org.apache.jena.sparql.expr.Expr;
+import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.ExprList;
 import org.apache.jena.sparql.expr.NodeValue;
 import org.apache.jena.sparql.function.FunctionEnv;
@@ -56,7 +57,7 @@ import org.apache.jena.sparql.util.Context;
 
 /**
  * Executes a named sub-query in the GENERATE clause.
- * 
+ *
  * @author maxime.lefrancois
  */
 public class NamedSubQueryPlan implements ExecutionPlan {
@@ -66,12 +67,15 @@ public class NamedSubQueryPlan implements ExecutionPlan {
      */
     private static final Logger LOG = LoggerFactory.getLogger(NamedSubQueryPlan.class);
 
+    private final String base;
+
     private final Expr name;
 
     private final ExprList callParameters;
 
-    public NamedSubQueryPlan(Expr name, ExprList callParameters) {
+    public NamedSubQueryPlan(String base, Expr name, ExprList callParameters) {
         Objects.requireNonNull(name, "name must not be null");
+        this.base = base;
         this.name = name;
         this.callParameters = callParameters;
     }
@@ -119,7 +123,13 @@ public class NamedSubQueryPlan implements ExecutionPlan {
             final FunctionEnv env) {
         final Map<String, List<Binding>> queryValues = new HashMap<>();
         for (Binding binding : values) {
-            NodeValue nodeName = name.eval(binding, env);
+            NodeValue nodeName;
+            try {
+                nodeName = name.eval(binding, env);
+            } catch (ExprEvalException ex) {
+                LOG.warn("Exception while evaluating the sub query name " + name + ":", ex);
+                continue;
+            }
             final Node n = Substitute.substitute(nodeName.asNode(), binding);
             if (!n.isURI()) {
                 LOG.warn("Name of sub query resolved to something else than a"
@@ -151,7 +161,7 @@ public class NamedSubQueryPlan implements ExecutionPlan {
             final InputStream in = sm.open(request);
             String qString = IOUtils.toString(in, Charset.forName("UTF-8"));
             final SPARQLExtQuery q
-                    = (SPARQLExtQuery) QueryFactory.create(qString,
+                    = (SPARQLExtQuery) QueryFactory.create(qString, base,
                             SPARQLExt.SYNTAX);
             loadedQueries.put(queryName, q);
             final RootPlan plan = PlanFactory.createPlanForSubQuery(q);
@@ -213,10 +223,14 @@ public class NamedSubQueryPlan implements ExecutionPlan {
                 for (int i = 0; i < variables.size(); i++) {
                     Expr expr = callParameters.get(i);
                     expr = Substitute.substitute(expr, binding);
-                    NodeValue node = expr.eval(binding, env);
-                    if (node.asNode().isConcrete()) {
-                        Var v = variables.get(i);
-                        newBinding.add(v, node.asNode());
+                    try {
+                        NodeValue node = expr.eval(binding, env);
+                        if (node.asNode().isConcrete()) {
+                            Var v = variables.get(i);
+                            newBinding.add(v, node.asNode());
+                        }
+                    } catch (ExprEvalException ex) {
+                        LOG.trace("Exception while evaluating the expression " + expr + ":", ex);
                     }
                 }
             }

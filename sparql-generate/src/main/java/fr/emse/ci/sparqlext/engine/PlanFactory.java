@@ -26,7 +26,6 @@ import fr.emse.ci.sparqlext.SPARQLExt;
 import fr.emse.ci.sparqlext.SPARQLExtException;
 import fr.emse.ci.sparqlext.function.library.FUN_Select_Call_Template;
 import fr.emse.ci.sparqlext.query.SPARQLExtQuery;
-import fr.emse.ci.sparqlext.iterator.IteratorFunctionRegistry;
 import fr.emse.ci.sparqlext.syntax.ElementIterator;
 import fr.emse.ci.sparqlext.syntax.ElementSource;
 import fr.emse.ci.sparqlext.syntax.ElementSubExtQuery;
@@ -34,8 +33,6 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.jena.sparql.core.Prologue;
 import org.apache.jena.sparql.engine.binding.Binding;
-import fr.emse.ci.sparqlext.iterator.IteratorFunction;
-import fr.emse.ci.sparqlext.iterator.IteratorFunctionFactory;
 import fr.emse.ci.sparqlext.lang.ParserSPARQLExt;
 import fr.emse.ci.sparqlext.syntax.ElementGenerateTriplesBlock;
 import java.util.Objects;
@@ -44,7 +41,6 @@ import org.apache.jena.sparql.syntax.ElementBind;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 import fr.emse.ci.sparqlext.query.SPARQLExtQueryVisitor;
-import fr.emse.ci.sparqlext.serializer.SPARQLExtFmtExprSPARQL;
 import fr.emse.ci.sparqlext.syntax.ElementBox;
 import fr.emse.ci.sparqlext.syntax.ElementExpr;
 import fr.emse.ci.sparqlext.syntax.ElementFormat;
@@ -62,11 +58,9 @@ import org.apache.jena.sparql.expr.NodeValue;
 import org.apache.jena.sparql.expr.aggregate.AggGroupConcat;
 import org.apache.jena.sparql.expr.aggregate.AggGroupConcatDistinct;
 import org.apache.jena.sparql.expr.aggregate.Aggregator;
-import org.apache.jena.sparql.expr.nodevalue.NodeValueDT;
-import org.apache.jena.sparql.expr.nodevalue.NodeValueNode;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueString;
-import org.apache.jena.sparql.serializer.FmtExprSPARQL;
 import org.apache.jena.sparql.syntax.ElementGroup;
+import org.apache.jena.sparql.util.Context;
 
 /**
  * A factory that creates a {@link RootPlan} from a SPARQL-Generate or
@@ -90,11 +84,6 @@ public class PlanFactory {
      * The logger.
      */
     private static final Logger LOG = LoggerFactory.getLogger(PlanFactory.class);
-
-    /**
-     * The registry of {@link IteratorFunction}s.
-     */
-    private static final IteratorFunctionRegistry sr = IteratorFunctionRegistry.get();
 
     private PlanFactory() {
 
@@ -145,10 +134,24 @@ public class PlanFactory {
      * SPARQL-Template Query. query.
      */
     public static final RootPlan create(final String queryStr) {
+        return create(queryStr, null);
+    }
+    
+    /**
+     * A factory that creates a {@link RootPlan} from a SPARQL-Generate or
+     * SPARQL-Template query.
+     *
+     * @param queryStr the string representation of the SPARQL-Generate or
+     * SPARQL-Template Query.
+     * @param base the base URI, if not set explicitly in the query string
+     * @return the RootPlan that may be used to execute the SPARQL-Generate or
+     * SPARQL-Template Query. query.
+     */
+    public static final RootPlan create(final String queryStr, String base) {
         Objects.requireNonNull(queryStr, "Parameter string must not be null");
         SPARQLExtQuery query;
         try {
-            query = (SPARQLExtQuery) QueryFactory.create(queryStr,
+            query = (SPARQLExtQuery) QueryFactory.create(queryStr, base,
                     SPARQLExt.SYNTAX);
         } catch (QueryParseException ex) {
             throw new SPARQLExtException(
@@ -236,18 +239,11 @@ public class PlanFactory {
 
         ExprFunction function = expr.getFunction();
         String iri = function.getFunctionIRI();
-
-        IteratorFunctionFactory factory = sr.get(iri);
-        if (factory == null) {
-            throw new SPARQLExtException("Unknown Iterator Function: " + iri);
-        }
-        IteratorFunction iterator = factory.create(iri);
         ExprList exprList = new ExprList(function.getArgs());
-        iterator.build(exprList);
         if (sync) {
-            return new SyncIteratorPlan(iterator, exprList, vars);
+            return new SyncIteratorPlan(iri, exprList, vars);
         } else {
-            return new AsyncIteratorPlan(iterator, exprList, vars);
+            return new AsyncIteratorPlan(iri, exprList, vars);
         }
     }
 
@@ -306,7 +302,7 @@ public class PlanFactory {
         Objects.requireNonNull(query, "The query must not be null");
         checkIsTrue(query.isNamedSubQuery(), "Query was expected to be a named "
                 + "sub query");
-        return new NamedSubQueryPlan(query.getName(), query.getCallParameters());
+        return new NamedSubQueryPlan(query.getBaseURI(), query.getName(), query.getCallParameters());
     }
 
     /**
@@ -362,13 +358,16 @@ public class PlanFactory {
             @Override
             public void visitPrologue(final Prologue prologue) {
                 output.setPrefixMapping(query.getPrefixMapping());
-                output.setBaseURI(query.getBaseURI());
+                String b = query.getBaseURI();
+                output.setBaseURI(b);
             }
 
             @Override
             public void visitSelectResultForm(final Query q) {
                 SPARQLExtQuery query = asSPARQLExtQuery(q);
+                output.setName(query.getName());
                 output.setSignature(query.getSignature());
+                output.setCallParameters(query.getCallParameters());
                 output.setDistinct(query.isDistinct());
                 output.setReduced(query.isReduced());
                 output.setQueryResultStar(query.isQueryResultStar());
@@ -596,6 +595,7 @@ public class PlanFactory {
             }
 
         });
+        LOG.trace("raw select query is " + output);
         Query newQuery = output.cloneQuery();
         if (newQuery.hasAggregators()) {
             if (query.hasSignature()) {
@@ -689,6 +689,9 @@ public class PlanFactory {
                 query2.setQueryResultStar(true);
                 query2.setName(null);
                 query2.setCallParameters(null);
+                if(query2.getQueryPattern()==null) {
+                    query2.setQueryPattern(new ElementGroup());
+                }
                 NodeValue selectQuery = NodeValue.makeNode(query2.toString(), null, SPARQLExt.MEDIA_TYPE_URI);
                 ExprList exprList = new ExprList(selectQuery);
                 exprList.add(query.getName());
