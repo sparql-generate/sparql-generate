@@ -59,7 +59,6 @@ import org.apache.jena.query.ResultSet;
 import org.apache.jena.query.ResultSetFormatter;
 import org.apache.jena.sparql.resultset.ResultsFormat;
 import org.apache.jena.sparql.util.Context;
-import org.apache.jena.sparql.util.ResultSetUtils;
 import org.rdfhdt.hdt.hdt.HDT;
 
 /**
@@ -118,16 +117,22 @@ public class SPARQLExtCli {
             }
 
             try {
-                q = (SPARQLExtQuery) QueryFactory.create(query, SPARQLExt.SYNTAX);
+                if (cl.hasOption(ARG_BASE)) {
+                    String base = cl.getOptionValue(ARG_BASE);
+                    q = (SPARQLExtQuery) QueryFactory.create(query, base, SPARQLExt.SYNTAX);
+                    q.setBaseURI(q.getBaseURI());
+                } else {
+                    q = (SPARQLExtQuery) QueryFactory.create(query, SPARQLExt.SYNTAX);
+                }
             } catch (Exception ex) {
                 LOG.error("Error while parsing the query to be executed.", ex);
                 return;
             }
-
+            
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }
-
+        
         final Context context = SPARQLExt.createContext(q.getPrefixMapping(), sm);
 
         SPARQLExt.setDebugStConcat(context, cl.hasOption(ARG_DEBUG_TEMPLATE));
@@ -256,7 +261,6 @@ public class SPARQLExtCli {
                     model.write(new FileOutputStream(output, outputAppend), lang.getLabel());
                 } catch (IOException ex) {
                     LOG.error("Error while opening the output file.", ex);
-                    return;
                 }
             }
         } catch (Exception ex) {
@@ -312,7 +316,7 @@ public class SPARQLExtCli {
             } catch (IOException ex) {
                 LOG.error("Error while opening the output file.", ex);
             }
-        } catch (Exception ex) {
+        } catch (InterruptedException | ExecutionException ex) {
             LOG.error("Error while executing the plan.", ex);
         }
     }
