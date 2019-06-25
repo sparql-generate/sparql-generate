@@ -147,7 +147,7 @@ public class ParserSPARQLExt extends SPARQLParser {
                     ex.currentToken.beginColumn);
             LOG.error("", e);
             throw e;
-        } catch (TokenMgrError tErr) {
+        } catch (TokenMgrException tErr) {
             // Last valid token : not the same as token error message - but this should not happen
             int col = parser.token.endColumn;
             int line = parser.token.endLine;
