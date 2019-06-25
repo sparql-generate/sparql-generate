@@ -16,6 +16,8 @@
 package fr.emse.ci.sparqlext.function;
 
 import fr.emse.ci.sparqlext.SPARQLExt;
+import fr.emse.ci.sparqlext.iterator.IteratorFunction;
+import fr.emse.ci.sparqlext.iterator.IteratorFunctionFactory;
 import fr.emse.ci.sparqlext.query.SPARQLExtQuery;
 import fr.emse.ci.sparqlext.stream.LookUpRequest;
 import fr.emse.ci.sparqlext.stream.SPARQLExtStreamManager;
@@ -31,13 +33,13 @@ import org.apache.commons.io.IOUtils;
 import org.apache.jena.atlas.logging.Log;
 
 import org.apache.jena.atlas.web.TypedInputStream;
+import org.apache.jena.query.QueryBuildException;
 import org.apache.jena.query.QueryFactory;
 import org.apache.jena.riot.SysRIOT;
 import org.apache.jena.sparql.function.Function;
 import org.apache.jena.sparql.function.FunctionFactory;
 import org.apache.jena.sparql.function.FunctionRegistry;
 import org.apache.jena.sparql.util.Context;
-import org.apache.jena.sparql.util.MappedLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,7 +52,7 @@ public class SPARQLExtFunctionRegistry extends FunctionRegistry {
     private static final Logger LOG = LoggerFactory.getLogger(SPARQLExtFunctionRegistry.class);
 
     private final Context context;
-    Map<String, FunctionFactory> registry = new HashMap<>();
+    private final Map<String, FunctionFactory> registry = new HashMap<>();
     private final Set<String> attemptedLoads = new HashSet<>();
 
     public SPARQLExtFunctionRegistry(FunctionRegistry parent, Context context) {
@@ -70,7 +72,11 @@ public class SPARQLExtFunctionRegistry extends FunctionRegistry {
      */
     @Override
     public void put(String uri, Class<?> funcClass) {
-        throw new UnsupportedOperationException("Should not reach this point");
+        if (!Function.class.isAssignableFrom(funcClass)) {
+            Log.warn(this, "Class " + funcClass.getName() + " is not a Function");
+            return;
+        }
+        put(uri, new FunctionFactoryAuto(funcClass));
     }
 
     /**
@@ -92,8 +98,9 @@ public class SPARQLExtFunctionRegistry extends FunctionRegistry {
 
     /**
      * Remove by URI
+     *
      * @param uri
-     * @return 
+     * @return
      */
     @Override
     public FunctionFactory remove(String uri) {
@@ -147,6 +154,27 @@ public class SPARQLExtFunctionRegistry extends FunctionRegistry {
         put(uri, function);
         attemptedLoads.add(uri);
         return function;
+    }
+
+    class FunctionFactoryAuto implements FunctionFactory {
+
+        Class<?> extClass;
+
+        FunctionFactoryAuto(Class<?> xClass) {
+            extClass = xClass;
+        }
+
+        @Override
+        public Function create(String uri) {
+            try {
+                return (Function) extClass.newInstance();
+            } catch (Exception e) {
+                LOG.debug("Can't instantiate function"
+                        + " for " + uri, e);
+                throw new QueryBuildException("Can't instantiate function"
+                        + " for " + uri, e);
+            }
+        }
     }
 
     class SPARQLExtFunctionFactory implements FunctionFactory {
