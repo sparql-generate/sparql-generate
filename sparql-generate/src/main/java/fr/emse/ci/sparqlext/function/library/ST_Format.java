@@ -15,6 +15,7 @@
  */
 package fr.emse.ci.sparqlext.function.library;
 
+import fr.emse.ci.sparqlext.SPARQLExt;
 import fr.emse.ci.sparqlext.stream.LookUpRequest;
 import fr.emse.ci.sparqlext.stream.SPARQLExtStreamManager;
 import fr.emse.ci.sparqlext.utils.ST;
@@ -24,6 +25,7 @@ import java.util.ArrayList;
 import java.util.IllegalFormatException;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 import org.apache.commons.io.IOUtils;
 import org.apache.jena.atlas.web.TypedInputStream;
 import org.apache.jena.riot.SysRIOT;
@@ -36,6 +38,7 @@ import org.apache.jena.sparql.expr.NodeValue;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueString;
 import org.apache.jena.sparql.function.Function;
 import org.apache.jena.sparql.function.FunctionEnv;
+import org.apache.jena.sparql.util.ExprUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,8 +68,24 @@ public class ST_Format implements Function {
 
         List<NodeValue> evalArgs = new ArrayList<>();
         for (Expr e : args) {
-            NodeValue x = e.eval(binding, env);
-            evalArgs.add(x);
+            try {
+                NodeValue x = e.eval(binding, env);
+                evalArgs.add(x);
+            } catch( Exception ex) {
+                if (LOG.isDebugEnabled()) {
+                    String errorId = UUID.randomUUID().toString().substring(0, 6);
+                    if (SPARQLExt.isDebugStConcat(env.getContext())) {
+                        String message = String.format("Error id %s executing st:format with expression %s and binding %s", errorId, ExprUtils.fmtSPARQL(args), SPARQLExt.compress(binding).toString());
+                        LOG.debug(message, ex);
+                        evalArgs.add(new NodeValueString("[WARN %s]"));
+                    } else {
+                        String message = String.format("Error executing st:format with expression %s and binding %s", errorId, ExprUtils.fmtSPARQL(args), SPARQLExt.compress(binding).toString());
+                        LOG.debug(message, ex);
+                    }
+                } else if (SPARQLExt.isDebugStConcat(env.getContext())) {
+                    evalArgs.add(new NodeValueString("[WARN %s]"));
+                }
+            }
         }
 
         NodeValue nv = exec(evalArgs, env);
