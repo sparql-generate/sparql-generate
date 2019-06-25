@@ -274,3 +274,17 @@ position: static;
   float: left;
   margin-right: 3em;
 }
+
+#grammar {
+  counter-reset: rowNumber;
+}
+
+#grammar tr {
+  counter-increment: rowNumber;
+}
+
+#grammar tr td:first-child::before {
+  content: counter(rowNumber);
+  min-width: 1em;
+  margin-right: 0.5em;
+}

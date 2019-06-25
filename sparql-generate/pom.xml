@@ -114,7 +114,7 @@
                 <plugin>
                     <groupId>com.helger.maven</groupId>
                     <artifactId>ph-javacc-maven-plugin</artifactId>
-                    <version>2.8.0</version>
+                    <version>4.1.3</version>
                     <executions>
                         <execution>
                             <id>javacc</id>
@@ -123,6 +123,20 @@
                                 <goal>javacc</goal>
                             </goals>
                             <configuration>
+                                <jdkVersion>1.8</jdkVersion>
+                                <javadocFriendlyComments>true</javadocFriendlyComments>
+                                <packageName>fr.emse.ci.sparqlext.lang</packageName>
+                            </configuration>
+                        </execution>
+                        <execution>
+                            <id>javacc-doc</id>
+                            <phase>process-sources</phase>
+                            <goals>
+                                <goal>jjdoc</goal>
+                            </goals>
+                            <configuration>
+                                <cssHref>https://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap.min.css</cssHref>
+                                <oneTable>true</oneTable>
                                 <jdkVersion>1.8</jdkVersion>
                                 <javadocFriendlyComments>true</javadocFriendlyComments>
                                 <packageName>fr.emse.ci.sparqlext.lang</packageName>
