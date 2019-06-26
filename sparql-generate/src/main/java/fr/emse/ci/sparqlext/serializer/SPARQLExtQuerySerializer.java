@@ -276,9 +276,12 @@ public class SPARQLExtQuerySerializer implements SPARQLExtQueryVisitor {
         }
         if (query.getQueryPattern() != null) {
             out.print("WHERE ");
+            out.incIndent();
+            out.newline();
             Element el = query.getQueryPattern();
             fmtElement.visitAsGroup(el);
-            out.print(" ");
+            out.decIndent();
+            out.newline();
         }
     }
 

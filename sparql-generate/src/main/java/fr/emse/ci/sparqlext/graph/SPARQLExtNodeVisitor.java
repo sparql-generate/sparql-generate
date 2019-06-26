@@ -30,6 +30,8 @@ public interface SPARQLExtNodeVisitor extends NodeVisitor {
 
     Object visit(Node_ExtendedURI node);
     
+    Object visit(Node_Template node);
+    
     Object visit(Node_List node);
     
 }

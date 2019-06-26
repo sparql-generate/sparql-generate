@@ -17,7 +17,6 @@ options
 {
     JAVA_UNICODE_ESCAPE = true ;
     UNICODE_INPUT = false ;
-    STATIC = false ;
   //  DEBUG_PARSER = true;
   //  DEBUG_TOKEN_MANAGER = true;
 }
@@ -35,6 +34,7 @@ import org.apache.jena.sparql.expr.aggregate.*;
 import fr.emse.ci.sparqlext.query.*;
 import fr.emse.ci.sparqlext.syntax.*;
 import fr.emse.ci.sparqlext.graph.*;
+
 public class SPARQLExtParser extends SPARQLExtParserBase
 {
 
@@ -1571,6 +1571,12 @@ Expr PrimaryExpression() : { Expr expr ; Node gn ; }
   | gn = NumericLiteral() { return asExpr(gn) ; }
   | gn = BooleanLiteral() { return asExpr(gn) ; }
   | gn = Var() { return asExpr(gn) ; }
+  | 
+    { startSubQueryExt() ; Token t = null;}
+    t = SubTemplateQuery() <DOT>
+    { int beginLine = t.beginLine; int beginColumn = t.beginColumn; t = null; }
+    { SPARQLExtQuery q = endSubQueryExt(beginLine, beginColumn) ; } 
+    { return asExpr(new Node_Template(q)); }
   )
 }
 Expr BrackettedExpression() : { Expr expr ; }

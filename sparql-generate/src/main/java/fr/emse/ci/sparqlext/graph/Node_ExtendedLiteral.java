@@ -17,7 +17,7 @@ package fr.emse.ci.sparqlext.graph;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
+import java.util.Objects;
 import org.apache.jena.datatypes.RDFDatatype;
 import org.apache.jena.datatypes.TypeMapper;
 import org.apache.jena.graph.Node;
@@ -48,7 +48,7 @@ public class Node_ExtendedLiteral extends Node_ExprList {
      * @param datatype optional URI or Node_XURI
      */
     private Node_ExtendedLiteral(List<Expr> components, String lang, Node datatype) {
-        super(UUID.randomUUID().toString().substring(0, 8), components);
+        super(components);
         this.lang = lang;
         this.datatype = datatype;
     }
@@ -144,6 +144,15 @@ public class Node_ExtendedLiteral extends Node_ExprList {
             }
         }
         return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 71 * hash + Objects.hashCode(this.lang);
+        hash = 71 * hash + Objects.hashCode(this.datatype);
+        hash = 71 * hash + super.hashCode();
+        return hash;
     }
 
 }

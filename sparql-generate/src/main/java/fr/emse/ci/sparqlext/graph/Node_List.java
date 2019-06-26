@@ -15,6 +15,7 @@
  */
 package fr.emse.ci.sparqlext.graph;
 
+import java.util.Objects;
 import java.util.UUID;
 import org.apache.jena.graph.NodeVisitor;
 import org.apache.jena.graph.Node_Concrete;
@@ -99,6 +100,13 @@ public class Node_List extends Node_Concrete {
         }
         Node_List on = (Node_List) o;
         return on.getExpr().equals(expr);
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 31 * hash + Objects.hashCode(this.expr);
+        return hash;
     }
 
 }

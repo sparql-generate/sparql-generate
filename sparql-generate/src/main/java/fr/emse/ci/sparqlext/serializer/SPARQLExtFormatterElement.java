@@ -157,7 +157,7 @@ public class SPARQLExtFormatterElement extends SPARQLExtFormatterBase implements
     public void visit(ElementSubExtQuery el) {
         SPARQLExtQuery q = el.getQuery();
         if (!q.isGenerateType() && !q.isTemplateType() && !q.isPerformType()) {
-            throw new IllegalArgumentException("SubGenerate Query must be a generate query");
+            throw new IllegalArgumentException("Sub-query is expected to be a generate, template, or perform query");
         }
         out.incIndent(INDENT);
         QuerySerializerFactory factory = SerializerRegistry.get().getQuerySerializerFactory(SPARQLExt.SYNTAX);

@@ -34,11 +34,9 @@ public abstract class Node_ExprList extends Node_Extended {
     /**
      * Constructor
      * 
-     * @param label
      * @param components 
      */
-    public Node_ExprList(String label, List<Expr> components) {
-        super(label);
+    public Node_ExprList(List<Expr> components) {
         this.components = components;
     }   
     

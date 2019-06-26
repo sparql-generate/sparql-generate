@@ -15,42 +15,43 @@
  */
 package fr.emse.ci.sparqlext.graph;
 
-import java.util.Objects;
+import fr.emse.ci.sparqlext.normalizer.TemplateUtils;
+import fr.emse.ci.sparqlext.query.SPARQLExtQuery;
+import org.apache.jena.ext.com.google.common.base.Objects;
 import org.apache.jena.graph.NodeVisitor;
-import org.apache.jena.sparql.expr.Expr;
 
 /**
- * The class of expression nodes of type  {@code ?{ <expr> }}, or 
- * {@code ${ <expr> }}. They can be used anywhere variables are
- * legal, and they bind a (implicit) variable to the given SPARQL expression.
- * 
+ * The class of expression nodes of type {@code ?{ TEMPLATE ... . }}, or
+ * {@code ${ TEMPLATE ... .}} . They can be used anywhere variables are legal,
+ * and they bind a (implicit) variable to a fun:select-call-template function.
+ *
  * @author maxime.lefrancois
  */
-public class Node_Expr extends Node_Extended {
-    
-    /**
-     * The SPARQL expression specified in this node.
-     */
-    private final Expr expr;
+public class Node_Template extends Node_Extended {
 
     /**
-     * Constructor 
+     * The TEMPLATE query.
+     */
+    private final SPARQLExtQuery query;
+
+    /**
+     * Constructor
      *
-     * @param expr The SPARQL expression specified in this node.
+     * @param query The TEMPLATE query.
      */
-    public Node_Expr(Expr expr) {
-        this.expr = expr;
+    public Node_Template(SPARQLExtQuery query) {
+        this.query = query;
     }
 
     /**
-     * The SPARQL expression specified in this node.
-     * 
-     * @return 
+     * The TEMPLATE query.
+     *
+     * @return
      */
-    public Expr getExpr() {
-        return expr;
+    public SPARQLExtQuery getQuery() {
+        return query;
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -70,18 +71,11 @@ public class Node_Expr extends Node_Extended {
         if (this == o) {
             return true;
         }
-        if(!(o instanceof Node_Expr)) {
+        if (!(o instanceof Node_Template)) {
             return false;
         }
-        Node_Expr on = (Node_Expr) o;
-        return on.getExpr().equals(expr);
+        Node_Template on = (Node_Template) o;
+        return Objects.equal(on.getQuery(), query);
     }
 
-    @Override
-    public int hashCode() {
-        int hash = 7;
-        hash = 53 * hash + Objects.hashCode(this.expr);
-        return hash;
-    }
-    
 }

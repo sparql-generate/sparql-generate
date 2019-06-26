@@ -20,6 +20,7 @@ import fr.emse.ci.sparqlext.graph.Node_Expr;
 import fr.emse.ci.sparqlext.graph.Node_ExtendedLiteral;
 import fr.emse.ci.sparqlext.graph.Node_ExtendedURI;
 import fr.emse.ci.sparqlext.graph.Node_List;
+import fr.emse.ci.sparqlext.graph.Node_Template;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -47,6 +48,8 @@ import org.apache.jena.sparql.syntax.Element;
 import org.apache.jena.sparql.syntax.ElementBind;
 import org.apache.jena.sparql.syntax.ElementGroup;
 import fr.emse.ci.sparqlext.graph.SPARQLExtNodeVisitor;
+import fr.emse.ci.sparqlext.query.SPARQLExtQuery;
+import org.apache.jena.sparql.expr.E_Function;
 import org.apache.jena.sparql.expr.E_Str;
 
 /**
@@ -228,6 +231,22 @@ public class NodeExprNormalizer implements SPARQLExtNodeVisitor {
         this.result = result;
         return null;
     }
+
+    @Override
+    public Object visit(Node_Template node) {
+        if (cache.containsKey(node)) {
+            result = cache.get(node);
+            return null;
+        }
+        Var result = Var.alloc(node.getLabel());
+        SPARQLExtQuery query = (SPARQLExtQuery) node.getQuery().cloneQuery();
+        E_Function expr = TemplateUtils.getFunction(query);
+        bindings.add(new ElementBind(result, expr));
+        cache.put(node, result);
+        this.result = result;
+        return null;
+    }
+    
 
     /**
      * {@inheritDoc

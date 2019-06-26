@@ -25,6 +25,7 @@ import org.apache.jena.graph.Node;
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryVisitor;
 import org.apache.jena.sparql.core.DatasetDescription;
+import org.apache.jena.sparql.core.QueryHashCode;
 import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.core.VarExprList;
 import org.apache.jena.sparql.expr.Expr;
@@ -567,12 +568,13 @@ public class SPARQLExtQuery extends Query {
 
     /**
      * Gets the list of FROM clauses
-     * @return 
+     *
+     * @return
      */
     public List<FromClause> getFromClauses() {
         return fromClauses;
     }
-    
+
     /**
      * adds a FROM varOrIri clause
      *
@@ -614,7 +616,7 @@ public class SPARQLExtQuery extends Query {
     public List<String> getGraphURIs() {
         throw new UnsupportedOperationException("Not for SPARQLExtQuery");
     }
-        
+
     /**
      * Throws UnsupportedOperationException
      */
@@ -802,7 +804,7 @@ public class SPARQLExtQuery extends Query {
             return true;
         }
         return SPARQLExtQueryCompare.equals(this, (SPARQLExtQuery) other);
-    }
+    }    
 
 //    public Query getSelectQueryFromSignature() {
 //        final Query select = QueryFactory.create("SELECT * WHERE {}");

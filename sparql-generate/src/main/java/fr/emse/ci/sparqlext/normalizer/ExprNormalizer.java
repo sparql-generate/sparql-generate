@@ -20,9 +20,12 @@ import fr.emse.ci.sparqlext.graph.Node_Extended;
 import fr.emse.ci.sparqlext.graph.Node_Expr;
 import fr.emse.ci.sparqlext.graph.Node_ExtendedLiteral;
 import fr.emse.ci.sparqlext.graph.Node_ExtendedURI;
+import fr.emse.ci.sparqlext.graph.Node_Template;
+import fr.emse.ci.sparqlext.query.SPARQLExtQuery;
 import java.util.List;
 import org.apache.jena.graph.Node;
 import org.apache.jena.sparql.core.Var;
+import org.apache.jena.sparql.expr.E_Function;
 import org.apache.jena.sparql.expr.E_IRI;
 import org.apache.jena.sparql.expr.E_Str;
 import org.apache.jena.sparql.expr.E_StrConcat;
@@ -40,6 +43,7 @@ import org.apache.jena.sparql.expr.ExprList;
 import org.apache.jena.sparql.expr.aggregate.Aggregator;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueNode;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueString;
+import org.apache.jena.sparql.syntax.ElementBind;
 
 /**
  * Class used to normalize expressions and nodes, and output an expression that
@@ -157,6 +161,8 @@ public class ExprNormalizer {
             return normalize((Node_ExtendedURI) n);
         } else if (n instanceof Node_ExtendedLiteral) {
             return normalize((Node_ExtendedLiteral) n);
+        } else if (n instanceof Node_Template) {
+            return normalize((Node_Template) n);
         }
         throw new NullPointerException();
     }
@@ -181,7 +187,7 @@ public class ExprNormalizer {
         ExprList args = new ExprList();
         List<Expr> components = n.getComponents();
         for (Expr e : components) {
-            if(e instanceof NodeValueString) {
+            if (e instanceof NodeValueString) {
                 Expr nzed = normalize(e);
                 args.add(nzed);
             } else {
@@ -201,4 +207,10 @@ public class ExprNormalizer {
             return str;
         }
     }
+
+    private Expr normalize(Node_Template n) {
+        SPARQLExtQuery query = (SPARQLExtQuery) n.getQuery().cloneQuery();
+        return TemplateUtils.getFunction(query);
+    }
+
 }

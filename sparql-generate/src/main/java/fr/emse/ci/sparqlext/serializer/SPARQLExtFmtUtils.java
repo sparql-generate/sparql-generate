@@ -15,10 +15,14 @@
  */
 package fr.emse.ci.sparqlext.serializer;
 
+import fr.emse.ci.sparqlext.SPARQLExt;
 import fr.emse.ci.sparqlext.graph.Node_Expr;
 import fr.emse.ci.sparqlext.graph.Node_ExtendedLiteral;
 import fr.emse.ci.sparqlext.graph.Node_ExtendedURI;
 import fr.emse.ci.sparqlext.graph.Node_List;
+import fr.emse.ci.sparqlext.graph.Node_Template;
+import fr.emse.ci.sparqlext.query.SPARQLExtQuery;
+import fr.emse.ci.sparqlext.query.SPARQLExtQueryVisitor;
 import org.apache.jena.atlas.io.IndentedWriter;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.Triple;
@@ -26,7 +30,10 @@ import org.apache.jena.sparql.core.BasicPattern;
 import org.apache.jena.sparql.expr.Expr;
 import org.apache.jena.sparql.expr.ExprList;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueString;
+import static org.apache.jena.sparql.serializer.FormatterElement.INDENT;
+import org.apache.jena.sparql.serializer.QuerySerializerFactory;
 import org.apache.jena.sparql.serializer.SerializationContext;
+import org.apache.jena.sparql.serializer.SerializerRegistry;
 import org.apache.jena.sparql.util.FmtUtils;
 
 /**
@@ -113,6 +120,30 @@ public class SPARQLExtFmtUtils {
             out.print("LIST( ");
             v.format(n2.getExpr());
             out.print(" )");
+        } else if (n instanceof Node_Template) {
+            SPARQLExtQuery q = ((Node_Template) n).getQuery();
+            if (!q.isTemplateType()) {
+                throw new IllegalArgumentException("Extended template node is expected to be a template query");
+            }
+            out.incIndent(INDENT);
+            QuerySerializerFactory factory = SerializerRegistry.get().getQuerySerializerFactory(SPARQLExt.SYNTAX);
+            SPARQLExtQueryVisitor visitor = (SPARQLExtQueryVisitor) factory.create(SPARQLExt.SYNTAX, new SerializationContext(q.getPrologue()), out);
+
+            visitor.startVisit(q);
+            visitor.visitTemplateClause(q);
+            visitor.visitBindingClauses(q);
+            visitor.visitQueryPattern(q);
+            visitor.visitGroupBy(q);
+            visitor.visitHaving(q);
+            visitor.visitOrderBy(q);
+            visitor.visitOffset(q);
+            visitor.visitLimit(q);
+            visitor.visitPostSelect(q);
+            visitor.visitValues(q);
+            visitor.finishVisit(q);
+
+            out.print(" . ");
+            out.decIndent(INDENT);
 //        } else if (n instanceof Node_BGP) {
 //            Node_BGP n2 = (Node_BGP) n;
 //            out.print("{ ");

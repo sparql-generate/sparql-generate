@@ -18,7 +18,6 @@ package fr.emse.ci.sparqlext.graph;
 import fr.emse.ci.sparqlext.expr.E_URIParam;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import org.apache.jena.graph.NodeVisitor;
 import org.apache.jena.sparql.expr.Expr;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueString;
@@ -36,7 +35,7 @@ public class Node_ExtendedURI extends Node_ExprList {
      * @param components list of NodeValueString or Expressions
      */
     private Node_ExtendedURI(List<Expr> components) {
-        super(UUID.randomUUID().toString().substring(0,8), components);
+        super(components);
     }
     
     /**
