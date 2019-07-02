@@ -15,7 +15,6 @@
  */
 package fr.emse.ci.sparqlext.api;
 
-import fr.emse.ci.sparqlext.utils.Response;
 import com.google.gson.Gson;
 import java.util.ArrayList;
 import java.util.List;
@@ -79,19 +78,27 @@ public class SessionManager {
         return session.getId();
     }
 
-    synchronized void appendLog(String log) {
-        if (!isOpen) {
-            return;
-        }
-        responses.add(Response.log(log));
-        sendIfTooMany();
+    public void appendLog(String log) {
+        append(new Response.Log(log));
     }
 
-    synchronized void appendResult(String result, Response.TYPE type) {
+    public void appendGenerate(String result) {
+        append(new Response.Result(result, Response.TYPE.GENERATE));
+    }
+
+    public void appendSelect(String result) {
+        append(new Response.Result(result, Response.TYPE.SELECT));
+    }
+
+    public void appendTemplate(String result) {
+        append(new Response.Result(result, Response.TYPE.TEMPLATE));
+    }
+              
+    synchronized private void append(Response response) {
         if (!isOpen) {
             return;
         }
-        responses.add(Response.result(result, type));
+        responses.add(response);
         sendIfTooMany();
     }
 
@@ -102,7 +109,7 @@ public class SessionManager {
     }
 
     synchronized void clear() {
-        responses.add(Response.clear());
+        responses.add(new Response.Clear());
         flush();
     }
 
@@ -133,6 +140,46 @@ public class SessionManager {
             } catch (InterruptedException ex) {
                 executor.shutdownNow();
             }
+        }
+    }
+
+    public static class Response {
+
+        static private enum TYPE {
+            GENERATE(0), SELECT(1), TEMPLATE(2);
+
+            private final int value;
+
+            private TYPE(int value) {
+                this.value = value;
+            }
+
+        }
+
+        public static class Log extends Response {
+
+            public String log;
+
+            public Log(String log) {
+                this.log = log;
+            }
+        }
+
+        public static class Clear extends Response {
+
+            public boolean clear = true;
+        }
+
+        public static class Result extends Response {
+
+            public int type; // 0=GENERATE, 1=SELECT, 2=TEMPLATE
+            public String result;
+
+            public Result(String result, TYPE type) {
+                this.type = type.value;
+                this.result = result;
+            }
+
         }
     }
 

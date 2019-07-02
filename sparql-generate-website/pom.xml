@@ -63,6 +63,11 @@
             <artifactId>jersey-hk2</artifactId>
             <version>${jersey.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-servlets</artifactId>
+            <version>9.4.14.v20181114</version>
+        </dependency>
 
     </dependencies>
 
@@ -264,6 +269,13 @@
                         <contextPath>/sparql-generate</contextPath>
                     </webApp>
                 </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.eclipse.jetty</groupId>
+                        <artifactId>jetty-servlets</artifactId>
+                        <version>9.4.14.v20181114</version>
+                    </dependency>
+                </dependencies>
             </plugin>
         </plugins>
 

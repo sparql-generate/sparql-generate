@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package fr.emse.ci.sparqlext;
+package fr.emse.ci.sparqlext.cli;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
@@ -43,7 +43,7 @@ public class CMDConfigurations {
     public static final String ARG_QUERY_MAN = "Name of the query file in the directory. Default value is ./query.rqg";
     public static final String ARG_OUTPUT = "o";
     public static final String ARG_OUTPUT_LONG = "output";
-    public static final String ARG_OUTPUT_MAN = "Location where the output is to be stored. No value means output goes to the console.";
+    public static final String ARG_OUTPUT_MAN = "Location where the output is to be stored. By default the output is stored in a file with the same name as the query and the extension '.out'.";
     public static final String ARG_OUTPUT_APPEND = "oa";
     public static final String ARG_OUTPUT_APPEND_LONG = "output-append";
     public static final String ARG_OUTPUT_APPEND_MAN = "Write from the end of the output file, instead of replacing it.";
@@ -63,7 +63,7 @@ public class CMDConfigurations {
     public static final String ARG_LOG_LEVEL_MAN = "Set log level, acceptable values are TRACE < DEBUG < INFO < WARN < ERROR < OFF. No value or unrecognized value results in level DEBUG";
     public static final String ARG_LOG_FILE = "f";
     public static final String ARG_LOG_FILE_LONG = "log-file";
-    public static final String ARG_LOG_FILE_MAN = "Location where the log is to be stored. No value means output goes to the console.";
+    public static final String ARG_LOG_FILE_MAN = "Location where the log is to be stored. Log also goes to the console.";
     public static final String ARG_DEBUG_TEMPLATE = "dt";
     public static final String ARG_DEBUG_TEMPLATE_LONG = "debug-template";
     public static final String ARG_DEBUG_TEMPLATE_MAN = "Debug the template output: insert warning identifiers that refer to the log.";

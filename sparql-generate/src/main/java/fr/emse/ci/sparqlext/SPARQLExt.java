@@ -15,6 +15,7 @@
  */
 package fr.emse.ci.sparqlext;
 
+import fr.emse.ci.sparqlext.cli.FileConfigurations;
 import fr.emse.ci.sparqlext.function.SPARQLExtFunctionRegistry;
 import fr.emse.ci.sparqlext.function.library.FUN_CSSPath;
 import fr.emse.ci.sparqlext.function.library.FUN_SplitAtPostion;
@@ -56,9 +57,9 @@ import fr.emse.ci.sparqlext.iterator.library.ITER_MQTTSubscribe;
 import fr.emse.ci.sparqlext.iterator.library.ITER_WebSocket;
 import fr.emse.ci.sparqlext.iterator.library.ITER_dummy;
 import fr.emse.ci.sparqlext.lang.ParserSPARQLExt;
+import fr.emse.ci.sparqlext.query.SPARQLExtQuery;
 import fr.emse.ci.sparqlext.serializer.SPARQLExtQuerySerializer;
 import fr.emse.ci.sparqlext.stream.SPARQLExtStreamManager;
-import fr.emse.ci.sparqlext.utils.Request;
 import fr.emse.ci.sparqlext.utils.WktLiteral;
 import java.io.File;
 import java.util.ArrayList;
@@ -393,6 +394,14 @@ public final class SPARQLExt {
         return createContext(pm, SPARQLExtStreamManager.makeStreamManager(), Executors.newWorkStealingPool());
     }
 
+    public static synchronized Context createContext(SPARQLExtQuery q) {
+        return createContext(q.getPrefixMapping(), SPARQLExtStreamManager.makeStreamManager(), Executors.newWorkStealingPool());
+    }
+
+    public static synchronized Context createContext(SPARQLExtQuery q, SPARQLExtStreamManager sm) {
+        return createContext(q.getPrefixMapping(), sm, Executors.newWorkStealingPool());
+    }
+
     public static synchronized Context createContext(PrefixMapping pm, SPARQLExtStreamManager sm) {
         return createContext(pm, sm, Executors.newWorkStealingPool());
     }
@@ -618,7 +627,7 @@ public final class SPARQLExt {
 
     private static final Var VAR = Var.alloc("truncated");
 
-    public static Dataset loadDataset(File dir, Request request) {
+    public static Dataset loadDataset(File dir, FileConfigurations request) {
         Dataset ds = DatasetFactory.create();
         String dgfile = request.graph != null ? request.graph : "dataset/default.ttl";
         try {

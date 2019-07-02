@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.jena.sparql.expr.ExprEvalException;
 
 /**
  * Binding function
@@ -53,39 +54,33 @@ public final class FUN_regex extends FunctionBase3 {
      */
     public static final String URI = SPARQLExt.FUN + "regex";
 
-    /**
-     * The datatype URI of the first parameter and the return literals.
-     */
-    private static final String datatypeUri = "http://www.iana.org/assignments/media-types/application/cbor";
-
-    /**
-     * A SPARQL function that takes as an input a CBOR document, decodes it and
-     * return a sub-JSON document according to a JSONPath expression. The
-     * Iterator function URI is
-     * {@code <http://w3id.org/sparql-generate/fn/CBOR>}. It takes two
-     * parameters as input:
-     * <ul>
-     * <li> {
-     *
-     * @param cbor} a RDF Literal with datatype URI
-     * {@code <http://www.iana.org/assignments/media-types/application/cbor>}</li>
-     * <li>{
-     * @param jsonpath} a RDF Literal with datatype {@code xsd:string}</li>
-     * </ul>
-     * and returns a RDF Literal with datatype URI
-     * {@code <http://www.iana.org/assignments/media-types/application/json>}.
-     *
-     * @author Noorani Bakerally
-     */
     @Override
     public NodeValue exec(NodeValue stringValue, NodeValue regex, NodeValue locationV) {
+        if (!stringValue.isLiteral()) {
+            LOG.debug("First argument must be a literal, got: " + stringValue);
+            throw new ExprEvalException("First argument must be a literal, got: " + stringValue);
+        }
+        String string = stringValue.asNode().getLiteralLexicalForm();
 
-        String string = stringValue.asString();
+        if (!regex.isString()) {
+            LOG.debug("Second argument must be a string, got: " + regex);
+            throw new ExprEvalException("Second argument must be a string, got: " + regex);
+        }
         String regexString = regex.asString();
+        Pattern pattern;
+        try {
+            pattern = Pattern.compile(regexString, Pattern.MULTILINE);
+        } catch(Exception ex) {
+            LOG.debug("Exception while compiling regex string " + regexString, ex);
+            throw new ExprEvalException("Exception while compiling regex string " + regexString, ex);
+        }
+
+        if (!locationV.isInteger()) {
+            LOG.debug("Third argument must be an integer, got: " + locationV);
+            throw new ExprEvalException("Third argument must be an integer, got: " + locationV);
+        }
 
         int location = locationV.getInteger().intValue();
-
-        Pattern pattern = Pattern.compile(regexString);
 
         Matcher matcher = pattern.matcher(string);
 

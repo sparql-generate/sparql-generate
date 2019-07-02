@@ -15,9 +15,11 @@
  */
 package fr.emse.ci.sparqlext.api;
 
-import fr.emse.ci.sparqlext.utils.Request;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
+import fr.emse.ci.sparqlext.api.entities.Request;
+import fr.emse.ci.sparqlext.cli.FileConfigurations;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -113,19 +115,20 @@ public class ListExercises extends HttpServlet {
         File dir = new File(ListExercises.class.getClassLoader().getResource(type.dir + "/" + id).toURI());
 
         // read sparql-generate-conf.json
-        Request request;
+        FileConfigurations config;
         try {
             String conf = IOUtils.toString(new FileInputStream(new File(dir, "sparql-generate-conf.json")), "utf-8");
-            request = GSON.fromJson(conf, Request.class);
+            config = GSON.fromJson(conf, FileConfigurations.class);
         } catch (IOException | JsonSyntaxException ex) {
             LOG.warn("Error while loading the location mapping model for the queryset. No named queries will be used");
-            request = Request.DEFAULT;
+            config = FileConfigurations.DEFAULT;
         }
 
         // load strings
-        request.loadStrings(dir);
+        Request request = new Request(config, dir);
 
         Response.ResponseBuilder res = Response.ok(GSON.toJson(request), "application/json");
         return res.build();
     }
+
 }

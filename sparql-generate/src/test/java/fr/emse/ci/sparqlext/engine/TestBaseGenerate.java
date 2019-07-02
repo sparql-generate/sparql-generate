@@ -16,7 +16,7 @@
 package fr.emse.ci.sparqlext.engine;
 
 import fr.emse.ci.sparqlext.SPARQLExt;
-import fr.emse.ci.sparqlext.utils.Request;
+import fr.emse.ci.sparqlext.cli.FileConfigurations;
 import fr.emse.ci.sparqlext.stream.LocatorFileAccept;
 import fr.emse.ci.sparqlext.stream.LookUpRequest;
 import fr.emse.ci.sparqlext.stream.SPARQLExtStreamManager;
@@ -49,6 +49,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 import fr.emse.ci.sparqlext.query.SPARQLExtQuery;
+import fr.emse.ci.sparqlext.stream.LocationMapperAccept;
+import java.nio.file.Files;
+import org.apache.jena.riot.system.stream.LocationMapper;
 import org.apache.jena.sparql.util.Context;
 import static org.junit.Assert.assertTrue;
 
@@ -65,7 +68,7 @@ public class TestBaseGenerate {
 
     private final File exampleDir;
     private final String name;
-    private Request request;
+    private FileConfigurations request;
     private SPARQLExtStreamManager sm;
 
     private static final String pattern = "geoj.*";
@@ -82,7 +85,7 @@ public class TestBaseGenerate {
         // read sparql-generate-conf.json
         try {
             String conf = IOUtils.toString(new FileInputStream(new File(exampleDir, "sparql-generate-conf.json")), "utf-8");
-            request = gson.fromJson(conf, Request.class);
+            request = gson.fromJson(conf, FileConfigurations.class);
             if (request.query == null) {
                 request.query = "query.rqg";
             }
@@ -91,11 +94,27 @@ public class TestBaseGenerate {
             }
         } catch (Exception ex) {
             LOG.warn("Error while loading the location mapping model for the queryset. No named queries will be used");
-            request = Request.DEFAULT;
+            request = FileConfigurations.DEFAULT;
         }
         // initialize stream manager
-        sm = SPARQLExtStreamManager.makeStreamManager(new LocatorFileAccept(exampleDir.toURI().getPath()));
-        sm.setLocationMapper(request.asLocationMapper());
+        LocatorFileAccept locator = new LocatorFileAccept(exampleDir.toURI().getPath());
+        LocationMapperAccept mapper = new LocationMapperAccept();
+        sm = SPARQLExtStreamManager.makeStreamManager(locator);
+        sm.setLocationMapper(mapper);
+        if (request.namedqueries != null) {
+            request.namedqueries.forEach((doc) -> {
+                LookUpRequest req = new LookUpRequest(doc.uri, doc.mediatype);
+                LookUpRequest alt = new LookUpRequest(doc.path);
+                mapper.addAltEntry(req, alt);
+            });
+        }
+        if (request.documentset != null) {
+            request.documentset.forEach((doc) -> {
+                LookUpRequest req = new LookUpRequest(doc.uri, doc.mediatype);
+                LookUpRequest alt = new LookUpRequest(doc.path);
+                mapper.addAltEntry(req, alt);
+            });
+        }
     }
 
     @Test

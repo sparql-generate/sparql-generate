@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package fr.emse.ci.sparqlext;
+package fr.emse.ci.sparqlext.cli;
 
 import java.io.PrintStream;
 import org.apache.jena.graph.Triple;

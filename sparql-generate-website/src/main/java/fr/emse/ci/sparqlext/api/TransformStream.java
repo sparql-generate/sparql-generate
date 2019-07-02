@@ -15,7 +15,7 @@
  */
 package fr.emse.ci.sparqlext.api;
 
-import fr.emse.ci.sparqlext.utils.Request;
+import fr.emse.ci.sparqlext.api.entities.Request;
 import fr.emse.ci.sparqlext.SPARQLExt;
 import fr.emse.ci.sparqlext.engine.PlanFactory;
 import fr.emse.ci.sparqlext.stream.LocatorStringMap;
@@ -53,7 +53,6 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 import fr.emse.ci.sparqlext.engine.RootPlan;
 import fr.emse.ci.sparqlext.query.SPARQLExtQuery;
-import fr.emse.ci.sparqlext.utils.Response;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
@@ -81,6 +80,7 @@ public class TransformStream {
     private static final String BASE = "http://example.org/";
     private static final StringWriterAppender APPENDER = (StringWriterAppender) org.apache.log4j.Logger.getRootLogger().getAppender("WEBSOCKET");
     private static final Level[] LEVELS = new Level[]{Level.FATAL, Level.ERROR, Level.WARN, Level.INFO, Level.DEBUG, Level.TRACE};
+    private static final String TURTLE_MEDIATYPE = "text/turtle";
 
     @OnOpen
     public void open(Session session) {
@@ -114,49 +114,62 @@ public class TransformStream {
         }
         sessionManager.appendLog("INFO: starting transformation");
         sessionManager.flush();
-        sessionManager.setLevel(LEVELS[request.loglevel]);
-        
-        final Dataset dataset = DatasetFactory.create();
-        final LocatorStringMap loc = new LocatorStringMap();
-        final String defaultquery = request.defaultquery;
-        final SPARQLExtStreamManager sm;
-        final boolean stream = request.stream;
+
         try {
-            sm = readRequest(request, dataset, loc);
+            setLevel(sessionManager, request);
+        } catch (Exception ex) {
+            logError(sessionManager, "ERROR: while reading parameters:", ex);
+            return;
+        }
+
+        final Dataset dataset;
+        try {
+            dataset = getDataset(sessionManager, request);
+        } catch (Exception ex) {
+            logError(sessionManager, "ERROR: while reading parameters:", ex);
+            return;
+        }
+
+        final SPARQLExtStreamManager sm;
+        try {
+            sm = getStreamManager(request);
         } catch (JsonSyntaxException | IOException ex) {
             logError(sessionManager, "ERROR: while reading parameters:", ex);
             return;
         }
-        final Context context = SPARQLExt.createContext(sm, sessionManager.getExecutor());
-        SPARQLExt.setDebugStConcat(context, request.debugTemplate);
+
         final SPARQLExtQuery q;
         try {
-            q = supply(sessionManager, ()->(SPARQLExtQuery) QueryFactory.create(defaultquery, SPARQLExt.SYNTAX));
+            q = supply(sessionManager, () -> (SPARQLExtQuery) QueryFactory.create(request.defaultquery, SPARQLExt.SYNTAX));
         } catch (InterruptedException | ExecutionException ex) {
             logError(sessionManager, "ERROR: while parsing query:", ex);
             return;
         }
+
+        final Context context = SPARQLExt.createContext(sm, sessionManager.getExecutor());
+        SPARQLExt.setDebugStConcat(context, request.debugTemplate);
         context.set(SPARQLExt.PREFIX_MANAGER, q.getPrefixMapping());
 
         final RootPlan plan;
         try {
-            plan = supply(sessionManager, ()->PlanFactory.create(q));
+            plan = supply(sessionManager, () -> PlanFactory.create(q));
         } catch (InterruptedException | ExecutionException ex) {
             logError(sessionManager, "ERROR: while creating execution plan:", ex);
             return;
         }
-        if (q.isGenerateType() && !stream) {
-            executeGenerate(plan, dataset, context, stream, sessionManager);
-        } else if (q.isSelectType() && !stream) {
-            executeSelect(plan, q, dataset, context, stream, sessionManager);
-        } else if (q.isTemplateType() && !stream) {
-            executeTemplate(plan, dataset, context, stream, sessionManager);
-        } else if (q.isGenerateType() && stream) {
-            executeGenerateStream(plan, dataset, context, stream, sessionManager);
-        } else if (q.isSelectType() && stream) {
-            executeSelectStream(plan, q, dataset, context, stream, sessionManager);
-        } else if (q.isTemplateType() && stream) {
-            executeTemplateStream(plan, dataset, context, stream, sessionManager);
+
+        if (q.isGenerateType() && !request.stream) {
+            executeGenerate(plan, dataset, context, request.stream, sessionManager);
+        } else if (q.isSelectType() && !request.stream) {
+            executeSelect(plan, q, dataset, context, request.stream, sessionManager);
+        } else if (q.isTemplateType() && !request.stream) {
+            executeTemplate(plan, dataset, context, request.stream, sessionManager);
+        } else if (q.isGenerateType() && request.stream) {
+            executeGenerateStream(plan, dataset, context, request.stream, sessionManager);
+        } else if (q.isSelectType() && request.stream) {
+            executeSelectStream(plan, q, dataset, context, request.stream, sessionManager);
+        } else if (q.isTemplateType() && request.stream) {
+            executeTemplateStream(plan, dataset, context, request.stream, sessionManager);
         } else {
             logError(sessionManager, "Error: unknown query type:", null);
         }
@@ -197,24 +210,31 @@ public class TransformStream {
         });
     }
 
-    private SPARQLExtStreamManager readRequest(Request request, Dataset dataset, LocatorStringMap loc) throws IOException {
-        request.namedqueries.forEach((nq) -> {
-            loc.put(nq.uri, nq.string, nq.mediatype);
-        });
+    private Dataset getDataset(SessionManager sessionManager, Request request) throws IOException {
+        Dataset dataset = DatasetFactory.create();
         Model g = ModelFactory.createDefaultModel();
         RDFDataMgr.read(g, IOUtils.toInputStream(request.defaultgraph, "UTF-8"), BASE, Lang.TTL);
         dataset.setDefaultModel(g);
-
         request.namedgraphs.forEach((ng) -> {
             Model model = ModelFactory.createDefaultModel();
             try {
                 RDFDataMgr.read(model, IOUtils.toInputStream(ng.string, "UTF-8"), BASE, Lang.TTL);
             } catch (IOException ex) {
-                LOG.warn("error while parsing graph " + ng.uri, ex);
+                logError(sessionManager, "WARN: unable to parse graph " + ng.uri, ex);
             }
             dataset.addNamedModel(ng.uri, model);
         });
+        return dataset;
+    }
 
+    private SPARQLExtStreamManager getStreamManager(Request request) throws IOException {
+        final LocatorStringMap loc = new LocatorStringMap();
+        request.namedqueries.forEach((nq) -> {
+            loc.put(nq.uri, nq.string, nq.mediatype);
+        });
+        request.namedgraphs.forEach((ng) -> {
+            loc.put(ng.uri, ng.string, TURTLE_MEDIATYPE);
+        });
         request.documentset.forEach((doc) -> {
             loc.put(doc.uri, doc.string, doc.mediatype);
         });
@@ -251,7 +271,7 @@ public class TransformStream {
             } finally {
                 final StringWriter sw = new StringWriter();
                 model.write(sw, "TTL", "http://example.org/");
-                sessionManager.appendResult(sw.toString(), Response.TYPE.GENERATE);
+                sessionManager.appendGenerate(sw.toString());
                 sessionManager.flush();
                 sessionManager.close();
             }
@@ -271,7 +291,7 @@ public class TransformStream {
 
                     @Override
                     public void triple(Triple triple) {
-                        sessionManager.appendResult(FmtUtils.stringForTriple(triple, sc) + " .", Response.TYPE.GENERATE);
+                        sessionManager.appendGenerate(FmtUtils.stringForTriple(triple, sc) + " .");
                     }
 
                     @Override
@@ -281,13 +301,13 @@ public class TransformStream {
                     @Override
                     public void base(String base) {
                         sc.setBaseIRI(base);
-                        sessionManager.appendResult("@base <" + base + "> .", Response.TYPE.GENERATE);
+                        sessionManager.appendGenerate("@base <" + base + "> .");
                     }
 
                     @Override
                     public void prefix(String prefix, String iri) {
                         sc.getPrefixMapping().setNsPrefix(prefix, iri);
-                        sessionManager.appendResult("@prefix " + prefix + ": <" + iri + "> .", Response.TYPE.GENERATE);
+                        sessionManager.appendGenerate("@prefix " + prefix + ": <" + iri + "> .");
                     }
 
                     @Override
@@ -303,7 +323,7 @@ public class TransformStream {
             } finally {
                 final StringWriter sw = new StringWriter();
                 model.write(sw, "TTL", "http://example.org/");
-                sessionManager.appendResult(sw.toString(), Response.TYPE.GENERATE);
+                sessionManager.appendGenerate(sw.toString());
                 sessionManager.flush();
                 sessionManager.close();
             }
@@ -317,7 +337,7 @@ public class TransformStream {
                 executor.submit(() -> {
                     ResultSet resultSet = plan.execSelect(dataset, context);
                     String output = ResultSetFormatter.asText(resultSet, q);
-                    sessionManager.appendResult(output, Response.TYPE.SELECT);
+                    sessionManager.appendSelect(output);
                 }).get(10, TimeUnit.SECONDS);
             } catch (final TimeoutException ex) {
                 logError(sessionManager, "In this web interface query execution cannot exceed 10 s. Consider using the executable jar instead.", ex);
@@ -337,7 +357,7 @@ public class TransformStream {
             try {
                 plan.execSelect(dataset, (resultSet) -> {
                     String output = ResultSetFormatter.asText(resultSet, q);
-                    sessionManager.appendResult(output, Response.TYPE.SELECT);
+                    sessionManager.appendSelect(output);
                 }, context).get(10, TimeUnit.SECONDS);
             } catch (final TimeoutException ex) {
                 logError(sessionManager, "In this web interface query execution cannot exceed 10 s. Consider using the executable jar instead.", ex);
@@ -358,7 +378,7 @@ public class TransformStream {
             try {
                 executor.submit(() -> {
                     String output = plan.execTemplate(dataset, context);
-                    sessionManager.appendResult(output, Response.TYPE.TEMPLATE);
+                    sessionManager.appendTemplate(output);
                 }).get(10, TimeUnit.SECONDS);
             } catch (final TimeoutException ex) {
                 logError(sessionManager, "In this web interface query execution cannot exceed 10 s. Consider using the executable jar instead.", ex);
@@ -378,7 +398,7 @@ public class TransformStream {
             try {
                 plan.execTemplate(dataset, (s) -> {
                     System.out.println("NEW SOL");
-                    sessionManager.appendResult(s, Response.TYPE.TEMPLATE);
+                    sessionManager.appendTemplate(s);
                 }, context).get(10, TimeUnit.SECONDS);
             } catch (final TimeoutException ex) {
                 logError(sessionManager, "In this web interface query execution cannot exceed 10 s. Consider using the executable jar instead.", ex);
@@ -389,13 +409,17 @@ public class TransformStream {
             } finally {
                 sessionManager.flush();
                 sessionManager.close();
-            }   
+            }
         }
         );
     }
 
     private <T> T supply(SessionManager sessionManager, Supplier<T> task) throws InterruptedException, ExecutionException {
         return CompletableFuture.supplyAsync(task, sessionManager.getExecutor()).get();
+    }
+
+    private void setLevel(SessionManager sessionManager, Request request) {
+        sessionManager.setLevel(LEVELS[request.loglevel]);
     }
 
 }

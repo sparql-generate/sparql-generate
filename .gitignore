@@ -35,3 +35,7 @@ buildNumber.properties
 # deploy website
 make.sh
 *.log
+
+# SPARQL-Generate output and log
+*.rqglog
+*.out

@@ -78,7 +78,14 @@ public class ITER_regex extends IteratorFunctionBase {
             throw new ExprEvalException("Second argument must be a string, got: " + args.get(1));
         }
         String regexString = args.get(1).asString();
-        Pattern pattern = Pattern.compile(regexString, Pattern.MULTILINE);
+        
+        Pattern pattern;
+        try {
+            pattern = Pattern.compile(regexString, Pattern.MULTILINE);
+        } catch(Exception ex) {
+            LOG.debug("Exception while compiling regex string " + regexString, ex);
+            throw new ExprEvalException("Exception while compiling regex string " + regexString, ex);
+        }
 
         Integer[] gSelection = null;
 
