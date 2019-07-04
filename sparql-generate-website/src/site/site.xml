@@ -107,6 +107,12 @@ See the License for the specific language governing permissions and
                     <toc>false</toc>
                     <markPageHeader>false</markPageHeader>
                 </language-cli>
+                <sublime>
+                    <titleTemplate>SPARQL-Generate - Sublimle Package</titleTemplate>
+                    <breadcrumbs>false</breadcrumbs>
+                    <toc>false</toc>
+                    <markPageHeader>false</markPageHeader>
+                </sublime>
                 <standalone-app>
                     <titleTemplate>SPARQL-Generate - Standalone Application</titleTemplate>
                     <breadcrumbs>false</breadcrumbs>
@@ -175,6 +181,7 @@ See the License for the specific language governing permissions and
         </menu>
         <menu name="Documentation">
             <!--<item name="Standalone App" href="standalone-app.html" />-->
+            <item name="Sublime Text" href="sublime.html" />  
             <item name="Executable JAR" href="language-cli.html" />  
             <item name="Java API Overview" href="get-started.html"/>
             <item name="Java API Javadoc" href="apidocs/index.html"/>
@@ -187,7 +194,7 @@ See the License for the specific language governing permissions and
         <menu name="About">
             <item name="Team" href="team-list.html"/>
             <item name="License" href="license.html" />
-            <item name="We are on GitHub" href="http://github.com/sparql-generate/sparql-generate/" target="_blank"/>
+            <item name="We are on GitHub" href="http://github.com/sparql-generate/" target="_blank"/>
         </menu>
 
     </body>

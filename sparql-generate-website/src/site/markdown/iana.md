@@ -41,7 +41,7 @@ Macintosh file type code(s):
    TEXT
 
 Person & email address to contact for further information:
-   Maxime Lefrançois <maxime.lefrancois.86@gmail.com>
+   Maxime Lefrançois <maxime.lefrancois@emse.fr>
 
 Intended usage:
    COMMON

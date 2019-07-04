@@ -24,13 +24,26 @@ blockquote p {
     display: block;
     position: relative;    
     z-index: 1;
-    margin: 1em 20% ;
+    margin: 1em 20% 0em ;
     padding: .5em;
     border-radius: 1em;
     font-size: 20px;
     text-align: center;
     color: #fff;
     background: #57338b;
+}
+
+#new {
+    display: block;
+    position: relative;    
+    z-index: 1;
+    margin: 0em 20% 1em ;
+    padding: .5em;
+    border-radius: 1em;
+    font-size: 20px;
+    text-align: center;
+    color: #fff;
+    background: #0aa82a;
 }
 
 .drop_zone {

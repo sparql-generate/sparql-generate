@@ -1,46 +1,28 @@
-# SPARQL-Generate Executable JAR
+# Integration with the Sublime Text editor
 
-Pre-release of the SPARQL-Generate 2.0 executable JAR can be obtained from [the Releases page of the project on GitHub](https://github.com/sparql-generate/sparql-generate/releases/tag/2.0-SNAPSHOT). 
+Edit and run SPARQL-Generate projects directly in Sublime text with the [pre-release of the `LinkedData` package](https://github.com/sparql-generate/sublime-editor).
 
-Executing this JAR requires Java JRE 1.8 or above. 
+Note: as for SPARQL-Generate CLI, all input and output files are assumed to be in UTF-8.
 
-### Note on versions
+## Installation
 
-Older versions are available [on Maven Central](https://search.maven.org/search?q=g:com.github.thesmartenergy).
-The documentation below applies to pre-release `2.0-SNAPSHOT` onward. 
+Installation instructions are available [on the GitHub of the `LinkedData` package](https://github.com/sparql-generate/sublime-editor).
 
+## Running
 
-## Command line
+The SPARQL-Generate Sublime package are **folders** that contain a query file `query.rqg`.
 
-The default template for calling SPARQL Extensions is as follows:
+Optionally, a SPARQL-Generate project configuration file `sparql-generate-conf.json`, which may override the name of the main query file.
 
-```
-java -jar sparql-generate.jar [arguments]
-```
+Run the SPARQL-Generate project in (Tools -> Build), or CTRL+B. (SUPER+B on Mac).
 
+The bottom part of the text editor contains the live log with level INFO.
 
-#### SPARQL Extensions Executable JAR Arguments
+A more verbose Log file is outputted in `<queryname>.rqgout`. Shortcut to open it is CTRL+SHIFT+L (SUPER+SHIFT+L on Mac).
 
-* `-h,--help` Show help
-* `-b,--base <arg>`  Base URI of the working directory. If set, each file in the working directory is identified by a URI resolved against the base.
-* `-d,--dir <arg>` Location of the directory with the queryset, documentset, dataset, and configuration files as explained below. Default value is '.' (the current folder)
-* `-q,--query-file <arg>` Name of the query file in the directory. Default value is `./query.rqg`
-* `-o,--output <arg>` Location where the output is to be stored. By default the output is stored in a file with the same name as the query and the extension '.out'.
-* `-oa,--output-append` Write from the end of the output file, instead of replacing it.
-* `-of,--output-format` Format of the output file, e.g. TTL, NT, etc. for GENERATE, or TEXT, XML, CSV, etc. for SELECT. 
-* `-l,--log-level <arg>` Set log level, acceptable values are TRACE < DEBUG < INFO < WARN < ERROR < OFF. No value or unrecognized value results in level TRACE
-* `-f,--log-file <arg>` Location where the log is to be stored. Output also goes to the console.
-* `-s,--stream` Generate output as stream.
-* `-hdt,--hdt` Generate output as HDT.
-* `-dt,--debug-template` Debug the template output: insert warning identifiers that refer to the log.
-* `--source` Replaces `<source>` in a `SOURCE` clause with the given value, e.g. `urn:sg:source=source.json`.
+## Configuration 
 
-
-##### Configuration file (optional)
-
-Optionally, the query may be run in a directory with a configuration file `sparql-generate-conf.json` that describes default execution options, and execution context configuration such as queryset and/or documentset and/or dataset.
-
-**Note:** Command-line options always override the specification in the Configuration file `sparql-generate-conf.json`.
+You can configure your SPARQL-Generate project inside a `sparql-generate-conf.json` file in the same folder as the main query. Key shortcut CTRL+SHIFT+O should open this file (SUPER+SHIFT+O on Mac).
 
 Configuration file `sparql-generate-conf.json` is a JSON Object. 
 
@@ -108,4 +90,3 @@ Notes:
   "log": "5"
 }
 ```
-
