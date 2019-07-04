@@ -407,11 +407,15 @@ public final class SPARQLExt {
     }
 
     public static synchronized Context createContext(SPARQLExtStreamManager sm) {
-        return createContext(null, sm, Executors.newWorkStealingPool());
+        return createContext((PrefixMapping) null, sm, Executors.newWorkStealingPool());
     }
 
     public static synchronized Context createContext(SPARQLExtStreamManager sm, Executor executor) {
-        return createContext(null, sm, executor);
+        return createContext((PrefixMapping) null, sm, executor);
+    }
+
+    public static synchronized Context createContext(SPARQLExtQuery q, SPARQLExtStreamManager sm, Executor executor) {
+        return createContext(q.getPrefixMapping(), sm, executor);
     }
 
     public static synchronized Context createContext(PrefixMapping pm, SPARQLExtStreamManager sm, Executor executor) {
