@@ -547,6 +547,7 @@ public class SPARQLExtQuerySerializer implements SPARQLExtQueryVisitor {
 
         visitor.startVisit(q);
         visitor.visitGenerateClause(q);
+        visitor.visitDatasetDecl(q);
         visitor.visitBindingClauses(q);
         visitor.visitQueryPattern(q);
         visitor.visitGroupBy(q);
