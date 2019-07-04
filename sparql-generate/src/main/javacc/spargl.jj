@@ -294,7 +294,15 @@ ElementFormat Format() : { }
   <FORMAT>
   <LBRACE>
     { ElementExpr expr; List<Element> exprs = new ArrayList<Element>(); }
-    expr = PrimaryExpressionNotBracketted()
+    (
+      expr = PrimaryExpressionNotBracketted()
+//    | 
+//      { startSubQueryExt() ; Token t = null;}
+//      t = SubTemplateQuery() <DOT>
+//      { int beginLine = t.beginLine; int beginColumn = t.beginColumn; t = null; }
+//      { SPARQLExtQuery q = endSubQueryExt(beginLine, beginColumn) ; } 
+//      { expr = new ElementExpr( asExpr(new Node_Template(q)) ); }
+    )
     ( TExpression(exprs) )+
   <RBRACE>
   { return new ElementFormat( expr , exprs ); }
@@ -309,6 +317,12 @@ ElementTGroup Group() : { boolean distinct = false ; String sep = null; }
       ( expr = PrimaryExpressionNotBracketted()
       | expr = Box()
       | expr = Format()
+//      | 
+//        { startSubQueryExt() ; Token t = null;}
+//        t = SubTemplateQuery() <DOT>
+//        { int beginLine = t.beginLine; int beginColumn = t.beginColumn; t = null; }
+//        { SPARQLExtQuery q = endSubQueryExt(beginLine, beginColumn) ; } 
+//        { expr = new ElementExpr( asExpr(new Node_Template(q)) ); }
       )
       { exprs.add( expr ); }
     )*
@@ -556,6 +570,7 @@ Token SubGenerateQuery( ) : { Token t;}
     ( VarList() )?
     GenerateClause()
   )
+  ( DatasetClause() )*
   { List<Element> bindingClauses = new ArrayList<Element> (); Element elem;}
   ( elem = BindingClauses() { bindingClauses.add(elem); } )*
   { asSPARQLExtQuery().setBindingClauses(bindingClauses);}
