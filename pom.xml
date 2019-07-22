@@ -200,6 +200,8 @@
                             <exclude>**/*.xml</exclude>
                             <exclude>**/*.log</exclude>
                             <exclude>**/java.nio.file.spi.FileTypeDetector</exclude>
+                            <exclude>**/*.out</exclude>
+                            <exclude>**/*.rqglog</exclude>
                         </excludes>
                     </configuration>
                 </plugin>
