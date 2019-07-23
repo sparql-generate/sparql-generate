@@ -161,10 +161,11 @@ public class SPARQLExtCli {
             }
 
             long millis = Duration.between(start, Instant.now()).toMillis();
-            LOG.info("Program finished in " + String.format("%d min, %d sec",
-                    TimeUnit.MILLISECONDS.toMinutes(millis),
-                    TimeUnit.MILLISECONDS.toSeconds(millis)
-                    - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis))));
+            int min = (int)(millis/60000);
+            int sec = (int)(millis%60000/1000);
+            int milli = (int)(millis%1000);
+            LOG.info("Program finished in " + String.format("%d min, %d.%d sec",
+                    min,sec,milli));
 
         } catch (Exception ex) {
             throw new RuntimeException(ex);
