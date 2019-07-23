@@ -439,6 +439,7 @@ public class SPARQLExtCli {
             LOG.warn("JSON Syntax exceptioun while loading the location mapping model for the queryset.", ex);
             request = new CliRequest();
         }
+        request.query = cl.getOptionValue(ARG_QUERY, request.query);
         request.base = cl.getOptionValue(ARG_BASE, request.base);
         request.output = cl.getOptionValue(ARG_OUTPUT, request.output);
         request.outputAppend = cl.hasOption(ARG_OUTPUT_APPEND);
