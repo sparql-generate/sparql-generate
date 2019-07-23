@@ -1,10 +1,3 @@
 <p>SPARQL-Generate queries are executed against <strong>a combination of a <emph>RDF Dataset</emph> and a <emph>DocumentSet</emph></strong></p>
 
-<p>The query below parametrizes the generation of RDF using a graph that contains a set of instances of the following pattern. (<b>Click the <emph>edit</emph> button to check out what the default graph of the Dataset contains</b>).</p>
-
-<pre>
-?x  map:jsonKey ?key ;
-  map:inUcumUnit ?unit ;
-  map:observationClass ?obsClass ;
-  map:propertyClass ?pClass .
-</pre>
+<p>Contrarily to the previous example, the query below parametrizes the generation of RDF using a CSV document. It first generates the same default graph to fall back to the previous example.</p>
