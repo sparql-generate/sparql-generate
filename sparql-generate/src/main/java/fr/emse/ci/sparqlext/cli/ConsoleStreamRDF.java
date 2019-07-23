@@ -48,7 +48,7 @@ public class ConsoleStreamRDF implements StreamRDF {
 
         @Override
         public void base(String string) {
-            out.append("@base <").append(string).append(">\n");
+            out.append("@base <").append(string).append("> .\n");
         }
 
         @Override
