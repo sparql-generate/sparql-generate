@@ -71,6 +71,7 @@ The following keys specify the output:
 The following keys determine the amount of logging:
 
 * `log` (integer, default value 5). The log level (`{ "0": "OFF", "1": "ERROR", "2": "WARN", "3": "INFO", "4": "DEBUG", "5": "TRACE"} `)
+* `debugTemplate` (boolean, default value `false`). Debug the template output: insert warning identifiers that refer to the log.
 
 Notes:
 
