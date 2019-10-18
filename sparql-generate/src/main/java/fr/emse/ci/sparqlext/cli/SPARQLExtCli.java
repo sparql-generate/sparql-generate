@@ -110,7 +110,11 @@ public class SPARQLExtCli {
                         }
                     }
                 });
-                ROOT_LOGGER.addAppender(new org.apache.log4j.RollingFileAppender(LAYOUT, r.logFile, false));
+                RollingFileAppender appender = new RollingFileAppender(LAYOUT, r.logFile , false);
+                appender.setEncoding("UTF-8");
+                appender.setMaxFileSize("10MB");
+                appender.activateOptions();
+                ROOT_LOGGER.addAppender(appender);
             } catch (IOException ex) {
                 throw new RuntimeException("Exception while initializing the log file", ex);
             }
@@ -209,7 +213,7 @@ public class SPARQLExtCli {
         } else {
             try {
                 futurePrintStreamRDF = new ConsoleStreamRDF(
-                        new PrintStream(new FileOutputStream(request.output, request.outputAppend)), q.getPrefixMapping());
+                        new PrintStream(new FileOutputStream(request.output, request.outputAppend), false, "UTF-8"), q.getPrefixMapping());
             } catch (IOException ex) {
                 LOG.error("Error while opening the output file.", ex);
                 return;
@@ -304,7 +308,7 @@ public class SPARQLExtCli {
             if (request.output == null) {
                 ps = System.out;
             } else {
-                ps = new PrintStream(new FileOutputStream(request.output, request.outputAppend));
+                ps = new PrintStream(new FileOutputStream(request.output, request.outputAppend), false, "UTF-8");
             }
             String result = plan.execTemplate(ds, context);
             ps.print(result);
@@ -320,10 +324,10 @@ public class SPARQLExtCli {
             if (request.output == null) {
                 ps = System.out;
             } else {
-                ps = new PrintStream(new FileOutputStream(request.output, request.outputAppend));
+                ps = new PrintStream(new FileOutputStream(request.output, request.outputAppend), false, "UTF-8");
             }
             plan.execTemplate(ds, ps::print, context).get();
-        } catch (FileNotFoundException | InterruptedException | ExecutionException ex) {
+        } catch (FileNotFoundException | InterruptedException | ExecutionException | UnsupportedEncodingException ex) {
             LOG.error("Error while executing the plan.", ex);
         }
     }

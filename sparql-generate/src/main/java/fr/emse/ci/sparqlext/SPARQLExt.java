@@ -30,6 +30,7 @@ import fr.emse.ci.sparqlext.function.library.FUN_CamelCase;
 import fr.emse.ci.sparqlext.function.library.FUN_MixedCase;
 import fr.emse.ci.sparqlext.function.library.FUN_PrefixedIRI;
 import fr.emse.ci.sparqlext.function.library.FUN_Property;
+import fr.emse.ci.sparqlext.function.library.FUN_Replace;
 import fr.emse.ci.sparqlext.function.library.FUN_Select_Call_Template;
 import fr.emse.ci.sparqlext.function.library.FUN_TitleCase;
 import fr.emse.ci.sparqlext.function.library.ST_Call_Template;
@@ -37,6 +38,7 @@ import fr.emse.ci.sparqlext.function.library.ST_Concat;
 import fr.emse.ci.sparqlext.function.library.ST_Decr;
 import fr.emse.ci.sparqlext.function.library.ST_Format;
 import fr.emse.ci.sparqlext.function.library.ST_Incr;
+import fr.emse.ci.sparqlext.function.library.ST_Turtle;
 import fr.emse.ci.sparqlext.graph.Node_List;
 import fr.emse.ci.sparqlext.iterator.library.ITER_GeoJSON;
 import fr.emse.ci.sparqlext.iterator.library.ITER_CSVHeaders;
@@ -230,12 +232,14 @@ public final class SPARQLExt {
         fnreg.put(FUN_TitleCase.URI, FUN_TitleCase.class);
         fnreg.put(FUN_PrefixedIRI.URI, FUN_PrefixedIRI.class);
         fnreg.put(FUN_Select_Call_Template.URI, FUN_Select_Call_Template.class);
+        fnreg.put(FUN_Replace.URI, FUN_Replace.class);
 
         fnreg.put(ST_Call_Template.URI, ST_Call_Template.class);
         fnreg.put(ST_Decr.URI, ST_Decr.class);
         fnreg.put(ST_Incr.URI, ST_Incr.class);
         fnreg.put(ST_Concat.URI, ST_Concat.class);
         fnreg.put(ST_Format.URI, ST_Format.class);
+        fnreg.put(ST_Turtle.URI, ST_Turtle.class);
 
         IteratorFunctionRegistry itereg = IteratorFunctionRegistry.get();
         itereg.put(ITER_JSONPath.URI, ITER_JSONPath.class);

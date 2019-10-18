@@ -51,7 +51,7 @@ import org.apache.jena.riot.SysRIOT;
  * See
  * <a href="https://w3id.org/sparql-generate/playground.html#ex=example/generate/Example-HTTPGet">Live
  * example</a></p>
- * 
+ *
  * <ul>
  * <li>Param 1: (a URI or String) the Web URI where regular GET operations are
  * operated;</li>
@@ -92,21 +92,21 @@ public class ITER_HTTPGet extends IteratorStreamFunctionBase {
 
     @Override
     public void exec(
-            final List<NodeValue> args, 
-            final Consumer<List<List<NodeValue>>> listNodeValues, 
+            final List<NodeValue> args,
+            final Consumer<List<List<NodeValue>>> listNodeValues,
             final ExecutionControl control) {
-        if (!args.get(0).isString() && !args.get(0).isIRI()) {
+        if (args.get(0) == null || !args.get(0).isString() && !args.get(0).isIRI()) {
             throw new ExprEvalException("First argument must be a string or a URI, got: " + args.get(0));
         }
         final String url_s = args.get(0).isString() ? args.get(0).asString() : args.get(0).asNode().getURI();
         final LookUpRequest req = new LookUpRequest(url_s);
 
-        if (!args.get(1).isInteger() || args.get(1).getInteger().intValue() <= 0) {
+        if (args.get(1) == null || !args.get(1).isInteger() || args.get(1).getInteger().intValue() <= 0) {
             throw new ExprEvalException("Second argument must be an integer, got: " + args.get(1));
         }
         long recurrenceValueNano = (args.get(1).getInteger().longValue() * 1_000_000_000);
 
-        if (args.size() == 3 && (!args.get(2).isInteger() || args.get(2).getInteger().intValue() <= 0)) {
+        if (args.size() == 3 && (args.get(2) == null || !args.get(2).isInteger() || args.get(2).getInteger().intValue() <= 0)) {
             throw new ExprEvalException("Third argument must be a positive integer, got: " + args.get(2));
         }
         int times = args.size() == 3 ? args.get(2).getInteger().intValue() : Integer.MAX_VALUE;
@@ -117,7 +117,7 @@ public class ITER_HTTPGet extends IteratorStreamFunctionBase {
             LOG.info("Call HTTPGet #" + i + " to " + url_s);
             String message;
             final TypedInputStream tin = sm.open(req);
-            if(tin != null) {
+            if (tin != null) {
                 tin.getMediaType().toHeaderString();
                 try (InputStream in = tin.getInputStream()) {
                     message = IOUtils.toString(in, StandardCharsets.UTF_8);
@@ -138,7 +138,7 @@ public class ITER_HTTPGet extends IteratorStreamFunctionBase {
             }
             long end = System.nanoTime();
             try {
-                LOG.debug("Will sleep  " + recurrenceValueNano + " - " + (end - start )+ " = " + (recurrenceValueNano - (end - start)));
+                LOG.debug("Will sleep  " + recurrenceValueNano + " - " + (end - start) + " = " + (recurrenceValueNano - (end - start)));
                 TimeUnit.NANOSECONDS.sleep(recurrenceValueNano - (end - start));
             } catch (InterruptedException ex) {
                 LOG.debug("Call HTTPGET to " + url_s + " Interrupted");

@@ -16,21 +16,17 @@
 package fr.emse.ci.sparqlext.iterator.library;
 
 import fr.emse.ci.sparqlext.SPARQLExt;
-import fr.emse.ci.sparqlext.function.library.FUN_CSSPath;
 import fr.emse.ci.sparqlext.iterator.IteratorFunctionBase;
 import java.util.ArrayList;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import org.apache.jena.datatypes.RDFDatatype;
-import org.apache.jena.datatypes.TypeMapper;
 
 import org.apache.jena.query.Dataset;
 import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.ExprList;
 import org.apache.jena.sparql.expr.NodeValue;
-import org.apache.jena.sparql.expr.nodevalue.NodeValueBoolean;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 

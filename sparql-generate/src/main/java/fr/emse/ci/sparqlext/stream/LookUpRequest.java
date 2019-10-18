@@ -15,6 +15,9 @@
  */
 package fr.emse.ci.sparqlext.stream;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Represents a Look Up for a document: contains the URI of the document and a
  * Accept header field.
@@ -25,6 +28,8 @@ public class LookUpRequest {
 
     static final String ACCEPT_ALL = "*/*";
 
+    private static final Logger LOG = LoggerFactory.getLogger(LookUpRequest.class);
+
     private final String filenameOrURI;
     private final String accept;
 
@@ -34,6 +39,7 @@ public class LookUpRequest {
 
     public LookUpRequest(String filenameOrURI, String accept) {
         if (filenameOrURI == null) {
+            LOG.warn("filenameOrURI is null");
             throw new NullPointerException();
         }
         this.filenameOrURI = filenameOrURI;

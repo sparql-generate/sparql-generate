@@ -72,8 +72,8 @@ public class SourcePlan extends BindOrSourcePlan {
      * Must not be null.
      * @param accept The IRI or the Variable node that represent the accepted
      * Internet Media Type. May be null.
-     * @param var The variable to bound the potentially retrieved document.
-     * Must not be null.
+     * @param var The variable to bound the potentially retrieved document. Must
+     * not be null.
      */
     public SourcePlan(
             final Node node,
@@ -97,7 +97,14 @@ public class SourcePlan extends BindOrSourcePlan {
         LOG.debug("Start " + this);
         Objects.nonNull(binding);
         // generate the source URI.
-        final String sourceUri = getActualSource(binding);
+        final String sourceUri;
+        try {
+            sourceUri = getActualSource(binding);
+        } catch(SPARQLExtException ex) {
+            LOG.warn("Exception while resolving the SOURCE: " + ex.getMessage());
+            return BindingFactory.binding(binding);
+        }
+
         final String acceptHeader = getAcceptHeader(binding);
         LOG.trace("... resolved to SOURCE <" + sourceUri + "> ACCEPT " + acceptHeader + " AS " + var);
         final LookUpRequest request = new LookUpRequest(sourceUri, acceptHeader);
@@ -140,19 +147,26 @@ public class SourcePlan extends BindOrSourcePlan {
         if (node.isVariable()) {
             Node actualSource = binding.get((Var) node);
             if (actualSource == null) {
-                return null;
+                String message = "Variable " + node.getName()
+                        + " is not bound.";
+                LOG.warn(message);
+                throw new SPARQLExtException(message);
             }
             if (!actualSource.isURI()) {
-                throw new SPARQLExtException("Variable " + node.getName()
+                String message = "Variable " + node.getName()
                         + " must be bound to a IRI that represents the location"
-                        + " of the query to be fetched.");
+                        + " of the query to be fetched.";
+                LOG.warn(message);
+                throw new SPARQLExtException(message);
             }
             return actualSource.getURI();
         } else {
             if (!node.isURI()) {
-                throw new SPARQLExtException("The source must be a IRI"
+                String message = "The source must be a IRI"
                         + " that represents the location of the query to be"
-                        + " fetched. Got " + node.getURI());
+                        + " fetched. Got " + node.getURI();
+                LOG.warn(message);
+                throw new SPARQLExtException(message);
             }
             return node.getURI();
         }
@@ -192,7 +206,6 @@ public class SourcePlan extends BindOrSourcePlan {
 
     }
 
-    
     @Override
     public String toString() {
         return "SOURCE " + node + (accept != null ? " ACCEPT " + accept : "") + " AS " + var;

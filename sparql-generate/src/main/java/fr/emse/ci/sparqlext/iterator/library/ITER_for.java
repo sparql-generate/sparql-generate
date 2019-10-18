@@ -60,6 +60,22 @@ public class ITER_for extends IteratorFunctionBase3 {
     @Override
     public List<List<NodeValue>> exec(NodeValue start, NodeValue incr, NodeValue stop) {
 
+        if (start == null) {
+            String message = "Param 1 is null";
+            LOG.warn(message);
+            throw new ExprEvalException(message);
+        }
+        if (incr == null) {
+            String message = "Param 2 is null";
+            LOG.warn(message);
+            throw new ExprEvalException(message);
+        }
+        if (stop == null) {
+            String message = "Param 3 is null";
+            LOG.warn(message);
+            throw new ExprEvalException(message);
+        }
+        
         // the initial value
         BigDecimal value = start.getDecimal();
 

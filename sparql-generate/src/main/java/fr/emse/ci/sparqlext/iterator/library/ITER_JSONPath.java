@@ -52,7 +52,7 @@ import org.slf4j.Logger;
  * See
  * <a href="https://w3id.org/sparql-generate/playground.html#ex=example/generate/Example-JSON">Live
  * example</a></p>
- * 
+ *
  * <ul>
  * <li>Param 1: (json): the URI of the JSON document (a URI), or the JSON object
  * itself (a String);</li>
@@ -75,8 +75,8 @@ import org.slf4j.Logger;
  * </ul>
  *
  * Output 2 and 3 can be used to generate RDF lists from the input, but the use
- * of keyword <code>LIST( ?var )</code> as the object of a triple pattern covers most cases
- * more elegantly.
+ * of keyword <code>LIST( ?var )</code> as the object of a triple pattern covers
+ * most cases more elegantly.
  *
  * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
  */
@@ -101,7 +101,7 @@ public class ITER_JSONPath extends IteratorFunctionBase {
             throw new ExprEvalException("Expecting at least two arguments.");
         }
         final NodeValue json = args.get(0);
-        if (!json.isIRI() && !json.isString() && !json.asNode().isLiteral()) {
+        if (json == null || !json.isIRI() && !json.isString() && !json.asNode().isLiteral()) {
             LOG.debug("First argument must be a URI or a String.");
             throw new ExprEvalException("First argument must be a URI or a String.");
         }
@@ -119,26 +119,26 @@ public class ITER_JSONPath extends IteratorFunctionBase {
         String jsonString = getString(json);
 
         final NodeValue jsonquery = args.get(1);
-        if (!jsonquery.isString()) {
+        if (jsonquery == null || !jsonquery.isString()) {
             LOG.debug("Second argument must be a String.");
             throw new ExprEvalException("Second argument must be a String.");
         }
 
         try {
 
-        JsonPath[] subqueries = new JsonPath[args.size() - 2];
-        if (args.size() > 2) {
-            for (int i = 2; i < args.size(); i++) {
-                final NodeValue subquery = args.get(i);
-                if (!subquery.isString()) {
-                    LOG.debug("Argument " + i + " must be a String.");
-                    throw new ExprEvalException("Argument " + i + " must be a String.");
+            JsonPath[] subqueries = new JsonPath[args.size() - 2];
+            if (args.size() > 2) {
+                for (int i = 2; i < args.size(); i++) {
+                    final NodeValue subquery = args.get(i);
+                    if (subquery == null || !subquery.isString()) {
+                        LOG.debug("Argument " + i + " must be a String.");
+                        throw new ExprEvalException("Argument " + i + " must be a String.");
+                    }
+                    subqueries[i - 2] = JsonPath.compile(subquery.getString());
                 }
-                subqueries[i - 2] = JsonPath.compile(subquery.getString());
             }
-        }
-        
-        List<Object> values = JsonPath
+
+            List<Object> values = JsonPath
                     .using(conf)
                     .parse(jsonString)
                     .read(jsonquery.getString());
@@ -164,7 +164,7 @@ public class ITER_JSONPath extends IteratorFunctionBase {
             }
             return listNodeValues;
         } catch (Exception ex) {
-            if(LOG.isDebugEnabled()) {
+            if (LOG.isDebugEnabled()) {
                 Node compressed = SPARQLExt.compress(json.asNode());
                 LOG.debug("No evaluation for " + compressed + ", " + jsonquery);
             }

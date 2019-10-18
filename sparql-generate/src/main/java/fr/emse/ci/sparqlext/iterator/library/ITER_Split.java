@@ -60,6 +60,17 @@ public class ITER_Split extends IteratorFunctionBase2 {
      */
     @Override
     public List<List<NodeValue>> exec(NodeValue stringValue, NodeValue delimeterValue) {
+        if (stringValue == null) {
+            String message = "Param 1 is null";
+            LOG.warn(message);
+            throw new ExprEvalException(message);
+        }
+        if (delimeterValue == null) {
+            String message = "Param 2 is null";
+            LOG.warn(message);
+            throw new ExprEvalException(message);
+        }
+
         try {
             String string = stringValue.asNode().getLiteralLexicalForm();
             String delimeter = delimeterValue.asNode().getLiteralLexicalForm();

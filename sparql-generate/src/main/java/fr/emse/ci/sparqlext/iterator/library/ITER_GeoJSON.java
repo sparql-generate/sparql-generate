@@ -105,6 +105,11 @@ public class ITER_GeoJSON extends IteratorFunctionBase1 {
 
     @Override
     public List<List<NodeValue>> exec(NodeValue json) {
+        if (json == null) {
+            String message = "Param 1 is null";
+            LOG.warn(message);
+            throw new ExprEvalException(message);
+        }
         String s = getString(json);
         List<List<NodeValue>> nodeValues = new ArrayList<>();
         FeatureCollection featureCollection = GSON.fromJson(s, FeatureCollection.class);

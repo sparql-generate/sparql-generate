@@ -118,7 +118,7 @@ public class ITER_MQTTSubscribe extends IteratorStreamFunctionBase {
             final List<NodeValue> args,
             final Consumer<List<List<NodeValue>>> listListNodeValue,
             final ExecutionControl control) {
-        if (!args.get(0).isString() && !args.get(0).isIRI()) {
+        if (args.get(0) == null || !args.get(0).isString() && !args.get(0).isIRI()) {
             LOG.debug("First argument must be a string or a URI, got: " + args.get(0));
             throw new ExprEvalException("First argument must be a string, got: " + args.get(0));
         }
@@ -126,7 +126,7 @@ public class ITER_MQTTSubscribe extends IteratorStreamFunctionBase {
 
         if (args.size() > 1) {
             for (int i = 1; i < args.size(); i++) {
-                if (!args.get(i).isString()) {
+                if (args.get(i) == null || !args.get(i).isString()) {
                     LOG.debug("Argument " + i + " must be a string, got: " + args.get(i));
                     throw new ExprEvalException("Argument " + i + " must be a string, got: " + args.get(i));
                 }

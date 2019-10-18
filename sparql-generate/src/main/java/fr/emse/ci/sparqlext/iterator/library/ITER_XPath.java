@@ -118,7 +118,7 @@ public class ITER_XPath extends IteratorFunctionBase {
             throw new ExprEvalException("Expecting at least two arguments.");
         }
         final NodeValue xml = args.get(0);
-        if (!xml.isIRI() && !xml.isString() && !xml.asNode().isLiteral()) {
+        if (xml == null || !xml.isIRI() && !xml.isString() && !xml.asNode().isLiteral()) {
             LOG.debug("First argument must be a URI or a String.");
             throw new ExprEvalException("First argument must be a URI or a String.");
         }
@@ -135,7 +135,7 @@ public class ITER_XPath extends IteratorFunctionBase {
         String xmlString = getString(xml).replaceAll("xmlns=\"[^\"]*\"", "");;
 
         final NodeValue xPathNode = args.get(1);
-        if (!xPathNode.isString()) {
+        if (xPathNode == null || !xPathNode.isString()) {
             LOG.debug("Second argument must be a String.");
             throw new ExprEvalException("Second argument must be a String.");
         }
@@ -144,7 +144,7 @@ public class ITER_XPath extends IteratorFunctionBase {
         if (args.size() > 2) {
             for (int i = 2; i < args.size(); i++) {
                 final NodeValue subquery = args.get(i);
-                if (!subquery.isString()) {
+                if (subquery == null || !subquery.isString()) {
                     LOG.debug("Argument " + i + " must be a String.");
                     throw new ExprEvalException("Argument " + i + " must be a String.");
                 }

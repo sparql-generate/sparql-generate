@@ -47,9 +47,9 @@ import org.apache.jena.riot.SysRIOT;
  * Iterator function
  * <a href="http://w3id.org/sparql-generate/iter/CSV">iter:CSV</a>
  * batch-processes CSV documents, potentially having some custom CSV dialect,
- * and iteratively binds the content of a selection of cells to the list of 
+ * and iteratively binds the content of a selection of cells to the list of
  * provided variables.
- * 
+ *
  * <p>
  * See
  * <a href="https://w3id.org/sparql-generate/playground.html#ex=example/generate/Example-CSV">Live
@@ -129,6 +129,11 @@ public class ITER_CSV extends IteratorStreamFunctionBase {
         }
         LOG.trace("Executing CSV with variables " + args);
         final NodeValue csv = args.remove(0);
+        if (csv == null) {
+            String message = "Param 1 is null";
+            LOG.warn(message);
+            throw new ExprEvalException(message);
+        }
         try (InputStream in = getInputStream(csv)) {
             final CsvParserSettings parserSettings = new CsvParserSettings();
             parserSettings.setHeaderExtractionEnabled(true);
@@ -151,7 +156,7 @@ public class ITER_CSV extends IteratorStreamFunctionBase {
     private void setProcessor(
             final List<NodeValue> args,
             final CsvParserSettings parserSettings,
-            final Consumer<List<List<NodeValue>>> collectionListNodeValue, 
+            final Consumer<List<List<NodeValue>>> collectionListNodeValue,
             final ExecutionControl control) {
         final int rowsInABatch;
         if (!args.isEmpty() && args.get(0).isInteger()) {
@@ -178,7 +183,6 @@ public class ITER_CSV extends IteratorStreamFunctionBase {
                 SPARQLExt.addTaskOnClose(getContext(), context::stop);
             }
 
-            
             @Override
             public void rowProcessed(String[] row, ParsingContext context) {
                 final List<NodeValue> list = new ArrayList<>();

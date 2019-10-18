@@ -75,7 +75,7 @@ class SelectExtractionVisitor implements SPARQLExtQueryVisitor {
     }
 
     public SPARQLExtQuery getOutput() {
-        LOG.trace("raw select query is " + output);
+        LOG.trace("raw select query is\n" + output);
         return (SPARQLExtQuery) output.cloneQuery();
     }
 

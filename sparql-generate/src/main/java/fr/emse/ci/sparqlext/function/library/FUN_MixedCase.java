@@ -40,7 +40,7 @@ public final class FUN_MixedCase extends FunctionBase1 {
     private static final Logger LOG = LoggerFactory.getLogger(FUN_MixedCase.class);
 
     public static final String URI = SPARQLExt.FUN + "mixedCase";
-
+    
     @Override
     public NodeValue exec(NodeValue node) {
         if (!node.isString()) {

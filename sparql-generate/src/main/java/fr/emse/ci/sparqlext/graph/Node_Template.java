@@ -15,7 +15,6 @@
  */
 package fr.emse.ci.sparqlext.graph;
 
-import fr.emse.ci.sparqlext.normalizer.TemplateUtils;
 import fr.emse.ci.sparqlext.query.SPARQLExtQuery;
 import org.apache.jena.ext.com.google.common.base.Objects;
 import org.apache.jena.graph.NodeVisitor;

@@ -89,6 +89,17 @@ public class ITER_CBOR extends IteratorFunctionBase2 {
 
     @Override
     public List<List<NodeValue>> exec(NodeValue cbor, NodeValue jsonpath) {
+        if(cbor==null) {
+            String message = "Param 1 is null";
+            LOG.warn(message);
+            throw new ExprEvalException(message);
+        }
+        if(jsonpath==null) {
+            String message = "Param 2 is null";
+            LOG.warn(message);
+            throw new ExprEvalException(message);
+        }
+
         if (cbor.getDatatypeURI() != null
                 && !cbor.getDatatypeURI().equals(datatypeUri)
                 && !cbor.getDatatypeURI().equals("http://www.w3.org/2001/XMLSchema#string")) {

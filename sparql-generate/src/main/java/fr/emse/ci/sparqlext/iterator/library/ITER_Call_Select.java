@@ -78,13 +78,13 @@ public class ITER_Call_Select extends IteratorStreamFunctionBase {
     @Override
     public void exec(
             final List<NodeValue> args,
-            final Consumer<List<List<NodeValue>>> collectionListNodeValue, 
+            final Consumer<List<List<NodeValue>>> collectionListNodeValue,
             final ExecutionControl control) {
         if (args.isEmpty()) {
             LOG.debug("There should be at least one IRI parameter.");
             throw new ExprEvalException("There should be at least one IRI parameter.");
         }
-        if (!args.get(0).isIRI()) {
+        if (args.get(0) == null || !args.get(0).isIRI()) {
             LOG.debug("The first parameter must be a IRI.");
             throw new ExprEvalException("The first parameter must be a IRI.");
         }

@@ -35,7 +35,7 @@ import org.slf4j.Logger;
  * <a href="http://w3id.org/sparql-generate/iter/regex">iter:regex</a>
  * iterates over the input subsequences captured by the ith groups of every
  * regex matches.
- * 
+ *
  * <p>
  * See
  * <a href="https://w3id.org/sparql-generate/playground.html#ex=example/generate/Example-Regex">Live
@@ -66,23 +66,22 @@ public class ITER_regex extends IteratorFunctionBase {
             throw new ExprEvalException("Requires at least two arguments that are strings. Got: " + args.size());
         }
 
-        if (!args.get(0).isLiteral()) {
+        if (args.get(0) == null || !args.get(0).isLiteral()) {
             LOG.debug("First argument must be a literal, got: " + args.get(0));
             throw new ExprEvalException("First argument must be a literal, got: " + args.get(0));
         }
         String string = args.get(0).asNode().getLiteralLexicalForm();
 
-        if (!args.get(
-                1).isString()) {
+        if (args.get(1) == null || !args.get(1).isString()) {
             LOG.debug("Second argument must be a string, got: " + args.get(1));
             throw new ExprEvalException("Second argument must be a string, got: " + args.get(1));
         }
         String regexString = args.get(1).asString();
-        
+
         Pattern pattern;
         try {
             pattern = Pattern.compile(regexString, Pattern.MULTILINE);
-        } catch(Exception ex) {
+        } catch (Exception ex) {
             LOG.debug("Exception while compiling regex string " + regexString, ex);
             throw new ExprEvalException("Exception while compiling regex string " + regexString, ex);
         }
@@ -110,11 +109,19 @@ public class ITER_regex extends IteratorFunctionBase {
             nodeValues = new ArrayList<>(size);
             if (gSelection == null) {
                 for (int i = 0; i < matcher.groupCount() + 1; i++) {
-                    nodeValues.add(new NodeValueString(matcher.group(i)));
+                    if(matcher.group(i)!=null) {
+                        nodeValues.add(new NodeValueString(matcher.group(i)));
+                    } else {
+                        nodeValues.add(null);
+                    }
                 }
             } else {
                 for (Integer g : gSelection) {
-                    nodeValues.add(new NodeValueString(matcher.group(g)));
+                    if(matcher.group(g)!=null) {
+                        nodeValues.add(new NodeValueString(matcher.group(g)));
+                    } else {
+                        nodeValues.add(null);
+                    }
                 }
             }
             listListNodeValues.add(nodeValues);

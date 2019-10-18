@@ -113,13 +113,13 @@ public class ITER_WebSocket extends IteratorStreamFunctionBase {
             final List<NodeValue> args,
             final Consumer<List<List<NodeValue>>> listListNodeValue,
             final ExecutionControl control) {
-        if (!args.get(0).isString() && !args.get(0).isIRI()) {
+        if (args.get(0) == null || !args.get(0).isString() && !args.get(0).isIRI()) {
             LOG.debug("First argument must be a string or a URI, got: " + args.get(0));
             throw new ExprEvalException("First argument must be a string or a URI, got: " + args.get(0));
         }
         final String url_s = args.get(0).isString() ? args.get(0).asString() : args.get(0).asNode().getURI();
 
-        if (args.size() == 2 && !args.get(1).isString()) {
+        if (args.size() == 2 && (args.get(1) == null || !args.get(1).isString())) {
             LOG.debug("Second argument must be a string, got: " + args.get(1));
             throw new ExprEvalException("Second argument must be a string, got: " + args.get(1));
         }

@@ -79,18 +79,21 @@ public final class FUN_PrefixedIRI implements Function {
         if (node == null) {
             throw new ExprEvalException("The input did not resolve to a IRI: " + args.get(0));
         }
+        return exec(node, env);
+    }
+
+    public NodeValue exec(NodeValue node, FunctionEnv env) {
         if (!node.isIRI()) {
             LOG.debug("The input should be a IRI. Got " + node);
             throw new ExprEvalException("The input should be a IRI. Got " + node);
         }
-
         String longIRI = node.asNode().getURI();
         Dataset dataset = env.getContext().get(SPARQLExt.DATASET);
-        
+
         final Map<String, String> prefixMap = dataset.getDefaultModel().getNsPrefixMap();
         final Set<String> prefixes = prefixMap.keySet();
         String prefix = null;
-        String localName = uri;
+        String localName = longIRI;
         for (String p : prefixes) {
             String ns = prefixMap.get(p);
             if (longIRI.startsWith(ns)) {
@@ -101,10 +104,10 @@ public final class FUN_PrefixedIRI implements Function {
                 }
             }
         }
-        if(prefix != null) {
+        if (prefix != null) {
             return new NodeValueString(prefix + ":" + localName);
         } else {
-            return new NodeValueString(longIRI);
+            return new NodeValueString("<" + longIRI + ">");
         }
     }
 }
