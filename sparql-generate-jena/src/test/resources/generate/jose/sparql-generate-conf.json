@@ -1,0 +1,10 @@
+{
+    "documentset": [
+        {
+            "uri": "urn:source",
+            "mediatype": "application/json",
+            "path": "documentset/mfe50_47_c_s5_u2_s5_merged.json"
+        }
+    ],
+    "query": "query.rqg"
+}

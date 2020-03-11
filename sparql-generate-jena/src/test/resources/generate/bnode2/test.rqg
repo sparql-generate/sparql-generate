@@ -1,0 +1,11 @@
+BASE <http://example.com/> 
+PREFIX ite: <http://w3id.org/sparql-generate/iter/>
+PREFIX fun: <http://w3id.org/sparql-generate/fn/>
+
+GENERATE { 
+
+ <s{str(?i)}> <p> "{?j}" .
+
+}
+ITERATOR ite:dummy() AS ?i
+ITERATOR ite:dummy() AS ?j

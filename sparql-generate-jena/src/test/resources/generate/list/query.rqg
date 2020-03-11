@@ -1,0 +1,10 @@
+BASE <http://example.com/> 
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX ite: <http://w3id.org/sparql-generate/iter/>
+PREFIX fun: <http://w3id.org/sparql-generate/fn/>
+
+GENERATE { 
+ _:bn <p> LIST( ?i ) .
+} WHERE {
+  VALUES (?i) { ( 1 ) ( 2 ) }
+}

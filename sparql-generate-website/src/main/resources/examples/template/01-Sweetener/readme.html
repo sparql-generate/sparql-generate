@@ -1,5 +1,0 @@
-<p>Using the <a href="#ex=example/generate/02-Sweetener">Expression Nodes of SPARQL-Generate</a>, one may greatly simplify the reading of the <bb>TEMPLATE</bb> clause.</p>
-
-<p>Note that in the output of <a href="#ex=example/template/00-Template">example 00-Template</a>, one output seems to missing. This is because in one of the solutions of the <tt>WHERE</tt> clause, variable <code>?aqi</code> is not defined, and SPARQL 1.1 does not concatenate strings undefined nodes. Keep this in mind when you start to debug your queries if they output nothing.</p>
-
-<p>The query below gives a glimpse of how SPARQL-Generate and STTL can be combined: it uses expression literals, and when no Air Quality Index is provided it outputs the content of a document fetched using a <tt>SOURCE</tt> clause.</p>

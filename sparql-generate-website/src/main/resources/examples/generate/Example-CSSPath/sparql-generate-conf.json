@@ -1,8 +1,0 @@
-{
-  "query": "query.rqg",
-  "namedqueries": [],
-  "graph": "dataset/default.ttl",
-  "namedgraphs": [],
-  "documentset": [],
-  "loglevel": 5
-}

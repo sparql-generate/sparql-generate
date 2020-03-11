@@ -1,7 +1,0 @@
-<p>Web developers are often dealing with URLs that have to follow a certain pattern, such as `<tt>http://api.myservice.com/things/{id}</tt>`. In SPARQL-Generate, it is possible to use a similar scheme in URIs as well as in literals.</p>
-
-<p>One may <b>embed SPARQL expressions in nodes</b> wherever variables would be legal:</p>
-<ul> 
- <li>IRIs and literals can contain embedded expressions: <code>&lt;foo{ &lt;expr&gt; }bar&gt;</code>, <code>&quot;foo{ &lt;expr&gt; }bar&quot;@en</code>, <code>'''foo{ &lt;expr&gt; }'''^^&lt;bar{ &lt;expr&gt; }&gt;</code>;</li> 
- <li>variables can be replaced by any other expression node, such as in <code>?{ ?value1 &gt;= 2.5 }</code>.</li> 
-</ul>

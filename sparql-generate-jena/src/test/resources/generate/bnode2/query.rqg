@@ -1,0 +1,16 @@
+BASE <http://example.com/> 
+PREFIX ite: <http://w3id.org/sparql-generate/iter/>
+PREFIX fun: <http://w3id.org/sparql-generate/fn/>
+
+GENERATE { 
+
+ ?bn <p_{STR(?i)}> "bn before" .
+
+ GENERATE <query2.rqg> ( ?bn , ?i ) .
+
+ ?bn <p_{STR(?i)}> "bn after" .
+
+} WHERE {
+  VALUES (?i) { ( 1 ) ( 2 ) }
+  BIND( bnode("bn") as ?bn )
+}

@@ -1,0 +1,41 @@
+# max
+notes.txt
+
+# idea
+.idea/
+*.iml
+
+# NetBeans
+nbactions.xml
+nbactions-skip.xml
+nb-configuration.xml
+/nbproject/
+/sparql-generate/nbproject/
+
+# Eclipse
+.classpath
+.project
+.settings
+.recommenders
+.metadata
+
+# Maven
+target/
+*/target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+
+# deploy website
+make.sh
+*.log
+
+# SPARQL-Generate output and log
+*.rqglog
+*.out

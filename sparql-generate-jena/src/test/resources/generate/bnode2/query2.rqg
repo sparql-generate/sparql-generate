@@ -1,0 +1,11 @@
+BASE <http://example.com/> 
+PREFIX ite: <http://w3id.org/sparql-generate/iter/>
+PREFIX fun: <http://w3id.org/sparql-generate/fn/>
+
+GENERATE <query2.rqg> ( ?subject , ?i ){ 
+
+  ?subject <p_{STR(?i)}{STR(?j)}> "bn in" .
+
+} WHERE {
+  VALUES (?j) { ( 1 ) ( 2 ) }
+}

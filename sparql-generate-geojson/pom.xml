@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>fr.emse.ci</groupId>
+        <artifactId>sparql-generate-parent</artifactId>
+        <version>2.0-SNAPSHOT</version>
+        <relativePath>../sparql-generate-parent/pom.xml</relativePath>
+    </parent>
+
+    <artifactId>sparql-generate-geojson</artifactId>
+    <name>SPARQL-Generate for GeoJSON</name>
+    <packaging>jar</packaging>
+
+    
+    <contributors>
+        <contributor>
+            <name>El Mehdi Khalfi</name>
+            <email>el-mehdi.khalfi@emse.fr</email>
+            <url>https://github.com/infomehdi</url>
+            <organization>Ecole des mines de Saint-Etienne</organization>
+            <organizationUrl>http://www.mines-stetienne.fr/</organizationUrl>
+            <timezone>UTC+01:00</timezone>
+        </contributor>
+    </contributors>
+
+    <dependencies>
+        <dependency>
+            <groupId>fr.emse.ci</groupId>
+            <artifactId>sparql-generate-jena</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.filosganga</groupId>
+            <artifactId>geogson-core</artifactId>
+            <version>1.4.2</version>
+        </dependency>
+    </dependencies>
+</project>

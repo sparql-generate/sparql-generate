@@ -1,0 +1,401 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>fr.emse.ci</groupId>
+    <artifactId>sparql-generate-parent</artifactId>
+    <version>2.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+       
+    <name>SPARQL-Generate-Parent</name>
+    <description>The parent project for SPARQL-Generate</description>
+    <url>https://w3id.org/sparql-generate/</url>
+    <inceptionYear>2016</inceptionYear>
+    
+    <modules>
+        <module>../sparql-generate-jena</module>
+        
+        <module>../sparql-generate-csv</module>
+        <module>../sparql-generate-geojson</module>
+        <module>../sparql-generate-json</module>
+        <module>../sparql-generate-mqtt</module>
+        <module>../sparql-generate-ws</module>
+        <module>../sparql-generate-xml</module>
+
+        <module>../sparql-generate-all</module>
+
+<!--        <module>../sparql-generate-example</module>
+        <module>../sparql-generate-website</module>
+        <module>../sparql-generate-cli</module>-->
+    </modules>
+    
+    <developers>
+        <developer>
+            <name>Maxime Lefrançois</name>            
+            <email>maxime.lefrancois@emse.fr</email>
+            <url>http://maxime-lefrancois.info/</url>
+            <organization>Ecole des mines de Saint-Etienne</organization>
+            <organizationUrl>http://www.mines-stetienne.fr/</organizationUrl>
+            <timezone>+1</timezone>
+            <properties>
+                <picUrl>http://gravatar.com/userimage/102097381/dac8aeb15edac9a93e09a7974743957f</picUrl>
+            </properties>        
+        </developer>
+    </developers>
+
+    <organization>
+        <name>École des Mines de Saint-Étienne</name>
+        <url>http://www.mines-stetienne.fr/</url>
+    </organization>
+
+    <scm>
+        <connection>scm:git:https://${repository.domain}/${repository.user}/${repository.name}.git</connection>
+        <url>https://${repository.domain}/${repository.user}/${repository.name}</url>
+        <developerConnection>scm:git:https://${repository.domain}/${repository.user}/${repository.name}.git
+        </developerConnection>
+        <tag>1.2.3</tag>
+    </scm>
+    
+    <issueManagement>
+        <url>http://${repository.domain}/${repository.user}/${repository.name}/issues</url>
+        <system>GitHub Issues</system>
+    </issueManagement>
+
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+
+    <distributionManagement>
+
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository> 
+    </distributionManagement>
+
+    <properties>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.build.timestamp.format>yyyy-MM-dd'T'HH:mm:ssZ</maven.build.timestamp.format>
+        <jdk.version>1.8</jdk.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>        
+        <project.scm.id>git</project.scm.id>
+
+        <repository.domain>github.com</repository.domain>
+        <repository.user>sparql-generate</repository.user>
+        <repository.name>sparql-generate</repository.name>
+        <skip>false</skip>
+        <repository.name>${project.artifactId}</repository.name>
+    </properties>
+    
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.12</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest-core</artifactId>
+            <version>1.3</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+  
+    <build>
+        <extensions>
+            <extension>
+                <!-- add support for ssh/scp -->
+                <groupId>org.apache.maven.wagon</groupId>
+                <artifactId>wagon-ssh</artifactId>
+                <version>2.10</version>
+            </extension>
+        </extensions>
+        <pluginManagement>
+            <plugins>
+                <!-- ========================  -->
+                <!--    DEFAULT LIFECYCLE      -->
+                <!-- ========================  -->
+                <!-- configure validate -->
+                <plugin>
+                    <groupId>org.apache.rat</groupId>
+                    <artifactId>apache-rat-plugin</artifactId>
+                    <version>0.11</version>
+                    <executions>
+                        <execution>
+                            <id>rat-checks</id>
+                            <phase>validate</phase>
+                            <goals>
+                                <goal>check</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                    <configuration>
+                        <skip>${skip}</skip>
+                        <excludeSubProjects>true</excludeSubProjects>
+                        <excludes>
+                            <exclude>nbproject/**/*.*</exclude>
+                            <exclude>**/*.sh</exclude>
+                            <exclude>**/pom.xml</exclude>
+                            <exclude>**/beans.xml</exclude>
+                            <exclude>**/glassfish-web.xml</exclude>
+                            <exclude>**/web.xml</exclude>
+                            <exclude>**/src/site/**/*.*</exclude>
+                            <exclude>**/src/main/resources/**/*.json</exclude>
+                            <exclude>**/src/main/resources/**/*.geojson</exclude>
+                            <exclude>**/*.js</exclude>
+                            <exclude>**/*.rqg</exclude>
+                            <exclude>**/src/main/**/*.html</exclude>
+                            <exclude>**/src/test/**/*.*</exclude>
+                            <exclude>**/src/**/package-info.java</exclude>
+                            <exclude>**/*.txt</exclude>
+                            <exclude>**/nb-configuration.xml</exclude>
+                            <exclude>**/nbactions.xml</exclude>
+                            <exclude>**/README.md</exclude>
+                            <exclude>**/nbproject/*</exclude>
+                            <exclude>**/log4j.properties</exclude>
+                            <exclude>**/*.classpath</exclude>
+                            <exclude>**/target/**/*</exclude>
+                            <exclude>**/dependency-reduced-pom.xml</exclude>
+                            <exclude>**/*.csv</exclude>
+                            <exclude>**/*.rqg</exclude>
+                            <exclude>**/*.ttl</exclude>
+                            <exclude>**/*.xml</exclude>
+                            <exclude>**/*.log</exclude>
+                            <exclude>**/java.nio.file.spi.FileTypeDetector</exclude>
+                            <exclude>**/fr.emse.ci.sparqlext.iterator.IteratorFunctionLoader</exclude>
+                            <exclude>**/fr.emse.ci.sparqlext.function.FunctionLoader</exclude>
+                            <exclude>**/*.out</exclude>
+                            <exclude>**/*.rqglog</exclude>
+                            <exclude>**/*.launch</exclude>
+                        </excludes>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-enforcer-plugin</artifactId>
+                    <version>3.0.0-M2</version>
+                    <executions>
+                        <execution>
+                            <id>enforce-maven</id>
+                            <goals>
+                                <goal>enforce</goal>
+                            </goals>
+                            <configuration>
+                                <rules>
+                                    <requireMavenVersion>
+                                        <version>3.0.3</version>
+                                    </requireMavenVersion>
+                                </rules>    
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+                
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-source-plugin</artifactId>
+                    <version>3.0.0</version>
+                    <configuration>
+                        <skip>${skip}</skip>
+                    </configuration>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-javadoc-plugin</artifactId>
+                    <version>2.10.3</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-javadoc-plugin</artifactId>
+                    <configuration>
+                        <failOnError>false</failOnError>
+                        <links>
+                            <link>https://jena.apache.org/documentation/javadoc/arq/</link>
+                            <link>https://jena.apache.org/documentation/javadoc/jena/</link>
+                        </links>
+                    </configuration>
+                </plugin>
+
+                <plugin>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.1</version>
+                    <configuration>
+                        <source>1.8</source>   <!-- use java 8 -->
+                        <target>1.8</target>
+                    </configuration>
+                </plugin>
+
+                <!-- ========================  -->
+                <!-- CUSTOM RELEASE LIFECYCLE  -->
+                <!-- ========================  -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-scm-plugin</artifactId>
+                    <version>1.9.5</version>
+                    <configuration>
+                        <connectionType>developerConnection</connectionType>
+                    </configuration>
+                </plugin>
+
+                <!-- ========================  -->
+                <!--   ADDITIONNAL PLUGINS     -->
+                <!-- ========================  -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-release-plugin</artifactId>
+                    <version>2.5.3</version>
+                    <executions>
+                        <execution>
+                            <id>clean-release</id>
+                            <phase>clean</phase>
+                            <goals>
+                                <goal>clean</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                    <configuration>
+                        <resume>false</resume>
+                        <tagNameFormat>@{project.version}</tagNameFormat>
+                        <releaseProfiles>release</releaseProfiles>
+                        <autoVersionSubmodules>true</autoVersionSubmodules>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.rat</groupId>
+                <artifactId>apache-rat-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+    
+
+    <profiles>
+        <!-- ========================  -->
+        <!--  ENABLED DURING RELEASE   -->
+        <!-- ========================  -->
+        <profile>
+            <id>release</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                    <goal>jar-no-fork</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <failOnError>false</failOnError>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>1.6</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id> 
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                                <configuration>
+                                    <arg>--use-agent</arg>
+                                    <arg>--pinentry-mode</arg>
+                                    <arg>loopback</arg>
+                                    <passphraseServerId>${gpg.keyname}</passphraseServerId>                                    
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        
+        <profile>
+            <id>docs</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                    <goal>jar-no-fork</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <failOnError>false</failOnError>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>skip</id>
+            <properties>
+                <skip>true</skip>
+            </properties>
+        </profile>
+    </profiles>
+
+</project>

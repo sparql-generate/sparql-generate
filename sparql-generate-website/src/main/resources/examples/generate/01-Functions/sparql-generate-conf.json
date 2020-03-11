@@ -1,9 +1,0 @@
-{
-  "documentset": [
-    {
-      "uri": "https://ci.mines-stetienne.fr/aqi/static/station/0",
-      "mediatype": "application/json",
-      "path": "documentset/station0.txt"
-    }
-  ]
-}
