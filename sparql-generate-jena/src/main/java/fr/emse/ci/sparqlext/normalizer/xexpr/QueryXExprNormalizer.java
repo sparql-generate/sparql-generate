@@ -333,4 +333,8 @@ public class QueryXExprNormalizer implements SPARQLExtQueryVisitor {
         return group;
     }
     
+	@Override
+	public void visitJsonResultForm(Query query) {
+	}
+
 }

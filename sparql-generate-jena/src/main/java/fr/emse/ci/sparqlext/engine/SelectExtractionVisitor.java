@@ -130,6 +130,9 @@ public class SelectExtractionVisitor implements SPARQLExtQueryVisitor {
     @Override
     public void visitDatasetDecl(final Query q) {
         SPARQLExtQuery query = asSPARQLExtQuery(q);
+        if(!query.getFromClauses().isEmpty()) {
+        	isDummyQuery = false;
+        }
         output.getFromClauses().addAll(query.getFromClauses());
     }
 
@@ -317,6 +320,10 @@ public class SelectExtractionVisitor implements SPARQLExtQueryVisitor {
     @Override
     public void visitPragma(SPARQLExtQuery query) {
     }
+
+	@Override
+	public void visitJsonResultForm(Query query) {
+	}
 
     
 }

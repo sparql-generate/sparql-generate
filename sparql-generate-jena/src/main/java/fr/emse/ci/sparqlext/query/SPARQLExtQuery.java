@@ -585,6 +585,15 @@ public class SPARQLExtQuery extends Query {
 	}
 
 	/**
+	 * Gets the list of FROM clauses
+	 *
+	 * @return
+	 */
+	public void setFromClauses(List<FromClause> fromClauses) {
+		this.fromClauses = fromClauses;
+	}
+
+	/**
 	 * adds a FROM varOrIri clause
 	 *
 	 * @param expr

@@ -15,22 +15,13 @@
  */
 package fr.emse.ci.sparqlext.utils;
 
-import fr.emse.ci.sparqlext.SPARQLExt;
 import static fr.emse.ci.sparqlext.SPARQLExt.NS;
-import fr.emse.ci.sparqlext.SPARQLExtException;
-import fr.emse.ci.sparqlext.engine.QueryExecutor;
-import fr.emse.ci.sparqlext.function.SPARQLExtFunctionRegistry;
-import fr.emse.ci.sparqlext.graph.Node_List;
-import fr.emse.ci.sparqlext.iterator.IteratorFunctionRegistry;
-import fr.emse.ci.sparqlext.stream.LookUpRequest;
-import fr.emse.ci.sparqlext.stream.SPARQLExtStreamManager;
-import java.io.InputStream;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
@@ -50,21 +41,25 @@ import org.apache.jena.riot.RDFLanguages;
 import org.apache.jena.riot.RDFParser;
 import org.apache.jena.riot.RiotException;
 import org.apache.jena.riot.SysRIOT;
-import org.apache.jena.riot.system.IRIResolver;
-import org.apache.jena.riot.system.StreamOps;
 import org.apache.jena.riot.system.StreamRDF;
+import org.apache.jena.riot.system.StreamRDFOps;
 import org.apache.jena.shared.PrefixMapping;
 import org.apache.jena.sparql.ARQConstants;
 import org.apache.jena.sparql.SystemARQ;
-import org.apache.jena.sparql.engine.ResultSetStream;
-import org.apache.jena.sparql.engine.binding.Binding;
-import org.apache.jena.sparql.engine.binding.BindingFactory;
 import org.apache.jena.sparql.function.FunctionRegistry;
 import org.apache.jena.sparql.util.Context;
 import org.apache.jena.sparql.util.Symbol;
 import org.apache.jena.vocabulary.RDF;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import fr.emse.ci.sparqlext.SPARQLExt;
+import fr.emse.ci.sparqlext.engine.QueryExecutor;
+import fr.emse.ci.sparqlext.function.SPARQLExtFunctionRegistry;
+import fr.emse.ci.sparqlext.graph.Node_List;
+import fr.emse.ci.sparqlext.iterator.IteratorFunctionRegistry;
+import fr.emse.ci.sparqlext.stream.LookUpRequest;
+import fr.emse.ci.sparqlext.stream.SPARQLExtStreamManager;
 
 /**
  *
@@ -95,6 +90,10 @@ public class ContextUtils {
 	private static final Symbol LIST_NODES = SystemARQ.allocSymbol(NS, "list_nodes");
 
 	private static final Node[] NIL = new Node[] { RDF.nil.asNode() };
+	
+	static { 
+		SPARQLExt.init();
+	}
 
 	/**
 	 * get the node at position i in the LIST( expr ). Or rdf:nil if the position is
@@ -221,7 +220,7 @@ public class ContextUtils {
 	public static void loadGraph(Context context, String sourceURI, String baseURI, StreamRDF dest) {
 		if(getDataset(context).containsNamedModel(sourceURI)) {
 			final Model model = getDataset(context).getNamedModel(sourceURI);
-			StreamOps.sendGraphToStream(model.getGraph(), dest);
+			StreamRDFOps.sendGraphToStream(model.getGraph(), dest);
 			return;
 		}
 		if(!isRootContext(context)) {

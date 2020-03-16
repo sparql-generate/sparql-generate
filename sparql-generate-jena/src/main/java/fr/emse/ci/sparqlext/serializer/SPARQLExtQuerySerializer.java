@@ -564,4 +564,8 @@ public class SPARQLExtQuerySerializer implements SPARQLExtQueryVisitor {
         out.decIndent(INDENT);
     }
 
+	@Override
+	public void visitJsonResultForm(Query query) {
+	}
+
 }

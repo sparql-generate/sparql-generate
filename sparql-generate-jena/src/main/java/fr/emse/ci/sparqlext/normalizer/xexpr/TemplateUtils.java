@@ -36,6 +36,7 @@ public class TemplateUtils {
         if (query.isSubQuery() && query.getName() != null) {
             String qs = query.toString();
             SPARQLExtQuery query2 = (SPARQLExtQuery) ParserSPARQLExt.parseSubQuery(query, qs);
+            query2.setFromClauses(query.getFromClauses());
             query2.setQuerySelectType();
             query2.setQueryResultStar(true);
             query2.setName(null);

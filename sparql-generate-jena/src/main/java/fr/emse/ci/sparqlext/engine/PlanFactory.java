@@ -15,6 +15,15 @@
  */
 package fr.emse.ci.sparqlext.engine;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
+
+import org.apache.jena.graph.Node;
+import org.apache.jena.query.QueryFactory;
+import org.apache.jena.query.QueryParseException;
+import org.apache.jena.sparql.core.BasicPattern;
 import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.expr.E_Function;
 import org.apache.jena.sparql.expr.E_Str;
@@ -27,35 +36,25 @@ import org.apache.jena.sparql.expr.aggregate.AggGroupConcatDistinct;
 import org.apache.jena.sparql.expr.aggregate.Aggregator;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueString;
 import org.apache.jena.sparql.syntax.Element;
+import org.apache.jena.sparql.syntax.ElementBind;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import fr.emse.ci.sparqlext.SPARQLExt;
 import fr.emse.ci.sparqlext.SPARQLExtException;
-import fr.emse.ci.sparqlext.query.SPARQLExtQuery;
-import fr.emse.ci.sparqlext.syntax.ElementIterator;
-import fr.emse.ci.sparqlext.syntax.ElementSource;
-import fr.emse.ci.sparqlext.syntax.ElementSubExtQuery;
-import fr.emse.ci.sparqlext.syntax.ElementTGroup;
-import fr.emse.ci.sparqlext.syntax.FromClause;
-import fr.emse.ci.sparqlext.syntax.SPARQLExtElementVisitorBase;
-import fr.emse.ci.sparqlext.utils.ST;
-
-import java.util.ArrayList;
-import java.util.List;
 import fr.emse.ci.sparqlext.lang.ParserSPARQLExt;
 import fr.emse.ci.sparqlext.normalizer.xexpr.TemplateUtils;
+import fr.emse.ci.sparqlext.query.SPARQLExtQuery;
 import fr.emse.ci.sparqlext.syntax.ElementBox;
 import fr.emse.ci.sparqlext.syntax.ElementExpr;
 import fr.emse.ci.sparqlext.syntax.ElementFormat;
 import fr.emse.ci.sparqlext.syntax.ElementGenerateTriplesBlock;
-import java.util.Objects;
-import java.util.UUID;
-
-import org.apache.jena.graph.Node;
-import org.apache.jena.sparql.syntax.ElementBind;
-import org.slf4j.LoggerFactory;
-import org.slf4j.Logger;
-import org.apache.jena.query.QueryFactory;
-import org.apache.jena.query.QueryParseException;
-import org.apache.jena.sparql.core.BasicPattern;
+import fr.emse.ci.sparqlext.syntax.ElementIterator;
+import fr.emse.ci.sparqlext.syntax.ElementSource;
+import fr.emse.ci.sparqlext.syntax.ElementSubExtQuery;
+import fr.emse.ci.sparqlext.syntax.ElementTGroup;
+import fr.emse.ci.sparqlext.syntax.SPARQLExtElementVisitorBase;
+import fr.emse.ci.sparqlext.utils.ST;
 
 /**
  * A factory that creates a {@link RootPlan} from a query. Then the

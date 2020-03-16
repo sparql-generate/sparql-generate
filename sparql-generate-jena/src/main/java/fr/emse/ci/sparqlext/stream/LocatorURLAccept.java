@@ -96,7 +96,6 @@ public class LocatorURLAccept extends LocatorAcceptBase {
     private TypedInputStream openConnectionCheckRedirects(URLConnection c) throws IOException {
         boolean redir;
         int redirects = 0;
-        InputStream in = null;
         String contentType = null;
         String contentEncoding = null;
         do {
@@ -105,40 +104,43 @@ public class LocatorURLAccept extends LocatorAcceptBase {
             }
             // We want to open the input stream before getting headers
             // because getHeaderField() et al swallow IOExceptions.
-            in = new BufferedInputStream(new BOMInputStream(c.getInputStream()));
-            contentType = c.getContentType();
-            contentEncoding = c.getContentEncoding();
-            redir = false;
-            if (c instanceof HttpURLConnection) {
-                HttpURLConnection http = (HttpURLConnection) c;
-                int stat = http.getResponseCode();
-                if (stat >= 300 && stat <= 307 && stat != 306
-                        && stat != HttpURLConnection.HTTP_NOT_MODIFIED) {
-                    URL base = http.getURL();
-                    String loc = http.getHeaderField("Location");
-                    URL target = null;
-                    if (loc != null) {
-                        target = new URL(base, loc);
-                    }
-                    http.disconnect();
-                    // Redirection should be allowed only for HTTP and HTTPS
-                    // and should be limited to 5 redirections at most.
-                    if (target == null
-                            || !(target.getProtocol().equals("http") || target.getProtocol().equals("https"))
-                            || c.getURL().getProtocol().equals("https") && target.getProtocol().equals("http")
-                            || redirects >= 5) {
-                        throw new SecurityException("illegal URL redirect");
-                    }
-                    redir = true;
-                    c = target.openConnection();
-                    redirects++;
-                }
+            try(InputStream in = new BufferedInputStream(new BOMInputStream(c.getInputStream()));) {
+	            contentType = c.getContentType();
+	            contentEncoding = c.getContentEncoding();
+	            redir = false;
+	            if (c instanceof HttpURLConnection) {
+	                HttpURLConnection http = (HttpURLConnection) c;
+	                int stat = http.getResponseCode();
+	                if (stat >= 300 && stat <= 307 && stat != 306
+	                        && stat != HttpURLConnection.HTTP_NOT_MODIFIED) {
+	                    URL base = http.getURL();
+	                    String loc = http.getHeaderField("Location");
+	                    URL target = null;
+	                    if (loc != null) {
+	                        target = new URL(base, loc);
+	                    }
+	                    http.disconnect();
+	                    // Redirection should be allowed only for HTTP and HTTPS
+	                    // and should be limited to 5 redirections at most.
+	                    if (target == null
+	                            || !(target.getProtocol().equals("http") || target.getProtocol().equals("https"))
+	                            || c.getURL().getProtocol().equals("https") && target.getProtocol().equals("http")
+	                            || redirects >= 5) {
+	                        throw new SecurityException("illegal URL redirect");
+	                    }
+	                    redir = true;
+	                    c = target.openConnection();
+	                    redirects++;
+	                } else {
+	                    if(contentType==null) {
+	                        contentType = "text/plain";
+	                    }
+	                    return new TypedInputStream(in, contentType, contentEncoding);
+	                }
+	            }
             }
         } while (redir);
-        if(contentType==null) {
-            contentType = "text/plain";
-        }
-        return new TypedInputStream(in, contentType, contentEncoding);
+        return null;
     }
 
 }

@@ -62,7 +62,6 @@ public class GenerateNamedPlan implements GeneratePlan {
             final List<Var> variables,
             final List<Binding> values,
             final Context context) {
-    	final StreamRDF outputStream = ContextUtils.getGenerateOutput(context);
         final QueryExecutor queryExecutor = ContextUtils.getQueryExecutor(context);
         final FunctionEnv env = new FunctionEnvBase(context);
         final Map<String, List<Binding>> splitValues = EvalUtils.splitBindingsForQuery(name, values, env);

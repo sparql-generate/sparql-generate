@@ -254,4 +254,8 @@ public class SPARQLExtQueryCompare implements SPARQLExtQueryVisitor {
         LOG.warn("visiting pragma. doing nothing");
     }
 
+	@Override
+	public void visitJsonResultForm(Query query) {
+	}
+
 }

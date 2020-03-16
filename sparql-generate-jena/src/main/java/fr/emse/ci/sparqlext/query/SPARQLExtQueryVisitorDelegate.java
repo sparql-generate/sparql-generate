@@ -161,5 +161,9 @@ public class SPARQLExtQueryVisitorDelegate implements SPARQLExtQueryVisitor {
         delegate.finishVisit(query);
     }
 
+	@Override
+	public void visitJsonResultForm(Query query) {
+	}
+
 
 }

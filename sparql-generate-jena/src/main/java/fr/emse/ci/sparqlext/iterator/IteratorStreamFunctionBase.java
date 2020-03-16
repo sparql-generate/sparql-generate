@@ -16,11 +16,9 @@
 package fr.emse.ci.sparqlext.iterator;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
-import java.util.function.Function;
+
 import org.apache.jena.query.QueryBuildException;
 import org.apache.jena.sparql.ARQInternalErrorException;
 import org.apache.jena.sparql.engine.binding.Binding;

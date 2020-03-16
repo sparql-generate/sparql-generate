@@ -42,164 +42,168 @@ import org.slf4j.LoggerFactory;
  *
  * @author maxime.lefrancois
  */
-public class IteratorFunctionRegistry //extends HashMap<String, Iterator>
+public class IteratorFunctionRegistry // extends HashMap<String, Iterator>
 {
 
-    private static final Logger LOG = LoggerFactory.getLogger(IteratorFunctionRegistry.class);
+	private static final Logger LOG = LoggerFactory.getLogger(IteratorFunctionRegistry.class);
 
-    // Extract a Registry class and do casting and initialization here.
-    private final Context context;
-    private final Map<String, IteratorFunctionFactory> registry = new HashMap<>();
-    private final Set<String> failedAttempts = new HashSet<>();
+	// Extract a Registry class and do casting and initialization here.
+	private final Context context;
+	private final Map<String, IteratorFunctionFactory> registry = new HashMap<>();
+	private final Set<String> failedAttempts = new HashSet<>();
 
-    public synchronized static IteratorFunctionRegistry standardRegistry() {
-        IteratorFunctionRegistry reg = new IteratorFunctionRegistry(ARQ.getContext());
-        return reg;
-    }
+	public synchronized static IteratorFunctionRegistry standardRegistry() {
+		IteratorFunctionRegistry reg = new IteratorFunctionRegistry(ARQ.getContext());
+		return reg;
+	}
 
-    public synchronized static IteratorFunctionRegistry get() {
-        // Intialize if there is no registry already set 
-        IteratorFunctionRegistry reg = get(ARQ.getContext());
-        if (reg == null) {
-            reg = standardRegistry();
-            set(ARQ.getContext(), reg);
-        }
+	public synchronized static IteratorFunctionRegistry get() {
+		// Intialize if there is no registry already set
+		IteratorFunctionRegistry reg = get(ARQ.getContext());
+		if (reg == null) {
+			reg = standardRegistry();
+			set(ARQ.getContext(), reg);
+		}
 
-        return reg;
-    }
+		return reg;
+	}
 
-    public static IteratorFunctionRegistry get(Context context) {
-        if (context == null) {
-            return null;
-        }
-        return (IteratorFunctionRegistry) context.get(SPARQLExt.REGISTRY_ITERATORS);
-    }
+	public static IteratorFunctionRegistry get(Context context) {
+		if (context == null) {
+			return null;
+		}
+		return (IteratorFunctionRegistry) context.get(SPARQLExt.REGISTRY_ITERATORS);
+	}
 
-    public static void set(Context context, IteratorFunctionRegistry reg) {
-        context.set(SPARQLExt.REGISTRY_ITERATORS, reg);
-    }
+	public static void set(Context context, IteratorFunctionRegistry reg) {
+		context.set(SPARQLExt.REGISTRY_ITERATORS, reg);
+	}
 
-    public IteratorFunctionRegistry() {
-        this(ARQ.getContext());
-    }
+	public IteratorFunctionRegistry() {
+		this(ARQ.getContext());
+	}
 
-    public IteratorFunctionRegistry(Context context) {
-        this.context = context;
-    }
+	public IteratorFunctionRegistry(Context context) {
+		this.context = context;
+	}
 
-    public IteratorFunctionRegistry(IteratorFunctionRegistry parent, Context context) {
-        this(context);
-        Iterator<String> uris = parent.keys();
-        while (uris.hasNext()) {
-            String uri = uris.next();
-            registry.put(uri, parent.get(uri));
-        }
-    }
+	public IteratorFunctionRegistry(IteratorFunctionRegistry parent, Context context) {
+		this(context);
+		if (parent == null) {
+			parent = standardRegistry();
+		}
+		Iterator<String> uris = parent.keys();
+		while (uris.hasNext()) {
+			String uri = uris.next();
+			registry.put(uri, parent.get(uri));
+		}
+	}
 
-    /**
-     * Insert a class that is the iterator function implementation
-     *
-     * @param uri String URI
-     * @param funcClass Class for the function (new instance called).
-     */
-    public void put(String uri, Class<?> funcClass) {
-        if (!IteratorFunction.class.isAssignableFrom(funcClass)) {
-            LOG.warn("Class " + funcClass.getName() + " is not a Iterator");
-            return;
-        }
-        registry.put(uri, new IteratorFunctionFactoryAuto(funcClass));
-    }
+	/**
+	 * Insert a class that is the iterator function implementation
+	 *
+	 * @param uri
+	 *            String URI
+	 * @param funcClass
+	 *            Class for the function (new instance called).
+	 */
+	public void put(String uri, Class<?> funcClass) {
+		if (!IteratorFunction.class.isAssignableFrom(funcClass)) {
+			LOG.warn("Class " + funcClass.getName() + " is not a Iterator");
+			return;
+		}
+		registry.put(uri, new IteratorFunctionFactoryAuto(funcClass));
+	}
 
-    /**
-     * Insert a iterator. Re-inserting with the same URI overwrites the old
-     * entry.
-     *
-     * @param uri
-     * @param f
-     */
-    public void put(String uri, IteratorFunctionFactory f) {
-        registry.put(uri, f);
-    }
+	/**
+	 * Insert a iterator. Re-inserting with the same URI overwrites the old entry.
+	 *
+	 * @param uri
+	 * @param f
+	 */
+	public void put(String uri, IteratorFunctionFactory f) {
+		registry.put(uri, f);
+	}
 
-    public boolean isRegistered(String uri) {
-        return registry.containsKey(uri);
-    }
+	public boolean isRegistered(String uri) {
+		return registry.containsKey(uri);
+	}
 
-    /**
-     * Iterate over URIs
-     */
-    public Iterator<String> keys() {
-        return registry.keySet().iterator();
-    }
+	/**
+	 * Iterate over URIs
+	 */
+	public Iterator<String> keys() {
+		return registry.keySet().iterator();
+	}
 
-    /**
-     * Remove by URI
-     *
-     * @param uri
-     * @return
-     */
-    public IteratorFunctionFactory remove(String uri) {
-        return registry.remove(uri);
-    }
+	/**
+	 * Remove by URI
+	 *
+	 * @param uri
+	 * @return
+	 */
+	public IteratorFunctionFactory remove(String uri) {
+		return registry.remove(uri);
+	}
 
-    /**
-     * Lookup by URI
-     *
-     * @return the iterator, or null
-     */
-    public IteratorFunctionFactory get(String uri) {
-        if (registry.get(uri) != null) {
-            return registry.get(uri);
-        }
-        if (failedAttempts.contains(uri)) {
-            return null;
-        }
-        final LookUpRequest req = new LookUpRequest(uri, "application/vnd.sparql-generate");
-        final SPARQLExtStreamManager sm = (SPARQLExtStreamManager) context.get(SysRIOT.sysStreamManager);
-        Objects.requireNonNull(sm);
-        TypedInputStream tin = sm.open(req);
-        if (tin == null) {
-            LOG.warn(String.format("Could not look up iterator %s", uri));
-            failedAttempts.add(uri);
-            return null;
-        }
-        String selectString;
-        try {
-            selectString = IOUtils.toString(tin.getInputStream(), StandardCharsets.UTF_8);
-        } catch (IOException ex) {
-            LOG.warn(String.format("Could not read function %s as UTF-8 string", uri));
-            failedAttempts.add(uri);
-            return null;
-        }
-        SPARQLExtQuery selectQuery;
-        try {
-            selectQuery = (SPARQLExtQuery) QueryFactory.create(selectString, SPARQLExt.SYNTAX);
-        } catch (Exception ex) {
-            LOG.warn(String.format("Could not parse iterator %s", uri), ex);
-            failedAttempts.add(uri);
-            return null;
-        }
-        if (!selectQuery.isSelectType()) {
-            LOG.warn(String.format("The query is not a SELECT: %s", uri));
-            failedAttempts.add(uri);
-            return null;
-        }
-        final SPARQLExtIteratorFunctionFactory iterator = new SPARQLExtIteratorFunctionFactory(selectQuery);
-        put(uri, iterator);
-        return iterator;
-    }
+	/**
+	 * Lookup by URI
+	 *
+	 * @return the iterator, or null
+	 */
+	public IteratorFunctionFactory get(String uri) {
+		if (registry.get(uri) != null) {
+			return registry.get(uri);
+		}
+		if (failedAttempts.contains(uri)) {
+			return null;
+		}
+		final LookUpRequest req = new LookUpRequest(uri, "application/vnd.sparql-generate");
+		final SPARQLExtStreamManager sm = (SPARQLExtStreamManager) context.get(SysRIOT.sysStreamManager);
+		Objects.requireNonNull(sm);
+		TypedInputStream tin = sm.open(req);
+		if (tin == null) {
+			LOG.warn(String.format("Could not look up iterator %s", uri));
+			failedAttempts.add(uri);
+			return null;
+		}
+		String selectString;
+		try {
+			selectString = IOUtils.toString(tin.getInputStream(), StandardCharsets.UTF_8);
+		} catch (IOException ex) {
+			LOG.warn(String.format("Could not read function %s as UTF-8 string", uri));
+			failedAttempts.add(uri);
+			return null;
+		}
+		SPARQLExtQuery selectQuery;
+		try {
+			selectQuery = (SPARQLExtQuery) QueryFactory.create(selectString, SPARQLExt.SYNTAX);
+		} catch (Exception ex) {
+			LOG.warn(String.format("Could not parse iterator %s", uri), ex);
+			failedAttempts.add(uri);
+			return null;
+		}
+		if (!selectQuery.isSelectType()) {
+			LOG.warn(String.format("The query is not a SELECT: %s", uri));
+			failedAttempts.add(uri);
+			return null;
+		}
+		final SPARQLExtIteratorFunctionFactory iterator = new SPARQLExtIteratorFunctionFactory(selectQuery);
+		put(uri, iterator);
+		return iterator;
+	}
 
-    class SPARQLExtIteratorFunctionFactory implements IteratorFunctionFactory {
+	class SPARQLExtIteratorFunctionFactory implements IteratorFunctionFactory {
 
-        final SPARQLExtQuery selectQuery;
+		final SPARQLExtQuery selectQuery;
 
-        public SPARQLExtIteratorFunctionFactory(final SPARQLExtQuery selectQuery) {
-            this.selectQuery = selectQuery;
-        }
+		public SPARQLExtIteratorFunctionFactory(final SPARQLExtQuery selectQuery) {
+			this.selectQuery = selectQuery;
+		}
 
-        @Override
-        public IteratorFunction create(String uri) {
-            return new SPARQLExtIteratorFunction(selectQuery, context);
-        }
-    }
+		@Override
+		public IteratorFunction create(String uri) {
+			return new SPARQLExtIteratorFunction(selectQuery, context);
+		}
+	}
 }

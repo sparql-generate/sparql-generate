@@ -119,8 +119,8 @@ public class SelectQueryPartialCopyVisitor implements SPARQLExtQueryVisitor {
         query.getFromClauses().forEach(fc->{
         	if(fc.isNamed()) {
         		String graphURI = evalSourceURI(binding, context, fc.getName());
-        		output.addGraphURI(graphURI);
-        	}
+        		output.addNamedGraphURI(graphURI);
+        	} 
         });
         
     }
@@ -255,5 +255,9 @@ public class SelectQueryPartialCopyVisitor implements SPARQLExtQueryVisitor {
     @Override
     public void visitPragma(SPARQLExtQuery query) {
     }
+
+	@Override
+	public void visitJsonResultForm(Query query) {
+	}
 
 }

@@ -34,8 +34,6 @@ import org.apache.jena.sparql.syntax.ElementData;
  */
 public class LogUtils {
 
-    private static final Var VAR = Var.alloc("truncated");
-
     public static String log(List<Var> variables, List<Binding> input) {
         return FormatterElement.asString(compress(variables, input));
     }

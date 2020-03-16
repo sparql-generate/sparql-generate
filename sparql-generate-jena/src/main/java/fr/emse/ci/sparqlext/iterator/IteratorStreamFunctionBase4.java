@@ -42,7 +42,6 @@ public abstract class IteratorStreamFunctionBase4 extends IteratorStreamFunction
             throw new ARQInternalErrorException(this.getClass().getName()
                     + ": Null args list");
         }
-        int size = args.size();
         NodeValue v1 = args.size() >= 1 ? args.get(0) : null;
         NodeValue v2 = args.size() >= 2 ? args.get(1) : null;
         NodeValue v3 = args.size() >= 3 ? args.get(2) : null;

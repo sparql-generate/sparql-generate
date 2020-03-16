@@ -15,31 +15,16 @@
  */
 package fr.emse.ci.sparqlext.engine;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheStats;
-import fr.emse.ci.sparqlext.utils.LogUtils;
-import fr.emse.ci.sparqlext.SPARQLExt;
-import fr.emse.ci.sparqlext.SPARQLExtException;
-import fr.emse.ci.sparqlext.cli.SPARQLExtCli;
-import fr.emse.ci.sparqlext.lang.ParserSPARQLExt;
-import fr.emse.ci.sparqlext.query.SPARQLExtQuery;
-import fr.emse.ci.sparqlext.stream.LookUpRequest;
-import fr.emse.ci.sparqlext.utils.ContextUtils;
 import java.io.IOException;
-import java.io.StringWriter;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
+
 import org.apache.commons.io.IOUtils;
-import org.apache.jena.atlas.io.IndentedWriter;
 import org.apache.jena.atlas.web.TypedInputStream;
 import org.apache.jena.graph.Node;
 import org.apache.jena.query.QueryFactory;
@@ -47,13 +32,23 @@ import org.apache.jena.query.QueryParseException;
 import org.apache.jena.query.ResultSet;
 import org.apache.jena.query.ResultSetFactory;
 import org.apache.jena.query.ResultSetRewindable;
-import org.apache.jena.riot.system.StreamRDF;
 import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.engine.binding.Binding;
 import org.apache.jena.sparql.engine.binding.BindingHashMap;
 import org.apache.jena.sparql.util.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheStats;
+
+import fr.emse.ci.sparqlext.SPARQLExt;
+import fr.emse.ci.sparqlext.SPARQLExtException;
+import fr.emse.ci.sparqlext.lang.ParserSPARQLExt;
+import fr.emse.ci.sparqlext.query.SPARQLExtQuery;
+import fr.emse.ci.sparqlext.utils.ContextUtils;
+import fr.emse.ci.sparqlext.utils.LogUtils;
 
 /**
  *

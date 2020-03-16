@@ -240,4 +240,8 @@ public class QueryAggregatesNormalizer implements SPARQLExtQueryVisitor {
         return group;
     }
     
+	@Override
+	public void visitJsonResultForm(Query query) {
+	}
+
 }

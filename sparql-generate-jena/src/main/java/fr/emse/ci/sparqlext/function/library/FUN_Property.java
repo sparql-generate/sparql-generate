@@ -15,30 +15,27 @@
  */
 package fr.emse.ci.sparqlext.function.library;
 
-import fr.emse.ci.sparqlext.SPARQLExt;
-import org.apache.jena.sparql.expr.ExprEvalException;
-import org.apache.jena.sparql.expr.NodeValue;
-import fr.emse.ci.sparqlext.stream.LookUpRequest;
-import fr.emse.ci.sparqlext.stream.SPARQLExtStreamManager;
-import fr.emse.ci.sparqlext.utils.ContextUtils;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
-import java.util.Objects;
 import java.util.Properties;
+
 import org.apache.jena.atlas.web.TypedInputStream;
-import org.apache.jena.riot.SysRIOT;
 import org.apache.jena.sparql.ARQInternalErrorException;
 import org.apache.jena.sparql.engine.binding.Binding;
+import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.ExprList;
+import org.apache.jena.sparql.expr.NodeValue;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueString;
 import org.apache.jena.sparql.function.Function;
 import org.apache.jena.sparql.function.FunctionEnv;
 import org.apache.jena.sparql.util.Context;
-import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import fr.emse.ci.sparqlext.SPARQLExt;
+import fr.emse.ci.sparqlext.utils.ContextUtils;
 
 /**
  * Binding function

@@ -131,6 +131,7 @@ public class SPARQLExtFmtUtils {
 
             visitor.startVisit(q);
             visitor.visitTemplateClause(q);
+            visitor.visitDatasetDecl(q);
             visitor.visitBindingClauses(q);
             visitor.visitQueryPattern(q);
             visitor.visitGroupBy(q);

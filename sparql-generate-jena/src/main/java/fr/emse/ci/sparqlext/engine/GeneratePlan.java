@@ -17,7 +17,6 @@ package fr.emse.ci.sparqlext.engine;
 
 import java.util.List;
 
-import org.apache.jena.query.ResultSet;
 import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.engine.binding.Binding;
 import org.apache.jena.sparql.util.Context;

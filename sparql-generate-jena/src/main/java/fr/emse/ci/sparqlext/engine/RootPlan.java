@@ -15,56 +15,34 @@
  */
 package fr.emse.ci.sparqlext.engine;
 
-import fr.emse.ci.sparqlext.utils.LogUtils;
-import fr.emse.ci.sparqlext.SPARQLExtException;
-import java.util.List;
-import fr.emse.ci.sparqlext.query.SPARQLExtQuery;
-import fr.emse.ci.sparqlext.utils.ContextUtils;
-import fr.emse.ci.sparqlext.utils.EvalUtils;
-import fr.emse.ci.sparqlext.utils.VarUtils;
-
 import java.io.IOException;
-import java.io.StringWriter;
-import java.io.Writer;
-import java.util.Objects;
-
-import org.apache.jena.riot.system.IRIResolver;
-import org.apache.jena.riot.system.StreamRDF;
-import org.slf4j.LoggerFactory;
-import org.slf4j.Logger;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
 import java.util.Set;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.jena.atlas.io.IndentedWriter;
-import org.apache.jena.query.Dataset;
-import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.ResultSet;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
-import org.apache.jena.sparql.core.DatasetGraph;
-import org.apache.jena.sparql.core.DatasetGraphFactory;
+import org.apache.jena.riot.system.StreamRDF;
 import org.apache.jena.sparql.core.Var;
-import org.apache.jena.sparql.engine.ResultSetCheckCondition;
 import org.apache.jena.sparql.engine.ResultSetStream;
 import org.apache.jena.sparql.engine.binding.Binding;
-import org.apache.jena.sparql.engine.binding.Binding0;
 import org.apache.jena.sparql.engine.binding.BindingFactory;
-import org.apache.jena.sparql.engine.binding.BindingHashMap;
-import org.apache.jena.sparql.engine.binding.BindingMap;
-import org.apache.jena.sparql.engine.binding.BindingUtils;
-import org.apache.jena.sparql.expr.Expr;
-import org.apache.jena.sparql.expr.ExprEvalException;
-import org.apache.jena.sparql.expr.NodeValue;
-import org.apache.jena.sparql.function.FunctionEnv;
-import org.apache.jena.sparql.function.FunctionEnvBase;
-import org.apache.jena.sparql.resultset.ResultSetMem;
 import org.apache.jena.sparql.util.Context;
 import org.apache.jena.sparql.util.ResultSetUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import fr.emse.ci.sparqlext.SPARQLExtException;
+import fr.emse.ci.sparqlext.query.SPARQLExtQuery;
+import fr.emse.ci.sparqlext.utils.ContextUtils;
+import fr.emse.ci.sparqlext.utils.EvalUtils;
 
 /**
  * Entry point to a SPARQL-Generate query execution.

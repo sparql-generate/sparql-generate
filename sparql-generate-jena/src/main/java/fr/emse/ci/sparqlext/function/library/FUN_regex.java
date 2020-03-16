@@ -83,9 +83,6 @@ public final class FUN_regex extends FunctionBase3 {
 
         Matcher matcher = pattern.matcher(string);
 
-        NodeValue nodeValue = null;
-        //nodeValue = new NodeValueString(String.valueOf(matcher.find()));
-
         if (matcher.find()) {
         	return new NodeValueString(matcher.group(location));
         }

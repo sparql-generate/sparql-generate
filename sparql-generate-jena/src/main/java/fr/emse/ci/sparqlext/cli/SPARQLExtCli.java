@@ -15,61 +15,80 @@
  */
 package fr.emse.ci.sparqlext.cli;
 
-import static fr.emse.ci.sparqlext.cli.CMDConfigurations.*;
-import fr.emse.ci.sparqlext.engine.PlanFactory;
-import fr.emse.ci.sparqlext.engine.QueryExecutor;
-import fr.emse.ci.sparqlext.query.SPARQLExtQuery;
-import fr.emse.ci.sparqlext.stream.LocatorFileAccept;
-import fr.emse.ci.sparqlext.stream.LookUpRequest;
-import fr.emse.ci.sparqlext.stream.SPARQLExtStreamManager;
-import fr.emse.ci.sparqlext.syntax.ElementSource;
+import static fr.emse.ci.sparqlext.cli.CMDConfigurations.ARG_BASE;
+import static fr.emse.ci.sparqlext.cli.CMDConfigurations.ARG_DEBUG_TEMPLATE;
+import static fr.emse.ci.sparqlext.cli.CMDConfigurations.ARG_DIRECTORY;
+import static fr.emse.ci.sparqlext.cli.CMDConfigurations.ARG_DIRECTORY_DEFAULT;
+import static fr.emse.ci.sparqlext.cli.CMDConfigurations.ARG_HDT;
+import static fr.emse.ci.sparqlext.cli.CMDConfigurations.ARG_HELP;
+import static fr.emse.ci.sparqlext.cli.CMDConfigurations.ARG_LOG_FILE;
+import static fr.emse.ci.sparqlext.cli.CMDConfigurations.ARG_LOG_LEVEL;
+import static fr.emse.ci.sparqlext.cli.CMDConfigurations.ARG_OUTPUT;
+import static fr.emse.ci.sparqlext.cli.CMDConfigurations.ARG_OUTPUT_APPEND;
+import static fr.emse.ci.sparqlext.cli.CMDConfigurations.ARG_OUTPUT_FORMAT;
+import static fr.emse.ci.sparqlext.cli.CMDConfigurations.ARG_QUERY;
+import static fr.emse.ci.sparqlext.cli.CMDConfigurations.ARG_SOURCE_LONG;
+import static fr.emse.ci.sparqlext.cli.CMDConfigurations.ARG_STREAM;
 
-import com.github.andrewoma.dexx.collection.HashMap;
-import com.github.andrewoma.dexx.collection.Map;
-import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
-import fr.emse.ci.sparqlext.FileConfigurations;
-import fr.emse.ci.sparqlext.SPARQLExt;
-import fr.emse.ci.sparqlext.SPARQLExtException;
-
-import org.apache.commons.cli.*;
-import org.apache.commons.io.IOUtils;
-import org.apache.jena.atlas.io.IndentedWriter;
-import org.apache.jena.graph.Node;
-import org.apache.jena.graph.NodeFactory;
-import org.apache.jena.query.Dataset;
-import org.apache.jena.query.DatasetFactory;
-import org.apache.jena.rdf.model.Model;
-import org.apache.jena.riot.Lang;
-import org.apache.jena.riot.RDFLanguages;
-import org.apache.jena.sparql.syntax.Element;
-import org.apache.log4j.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.stream.Collectors;
-import fr.emse.ci.sparqlext.engine.RootPlan;
-import fr.emse.ci.sparqlext.stream.LocationMapperAccept;
-import fr.emse.ci.sparqlext.utils.ContextUtils;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.ParseException;
+import org.apache.commons.io.IOUtils;
+import org.apache.jena.atlas.io.IndentedWriter;
+import org.apache.jena.graph.Node;
+import org.apache.jena.graph.NodeFactory;
+import org.apache.jena.query.Dataset;
+import org.apache.jena.query.DatasetFactory;
 import org.apache.jena.query.QueryFactory;
 import org.apache.jena.query.ResultSet;
 import org.apache.jena.query.ResultSetFormatter;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.riot.Lang;
+import org.apache.jena.riot.RDFLanguages;
 import org.apache.jena.shared.PrefixMapping;
 import org.apache.jena.sparql.resultset.ResultsFormat;
+import org.apache.jena.sparql.syntax.Element;
 import org.apache.jena.sparql.util.Context;
+import org.apache.log4j.Layout;
+import org.apache.log4j.Level;
+import org.apache.log4j.PatternLayout;
 import org.apache.log4j.spi.Filter;
 import org.apache.log4j.spi.LoggingEvent;
 import org.rdfhdt.hdt.hdt.HDT;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
+
+import fr.emse.ci.sparqlext.FileConfigurations;
+import fr.emse.ci.sparqlext.SPARQLExt;
+import fr.emse.ci.sparqlext.SPARQLExtException;
+import fr.emse.ci.sparqlext.engine.PlanFactory;
+import fr.emse.ci.sparqlext.engine.RootPlan;
+import fr.emse.ci.sparqlext.query.SPARQLExtQuery;
+import fr.emse.ci.sparqlext.stream.LocationMapperAccept;
+import fr.emse.ci.sparqlext.stream.LocatorFileAccept;
+import fr.emse.ci.sparqlext.stream.LookUpRequest;
+import fr.emse.ci.sparqlext.stream.SPARQLExtStreamManager;
+import fr.emse.ci.sparqlext.syntax.ElementSource;
+import fr.emse.ci.sparqlext.utils.ContextUtils;
 
 /**
  * @author Noorani Bakerally <noorani.bakerally at emse.fr>, Maxime Lefrançois

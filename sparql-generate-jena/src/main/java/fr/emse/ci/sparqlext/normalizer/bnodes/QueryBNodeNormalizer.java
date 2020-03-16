@@ -15,27 +15,28 @@
  */
 package fr.emse.ci.sparqlext.normalizer.bnodes;
 
-import com.google.common.collect.Sets;
-import fr.emse.ci.sparqlext.SPARQLExtException;
-import fr.emse.ci.sparqlext.query.SPARQLExtQuery;
-import fr.emse.ci.sparqlext.syntax.ElementGenerateTriplesBlock;
-import fr.emse.ci.sparqlext.syntax.ElementSubExtQuery;
-import fr.emse.ci.sparqlext.syntax.FromClause;
-import fr.emse.ci.sparqlext.utils.VarUtils;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.Triple;
 import org.apache.jena.sparql.core.BasicPattern;
 import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.core.VarExprList;
 import org.apache.jena.sparql.expr.E_BNode;
-import org.apache.jena.sparql.expr.Expr;
 import org.apache.jena.sparql.syntax.Element;
+
+import com.google.common.collect.Sets;
+
+import fr.emse.ci.sparqlext.SPARQLExtException;
+import fr.emse.ci.sparqlext.query.SPARQLExtQuery;
+import fr.emse.ci.sparqlext.syntax.ElementGenerateTriplesBlock;
+import fr.emse.ci.sparqlext.syntax.ElementSubExtQuery;
+import fr.emse.ci.sparqlext.utils.VarUtils;
 
 /**
  *

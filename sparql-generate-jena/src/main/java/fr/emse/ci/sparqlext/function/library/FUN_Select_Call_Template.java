@@ -15,14 +15,7 @@
  */
 package fr.emse.ci.sparqlext.function.library;
 
-import fr.emse.ci.sparqlext.SPARQLExt;
-import fr.emse.ci.sparqlext.engine.QueryExecutor;
-import fr.emse.ci.sparqlext.engine.RootPlan;
-import fr.emse.ci.sparqlext.utils.ContextUtils;
-import fr.emse.ci.sparqlext.utils.EvalUtils;
-
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,6 +34,12 @@ import org.apache.jena.sparql.function.FunctionEnv;
 import org.apache.jena.sparql.util.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import fr.emse.ci.sparqlext.SPARQLExt;
+import fr.emse.ci.sparqlext.engine.QueryExecutor;
+import fr.emse.ci.sparqlext.engine.RootPlan;
+import fr.emse.ci.sparqlext.utils.ContextUtils;
+import fr.emse.ci.sparqlext.utils.EvalUtils;
 
 /**
  * Extension of st:call-template where the first parameter is a select * query

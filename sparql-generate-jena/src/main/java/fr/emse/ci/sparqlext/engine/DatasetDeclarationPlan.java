@@ -114,7 +114,7 @@ public class DatasetDeclarationPlan {
 		// default: check the dataset
 		Dataset dataset = ContextUtils.getDataset(context);
 		if (dataset.containsNamedModel(absURI)) {
-			Node n = NodeFactory.createURI(absURI);
+//			Node n = NodeFactory.createURI(absURI);
 			Graph g = dataset.getNamedModel(absURI).getGraph();
 			GraphUtil.addInto(dsg.getDefaultGraph(), g);
 			return;

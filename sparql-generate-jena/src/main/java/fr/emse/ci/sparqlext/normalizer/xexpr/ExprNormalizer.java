@@ -15,18 +15,10 @@
  */
 package fr.emse.ci.sparqlext.normalizer.xexpr;
 
-import fr.emse.ci.sparqlext.expr.E_URIParam;
-import fr.emse.ci.sparqlext.graph.Node_Extended;
-import fr.emse.ci.sparqlext.graph.Node_Expr;
-import fr.emse.ci.sparqlext.graph.Node_ExtendedLiteral;
-import fr.emse.ci.sparqlext.graph.Node_ExtendedURI;
-import fr.emse.ci.sparqlext.graph.Node_Template;
-import fr.emse.ci.sparqlext.lang.ParserSPARQLExt;
-import fr.emse.ci.sparqlext.query.SPARQLExtQuery;
 import java.util.List;
+
 import org.apache.jena.graph.Node;
 import org.apache.jena.sparql.core.Var;
-import org.apache.jena.sparql.expr.E_Function;
 import org.apache.jena.sparql.expr.E_IRI;
 import org.apache.jena.sparql.expr.E_Str;
 import org.apache.jena.sparql.expr.E_StrConcat;
@@ -44,7 +36,15 @@ import org.apache.jena.sparql.expr.ExprList;
 import org.apache.jena.sparql.expr.aggregate.Aggregator;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueNode;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueString;
-import org.apache.jena.sparql.syntax.ElementBind;
+
+import fr.emse.ci.sparqlext.expr.E_URIParam;
+import fr.emse.ci.sparqlext.graph.Node_Expr;
+import fr.emse.ci.sparqlext.graph.Node_Extended;
+import fr.emse.ci.sparqlext.graph.Node_ExtendedLiteral;
+import fr.emse.ci.sparqlext.graph.Node_ExtendedURI;
+import fr.emse.ci.sparqlext.graph.Node_Template;
+import fr.emse.ci.sparqlext.lang.ParserSPARQLExt;
+import fr.emse.ci.sparqlext.query.SPARQLExtQuery;
 
 /**
  * Class used to normalize expressions and nodes, and output an expression that
