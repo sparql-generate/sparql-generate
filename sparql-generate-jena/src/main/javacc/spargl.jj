@@ -147,7 +147,7 @@ void SubQueryUnit(): { }
     ( SubGenerateQuery() ValuesClause() 
     | SubTemplateQuery() ValuesClause() 
     | SubPerformQuery() ValuesClause() 
-    | SubSelect()
+    | SubSelectQuery()
     )
     <EOF>
   { finishQuery() ; }
@@ -614,6 +614,14 @@ void SelectQuery() : { }
   { asSPARQLExtQuery().setBindingClauses(bindingClauses);}
   WhereClause()
   SolutionModifier()
+}
+void SubSelectQuery() :{ }
+{
+  SelectClause()
+  ( DatasetClause() )*
+  WhereClause()
+  SolutionModifier()
+  ValuesClause()
 }
 void SubSelect() :{ }
 {
