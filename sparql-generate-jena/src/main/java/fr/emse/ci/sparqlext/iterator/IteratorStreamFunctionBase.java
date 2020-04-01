@@ -58,7 +58,7 @@ public abstract class IteratorStreamFunctionBase implements IteratorFunction {
      */
     @Override
     public final void build(ExprList args) {
-        LOG.info("Building the iterator " + System.identityHashCode(this));
+        LOG.trace("Building the iterator " + System.identityHashCode(this));
         arguments = args;
         checkBuild(args);
     }

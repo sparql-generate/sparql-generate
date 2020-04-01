@@ -118,7 +118,7 @@ public class SPARQLExtFunctionRegistry extends FunctionRegistry {
         if (attemptedLoads.contains(uri)) {
             return null;
         }
-        LOG.info("attempting load " + uri);
+        LOG.trace("attempting load " + uri);
         final LookUpRequest req = new LookUpRequest(uri, "application/vnd.sparql-generate");
         final SPARQLExtStreamManager sm = (SPARQLExtStreamManager) context.get(SysRIOT.sysStreamManager);
         Objects.requireNonNull(sm);

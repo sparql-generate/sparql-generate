@@ -78,7 +78,7 @@ public class QueryExecutor {
             final Context context) {
         try {
             return loadedQueries.get(queryName, () -> {
-                LOG.info("Loading " + queryName);
+                LOG.debug("Loading " + queryName);
                 try (TypedInputStream tin = ContextUtils.openStream(context, queryName, SPARQLExt.MEDIA_TYPE)) {
                     if (tin == null) {
                         throw new SPARQLExtException("No query found at " + queryName);
