@@ -74,7 +74,7 @@ public final class FUN_PrefixedIRI implements Function {
             throw new ARQInternalErrorException("FunctionBase: Null args list");
         }
         if (args.size() != 1) {
-            throw new ExprEvalException("Expecting one one argument");
+            throw new ExprEvalException("Expecting one argument");
         }
         NodeValue node = args.get(0).eval(binding, env);
         if (node == null) {
