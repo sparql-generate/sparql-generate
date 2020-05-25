@@ -71,6 +71,7 @@ public class OutputClauseNormalizer implements SPARQLExtElementVisitor {
 
     @Override
     public void visit(ElementGenerateTriplesBlock el) {
+    	result = el;
     }
 
     @Override
