@@ -381,7 +381,9 @@ public class QueryExecutor {
             }
             final BindingHashMap b = new BindingHashMap();
             for (int i = 0; i < size; i++) {
-                b.add(signature.get(i), callParams.get(i));
+            	if(callParams.get(i) != null) {
+            		b.add(signature.get(i), callParams.get(i));
+            	}
             }
             bindings.add(b);
         }
