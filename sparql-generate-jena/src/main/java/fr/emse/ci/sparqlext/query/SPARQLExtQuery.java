@@ -741,6 +741,7 @@ public class SPARQLExtQuery extends Query {
 		if (hasEmbeddedExpressions) {
 			QueryXExprNormalizer normalizer = new QueryXExprNormalizer();
 			visit(normalizer);
+            LOG.trace("after normalizeXExpr: " + toString());
 		}
 	}
 
@@ -751,6 +752,7 @@ public class SPARQLExtQuery extends Query {
 	 */
 	public void normalizeBNode() {
 		QueryBNodeNormalizer.normalizeCallParameters(this);
+        LOG.trace("after normalizeBNode: " + toString());
 	}
 
 	/**
@@ -761,6 +763,7 @@ public class SPARQLExtQuery extends Query {
 	public void normalizeAggregates() {
 		QueryAggregatesNormalizer normalizer = new QueryAggregatesNormalizer();
 		visit(normalizer);
+        LOG.trace("after normalizeAggregates: " + toString());
 	}
 
 	/**
