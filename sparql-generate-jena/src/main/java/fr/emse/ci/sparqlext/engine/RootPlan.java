@@ -343,7 +343,7 @@ public class RootPlan {
 					superfluousVars, signature));
 
 		}
-		return signature;
+		return new ArrayList<>(signature);
 	}
 
 	private List<Binding> getValues(List<Var> variables, List<Binding> values) {
