@@ -15,11 +15,6 @@
  */
 package fr.emse.ci.sparqlext.engine;
 
-import fr.emse.ci.sparqlext.utils.LogUtils;
-import fr.emse.ci.sparqlext.SPARQLExtException;
-import fr.emse.ci.sparqlext.query.SPARQLExtQuery;
-import fr.emse.ci.sparqlext.utils.ContextUtils;
-import fr.emse.ci.sparqlext.utils.VarUtils;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -27,29 +22,29 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import org.apache.jena.atlas.logging.Log;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryExecution;
-import org.apache.jena.query.QueryExecutionFactory;
 import org.apache.jena.query.ResultSet;
 import org.apache.jena.query.ResultSetFactory;
 import org.apache.jena.query.ResultSetRewindable;
-import org.apache.jena.sparql.core.DatasetGraph;
 import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.engine.QueryEngineFactory;
 import org.apache.jena.sparql.engine.QueryEngineRegistry;
 import org.apache.jena.sparql.engine.QueryExecutionBase;
 import org.apache.jena.sparql.engine.binding.Binding;
-import org.apache.jena.sparql.engine.binding.BindingFactory;
 import org.apache.jena.sparql.engine.binding.BindingHashMap;
-import org.apache.jena.sparql.engine.binding.BindingMap;
-import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.syntax.ElementData;
 import org.apache.jena.sparql.syntax.ElementGroup;
 import org.apache.jena.sparql.util.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import fr.emse.ci.sparqlext.SPARQLExtException;
+import fr.emse.ci.sparqlext.query.SPARQLExtQuery;
+import fr.emse.ci.sparqlext.utils.ContextUtils;
+import fr.emse.ci.sparqlext.utils.LogUtils;
+import fr.emse.ci.sparqlext.utils.VarUtils;
 
 /**
  * Executes the generated SPARQL SELECT query.

@@ -16,6 +16,7 @@
 package fr.emse.ci.sparqlext.engine;
 
 import java.util.Objects;
+
 import org.apache.jena.graph.Triple;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.riot.system.StreamRDF;

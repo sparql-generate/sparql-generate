@@ -15,27 +15,29 @@
  */
 package fr.emse.ci.sparqlext.engine;
 
-import fr.emse.ci.sparqlext.utils.LogUtils;
-import fr.emse.ci.sparqlext.SPARQLExtException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Objects;
+
 import org.apache.commons.io.IOUtils;
+import org.apache.jena.atlas.web.TypedInputStream;
+import org.apache.jena.datatypes.DatatypeFormatException;
 import org.apache.jena.datatypes.RDFDatatype;
 import org.apache.jena.datatypes.TypeMapper;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
+import org.apache.jena.riot.SysRIOT;
 import org.apache.jena.sparql.core.Var;
-import java.util.Objects;
+import org.apache.jena.sparql.engine.binding.Binding;
+import org.apache.jena.sparql.engine.binding.BindingFactory;
+import org.apache.jena.sparql.util.Context;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import fr.emse.ci.sparqlext.SPARQLExtException;
 import fr.emse.ci.sparqlext.stream.LookUpRequest;
 import fr.emse.ci.sparqlext.stream.SPARQLExtStreamManager;
-import java.io.IOException;
-import org.apache.jena.atlas.web.TypedInputStream;
-import org.apache.jena.datatypes.DatatypeFormatException;
-import org.slf4j.LoggerFactory;
-import org.slf4j.Logger;
-import java.io.InputStream;
-import org.apache.jena.riot.SysRIOT;
-import org.apache.jena.sparql.engine.binding.BindingFactory;
-import org.apache.jena.sparql.engine.binding.Binding;
-import org.apache.jena.sparql.util.Context;
+import fr.emse.ci.sparqlext.utils.LogUtils;
 
 /**
  * Executes a <code>{@code SOURCE <node> ACCEPT <mime> AS <var>}</code> clause.

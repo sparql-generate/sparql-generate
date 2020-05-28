@@ -15,42 +15,26 @@
  */
 package fr.emse.ci.sparqlext.engine;
 
-import fr.emse.ci.sparqlext.SPARQLExtException;
-import fr.emse.ci.sparqlext.normalizer.xexpr.TemplateUtils;
-import fr.emse.ci.sparqlext.query.SPARQLExtQuery;
-import fr.emse.ci.sparqlext.query.SPARQLExtQueryVisitor;
-import fr.emse.ci.sparqlext.syntax.ElementBox;
-import fr.emse.ci.sparqlext.syntax.ElementExpr;
-import fr.emse.ci.sparqlext.syntax.ElementFormat;
-import fr.emse.ci.sparqlext.syntax.ElementIterator;
-import fr.emse.ci.sparqlext.syntax.ElementSource;
-import fr.emse.ci.sparqlext.syntax.ElementSubExtQuery;
-import fr.emse.ci.sparqlext.syntax.ElementTGroup;
-import fr.emse.ci.sparqlext.syntax.SPARQLExtElementVisitorBase;
-import fr.emse.ci.sparqlext.utils.ST;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
+
 import org.apache.jena.query.Query;
 import org.apache.jena.query.SortCondition;
 import org.apache.jena.sparql.core.Prologue;
 import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.core.VarExprList;
 import org.apache.jena.sparql.engine.binding.Binding;
-import org.apache.jena.sparql.expr.E_Function;
-import org.apache.jena.sparql.expr.E_Str;
 import org.apache.jena.sparql.expr.Expr;
-import org.apache.jena.sparql.expr.ExprAggregator;
-import org.apache.jena.sparql.expr.ExprList;
-import org.apache.jena.sparql.expr.aggregate.AggGroupConcat;
-import org.apache.jena.sparql.expr.aggregate.AggGroupConcatDistinct;
-import org.apache.jena.sparql.expr.aggregate.Aggregator;
-import org.apache.jena.sparql.expr.nodevalue.NodeValueString;
 import org.apache.jena.sparql.syntax.Element;
 import org.apache.jena.sparql.syntax.ElementBind;
 import org.apache.jena.sparql.syntax.ElementGroup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import fr.emse.ci.sparqlext.SPARQLExtException;
+import fr.emse.ci.sparqlext.query.SPARQLExtQuery;
+import fr.emse.ci.sparqlext.query.SPARQLExtQueryVisitor;
+import fr.emse.ci.sparqlext.syntax.ElementIterator;
+import fr.emse.ci.sparqlext.syntax.ElementSource;
 
 /**
  *
