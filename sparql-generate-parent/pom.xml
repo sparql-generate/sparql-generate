@@ -21,7 +21,7 @@
         <module>../sparql-generate-ws</module>
         <module>../sparql-generate-xml</module>
         <module>../sparql-generate-markdown</module>
-
+		<module>../sparql-generate-sql</module>
         <module>../sparql-generate-all</module>
 
 <!--        <module>../sparql-generate-example</module>

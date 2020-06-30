@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>fr.emse.ci</groupId>
+		<artifactId>sparql-generate-parent</artifactId>
+		<version>2.0-SNAPSHOT</version>
+		<relativePath>../sparql-generate-parent/pom.xml</relativePath>
+	</parent>
+
+	<artifactId>sparql-generate-sql</artifactId>
+	<packaging>jar</packaging>
+
+	<name>SPARQL-Generate for SQL</name>
+
+	<contributors>
+		<contributor>
+			<name>Omar Qawasmeh</name>
+			<email>omar.alqawasmeh@emse.fr</email>
+			<url>https://perso.univ-st-etienne.fr/alo09685/</url>
+			<organization>Ecole des mines de Saint-Etienne</organization>
+			<organizationUrl>http://www.mines-stetienne.fr/</organizationUrl>
+			<timezone>+1</timezone>
+
+		</contributor>
+	</contributors>
+
+	<dependencies>
+		<!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>8.0.20</version>
+		</dependency>
+		<dependency>
+			<groupId>fr.emse.ci</groupId>
+			<artifactId>sparql-generate-jena</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+	</dependencies>
+</project>
