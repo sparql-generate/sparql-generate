@@ -1,5 +1,5 @@
-# SPARQL-Generate for CSV
+# SPARQL-Generate for SQL
 
-This project contains binding and iterator functions to generate RDF from CSV files.
+This project contains binding and iterator functions to generate RDF from SQL files.
 
 
