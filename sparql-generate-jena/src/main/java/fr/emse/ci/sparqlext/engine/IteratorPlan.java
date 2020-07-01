@@ -124,16 +124,14 @@ public class IteratorPlan implements BindingsClausePlan {
         final IteratorFunction iterator = getIterator(context);
         final FunctionEnv env = new FunctionEnvBase(context);
         final IteratorPlan.Batches batches = new IteratorPlan.Batches(values, listBindingStream);
-        try {
-            for (Binding binding : values) {
-                try {
-                    iterator.exec(binding, exprList, env, (nodeValues) -> batches.add(binding, nodeValues));
-                } catch (ExprEvalException ex) {
-                    LOG.debug("No evaluation for " + this + ", caused by " + ex.getMessage());
-                }
+        for (Binding binding : values) {
+            try {
+            	iterator.exec(binding, exprList, env, (nodeValues) -> batches.add(binding, nodeValues));
+            } catch (ExprEvalException ex) {
+                LOG.debug("No evaluation for " + this + ", caused by " + ex.getMessage());
+            } catch (Exception ex) {
+                LOG.warn("Unanticipated exception for " + toString(), ex);
             }
-        } catch (Exception ex) {
-            LOG.warn("Execution failed for " + toString(), ex);
         }
     }
     protected class Batches {

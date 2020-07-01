@@ -18,6 +18,7 @@ package fr.emse.ci.sparqlext.json;
 import fr.emse.ci.sparqlext.iterator.IteratorFunctionBase;
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.DocumentContext;
+import com.jayway.jsonpath.InvalidPathException;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.Option;
 import fr.emse.ci.sparqlext.SPARQLExt;
@@ -101,6 +102,9 @@ public class ITER_JSONPath extends IteratorFunctionBase {
             throw new ExprEvalException("Expecting at least two arguments.");
         }
         final NodeValue json = args.get(0);
+        if(json == null) {
+        	throw new ExprEvalException("No JSON provided");
+        }
         if (!json.isIRI() && !json.isString() && !json.asNode().isLiteral()) {
             LOG.debug("First argument must be a URI or a String.");
             throw new ExprEvalException("First argument must be a URI or a String.");
@@ -119,6 +123,14 @@ public class ITER_JSONPath extends IteratorFunctionBase {
         String jsonString = getString(json);
 
         final NodeValue jsonquery = args.get(1);
+        if(jsonquery == null) {
+        	throw new ExprEvalException("No JSONPath provided");
+        }
+        try {
+        	JsonPath.compile(jsonquery.getString());
+	    } catch (InvalidPathException ex) {
+	    	LOG.warn("The JSONPath is not valid: " + jsonquery.getString() + " - exception is " + ex.getMessage());
+	    }
         if (!jsonquery.isString()) {
             LOG.debug("Second argument must be a String.");
             throw new ExprEvalException("Second argument must be a String.");
@@ -130,11 +142,19 @@ public class ITER_JSONPath extends IteratorFunctionBase {
         if (args.size() > 2) {
             for (int i = 2; i < args.size(); i++) {
                 final NodeValue subquery = args.get(i);
+                if(subquery == null) {
+                	subqueries[i - 2] = null;
+    			}
                 if (!subquery.isString()) {
                     LOG.debug("Argument " + i + " must be a String.");
                     throw new ExprEvalException("Argument " + i + " must be a String.");
                 }
-                subqueries[i - 2] = JsonPath.compile(subquery.getString());
+                try {
+                	subqueries[i - 2] = JsonPath.compile(subquery.getString());
+                } catch (InvalidPathException ex) {
+                	subqueries[i - 2] = null;
+                	LOG.warn("Argument " + i + " is not a valid JSONPath expression: " + subquery.getString() + " - exception is " + ex.getMessage());
+                }
             }
         }
         
@@ -150,6 +170,9 @@ public class ITER_JSONPath extends IteratorFunctionBase {
                 nodeValues.add(function.nodeForObject(value));
                 DocumentContext context = JsonPath.parse(value);
                 for (JsonPath subquery : subqueries) {
+                	if(subquery == null) {
+                        nodeValues.add(null);
+                	}
                     try {
                         Object subvalue = context.limit(1).read(subquery);
                         nodeValues.add(function.nodeForObject(subvalue));
@@ -166,7 +189,7 @@ public class ITER_JSONPath extends IteratorFunctionBase {
         } catch (Exception ex) {
             if(LOG.isDebugEnabled()) {
                 Node compressed = LogUtils.compress(json.asNode());
-                LOG.debug("No evaluation for " + compressed + ", " + jsonquery);
+                LOG.debug("No evaluation for " + compressed + ", " + jsonquery, ex);
             }
             throw new ExprEvalException("No evaluation for " + jsonquery);
         }
