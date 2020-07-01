@@ -77,24 +77,18 @@ public class ITER_SQL extends IteratorFunctionBase2 {
 	public List<List<NodeValue>> exec(NodeValue nodeSQL, NodeValue querySQL) {
 
 		if (nodeSQL == null) {
-			LOG.debug("Must have at least one argument");
-			throw new ExprEvalException("Must have at least one argument");
+			LOG.debug("Must have two arguments, the URI to the data base and the SQL query");
+			throw new ExprEvalException("Must have two arguments, the URI to the data base and the SQL query");
 		}
 		if (querySQL == null) {
-			LOG.debug("Must have at least one argument");
-			throw new ExprEvalException("Must have at least one argument");
+			LOG.debug("Must have two arguments, the URI to the data base and the SQL query");
+			throw new ExprEvalException("Must have two arguments, the URI to the data base and the SQL query");
 		}
 
-		LOG.trace("Executing SQL with variables: DB at URI: " + nodeSQL + "\t with query:\t" + querySQL);
+		LOG.trace("Executing SQL with variables: the data base at URI: " + nodeSQL + "\t with query:\t" + querySQL);
 
 		try (Connection connectionSQL = getConnection(nodeSQL)) {
 			LOG.trace("Connected successfuly to " + nodeSQL);
-
-//			List<List<NodeValue>> testList=getListSQL(connectionSQL, querySQL);
-//			for (List<NodeValue> x : testList) {
-//				System.out.println("omar\t"+x);
-//			}
-
 			return getListSQL(connectionSQL, querySQL);
 		} catch (Exception ex) {
 			LOG.warn("Can not connect to the data base", ex);
@@ -114,7 +108,7 @@ public class ITER_SQL extends IteratorFunctionBase2 {
 				throw new ExprEvalException("Can not connect to the data base", e);
 			}
 		} else {
-			String message = String.format("First argument must be a URI to the SQL DB");
+			String message = String.format("First argument must be a URI to the SQL data base");
 			LOG.warn(message);
 			throw new ExprEvalException(message);
 		}
@@ -127,11 +121,8 @@ public class ITER_SQL extends IteratorFunctionBase2 {
 			LOG.warn(message);
 			throw new ExprEvalException(message);
 		} else {
-			LOG.trace("inside get sql input" + querySQL.asString());
+			LOG.trace("Exceuting the quey: " + querySQL.asString());
 			try (PreparedStatement ps = conn.prepareStatement(querySQL.asString()); ResultSet rs = ps.executeQuery()) {
-
-				DatabaseMetaData databaseMetaData = conn.getMetaData();
-
 				ResultSetMetaData rsmd = rs.getMetaData();
 				int columnCount = rsmd.getColumnCount();
 				while (rs.next()) {
@@ -145,7 +136,7 @@ public class ITER_SQL extends IteratorFunctionBase2 {
 
 				}
 			} catch (SQLException e) {
-				System.out.println(e);
+				LOG.warn(e.getMessage());
 				throw new ExprEvalException(e);
 			}
 		}
@@ -154,10 +145,6 @@ public class ITER_SQL extends IteratorFunctionBase2 {
 	}
 
 	private static NodeValue getNodeValueForCell(ResultSet rs, ResultSetMetaData rsmd, int i) throws SQLException {
-
-		System.out.println(rsmd.getColumnType(i));
-		System.out.println(rsmd.getColumnTypeName(i));
-
 		switch (rsmd.getColumnType(i)) {
 		case Types.ARRAY:
 			return new NodeValueString(rs.getString(i));
@@ -172,14 +159,12 @@ public class ITER_SQL extends IteratorFunctionBase2 {
 			return new NodeValueFloat(rs.getFloat(i));
 		case Types.VARCHAR:
 			return new NodeValueString(rs.getString(i));
-
 		case Types.TIMESTAMP:
 			DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 			Timestamp date = rs.getTimestamp(i);
 			System.out.println("DATE: " + date);
 			dateFormat.format(date);
 			System.out.println(dateFormat.format(date));
-
 			return new NodeValueString(dateFormat.format(date));
 
 		default:

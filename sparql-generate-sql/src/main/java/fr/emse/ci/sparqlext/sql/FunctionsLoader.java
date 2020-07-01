@@ -19,7 +19,7 @@ import fr.emse.ci.sparqlext.iterator.IteratorFunctionRegistry;
 import fr.emse.ci.sparqlext.iterator.IteratorFunctionLoader;
 
 /**
- * @author Omar Qawasmeh
+ * @author Omar Qawasmeh, Maxime Lefrançois
  * 
  * @organization Ecole des Mines de Saint Etienne
  */
@@ -28,7 +28,6 @@ public class FunctionsLoader implements IteratorFunctionLoader {
     @Override
     public void load(IteratorFunctionRegistry itereg) {
         itereg.put(ITER_SQL.URI, ITER_SQL.class);
-//       itereg.put(ITER_SQLHeaders.URI, ITER_SQLHeaders.class); To be deleted SQLHeader
     }
     
 }
