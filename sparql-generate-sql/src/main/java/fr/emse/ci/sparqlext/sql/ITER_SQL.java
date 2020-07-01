@@ -28,6 +28,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Properties;
 
 import org.apache.jena.sparql.expr.ExprEvalException;
@@ -64,9 +65,9 @@ public class ITER_SQL extends IteratorFunctionBase2 {
 	public static final Properties properties = new Properties();
 
 	static {
-		properties.setProperty("user", "root");
-		properties.setProperty("password", "omar1234");
-		properties.setProperty("serverTimezone", "UTC");
+		properties.setProperty("user", "root"); // username
+		properties.setProperty("password", "omar1234"); // password
+		properties.setProperty("serverTimezone", "UTC"); // serverTimezone
 	}
 
 	public static Properties getProperties() {
@@ -86,14 +87,25 @@ public class ITER_SQL extends IteratorFunctionBase2 {
 		}
 
 		LOG.trace("Executing SQL with variables: the data base at URI: " + nodeSQL + "\t with query:\t" + querySQL);
-
-		try (Connection connectionSQL = getConnection(nodeSQL)) {
+		Connection connectionSQL = null;
+		try {
+			connectionSQL = getConnection(nodeSQL);
 			LOG.trace("Connected successfuly to " + nodeSQL);
 			return getListSQL(connectionSQL, querySQL);
 		} catch (Exception ex) {
 			LOG.warn("Can not connect to the data base", ex);
 			throw new ExprEvalException("Can not connect to the data base", ex);
 		}
+
+		finally {
+			try {
+				connectionSQL.close();
+				System.out.println("cloesed");
+			} catch (SQLException ex) {
+				LOG.warn("Can not close the connection", ex);
+			}
+		}
+
 	}
 
 	public static Connection getConnection(NodeValue sql) throws Exception {
