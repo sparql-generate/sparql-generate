@@ -16,7 +16,6 @@
 package fr.emse.ci.sparqlext.sql;
 
 import java.sql.Connection;
-import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -28,7 +27,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Properties;
 
 import org.apache.jena.sparql.expr.ExprEvalException;
@@ -174,9 +172,7 @@ public class ITER_SQL extends IteratorFunctionBase2 {
 		case Types.TIMESTAMP:
 			DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 			Timestamp date = rs.getTimestamp(i);
-			System.out.println("DATE: " + date);
 			dateFormat.format(date);
-			System.out.println(dateFormat.format(date));
 			return new NodeValueString(dateFormat.format(date));
 
 		default:
