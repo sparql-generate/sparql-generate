@@ -108,26 +108,6 @@
                     </executions>
                 </plugin>
 
-                <!-- configure process-sources -->
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-jxr-plugin</artifactId>
-                    <version>2.5</version>
-                    <inherited>true</inherited>
-                    <configuration>
-                        <aggregate>true</aggregate>
-                    </configuration>
-                    <executions>
-                        <execution>
-                            <id>run-jxr</id>
-                            <phase>prepare-package</phase>
-                            <goals>
-                                <goal>jxr</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
-
                 <!-- configure package -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -162,92 +142,6 @@
                     </executions>
                 </plugin>
 
-                <!-- configure verify -->
-                <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>taglist-maven-plugin</artifactId>
-                    <version>2.4</version>
-                    <!-- needs XRef -->
-                    <inherited>true</inherited>
-                    <configuration>
-                        <aggregate>true</aggregate>
-                        <encoding>${project.build.sourceEncoding}</encoding>
-                        <sourceFileLocale>en</sourceFileLocale>
-                        <tagListOptions>
-                            <tagClasses>
-                                <tagClass>
-                                    <displayName>Code sections needing review</displayName>
-                                    <tags>
-                                        <tag>
-                                            <matchString>REVIEWREQUIRED</matchString>
-                                            <matchType>exact</matchType>
-                                        </tag>
-                                    </tags>
-                                </tagClass>
-                                <tagClass>
-                                    <displayName>Todo Work</displayName>
-                                    <tags>
-                                        <tag>
-                                            <matchString>todo</matchString>
-                                            <matchType>ignoreCase</matchType>
-                                        </tag>
-                                        <tag>
-                                            <matchString>@todo</matchString>
-                                            <matchType>ignoreCase</matchType>
-                                        </tag>
-                                    </tags>
-                                </tagClass>
-                                <tagClass>
-                                    <displayName>Noted Bugs</displayName>
-                                    <tag>
-                                        <matchString>fixme</matchString>
-                                        <matchType>ignoreCase</matchType>
-                                    </tag>
-                                </tagClass>
-                                <tagClass>
-                                    <displayName>Deprecated Items</displayName>
-                                    <tag>
-                                        <matchString>@deprecated</matchString>
-                                        <matchType>ignoreCase</matchType>
-                                    </tag>
-                                </tagClass>
-                            </tagClasses>
-                        </tagListOptions>
-                    </configuration>
-                    <executions>
-                        <execution>
-                            <id>run-taglist</id>
-                            <phase>verify</phase>
-                            <goals>
-                                <goal>taglist</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
-
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-checkstyle-plugin</artifactId>
-                    <version>2.17</version>
-                    <inherited>true</inherited>
-                    <configuration>
-                        <skip>${skip}</skip>
-                        <configLocation>${maven-checkstyle-plugin.configLocation}</configLocation>
-                        <failsOnError>false</failsOnError>
-                        <enableRulesSummary>true</enableRulesSummary>
-                        <includeTestSourceDirectory>true</includeTestSourceDirectory>
-                    </configuration>
-                    <executions>
-                        <execution>
-                            <id>run-checkstyle</id>
-                            <phase>verify</phase>
-                            <goals>
-                                <goal>checkstyle</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
-
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-javadoc-plugin</artifactId>
@@ -257,49 +151,6 @@
                             <link>https://jena.apache.org/documentation/javadoc/arq/</link>
                             <link>https://jena.apache.org/documentation/javadoc/jena/</link>
                         </links>
-                    </configuration>
-                </plugin>
-
-                <!-- ========================  -->
-                <!--    SITE LIFECYCLE         -->
-                <!-- ========================  -->
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-site-plugin</artifactId>
-                    <version>3.3</version>
-                    <inherited>true</inherited>
-                    <executions>
-                        <execution>
-                            <phase>prepare-package</phase>
-                            <goals>
-                                <goal>site</goal>
-                            </goals>
-                            <configuration>
-                                <generateReports>${skip}</generateReports>
-                            </configuration>
-                        </execution>
-                    </executions>
-                    <configuration>
-                        <siteDirectory>../sparql-generate-website/src/site</siteDirectory>
-                        <attach>true</attach>
-                        <outputDirectory>target\site</outputDirectory>
-                        <reportPlugins>
-                            <plugin>
-                                <groupId>org.apache.maven.plugins</groupId>
-                                <artifactId>maven-project-info-reports-plugin</artifactId>
-                                <configuration>
-                                    <dependencyDetailsEnabled>false</dependencyDetailsEnabled>
-                                    <dependencyLocationsEnabled>false</dependencyLocationsEnabled>
-                                </configuration>
-                                <reports>
-                                    <report>summary</report>
-                                    <report>scm</report>
-                                    <report>issue-tracking</report>
-                                    <report>license</report>
-                                    <report>project-team</report>
-                                </reports>
-                            </plugin>
-                        </reportPlugins>
                     </configuration>
                 </plugin>
             </plugins>
@@ -327,14 +178,6 @@
                 <artifactId>ph-javacc-maven-plugin</artifactId>
             </plugin>
 
-            <!-- process-sources -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jxr-plugin</artifactId>
-                <configuration>
-                    <skip>${skip}</skip>
-                </configuration>
-            </plugin>
 
             <!-- package -->
             <plugin>
@@ -347,40 +190,6 @@
                 <artifactId>maven-source-plugin</artifactId>
                 <configuration>
                     <skip>${skip}</skip>
-                </configuration>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-site-plugin</artifactId>
-                <configuration>
-                    <skip>${skip}</skip>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-project-info-reports-plugin</artifactId>
-                <version>2.7</version>
-            </plugin>
-            <!-- verify -->
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>taglist-maven-plugin</artifactId>
-                <configuration>
-                    <skip>${skip}</skip>
-                </configuration>
-            </plugin>
-
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.20</version>
-                <configuration>
-                    <skip>${skip}</skip>
-                    <forkCount>3</forkCount>
-                    <reuseForks>true</reuseForks>
-                    <argLine>-Xmx2048m -XX:MaxPermSize=512m</argLine>
                 </configuration>
             </plugin>
 

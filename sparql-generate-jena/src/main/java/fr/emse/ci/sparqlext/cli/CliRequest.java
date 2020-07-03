@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 École des Mines de Saint-Étienne.
+ * Copyright 2020 MINES Saint-Étienne
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,16 @@ import org.apache.log4j.Level;
 
 import fr.emse.ci.sparqlext.FileConfigurations;
 
+/**
+ * Extends the FileConfigurations with the log level as an object
+ * 
+ * 
+ * @author Maxime Lefrançois http://maxime-lefrancois.info/
+ */
 public class CliRequest extends FileConfigurations {
 
+	/**
+	 * The log level as an object
+	 */
     public Level logLevelObject;
 }

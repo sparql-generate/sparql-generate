@@ -1,0 +1,15 @@
+{
+  "stream": false,
+  "query": "query.rqg",
+  "namedqueries": [],
+  "graph": "dataset/default.ttl",
+  "namedgraphs": [],
+  "documentset": [
+    {
+      "uri": "http://example.com/example.xml",
+      "mediatype": "application/xml",
+      "path": "documentset/example.xml"
+    }
+  ],
+  "loglevel": 5
+}

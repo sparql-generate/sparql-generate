@@ -42,7 +42,7 @@ import fr.emse.ci.sparqlext.utils.LogUtils;
 /**
  * Executes a <code>{@code SOURCE <node> ACCEPT <mime> AS <var>}</code> clause.
  *
- * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
+ * @author Maxime Lefrançois
  */
 public class SourcePlan extends BindOrSourcePlan {
 
@@ -102,33 +102,38 @@ public class SourcePlan extends BindOrSourcePlan {
         final String sourceUri = getActualSource(binding);
         final String acceptHeader = getAcceptHeader(binding);
         LOG.trace("... resolved to SOURCE <" + sourceUri + "> ACCEPT " + acceptHeader + " AS " + var);
+        if(sourceUri == null) {
+            return BindingFactory.binding(binding, var, null);
+        }
         final LookUpRequest request = new LookUpRequest(sourceUri, acceptHeader);
         final SPARQLExtStreamManager sm = (SPARQLExtStreamManager) context.get(SysRIOT.sysStreamManager);
         Objects.requireNonNull(sm);
-        final TypedInputStream stream = sm.open(request);
-        if (stream == null) {
-            LOG.info("Exec SOURCE <" + sourceUri + "> ACCEPT " + acceptHeader + " AS " + var + " returned nothing.");
-            return BindingFactory.binding(binding);
-        }
-        try (InputStream in = stream.getInputStream()) {
-            final String literal = IOUtils.toString(in, "UTF-8");
-            final RDFDatatype dt;
-            if (stream.getMediaType() != null && stream.getMediaType().getContentType() != null) {
-                dt = tm.getSafeTypeByName("http://www.iana.org/assignments/media-types/" + stream.getMediaType().getContentType());
-            } else {
-                dt = tm.getSafeTypeByName("http://www.w3.org/2001/XMLSchema#string");
-            }
-            final Node n = NodeFactory.createLiteral(literal, dt);
-            LOG.debug("Exec " + this + " returned. "
-                    + "Enable TRACE level for more.");
-            if (LOG.isTraceEnabled()) {
-                LOG.trace("Exec " + this + " returned\n" + LogUtils.compress(n));
-            }
-            return BindingFactory.binding(binding, var, n);
+        try(TypedInputStream stream = sm.open(request)) {
+	        if (stream == null) {
+	            LOG.info("Exec SOURCE <" + sourceUri + "> ACCEPT " + acceptHeader + " AS " + var + " returned nothing.");
+	            return BindingFactory.binding(binding);
+	        }
+	        try (InputStream in = stream.getInputStream()) {
+	            final String literal = IOUtils.toString(in, "UTF-8");
+	            final RDFDatatype dt;
+	            if (stream.getMediaType() != null && stream.getMediaType().getContentType() != null) {
+	                dt = tm.getSafeTypeByName("http://www.iana.org/assignments/media-types/" + stream.getMediaType().getContentType());
+	            } else {
+	                dt = tm.getSafeTypeByName("http://www.w3.org/2001/XMLSchema#string");
+	            }
+	            final Node n = NodeFactory.createLiteral(literal, dt);
+	            LOG.debug("Exec " + this + " returned. "
+	                    + "Enable TRACE level for more.");
+	            if (LOG.isTraceEnabled()) {
+	                LOG.trace("Exec " + this + " returned\n" + LogUtils.compress(n));
+	            }
+	            return BindingFactory.binding(binding, var, n);
+	        }
         } catch (IOException | DatatypeFormatException ex) {
             LOG.warn("Exception while looking up " + sourceUri + ":", ex);
             return BindingFactory.binding(binding);
         }
+	        
     }
 
     /**

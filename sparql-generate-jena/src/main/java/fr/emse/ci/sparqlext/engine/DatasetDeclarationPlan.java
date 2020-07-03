@@ -15,7 +15,7 @@ import org.apache.jena.riot.system.StreamRDFLib;
 import org.apache.jena.sparql.core.DatasetGraph;
 import org.apache.jena.sparql.core.DatasetGraphFactory;
 /*
- * Copyright 2020 École des Mines de Saint-Étienne.
+ * Copyright 2020 MINES Saint-Étienne
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.

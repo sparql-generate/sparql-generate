@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Ecole des Mines de Saint-Etienne.
+ * Copyright 2020 MINES Saint-Étienne
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ import fr.emse.ci.sparqlext.syntax.FromClause;
  *
  * {@code SPARQLExtQuery.normalizeXExpr()}
  *
- * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
+ * @author Maxime Lefrançois
  */
 public class QueryAggregatesNormalizer implements SPARQLExtQueryVisitor {
 

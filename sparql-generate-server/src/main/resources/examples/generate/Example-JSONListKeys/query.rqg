@@ -1,0 +1,17 @@
+BASE <http://example.com/> 
+PREFIX iter: <http://w3id.org/sparql-generate/iter/>
+PREFIX fun: <http://w3id.org/sparql-generate/fn/>
+
+GENERATE { 
+  [] a <Country> ;
+    <code> ?key ;
+    <capital> ?capital.
+}
+SOURCE <http://absolutely.unexistent/capital.json> AS ?source
+ITERATOR iter:JSONListKeys(?source) AS ?key
+WHERE {
+   FILTER(STRSTARTS(?key,"F"))
+   BIND(fun:JSONPath(?source, '$.{?key}' ) AS ?capital)
+}
+ORDER BY ?key
+LIMIT 3

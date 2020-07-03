@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 École des Mines de Saint-Étienne.
+ * Copyright 2020 MINES Saint-Étienne
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,14 +27,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- *
- * @author maxime.lefrancois
+ * Contains the configuration of a SPARQL-Generate execution in a directory or on the website.
+ * 
+ * @author Maxime Lefrançois
  */
 public class FileConfigurations {
 
     private static final Logger LOG = LoggerFactory.getLogger(FileConfigurations.class);
     public static FileConfigurations DEFAULT = new FileConfigurations();
 
+    /**
+     * Default constructor with default values: loglevel=5, query=query.rqg, graph=dataset/default.ttl, stream=false, debugTemplate=false, hdt=false, outputAppend=false.
+     */
     public FileConfigurations() {
         loglevel = 5;
         readme = "";
@@ -47,37 +51,92 @@ public class FileConfigurations {
         documentset = new ArrayList<>();
         stream = false;
         debugTemplate = false;
+        hdt = false;
+        outputAppend = false;
     }
 
+    /**
+     * base URL of the directory. Every file in the directory may be used as a source with a URL that is resolved against this base.
+     */
     public String base; 
-    public String output; // Location where the output is to be stored. 
-    public String outputFormat; // Format of the output file, e.g. TTL, NT, etc. for GENERATE, or TEXT, XML, CSV, etc. for SELECT.
-    public boolean hdt = false; // Generate output as HDT
-    public boolean outputAppend = false;
+    
+    /**
+     * Location of the file where the output is to be stored
+     */
+    public String output;
+    
+    /**
+     * Format of the output file, e.g. TTL, NT, RDF/XML, etc for GENERATE, or TEXT, XML, CSV, etc for SELECT.
+     */
+    public String outputFormat;
+
+    /**
+     * when true and a GENERATE query, the output is HDT
+     * 
+     * @see http://www.rdfhdt.org/
+     */
+    public boolean hdt; // Generate output as HDT
+    
+    /**
+     * when true, the output is appended to the file
+     */
+    public boolean outputAppend;
 
     public String logFile;
-    public int loglevel; // ERROR=1 WARN=2 INFO=3 DEBUG=4 TRACE=5
+    
+    /**
+     * log level for the query execution, ERROR=1 WARN=2 INFO=3 DEBUG=4 TRACE=5
+     */
+    public int loglevel; // 
+    
+    /**
+     * description of the query execution, can contain html markup
+     */
     public String readme; // html 
+
     /**
      * the path to the query
      */
-    public String query; // path
+    public String query;
+    
     /**
      * the content of the query
      */
-    public String defaultquery; // content
+    public String defaultquery;
+
+    /**
+     * List of named queries
+     */
     public List<NamedQuery> namedqueries;
+
     /**
      * the path to the graph
      */
     public String graph;
+    
     /**
      * the content of the graph
      */
-    public String defaultgraph; // content
+    public String defaultgraph;
+    
+    /**
+     * List of named graphs
+     */
     public List<NamedGraph> namedgraphs;
+
+    /**
+     * List of named documents
+     */
     public List<NamedDocument> documentset;
+
+    /**
+     * If true, the output will be a stream (stream of triples, stream of SELECT results, stream of text)
+     */
     public boolean stream;
+    
+    /**
+     * when true, TEMPLATE sub-query failures will be included in the output
+     */
     public boolean debugTemplate;
 
     

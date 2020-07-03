@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Ecole des Mines de Saint-Etienne.
+ * Copyright 2020 MINES Saint-Étienne
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ import fr.emse.ci.sparqlext.query.SPARQLExtQuery;
  * {@code ${ TEMPLATE ... .}} . They can be used anywhere variables are legal,
  * and they bind a (implicit) variable to a fun:select-call-template function.
  *
- * @author maxime.lefrancois
+ * @author Maxime Lefrançois
  */
 public class Node_Template extends Node_Extended {
 

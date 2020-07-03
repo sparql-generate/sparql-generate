@@ -1,0 +1,49 @@
+BASE <https://ci.mines-stetienne.fr/aqi/data/>
+PREFIX fun: <http://w3id.org/sparql-generate/fn/>
+PREFIX iter: <http://w3id.org/sparql-generate/iter/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#>
+PREFIX sosa: <http://www.w3.org/ns/sosa/>
+PREFIX ssn: <http://purl.oclc.org/NET/ssnx/ssn#>
+PREFIX aqio: <https://ci.mines-stetienne.fr/aqi/ontology#>
+PREFIX event: <http://purl.org/NET/c4dm/event.owl#>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX dc: <http://purl.org/dc/elements/1.1/>
+PREFIX ex: <http://example.org/>
+
+GENERATE {
+
+  <loc/{?idx}> a sosa:FeatureOfInterest;
+    rdfs:label ?name;
+    geo:lat ?lat;
+    geo:long ?long ;
+    ex:pollution ?aqi . 
+
+  GENERATE {
+    <event/{?eid}> a event:Event;
+      foaf:basedNear <loc/{?idx}>;
+      dc:date ?date ;
+      dc:date "{ REPLACE( ?eventDate, " ", "T") }"^^xsd:dateTime ;
+      rdfs:label ?title;
+      rdfs:comment "{?desc}"^^rdf:HTML .
+  }
+  ITERATOR iter:XPath(<http://api.eventful.com/rest/events/search?app_key=9p3bTRHL2NTzVgxG&location={STR(?lat)},{STR(?long)}&within=20>,"/search/events/event", "/event/@id", "/event/title/text()", "/event/description/text()", "/event/start_time/text()") AS ?event ?eid ?title ?desc ?eventDate 
+  BIND("{ REPLACE( ?eventDate, " ", "T") }"^^xsd:dateTime AS  ?date)
+  ORDER BY ?eventDate
+  LIMIT 3 .
+  
+}
+ITERATOR iter:for(0,1,8) AS ?index
+SOURCE <https://ci.mines-stetienne.fr/aqi/static/station/{STR(?index)}> 
+AS ?source
+WHERE {
+   BIND(STR(xsd:integer(fun:JSONPath(?source,"$.data.idx"))) AS ?idx) 
+   BIND(fun:JSONPath(?source,"$.data.city.name") AS ?name)
+   BIND(xsd:decimal(fun:JSONPath(?source,"$.data.city.geo[0]")) AS ?lat)
+   BIND(xsd:decimal(fun:JSONPath(?source,"$.data.city.geo[1]")) AS ?long)
+   BIND(xsd:integer(fun:JSONPath(?source,"$.data.aqi")) AS ?aqi)
+} ORDER BY DESC (?aqi)
+LIMIT 2
+

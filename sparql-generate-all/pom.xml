@@ -20,6 +20,11 @@
 	<dependencies>
 		<dependency>
 			<groupId>fr.emse.ci</groupId>
+			<artifactId>sparql-generate-jena</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>fr.emse.ci</groupId>
 			<artifactId>sparql-generate-csv</artifactId>
 			<version>${project.version}</version>
 		</dependency>
@@ -31,6 +36,11 @@
 		<dependency>
 			<groupId>fr.emse.ci</groupId>
 			<artifactId>sparql-generate-json</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>fr.emse.ci</groupId>
+			<artifactId>sparql-generate-markdown</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
@@ -50,8 +60,30 @@
 		</dependency>
 		<dependency>
 			<groupId>fr.emse.ci</groupId>
-			<artifactId>sparql-generate-markdown</artifactId>
+			<artifactId>sparql-generate-sql</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>aggregate</id>
+						<phase>prepare-package</phase>
+						<inherited>false</inherited>
+						<goals>
+							<goal>aggregate-no-fork</goal>
+						</goals>
+						<configuration>
+							<includeDependencySources>true</includeDependencySources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
 </project>

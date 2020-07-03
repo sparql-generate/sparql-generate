@@ -1,0 +1,7 @@
+<p>Using <b><tt>FORMAT</tt> statements</b> is the original way defined in STTL to specify a string pattern with text variables (%s) and a list of expressions. Text variables are replaced by the values of expressions.</p>
+
+<p>The syntax of the <tt>GROUP</tt> statement is as follows:</p>
+
+<div class="source"><pre>FORMAT { &lt;PrimaryExpression&gt; ( &lt;TExpression&gt; )+ }</pre></div>
+
+<p>The query below outputs the same report as in <a href="#ex=example/template/01-Sweetener">01-Sweetener</a>, but using a <tt>FORMAT</tt> statement, and with a <tt>FILTER</tt> clause in the <tt>WHERE</tt> template to ensure that variable <code>?aqi</code> is bound.</p>

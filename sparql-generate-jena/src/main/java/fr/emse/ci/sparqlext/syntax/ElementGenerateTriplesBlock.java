@@ -30,7 +30,7 @@ import org.apache.jena.sparql.util.NodeIsomorphismMap;
 /**
  * The syntax element for a SPARQL Generate Basic Graph Pattern
  * 
- * @author maxime.lefrancois
+ * @author Maxime Lefrançois
  */
 public class ElementGenerateTriplesBlock extends Element implements TripleCollectorMark {
 

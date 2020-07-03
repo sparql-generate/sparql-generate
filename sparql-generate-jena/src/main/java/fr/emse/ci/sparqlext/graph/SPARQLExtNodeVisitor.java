@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Ecole des Mines de Saint-Etienne.
+ * Copyright 2020 MINES Saint-Étienne
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import org.apache.jena.graph.NodeVisitor;
 /**
  * Extension of NodeVisitor to account for the three new types of nodes.
  * 
- * @author maxime.lefrancois
+ * @author Maxime Lefrançois
  */
 public interface SPARQLExtNodeVisitor extends NodeVisitor {
 

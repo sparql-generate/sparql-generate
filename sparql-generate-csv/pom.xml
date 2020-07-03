@@ -1,48 +1,51 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>fr.emse.ci</groupId>
-        <artifactId>sparql-generate-parent</artifactId>
-        <version>2.0-SNAPSHOT</version>
-        <relativePath>../sparql-generate-parent/pom.xml</relativePath>
-    </parent>
+	<parent>
+		<groupId>fr.emse.ci</groupId>
+		<artifactId>sparql-generate-parent</artifactId>
+		<version>2.0-SNAPSHOT</version>
+		<relativePath>../sparql-generate-parent/pom.xml</relativePath>
+	</parent>
 
-    <artifactId>sparql-generate-csv</artifactId>
-    <packaging>jar</packaging>
+	<artifactId>sparql-generate-csv</artifactId>
+	<packaging>jar</packaging>
 
-    <name>SPARQL-Generate for CSV</name>
-    
-    <contributors>
-        <contributor>
-            <name>Mohammad-Noorani Bakerally</name>            
-            <email>mohammad-noorani.bakerally@laas.fr</email>
-            <url>http://homepages.laas.fr/mnbakerall</url>
-            <organization>LAAS CNRS</organization>
-            <organizationUrl>https://www.laas.fr/</organizationUrl>
-            <timezone>+1</timezone>
-            <properties>
-                <picUrl>http://gravatar.com/avatar/64cb7dec1965ed4fa000bd6faa30a329</picUrl>
-            </properties>
-        </contributor>
-    </contributors>
+	<name>SPARQL-Generate for CSV</name>
 
-    <dependencies>
-        <dependency>
-            <groupId>fr.emse.ci</groupId>
-            <artifactId>sparql-generate-jena</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>net.sf.supercsv</groupId>
-            <artifactId>super-csv</artifactId>
-            <version>2.4.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.univocity</groupId>
-            <artifactId>univocity-parsers</artifactId>
-            <version>2.8.4</version>
-        </dependency>
-    </dependencies>
+	<contributors>
+		<contributor>
+			<name>Mohammad-Noorani Bakerally</name>
+			<email>mohammad-noorani.bakerally@laas.fr</email>
+			<url>http://homepages.laas.fr/mnbakerall</url>
+			<organization>LAAS CNRS</organization>
+			<organizationUrl>https://www.laas.fr/</organizationUrl>
+			<timezone>+1</timezone>
+			<properties>
+				<picUrl>http://gravatar.com/avatar/64cb7dec1965ed4fa000bd6faa30a329</picUrl>
+			</properties>
+		</contributor>
+	</contributors>
+
+	<dependencies>
+		<dependency>
+			<groupId>fr.emse.ci</groupId>
+			<artifactId>sparql-generate-jena</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>net.sf.supercsv</groupId>
+			<artifactId>super-csv</artifactId>
+			<version>2.4.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.univocity</groupId>
+			<artifactId>univocity-parsers</artifactId>
+			<version>2.8.4</version>
+		</dependency>
+	</dependencies>
+
 </project>

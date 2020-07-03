@@ -21,7 +21,7 @@ import fr.emse.ci.sparqlext.function.FunctionLoader;
 
 /**
  *
- * @author maxime.lefrancois
+ * @author Maxime Lefrançois
  */
 public class FunctionsLoader implements FunctionLoader {
     

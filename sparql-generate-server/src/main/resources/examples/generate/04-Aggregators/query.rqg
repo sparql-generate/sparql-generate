@@ -1,0 +1,38 @@
+BASE <https://ci.mines-stetienne.fr/aqi/data/>
+PREFIX fun: <http://w3id.org/sparql-generate/fn/>
+PREFIX iter: <http://w3id.org/sparql-generate/iter/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#>
+PREFIX sosa: <http://www.w3.org/ns/sosa/>
+PREFIX ssn: <http://purl.oclc.org/NET/ssnx/ssn#>
+PREFIX aqio: <https://ci.mines-stetienne.fr/aqi/ontology#>
+PREFIX seas: <https://w3id.org/seas/>
+
+GENERATE {
+  
+  <pollution> a sosa:FeatureOfInterest;
+    rdfs:label "global atmospheric pollution" .
+
+  <pollution#aqi> a aqio:AirQualityIndexProperty ;
+    ssn:isPropertyOf <pollution> .
+
+  <pollution/observations#aqi-min> a seas:MinimumEvaluation ;
+    seas:hasSimpleValue ?{ min(?aqi) } ;
+    seas:evaluationOf <pollution#aqi>  .
+
+  <pollution/observations#aqi-max> a seas:MaximumEvaluation ;
+    seas:hasSimpleValue ?{ max(?aqi) } ;
+    seas:evaluationOf <pollution#aqi>  .
+
+  <pollution/observations#aqi-avg> a seas:AverageEvaluation ;
+    seas:hasSimpleValue ?{ avg(?aqi) } ;
+    seas:evaluationOf <pollution#aqi>  .
+
+}
+ITERATOR iter:for(0,1,9) AS ?index
+SOURCE <https://ci.mines-stetienne.fr/aqi/static/station/{STR(?index)}> AS ?source
+WHERE {
+  BIND(xsd:decimal(fun:JSONPath(?source,"$.data.aqi")) AS ?aqi)
+  FILTER(BOUND(?aqi))
+} 

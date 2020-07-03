@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 École des Mines de Saint-Étienne.
+ * Copyright 2020 MINES Saint-Étienne
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ import org.slf4j.Logger;
 /**
  * Extends the StreamManager class with content negociation capabilities.
  *
- * @author maxime.lefrancois
+ * @author Maxime Lefrançois
  */
 public class SPARQLExtStreamManager extends StreamManager {
 

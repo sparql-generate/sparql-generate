@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Ecole des Mines de Saint-Etienne.
+ * Copyright 2020 MINES Saint-Étienne
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,7 +50,7 @@ import org.apache.jena.sparql.syntax.ElementVisitor;
  * nodes with the associated expression) . It appends the bindings before the
  * element.
  *
- * @author maxime.lefrancois
+ * @author Maxime Lefrançois
  */
 public class QueryPatternNormalizer implements ElementVisitor {
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Ecole des Mines de Saint-Etienne.
+ * Copyright 2020 MINES Saint-Étienne
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -78,7 +78,7 @@ import org.slf4j.Logger;
  * of keyword <code>LIST( ?var )</code> as the object of a triple pattern covers most cases
  * more elegantly.
  *
- * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
+ * @author Maxime Lefrançois
  */
 public class ITER_JSONPath extends IteratorFunctionBase {
 
@@ -101,6 +101,9 @@ public class ITER_JSONPath extends IteratorFunctionBase {
             throw new ExprEvalException("Expecting at least two arguments.");
         }
         final NodeValue json = args.get(0);
+        if(json == null) {
+            throw new ExprEvalException("Unbound first element");
+        }
         if (!json.isIRI() && !json.isString() && !json.asNode().isLiteral()) {
             LOG.debug("First argument must be a URI or a String.");
             throw new ExprEvalException("First argument must be a URI or a String.");
@@ -166,7 +169,7 @@ public class ITER_JSONPath extends IteratorFunctionBase {
         } catch (Exception ex) {
             if(LOG.isDebugEnabled()) {
                 Node compressed = LogUtils.compress(json.asNode());
-                LOG.debug("No evaluation for " + compressed + ", " + jsonquery);
+                LOG.debug("No evaluation for " + compressed + ", " + jsonquery, ex);
             }
             throw new ExprEvalException("No evaluation for " + jsonquery);
         }
@@ -183,7 +186,7 @@ public class ITER_JSONPath extends IteratorFunctionBase {
             throw new ExprEvalException(message);
         }
         String jsonPath = json.asNode().getURI();
-        LookUpRequest req = new LookUpRequest(jsonPath, "application/json");
+        LookUpRequest req = new LookUpRequest(jsonPath);
         final SPARQLExtStreamManager sm = (SPARQLExtStreamManager) getContext().get(SysRIOT.sysStreamManager);
         Objects.requireNonNull(sm);
         TypedInputStream tin = sm.open(req);

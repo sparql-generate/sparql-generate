@@ -69,7 +69,7 @@ import fr.emse.ci.sparqlext.utils.ST;
  * query = (SPARQLExtQuery) QueryFactory.create(query, syntax);
  * }</pre>
  *
- * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
+ * @author Maxime Lefrançois
  */
 public class PlanFactory {
 

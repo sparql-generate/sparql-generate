@@ -1,7 +1,7 @@
 package fr.emse.ci.sparqlext.json;
 
 ///*
-// * Copyright 2016 Ecole des Mines de Saint-Etienne.
+// * Copyright 2020 MINES Saint-Étienne
 // *
 // * Licensed under the Apache License, Version 2.0 (the "License");
 // * you may not use this file except in compliance with the License.
@@ -85,7 +85,7 @@ package fr.emse.ci.sparqlext.json;
 // * of keyword <code>LIST( ?var )</code> as the object of a triple pattern covers
 // * most cases more elegantly.
 // *
-// * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
+// * @author Maxime Lefrançois
 // */
 //public class ITER_JSONSurfer extends IteratorStreamFunctionBase {
 //

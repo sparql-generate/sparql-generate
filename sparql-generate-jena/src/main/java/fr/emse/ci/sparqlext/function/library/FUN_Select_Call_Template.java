@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 École des Mines de Saint-Étienne.
+ * Copyright 2020 MINES Saint-Étienne
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,7 +46,7 @@ import fr.emse.ci.sparqlext.utils.EvalUtils;
  * (a string) the second parameter is the name of a template, the rest are the
  * call parameters
  *
- * @author maxime.lefrancois
+ * @author Maxime Lefrançois
  */
 public class FUN_Select_Call_Template implements Function {
 

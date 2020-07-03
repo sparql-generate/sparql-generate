@@ -22,7 +22,7 @@ import org.apache.jena.sparql.function.FunctionRegistry;
 
 /**
  *
- * @author maxime.lefrancois
+ * @author Maxime Lefrançois
  */
 public class FunctionsLoader implements FunctionLoader, IteratorFunctionLoader {
     

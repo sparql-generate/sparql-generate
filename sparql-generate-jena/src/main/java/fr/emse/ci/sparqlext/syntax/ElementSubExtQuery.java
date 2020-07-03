@@ -25,7 +25,7 @@ import fr.emse.ci.sparqlext.query.SPARQLExtQuery;
 /**
  * A SPARQL-Generate sub-query.
  *
- * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
+ * @author Maxime Lefrançois
  */
 public class ElementSubExtQuery extends Element {
 

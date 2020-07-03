@@ -1,0 +1,29 @@
+BASE <http://example.com/> 
+PREFIX iter: <http://w3id.org/sparql-generate/iter/>
+PREFIX fun: <http://w3id.org/sparql-generate/fn/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> 
+PREFIX ex: <http://example.com/>
+
+GENERATE { 
+  
+  GENERATE {
+    <store/{?store}> ex:totalAmount ?{ sum("{?amount}"^^xsd:decimal ) } .
+   } GROUP BY ?store .
+
+  GENERATE {
+    <statistics> ex:perDay LIST( ?bnode ) .
+    ?bnode ex:averageAmount ?{ avg("{?amount}"^^xsd:decimal ) } ;
+      ex:date ?date
+  } WHERE {
+  } GROUP BY ?date
+    ORDER BY ?date 
+    LIMIT 10 
+    EXPRESSIONS (fun:bnode(str(?date)) AS ?bnode) .
+
+}
+ITERATOR iter:CSV(<http://example.com/consumption.csv>, true, "\"", ";", "\n", "date", "store", "amount", "consumer") AS ?dateTimeStr ?store ?amount ?consumer
+WHERE {
+  BIND("{?dateTimeStr}"^^xsd:dateTime AS ?dateTime)
+  BIND("{STR(YEAR(?dateTime))}-{STR(MONTH(?dateTime))}-{STR(DAY(?dateTime))}" AS ?dateStr)
+  BIND("{?dateStr}"^^xsd:date AS ?date)
+}

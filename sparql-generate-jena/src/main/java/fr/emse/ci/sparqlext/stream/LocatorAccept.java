@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 École des Mines de Saint-Étienne.
+ * Copyright 2020 MINES Saint-Étienne
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import org.apache.jena.riot.system.stream.Locator;
  * Extends the Locator with content negociation capabilities. Opening without
  * accept is like opening with accept *\/*
  *
- * @author maxime.lefrancois
+ * @author Maxime Lefrançois
  */
 public interface LocatorAccept extends Locator {
 

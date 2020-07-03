@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Ecole des Mines de Saint-Etienne.
+ * Copyright 2020 MINES Saint-Étienne
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,6 @@
  * Create an execution plan with {@link fr.emse.ci.sparqlext.generate.engine.PlanFactory},
  * and execute it using one of the {@code exec} methods.
  *
- * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
+ * @author Maxime Lefrançois
  */
 package fr.emse.ci.sparqlext.engine;

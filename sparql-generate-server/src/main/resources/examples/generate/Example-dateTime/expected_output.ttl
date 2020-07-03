@@ -1,0 +1,5 @@
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix fun:   <http://w3id.org/sparql-generate/fn/> .
+
+<http://example.com/s>
+        <http://example.com/p>  "2018-09-05T00:00:00Z"^^xsd:dateTime , "2016-01-23T01:15:09Z"^^xsd:dateTime .

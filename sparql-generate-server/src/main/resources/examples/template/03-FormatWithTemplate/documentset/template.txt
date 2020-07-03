@@ -1,0 +1,4 @@
+%s is at latitude %s and longitude %s.
+  The Air Quality Index was %s at %s. 
+  you can access its Real-time Air Quality Index report at the following URL:
+    %s

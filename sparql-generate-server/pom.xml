@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>fr.emse.ci</groupId>
+        <artifactId>sparql-generate-parent</artifactId>
+        <version>2.0-SNAPSHOT</version>
+        <relativePath>../sparql-generate-parent/pom.xml</relativePath>
+    </parent>
+
+    <artifactId>sparql-generate-server</artifactId>
+    <packaging>war</packaging>
+
+    <name>SPARQL-Generate Server</name>
+    <description>The source of the API for the demonstration website of SPARQL-Generate</description>
+    <url>https://ci.mines-stetienne.fr/sparql-generate/</url>
+    
+    <properties>
+        <endorsed.dir>${project.build.directory}/endorsed</endorsed.dir>
+        <jetty.version>9.4.14.v20181114</jetty.version>
+        <jersey.version>2.28</jersey.version>
+        <skip>false</skip>
+        <websiteName>sparql-generate</websiteName>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>fr.emse.ci</groupId>
+            <artifactId>sparql-generate-jena</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>fr.emse.ci</groupId>
+            <artifactId>sparql-generate-csv</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>fr.emse.ci</groupId>
+            <artifactId>sparql-generate-geojson</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>fr.emse.ci</groupId>
+            <artifactId>sparql-generate-json</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>fr.emse.ci</groupId>
+            <artifactId>sparql-generate-markdown</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>fr.emse.ci</groupId>
+            <artifactId>sparql-generate-mqtt</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>fr.emse.ci</groupId>
+            <artifactId>sparql-generate-ws</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>fr.emse.ci</groupId>
+            <artifactId>sparql-generate-xml</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>javax.ws.rs</groupId>
+            <artifactId>javax.ws.rs-api</artifactId>
+            <version>2.1</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>3.1.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.websocket</groupId>
+            <artifactId>javax.websocket-api</artifactId>
+            <version>1.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.containers</groupId>
+            <artifactId>jersey-container-jetty-servlet</artifactId>
+            <version>${jersey.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.glassfish.hk2.external</groupId>
+                    <artifactId>javax.inject</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.inject</groupId>
+            <artifactId>jersey-hk2</artifactId>
+            <version>${jersey.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-servlets</artifactId>
+            <version>9.4.14.v20181114</version>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <finalName>${websiteName}</finalName>
+  
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <version>2.7</version>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-maven-plugin</artifactId>
+                <version>9.4.14.v20181114</version>
+                <configuration>
+                    <!--<scanIntervalSeconds>4</scanIntervalSeconds>-->
+                    <!--<modules>annotations,websocket</modules>-->
+                    <webApp>
+                        <contextPath>/sparql-generate</contextPath>
+                    </webApp>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.eclipse.jetty</groupId>
+                        <artifactId>jetty-servlets</artifactId>
+                        <version>9.4.14.v20181114</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+        </plugins>
+
+    </build>
+
+</project>

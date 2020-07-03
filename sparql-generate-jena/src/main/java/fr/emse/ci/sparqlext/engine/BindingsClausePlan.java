@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 École des Mines de Saint-Étienne.
+ * Copyright 2020 MINES Saint-Étienne
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package fr.emse.ci.sparqlext.engine;
 /**
  * Executes a BIND or SOURCE or ITERATOR clause.
  *
- * @author maxime.lefrancois
+ * @author Maxime Lefrançois
  */
 public interface BindingsClausePlan {
 

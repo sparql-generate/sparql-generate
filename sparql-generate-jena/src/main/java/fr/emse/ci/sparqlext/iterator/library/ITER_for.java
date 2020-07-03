@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Ecole des Mines de Saint-Etienne.
+ * Copyright 2020 MINES Saint-Étienne
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import java.util.List;
 import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.NodeValue;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueDecimal;
+import org.apache.jena.sparql.expr.nodevalue.NodeValueInteger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 
@@ -59,6 +60,11 @@ public class ITER_for extends IteratorFunctionBase3 {
 
     @Override
     public List<List<NodeValue>> exec(NodeValue start, NodeValue incr, NodeValue stop) {
+    	if(start == null || incr == null || stop == null) {
+    		throw new ExprEvalException("Parameters must not be null.");
+    	}
+    	boolean isInteger = start.isInteger() && incr.isInteger() && stop.isInteger();
+    	
 
         // the initial value
         BigDecimal value = start.getDecimal();
@@ -78,7 +84,12 @@ public class ITER_for extends IteratorFunctionBase3 {
         final List<List<NodeValue>> listNodeValues = new ArrayList<>();
 
         while (stopV.subtract(value).multiply(incrV).compareTo(BigDecimal.ZERO) > 0) {
-            NodeValue nodeValue = new NodeValueDecimal(value);
+        	NodeValue nodeValue;
+        	if(isInteger) {
+        		nodeValue = new NodeValueInteger(value.toBigInteger());
+        	} else {
+        		nodeValue = new NodeValueDecimal(value);
+        	}
             listNodeValues.add(Collections.singletonList(nodeValue));
             value = value.add(incrV);
         }

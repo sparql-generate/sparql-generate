@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 École des Mines de Saint-Étienne.
+ * Copyright 2020 MINES Saint-Étienne
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,7 +51,7 @@ import fr.emse.ci.sparqlext.syntax.SPARQLExtElementVisitor;
  * Class used to normalize output elements of SPARQL-Generate and
  * SPARQL-Template queries
  *
- * @author maxime.lefrancois
+ * @author Maxime Lefrançois
  */
 public class OutputClauseNormalizer implements SPARQLExtElementVisitor {
 

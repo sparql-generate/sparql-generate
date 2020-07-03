@@ -1,0 +1,31 @@
+PREFIX fun: <http://w3id.org/sparql-generate/fn/>
+PREFIX iter: <http://w3id.org/sparql-generate/iter/>
+PREFIX st:   <http://ns.inria.fr/sparql-template/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX sosa: <http://www.w3.org/ns/sosa/>
+PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#> 
+PREFIX aqio:  <https://ci.mines-stetienne.fr/aqi/ontology#>
+
+TEMPLATE {
+  "{?label} is at latitude {?lat} and longitude {?long}.\n"
+  IF( BOUND(?aqi), "The Air Quality Index was {?aqi} at {?time}.\n" , ?default )
+  "\tyou can access its Real-time Air Quality Index report at the following URL:\n"
+  "\t" ?url
+  ; separator =  "\n\n"
+}
+SOURCE <https://example.org/aqi-report/default> as ?default
+WHERE {
+  ?loc a sosa:FeatureOfInterest ;
+    rdfs:label    ?label ;
+    rdfs:seeAlso  ?url ;
+    geo:lat       ?lat ;
+    geo:long      ?long .
+  
+  OPTIONAL{
+    [] a                          aqio:AirQualityIndexObservation ;
+      sosa:hasFeatureOfInterest  ?loc ;
+      sosa:hasSimpleResult       ?aqi ;
+      sosa:resultTime            ?time .
+  }
+} ORDER BY ?label

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 École des Mines de Saint-Étienne.
+ * Copyright 2020 MINES Saint-Étienne
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ import org.apache.jena.rdf.model.ResourceFactory;
 
 /**
  *
- * @author maxime.lefrancois
+ * @author Maxime Lefrançois
  */
 public class ST {
 

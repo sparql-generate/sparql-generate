@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 École des Mines de Saint-Étienne.
+ * Copyright 2020 MINES Saint-Étienne
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,7 +47,7 @@ import org.slf4j.LoggerFactory;
  * Multiple variables may be bound: variable <em>n</em> is bound to the value of
  * the <em>n</em><sup>th</sup> project variable of the select query.
  *
- * @author Maxime Lefrançois <maxime.lefrançois@emse.fr>
+ * @author Maxime Lefrançois
  */
 public class SPARQLExtIteratorFunction extends IteratorStreamFunctionBase {
 

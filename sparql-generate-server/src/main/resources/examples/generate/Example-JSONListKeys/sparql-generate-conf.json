@@ -1,0 +1,9 @@
+{
+  "documentset": [
+    {
+      "uri": "http://absolutely.unexistent/capital.json",
+      "mediatype": "application/json",
+      "path": "documentset/capital.json"
+    }
+  ]
+}

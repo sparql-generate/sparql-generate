@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Ecole des Mines de Saint-Etienne.
+ * Copyright 2020 MINES Saint-Étienne
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -73,7 +73,7 @@ import org.apache.jena.sparql.util.Context;
  * may changed using {@link #setParser} static method.
  * </p>
  *
- * @author El-Mehdi Khalfi <el-mehdi.khalfi at emse.fr>, Maxime Lefrançois
+ * @author Maxime Lefrançois
  * <maxime.lefrancois at emse.fr>
  * @since 2018-10-02
  */

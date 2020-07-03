@@ -1,0 +1,12 @@
+BASE <http://example.com/> 
+PREFIX iter: <http://w3id.org/sparql-generate/iter/>
+PREFIX fun: <http://w3id.org/sparql-generate/fn/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> 
+
+SELECT (sum("{?amount}"^^xsd:decimal ) AS ?sum ) ( min(?date) as ?start) ( max(?date) as ?end)
+ITERATOR iter:CSV(<http://example.com/consumption.csv>, true, "\"", ";", "\n", 100, "date", "store", "amount", "consumer") AS ?dateTimeStr ?store ?amount ?consumer
+WHERE {
+  BIND("{?dateTimeStr}"^^xsd:dateTime AS ?dateTime)
+  BIND("{STR(YEAR(?dateTime))}-{STR(MONTH(?dateTime))}-{STR(DAY(?dateTime))}" AS ?dateStr)
+  BIND("{?dateStr}"^^xsd:date AS ?date)
+} ORDER BY ?start

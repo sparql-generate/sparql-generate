@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 École des Mines de Saint-Étienne.
+ * Copyright 2020 MINES Saint-Étienne
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,53 +24,55 @@ import org.apache.jena.sparql.serializer.SerializationContext;
 import org.apache.jena.sparql.util.FmtUtils;
 
 /**
- *
- * @author maxime.lefrancois
+ * Outputs Stream RDF as N3 to a PrintStream with a PrefixMapping
+ * 
+ * @author Maxime Lefrançois
  */
 public class ConsoleStreamRDF implements StreamRDF {
 
-    private final PrefixMapping pm;
-    private final SerializationContext context;
+	private final PrefixMapping pm;
+	private final SerializationContext context;
 
-    private PrintStream out;
+	private PrintStream out;
 
-    int i = 0;
+	private int i = 0;
+	private final int MAX = 10000;
 
-    public ConsoleStreamRDF(PrintStream out, PrefixMapping pm) {
-        this.out = out;
-        this.pm = pm;
-        context = new SerializationContext(pm);
-    }
+	public ConsoleStreamRDF(PrintStream out, PrefixMapping pm) {
+		this.out = out;
+		this.pm = pm;
+		context = new SerializationContext(pm);
+	}
 
-    @Override
-    public void start() {
-    }
+	@Override
+	public void start() {
+	}
 
-    @Override
-    public void base(String string) {
-        out.append("@base <").append(string).append("> .\n");
-    }
+	@Override
+	public void base(String string) {
+		out.append("@base <").append(string).append("> .\n");
+	}
 
-    @Override
-    public void prefix(String prefix, String uri) {
-        out.append("@prefix ").append(prefix).append(": <").append(uri).append("> .\n");
-    }
+	@Override
+	public void prefix(String prefix, String uri) {
+		out.append("@prefix ").append(prefix).append(": <").append(uri).append("> .\n");
+	}
 
-    @Override
-    public void triple(Triple triple) {
-        out.append(FmtUtils.stringForTriple(triple, context)).append(" .\n");
-        i++;
-        if (i > 10000) {
-            i = 0;
-            out.flush();
-        }
-    }
+	@Override
+	public void triple(Triple triple) {
+		out.append(FmtUtils.stringForTriple(triple, context)).append(" .\n");
+		i++;
+		if (i >= MAX) {
+			i = 0;
+			out.flush();
+		}
+	}
 
-    @Override
-    public void quad(Quad quad) {
-    }
+	@Override
+	public void quad(Quad quad) {
+	}
 
-    @Override
-    public void finish() {
-    }
+	@Override
+	public void finish() {
+	}
 }

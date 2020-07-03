@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Ecole des Mines de Saint-Etienne.
+ * Copyright 2020 MINES Saint-Étienne
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import org.apache.jena.sparql.syntax.ElementVisitor;
 /**
  * Extends the ARQ Element Visitor with SPARQL-Generate specificities.
  * 
- * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
+ * @author Maxime Lefrançois
  */
 public interface SPARQLExtElementVisitor extends ElementVisitor {
     

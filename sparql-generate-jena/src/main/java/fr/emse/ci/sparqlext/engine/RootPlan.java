@@ -47,7 +47,7 @@ import fr.emse.ci.sparqlext.utils.EvalUtils;
 /**
  * Entry point to a SPARQL-Generate query execution.
  *
- * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
+ * @author Maxime Lefrançois
  */
 public class RootPlan {
 

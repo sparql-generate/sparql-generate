@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Ecole des Mines de Saint-Etienne.
+ * Copyright 2020 MINES Saint-Étienne
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,7 +49,7 @@ import fr.emse.ci.sparqlext.utils.ContextUtils;
  * <li>Param 2: (property) the name of the property;</li>
  * </ul>
  *
- * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
+ * @author Maxime Lefrançois
  */
 public final class FUN_Property implements Function {
 

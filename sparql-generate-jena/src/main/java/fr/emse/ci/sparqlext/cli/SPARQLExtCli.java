@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Ecole des Mines de Saint-Etienne.
+ * Copyright 2020 MINES Saint-Étienne
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -91,8 +91,10 @@ import fr.emse.ci.sparqlext.syntax.ElementSource;
 import fr.emse.ci.sparqlext.utils.ContextUtils;
 
 /**
- * @author Noorani Bakerally <noorani.bakerally at emse.fr>, Maxime Lefrançois
- *         <maxime.lefrancois at emse.fr>
+ * Main class for the CLI interface to SPARQL-Generate; see {@link HDTStreamRDF}
+ * for the options.
+ * 
+ * @author Maxime Lefrançois
  */
 public class SPARQLExtCli {
 
@@ -108,6 +110,12 @@ public class SPARQLExtCli {
 		SPARQLExt.init();
 	}
 
+	/**
+	 * see {@link HDTStreamRDF} for the options.
+	 * 
+	 * @param args
+	 * @throws ParseException
+	 */
 	public static void main(String[] args) throws ParseException {
 		Instant start = Instant.now();
 		CommandLine cl = CMDConfigurations.parseArguments(args);
@@ -159,6 +167,16 @@ public class SPARQLExtCli {
 		}
 	}
 
+	/**
+	 * Executes SPARQL-Generate in a working directory, with {@link CliRequest}
+	 * parameters, and an optional CommandLink that contains URL-URL binding for the
+	 * sources in the main query
+	 * 
+	 * @param workingDir
+	 * @param rq
+	 * @param cl
+	 * @throws SPARQLExtException
+	 */
 	public static void exec(File workingDir, CliRequest rq, CommandLine cl) throws SPARQLExtException {
 		Objects.nonNull(workingDir);
 		Objects.nonNull(rq);
@@ -228,6 +246,14 @@ public class SPARQLExtCli {
 		}
 	}
 
+	/**
+	 * Executes SPARQL-Generate in a working directory, with {@link CliRequest}
+	 * parameters
+	 * 
+	 * @param workingDir
+	 * @param rq
+	 * @throws SPARQLExtException
+	 */
 	public static void exec(File workingDir, CliRequest rq) throws SPARQLExtException {
 		exec(workingDir, rq, null);
 	}
@@ -454,7 +480,7 @@ public class SPARQLExtCli {
 		}
 		request.query = new File(dirFile, cl.getOptionValue(ARG_QUERY, request.query)).getAbsolutePath();
 		request.base = cl.getOptionValue(ARG_BASE, request.base);
-		if(request.output != null) {
+		if (request.output != null) {
 			request.output = new File(dirFile, cl.getOptionValue(ARG_OUTPUT, request.output)).getAbsolutePath();
 		}
 		request.outputAppend = cl.hasOption(ARG_OUTPUT_APPEND);
@@ -462,7 +488,7 @@ public class SPARQLExtCli {
 		request.stream = cl.hasOption(ARG_STREAM) || request.stream;
 		request.hdt = cl.hasOption(ARG_HDT) || request.hdt;
 		request.debugTemplate = cl.hasOption(ARG_DEBUG_TEMPLATE) || request.debugTemplate;
-		if(request.logFile != null) {
+		if (request.logFile != null) {
 			request.logFile = new File(dirFile, cl.getOptionValue(ARG_LOG_FILE, request.logFile)).getAbsolutePath();
 		}
 		try {

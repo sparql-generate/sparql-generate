@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Ecole des Mines de Saint-Etienne.
+ * Copyright 2020 MINES Saint-Étienne
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,7 +42,7 @@ import org.apache.jena.sparql.serializer.SerializerRegistry;
 /**
  * Extends the ARQ Query Serializer with SPARQL-Ext specificities.
  *
- * @author Maxime Lefrançois <maxime.lefrancois at emse.fr>
+ * @author Maxime Lefrançois
  */
 public class SPARQLExtQuerySerializer implements SPARQLExtQueryVisitor {
 
@@ -73,6 +73,9 @@ public class SPARQLExtQuerySerializer implements SPARQLExtQueryVisitor {
                 out.newline();
                 out.incIndent(BLOCK_INDENT);
                 query.getGenerateClause().forEach(e -> {
+                	if(e == null) {
+                		return;
+                	}
                     e.visit(fmtElement);
                     out.newline();
                 });

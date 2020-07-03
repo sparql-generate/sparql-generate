@@ -1,0 +1,65 @@
+{
+  "documentset": [
+    {
+      "uri": "https://ci.mines-stetienne.fr/aqi/static/station/0",
+      "mediatype": "application/json",
+      "path": "documentset/station0.txt"
+    },
+    {
+      "uri": "https://ci.mines-stetienne.fr/aqi/static/station/1",
+      "mediatype": "application/json",
+      "path": "documentset/station1.txt"
+    },
+    {
+      "uri": "https://ci.mines-stetienne.fr/aqi/static/station/2",
+      "mediatype": "application/json",
+      "path": "documentset/station2.txt"
+    },
+    {
+      "uri": "https://ci.mines-stetienne.fr/aqi/static/station/3",
+      "mediatype": "application/json",
+      "path": "documentset/station3.txt"
+    },
+    {
+      "uri": "https://ci.mines-stetienne.fr/aqi/static/station/4",
+      "mediatype": "application/json",
+      "path": "documentset/station4.txt"
+    },
+    {
+      "uri": "https://ci.mines-stetienne.fr/aqi/static/station/5",
+      "mediatype": "application/json",
+      "path": "documentset/station5.txt"
+    },
+    {
+      "uri": "https://ci.mines-stetienne.fr/aqi/static/station/6",
+      "mediatype": "application/json",
+      "path": "documentset/station6.txt"
+    },
+    {
+      "uri": "https://ci.mines-stetienne.fr/aqi/static/station/7",
+      "mediatype": "application/json",
+      "path": "documentset/station7.txt"
+    },
+    {
+      "uri": "https://ci.mines-stetienne.fr/aqi/static/station/8",
+      "mediatype": "application/json",
+      "path": "documentset/station8.txt"
+    },
+    {
+      "uri": "https://ci.mines-stetienne.fr/aqi/static/station/9",
+      "mediatype": "application/json",
+      "path": "documentset/station9.txt"
+    },
+    {
+      "uri": "https://ci.mines-stetienne.fr/aqi/static/station/10",
+      "mediatype": "application/json",
+      "path": "documentset/station10.txt"
+    }
+  ],
+  "query": "query.rqg",
+  "namedqueries": [ ],
+  "graph": "dataset/default.ttl",
+  "namedgraphs": [],
+  "log": "5",
+  "stream": false
+}

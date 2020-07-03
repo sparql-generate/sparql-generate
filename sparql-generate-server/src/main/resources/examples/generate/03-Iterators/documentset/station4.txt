@@ -1,0 +1,51 @@
+{
+    "status": "ok",
+    "data": {
+        "idx": 22.0,
+        "aqi": 25.0,
+        "time": {
+            "v": 1.5145524E9,
+            "s": "2017-12-29 13:00:00",
+            "tz": "-05:00"
+        },
+        "city": {
+            "name": "Ottawa Central, Ontario",
+            "url": "http://aqicn.org/city/canada/ontario/ottawa-central/",
+            "geo": [
+                "45.382528",
+                "-75.714194"
+            ]
+        },
+        "attributions": [
+            {
+                "name": "Air Quality Ontario - the Ontario Ministry of the Environment and Climate Change",
+                "url": "http://www.airqualityontario.com/"
+            },
+            {
+                "name": "World Air Quality Index Project",
+                "url": "http://waqi.info/"
+            }
+        ],
+        "iaqi": {
+            "pm25": {
+                "v": 9.0
+            },
+            "o3": {
+                "v": 25.0
+            },
+            "no2": {
+                "v": 2.0
+            },
+            "t": {
+                "v": -19.0
+            },
+            "p": {
+                "v": 1025.0
+            },
+            "h": {
+                "v": 64.0
+            }
+        },
+        "dominentpol": "o3"
+    }
+}

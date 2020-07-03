@@ -20,7 +20,7 @@ import fr.emse.ci.sparqlext.iterator.IteratorFunctionLoader;
 
 /**
  *
- * @author maxime.lefrancois
+ * @author Maxime Lefrançois
  */
 public class FunctionsLoader implements IteratorFunctionLoader {
     

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Ecole des Mines de Saint-Etienne.
+ * Copyright 2020 MINES Saint-Étienne
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ import org.apache.jena.sparql.path.PathVisitor;
 /**
  * Class used to normalize path expressions. 
  * 
- * @author maxime.lefrancois
+ * @author Maxime Lefrançois
  */
 public class PathNormalizer implements PathVisitor {
     
