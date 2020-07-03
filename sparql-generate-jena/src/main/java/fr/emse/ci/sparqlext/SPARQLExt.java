@@ -42,7 +42,6 @@ import org.slf4j.LoggerFactory;
 import fr.emse.ci.sparqlext.function.FunctionLoader;
 import fr.emse.ci.sparqlext.function.library.FUN_CamelCase;
 import fr.emse.ci.sparqlext.function.library.FUN_Log;
-import fr.emse.ci.sparqlext.function.library.FUN_Markdown;
 import fr.emse.ci.sparqlext.function.library.FUN_MixedCase;
 import fr.emse.ci.sparqlext.function.library.FUN_PrefixedIRI;
 import fr.emse.ci.sparqlext.function.library.FUN_Property;
@@ -153,7 +152,6 @@ public final class SPARQLExt {
 		fnreg.put(FUN_PrefixedIRI.URI, FUN_PrefixedIRI.class);
 		fnreg.put(FUN_Select_Call_Template.URI, FUN_Select_Call_Template.class);
 		fnreg.put(FUN_Log.URI, FUN_Log.class);
-		fnreg.put(FUN_Markdown.URI, FUN_Markdown.class);
 
 		final ServiceLoader<FunctionLoader> functionLoaders = ServiceLoader.load(FunctionLoader.class);
 		functionLoaders.forEach((loader) -> {

@@ -27,7 +27,7 @@
 		<module>../sparql-generate-server</module>
 		<module>../sparql-generate-all</module>
 
-		<!-- <module>../sparql-generate-example</module> <module>../sparql-generate-cli</module> -->
+		<!-- <module>../sparql-generate-example</module> -->
 	</modules>
 
 	<developers>
