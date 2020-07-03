@@ -119,8 +119,6 @@ public class ITER_JSONPath extends IteratorFunctionBase {
                     + " <http://www.w3.org/2001/XMLSchema#string>. Got "
                     + json.getDatatypeURI());
         }
-        Configuration conf = Configuration.builder()
-                .options(Option.ALWAYS_RETURN_LIST).build();
 
         String jsonString = getString(json);
 
@@ -161,7 +159,7 @@ public class ITER_JSONPath extends IteratorFunctionBase {
         }
         
         List<Object> values = JsonPath
-                    .using(conf)
+                    .using(FUN_JSONPath.getConf())
                     .parse(jsonString)
                     .read(jsonquery.getString());
             int size = values.size();

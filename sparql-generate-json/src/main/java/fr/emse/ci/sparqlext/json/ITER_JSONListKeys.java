@@ -15,25 +15,24 @@
  */
 package fr.emse.ci.sparqlext.json;
 
-import com.google.gson.Gson;
-import com.jayway.jsonpath.Configuration;
-import com.jayway.jsonpath.Option;
-import com.jayway.jsonpath.spi.json.JacksonJsonProvider;
-import com.jayway.jsonpath.spi.json.JsonProvider;
-import com.jayway.jsonpath.spi.mapper.JacksonMappingProvider;
-import com.jayway.jsonpath.spi.mapper.MappingProvider;
-import fr.emse.ci.sparqlext.SPARQLExt;
-import fr.emse.ci.sparqlext.utils.LogUtils;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-import java.util.*;
-
+import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.NodeValue;
-import fr.emse.ci.sparqlext.iterator.IteratorFunctionBase1;
-import org.apache.jena.graph.Node;
-import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.gson.Gson;
+
+import fr.emse.ci.sparqlext.SPARQLExt;
+import fr.emse.ci.sparqlext.iterator.IteratorFunctionBase1;
+import fr.emse.ci.sparqlext.utils.LogUtils;
 
 /**
  * Iterator function
@@ -95,28 +94,5 @@ public class ITER_JSONListKeys extends IteratorFunctionBase1 {
             throw new ExprEvalException("No evaluation", ex);
         }
     }
-
-    static {
-        Configuration.setDefaults(new Configuration.Defaults() {
-
-            private final JsonProvider jsonProvider = new JacksonJsonProvider();
-            private final MappingProvider mappingProvider
-                    = new JacksonMappingProvider();
-
-            @Override
-            public JsonProvider jsonProvider() {
-                return jsonProvider;
-            }
-
-            @Override
-            public MappingProvider mappingProvider() {
-                return mappingProvider;
-            }
-
-            @Override
-            public Set<Option> options() {
-                return EnumSet.noneOf(Option.class);
-            }
-        });
-    }
+	
 }

@@ -16,8 +16,11 @@
 package fr.emse.ci.sparqlext.json;
 
 import com.google.gson.Gson;
+import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.InvalidPathException;
 import com.jayway.jsonpath.JsonPath;
+import com.jayway.jsonpath.Option;
+
 import java.math.BigDecimal;
 import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.NodeValue;
@@ -80,6 +83,17 @@ public final class FUN_JSONPath extends FunctionBase2 {
 
     private static Gson GSON = new Gson();
 
+    private final static Configuration conf = Configuration.builder()
+            .options(Option.ALWAYS_RETURN_LIST).build();
+    
+    /**
+     * Get the general JSONPath JayWay configuration.
+     * @return
+     */
+    public static Configuration getConf() {
+		return conf;
+	}
+    
     @Override
     public NodeValue exec(NodeValue json, NodeValue jsonpath) {
         if(json == null) {
@@ -110,7 +124,9 @@ public final class FUN_JSONPath extends FunctionBase2 {
 	    }
         
         try {
-            Object value = JsonPath.parse(json.asNode().getLiteralLexicalForm())
+            Object value = JsonPath
+                    .using(FUN_JSONPath.getConf())
+                	.parse(json.asNode().getLiteralLexicalForm())
                     .limit(1).read(jsonpath.getString());
             return nodeForObject(value);
         } catch (Exception ex) {
