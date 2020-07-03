@@ -63,6 +63,11 @@
 			<artifactId>sparql-generate-sql</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>fr.emse.ci</groupId>
+			<artifactId>sparql-generate-sql</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 	</dependencies>
 
 	<build>

@@ -25,6 +25,7 @@ import fr.emse.ci.sparqlext.stream.LookUpRequest;
 import fr.emse.ci.sparqlext.stream.SPARQLExtStreamManager;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.List;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -39,6 +40,11 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueBoolean;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueInteger;
+import org.htmlcleaner.CleanerProperties;
+import org.htmlcleaner.HtmlCleaner;
+import org.htmlcleaner.PrettyXmlSerializer;
+import org.htmlcleaner.TagNode;
+
 import java.nio.charset.StandardCharsets;
 
 import java.util.Objects;
@@ -108,9 +114,15 @@ public class ITER_XPath extends IteratorFunctionBase {
 
     private static final TransformerFactory TRANSFORMER_FACTORY = TransformerFactory.newInstance();
 
+    private static final CleanerProperties props = new CleanerProperties();
+    
     static {
         builderFactory.setNamespaceAware(true);
-    }
+        
+        props.setTranslateSpecialEntities(true);
+		props.setTransResCharsToNCR(true);
+		props.setOmitComments(true);
+   }
 
     @Override
     public List<List<NodeValue>> exec(List<NodeValue> args) {
@@ -154,7 +166,13 @@ public class ITER_XPath extends IteratorFunctionBase {
         }
 
         try {
-            InputStream is = new ByteArrayInputStream(xmlString.getBytes("UTF-8"));
+        	
+        	//to clean the xmlString
+        	TagNode tagNode = new HtmlCleaner(props).clean(xmlString);
+            String xmlStringCleaned= new PrettyXmlSerializer(props).getAsString(tagNode);
+        	//********            
+            
+            InputStream is = new ByteArrayInputStream(xmlStringCleaned.getBytes("UTF-8"));
             DocumentBuilder builder = builderFactory.newDocumentBuilder();
             Document document = builder.parse(is);
             XPath xPath = XPathFactory.newInstance().newXPath();

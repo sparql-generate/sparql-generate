@@ -10,9 +10,9 @@
 
 	<name>SPARQL-Generate-Parent</name>
 	<description>The parent project for SPARQL-Generate</description>
-	<url>https://w3id.org/sparql-generate/</url>
+	<url>https://ci.mines-stetienne.fr/sparql-generate/</url>
 	<inceptionYear>2020</inceptionYear>
-
+    
 	<modules>
 		<module>../sparql-generate-jena</module>
 
@@ -23,6 +23,7 @@
 		<module>../sparql-generate-ws</module>
 		<module>../sparql-generate-xml</module>
 		<module>../sparql-generate-markdown</module>
+		<module>../sparql-generate-sql</module>
 		<module>../sparql-generate-server</module>
 		<module>../sparql-generate-all</module>
 
