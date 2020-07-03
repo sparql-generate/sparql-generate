@@ -61,14 +61,7 @@ public class LocatorURLAccept extends LocatorAcceptBase {
 			URLConnection conn = (URLConnection) url.openConnection();
 //            conn.setConnectTimeout(200);
 //            conn.setReadTimeout(500);
-			String userInfo = url.getUserInfo();
-			if (userInfo != null && !userInfo.isEmpty()) {
-				String encodedUserInfo = new String(Base64.encodeBase64(userInfo.getBytes("UTF-8")));
-				conn.setRequestProperty("Authorization", "Basic " + encodedUserInfo);
-			}
-			conn.setRequestProperty("Accept", acceptHeader);
-			conn.setRequestProperty("Accept-Charset", "utf-8,*");
-			return openConnectionCheckRedirects(conn);
+			return openConnectionCheckRedirects(url, acceptHeader, conn);
 		} catch (java.io.FileNotFoundException ex) {
 			log.debug("File not found online: " + source);
 			return null;
@@ -93,7 +86,7 @@ public class LocatorURLAccept extends LocatorAcceptBase {
 		}
 	}
 
-	private TypedInputStream openConnectionCheckRedirects(URLConnection c) throws IOException {
+	private TypedInputStream openConnectionCheckRedirects(URL url, String acceptHeader, URLConnection c) throws IOException {
 		boolean redir;
 		int redirects = 0;
 		String contentType = null;
@@ -102,6 +95,14 @@ public class LocatorURLAccept extends LocatorAcceptBase {
 			if (c instanceof HttpURLConnection) {
 				((HttpURLConnection) c).setInstanceFollowRedirects(false);
 			}
+			String userInfo = url.getUserInfo();
+			if (userInfo != null && !userInfo.isEmpty()) {
+				String encodedUserInfo = new String(Base64.encodeBase64(userInfo.getBytes("UTF-8")));
+				c.setRequestProperty("Authorization", "Basic " + encodedUserInfo);
+			}
+			c.setRequestProperty("Accept", acceptHeader);
+			c.setRequestProperty("Accept-Charset", "utf-8,*");
+
 			// We want to open the input stream before getting headers
 			// because getHeaderField() et al swallow IOExceptions.
 			InputStream in = new BufferedInputStream(new BOMInputStream(c.getInputStream()));
