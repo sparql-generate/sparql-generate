@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Ecole des Mines de Saint-Etienne.
+ * Copyright 2020 Ecole des Mines de Saint-Etienne.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,14 +29,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.jena.datatypes.xsd.XSDDatatype;
+import org.apache.jena.datatypes.xsd.XSDDateTime;
+import org.apache.jena.graph.Node;
+import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.ExprList;
 import org.apache.jena.sparql.expr.NodeValue;
-
+import org.apache.jena.sparql.expr.nodevalue.NodeValueBoolean;
+import org.apache.jena.sparql.expr.nodevalue.NodeValueDecimal;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueDouble;
 
 import org.apache.jena.sparql.expr.nodevalue.NodeValueFloat;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueInteger;
+import org.apache.jena.sparql.expr.nodevalue.NodeValueNode;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,6 +51,21 @@ import fr.emse.ci.sparqlext.SPARQLExt;
 import fr.emse.ci.sparqlext.iterator.IteratorFunctionBase2;
 
 /**
+ * Iterator function <a href="http://w3id.org/sparql-generate/iter/SQL">SQL</a>
+ * issues a SQL query to a database.
+ *
+ * <ul>
+ * <li>Param 1: (database): the JDBC URI of the database</li>
+ * <li>Param 2: (sql) the SQL query;</li>
+ * </ul>
+ *
+ * The following variables may be bound:
+ *
+ * <ul>
+ * <li>Output 1 .. N: value of the ith column, encoded as a boolean, float,
+ * double, integer, string, dateTimeStamp, as it best fits.</li>
+ * </ul>
+ *
  * @author Omar Qawasmeh, Maxime Lefrançois
  * 
  * @organization Ecole des Mines de Saint Etienne
@@ -64,7 +85,7 @@ public class ITER_SQL extends IteratorFunctionBase2 {
 
 	static {
 		properties.setProperty("user", "root"); // username
-		properties.setProperty("password", "omar1234"); // password
+		properties.setProperty("password", "password"); // password
 		properties.setProperty("serverTimezone", "UTC"); // serverTimezone
 	}
 
@@ -150,31 +171,37 @@ public class ITER_SQL extends IteratorFunctionBase2 {
 				throw new ExprEvalException(e);
 			}
 		}
-
 		return nodeValuesAllRows;
 	}
 
 	private static NodeValue getNodeValueForCell(ResultSet rs, ResultSetMetaData rsmd, int i) throws SQLException {
 		switch (rsmd.getColumnType(i)) {
-		case Types.ARRAY:
-			return new NodeValueString(rs.getString(i));
-		case Types.INTEGER:
-		case Types.BIGINT:
-			return new NodeValueInteger(rs.getInt(i));
 		case Types.NULL:
 			return null;
-		case Types.DOUBLE:
-			return new NodeValueDouble(rs.getDouble(i));
+		case Types.BOOLEAN:
+			return new NodeValueBoolean(rs.getBoolean(i));
+		case Types.INTEGER:
+		case Types.BIGINT:
+		case Types.SMALLINT:
+		case Types.TINYINT:
+			return new NodeValueInteger(rs.getInt(i));
+		case Types.DECIMAL:
+		case Types.REAL:
+			return new NodeValueDecimal(rs.getBigDecimal(i));
 		case Types.FLOAT:
 			return new NodeValueFloat(rs.getFloat(i));
-		case Types.VARCHAR:
-			return new NodeValueString(rs.getString(i));
-		case Types.TIMESTAMP:
-			DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+		case Types.DOUBLE:
+			return new NodeValueDouble(rs.getDouble(i));
+		case Types.TIMESTAMP_WITH_TIMEZONE:
+			DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX");
 			Timestamp date = rs.getTimestamp(i);
-			dateFormat.format(date);
-			return new NodeValueString(dateFormat.format(date));
-
+			Node n = NodeFactory.createLiteral(dateFormat.format(date), XSDDatatype.XSDdateTimeStamp);
+			return new NodeValueNode(n);
+		case Types.TIMESTAMP:
+			DateFormat dateFormat2 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+			Timestamp date2 = rs.getTimestamp(i);
+			Node n2 = NodeFactory.createLiteral(dateFormat2.format(date2), XSDDatatype.XSDdateTimeStamp);
+			return new NodeValueNode(n2);
 		default:
 			return new NodeValueString(rs.getString(i));
 		}

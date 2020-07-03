@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Ã‰cole des Mines de Saint-Ã‰tienne.
+ * Copyright 2020 École des Mines de Saint-Étienne.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
