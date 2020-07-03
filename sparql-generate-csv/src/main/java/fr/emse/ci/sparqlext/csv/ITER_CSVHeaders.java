@@ -57,6 +57,11 @@ public class ITER_CSVHeaders extends IteratorFunctionBase1 {
 
     @Override
     public List<List<NodeValue>> exec(NodeValue csv) {
+        if(csv == null) {
+        	String msg = "No CSV provided";
+            LOG.debug(msg);
+        	throw new ExprEvalException(msg);
+        }
         if (csv.getDatatypeURI() != null
                 && !csv.getDatatypeURI().equals(datatypeUri)
                 && !csv.getDatatypeURI().equals("http://www.w3.org/2001/XMLSchema#string")) {

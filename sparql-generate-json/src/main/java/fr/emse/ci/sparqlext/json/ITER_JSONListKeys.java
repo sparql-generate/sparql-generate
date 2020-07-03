@@ -63,6 +63,11 @@ public class ITER_JSONListKeys extends IteratorFunctionBase1 {
 
     @Override
     public List<List<NodeValue>> exec(NodeValue json) {
+        if(json == null) {
+        	String msg = "No JSON provided";
+            LOG.debug(msg);
+        	throw new ExprEvalException(msg);
+        }
         if (json.getDatatypeURI() != null
                 && !json.getDatatypeURI().equals(datatypeUri)
                 && !json.getDatatypeURI().equals("http://www.w3.org/2001/XMLSchema#string")) {

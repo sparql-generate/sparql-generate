@@ -16,6 +16,7 @@
 package fr.emse.ci.sparqlext.json;
 
 import com.google.gson.Gson;
+import com.jayway.jsonpath.InvalidPathException;
 import com.jayway.jsonpath.JsonPath;
 import java.math.BigDecimal;
 import org.apache.jena.sparql.expr.ExprEvalException;
@@ -81,6 +82,16 @@ public final class FUN_JSONPath extends FunctionBase2 {
 
     @Override
     public NodeValue exec(NodeValue json, NodeValue jsonpath) {
+        if(json == null) {
+        	String msg = "No JSON provided";
+            LOG.debug(msg);
+        	throw new ExprEvalException(msg);
+        }
+        if(jsonpath == null) {
+        	String msg = "No JSONPath provided";
+            LOG.debug(msg);
+        	throw new ExprEvalException(msg);
+        }
         if (json.getDatatypeURI() != null
                 && !json.getDatatypeURI().equals(datatypeUri)
                 && !json.getDatatypeURI().equals("http://www.w3.org/2001/XMLSchema#string")) {
@@ -92,6 +103,12 @@ public final class FUN_JSONPath extends FunctionBase2 {
             LOG.debug("The second argument should be a string. Got " + json);
         }
 
+        try {
+        	JsonPath.compile(jsonpath.getString());
+	    } catch (InvalidPathException ex) {
+	    	LOG.warn("The JSONPath is not valid: " + jsonpath.getString() + " - exception is " + ex.getMessage());
+	    }
+        
         try {
             Object value = JsonPath.parse(json.asNode().getLiteralLexicalForm())
                     .limit(1).read(jsonpath.getString());

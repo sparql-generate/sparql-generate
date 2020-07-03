@@ -67,6 +67,16 @@ public final class FUN_CBOR extends FunctionBase2 {
 
     @Override
     public NodeValue exec(NodeValue cbor, NodeValue jsonpath) {
+        if(cbor == null) {
+        	String msg = "No JSON provided";
+            LOG.debug(msg);
+        	throw new ExprEvalException(msg);
+        }
+        if(jsonpath == null) {
+        	String msg = "No JSONPath provided";
+            LOG.debug(msg);
+        	throw new ExprEvalException(msg);
+        }
         if (cbor.getDatatypeURI() != null
                 && !cbor.getDatatypeURI().equals(datatypeUri)
                 && !cbor.getDatatypeURI().equals("http://www.w3.org/2001/XMLSchema#string")) {

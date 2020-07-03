@@ -123,6 +123,11 @@ public class ITER_CSSPath extends IteratorFunctionBase {
             throw new ExprEvalException("Expecting at least two arguments.");
         }
         final NodeValue html = args.get(0);
+        if(html == null) {
+        	String msg = "No HTML provided";
+            LOG.debug(msg);
+        	throw new ExprEvalException(msg);
+        }
         if (!html.isIRI() && !html.isString() && !html.asNode().isLiteral()) {
             LOG.debug("First argument must be a URI or a String.");
             throw new ExprEvalException("First argument must be a URI or a String.");
@@ -146,6 +151,9 @@ public class ITER_CSSPath extends IteratorFunctionBase {
         if (args.size() > 2) {
             for (int i = 2; i < args.size(); i++) {
                 final NodeValue subquery = args.get(i);
+                if(subquery == null) {
+                	subqueries[i - 2] = null;
+    			}
                 if (!subquery.isString()) {
                     LOG.debug("Argument " + i + " must be a String.");
                     throw new ExprEvalException("Argument " + i + " must be a String.");

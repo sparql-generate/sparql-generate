@@ -128,6 +128,11 @@ public class ITER_CSV extends IteratorStreamFunctionBase {
         }
         LOG.trace("Executing CSV with variables " + args);
         final NodeValue csv = args.remove(0);
+        if(csv == null) {
+        	String msg = "No CSV provided";
+            LOG.debug(msg);
+        	throw new ExprEvalException(msg);
+        }
         try (InputStream in = getInputStream(csv)) {
             final CsvParserSettings parserSettings = new CsvParserSettings();
             parserSettings.setHeaderExtractionEnabled(true);

@@ -95,7 +95,6 @@ public class ITER_SQL extends IteratorFunctionBase2 {
 
 	@Override
 	public List<List<NodeValue>> exec(NodeValue nodeSQL, NodeValue querySQL) {
-
 		if (nodeSQL == null) {
 			LOG.debug("Must have two arguments, the URI to the data base and the SQL query");
 			throw new ExprEvalException("Must have two arguments, the URI to the data base and the SQL query");
@@ -106,23 +105,12 @@ public class ITER_SQL extends IteratorFunctionBase2 {
 		}
 
 		LOG.trace("Executing SQL with variables: the data base at URI: " + nodeSQL + "\t with query:\t" + querySQL);
-		Connection connectionSQL = null;
-		try {
-			connectionSQL = getConnection(nodeSQL);
+		try (Connection connectionSQL = getConnection(nodeSQL)){
 			LOG.trace("Connected successfuly to " + nodeSQL);
 			return getListSQL(connectionSQL, querySQL);
 		} catch (Exception ex) {
 			LOG.warn("Can not connect to the data base", ex);
 			throw new ExprEvalException("Can not connect to the data base", ex);
-		}
-
-		finally {
-			try {
-				connectionSQL.close();
-				System.out.println("cloesed");
-			} catch (SQLException ex) {
-				LOG.warn("Can not close the connection", ex);
-			}
 		}
 
 	}

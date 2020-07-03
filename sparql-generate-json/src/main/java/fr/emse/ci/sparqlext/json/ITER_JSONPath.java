@@ -103,7 +103,9 @@ public class ITER_JSONPath extends IteratorFunctionBase {
         }
         final NodeValue json = args.get(0);
         if(json == null) {
-        	throw new ExprEvalException("No JSON provided");
+        	String msg = "No JSON provided";
+            LOG.debug(msg);
+        	throw new ExprEvalException(msg);
         }
         if (!json.isIRI() && !json.isString() && !json.asNode().isLiteral()) {
             LOG.debug("First argument must be a URI or a String.");

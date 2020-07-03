@@ -91,6 +91,11 @@ public final class FUN_GeoJSONGeometry extends FunctionBase1 {
 
     @Override
     public NodeValue exec(NodeValue json) {
+        if(json == null) {
+        	String msg = "No JSON provided";
+            LOG.debug(msg);
+        	throw new ExprEvalException(msg);
+        }
         if (!json.isLiteral()) {
             LOG.debug("The argument should be a literal. Got" + json);
             throw new ExprEvalException("The argument should be a literal. Got" + json);

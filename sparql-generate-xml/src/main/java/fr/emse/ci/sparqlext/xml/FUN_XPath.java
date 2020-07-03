@@ -33,6 +33,8 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+
 import org.apache.jena.datatypes.RDFDatatype;
 import org.apache.jena.datatypes.TypeMapper;
 import org.apache.jena.graph.Node;
@@ -85,6 +87,16 @@ public class FUN_XPath extends FunctionBase2 {
 
     @Override
     public NodeValue exec(NodeValue xml, NodeValue xpath) {
+        if(xml == null) {
+        	String msg = "No XML provided";
+            LOG.debug(msg);
+        	throw new ExprEvalException(msg);
+        }
+        if(xpath == null) {
+        	String msg = "No XPath provided";
+            LOG.debug(msg);
+        	throw new ExprEvalException(msg);
+        }
         if (xml.getDatatypeURI() != null
                 && !xml.getDatatypeURI().equals(XML_URI)
                 && !xml.getDatatypeURI().equals("http://www.w3.org/2001/XMLSchema#string")) {
@@ -119,6 +131,9 @@ public class FUN_XPath extends FunctionBase2 {
                 throw new ExprEvalException("No evaluation of " + xpath);
             }
             return nodeForNode(xmlNode);
+        } catch (XPathExpressionException ex) {
+	    	LOG.warn("The XPath expression is not valid: " + xpath.getString() + " - exception is " + ex.getMessage());
+            throw new ExprEvalException("The XPath expression is not valid: " + xpath.getString() + " - exception is " + ex.getMessage(), ex);        	
         } catch (Exception ex) {
             if(LOG.isDebugEnabled()) {
                 Node compressed = LogUtils.compress(xml.asNode());

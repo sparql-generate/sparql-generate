@@ -31,6 +31,7 @@ import org.slf4j.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.jsoup.select.Selector;
 
 /**
  * Binding function
@@ -74,6 +75,16 @@ public class FUN_CSSPath extends FunctionBase2 {
 
     @Override
     public NodeValue exec(NodeValue html, NodeValue query) {
+        if(html == null) {
+        	String msg = "No html provided";
+            LOG.debug(msg);
+        	throw new ExprEvalException(msg);
+        }
+        if(query == null) {
+        	String msg = "No query provided";
+            LOG.debug(msg);
+        	throw new ExprEvalException(msg);
+        }
         if (html.getDatatypeURI() != null
                 && !html.getDatatypeURI().equals(HTML_URI)
                 && !html.getDatatypeURI().equals("http://www.w3.org/2001/XMLSchema#string")) {
@@ -99,6 +110,9 @@ public class FUN_CSSPath extends FunctionBase2 {
             return select(htmldoc, selectPath);
         } catch (ExprEvalException ex) {
             throw ex;
+        } catch (Selector.SelectorParseException ex) {
+            LOG.debug("CSS Selector parse exception for " + query, ex);
+            throw new ExprEvalException(ex);        	
         } catch (Exception ex) {
             if(LOG.isDebugEnabled()) {
                 Node compressed = LogUtils.compress(html.asNode());

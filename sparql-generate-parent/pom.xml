@@ -13,6 +13,17 @@
 	<url>https://ci.mines-stetienne.fr/sparql-generate/</url>
 	<inceptionYear>2020</inceptionYear>
     
+    <!-- command to deploy to maven: -->
+    <!--
+    mvn clean
+    mvn scm:checkin -Dmessage="preparing next release"
+    mvn release:prepare release:perform
+    -->
+
+    <!-- cancel last commit -->
+    <!-- git reset - -soft HEAD^ && git push -f -->
+    
+   
 	<modules>
 		<module>../sparql-generate-jena</module>
 
@@ -72,10 +83,12 @@
 	<distributionManagement>
 		<snapshotRepository>
 			<id>ossrh</id>
+			<name>Sonatype Nexus Snapshots</name>
 			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
 		</snapshotRepository>
 		<repository>
 			<id>ossrh</id>
+			<name>Nexus Release Repository</name>
 			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
 		</repository>
 	</distributionManagement>

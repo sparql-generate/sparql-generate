@@ -51,6 +51,11 @@ public final class FUN_Markdown extends FunctionBase1 {
 
     @Override
     public NodeValue exec(NodeValue markdown) {
+        if(markdown == null) {
+        	String msg = "Expects one argument";
+            LOG.debug(msg);
+        	throw new ExprEvalException(msg);
+        }
         if (markdown.getDatatypeURI() != null
                 && !markdown.getDatatypeURI().equals(datatypeUri)
                 && !markdown.getDatatypeURI().equals("http://www.w3.org/2001/XMLSchema#string")) {
