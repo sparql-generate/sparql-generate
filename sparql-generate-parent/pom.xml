@@ -106,7 +106,6 @@
 		<repository.user>sparql-generate</repository.user>
 		<repository.name>sparql-generate</repository.name>
 		<skip>false</skip>
-		<repository.name>${project.artifactId}</repository.name>
 	</properties>
 
 	<dependencies>
