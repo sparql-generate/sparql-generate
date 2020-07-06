@@ -5,25 +5,16 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>fr.mines-stetienne.ci.sparql-generate</groupId>
 	<artifactId>sparql-generate-parent</artifactId>
-	<version>2.0-SNAPSHOT</version>
+	<version>2.0.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>SPARQL-Generate-Parent</name>
 	<description>The parent project for SPARQL-Generate</description>
 	<url>https://ci.mines-stetienne.fr/sparql-generate/</url>
-	<inceptionYear>2020</inceptionYear>
-
-	<!-- command to deploy to maven: -->
-	<!-- mvn clean mvn scm:checkin -Dmessage="preparing next release" mvn release:prepare 
-		release:perform -->
-
-	<!-- cancel last commit -->
-	<!-- git reset - -soft HEAD^ && git push -f -->
-
+	<inceptionYear>2016</inceptionYear>
 
 	<modules>
 		<module>../sparql-generate-jena</module>
-
 		<module>../sparql-generate-csv</module>
 		<module>../sparql-generate-geojson</module>
 		<module>../sparql-generate-json</module>
@@ -34,7 +25,6 @@
 		<module>../sparql-generate-sql</module>
 		<module>../sparql-generate-server</module>
 		<module>../sparql-generate-all</module>
-
 		<!-- <module>../sparql-generate-example</module> -->
 	</modules>
 
@@ -57,14 +47,9 @@
 		<url>http://www.mines-stetienne.fr/</url>
 	</organization>
 
-	<scm>
-		<developerConnection>scm:git:https://${repository.domain}/${repository.user}/${repository.name}.git</developerConnection>
-		<tag>1.2.3</tag>
-	</scm>
-
 	<issueManagement>
-		<url>http://${repository.domain}/${repository.user}/${repository.name}/issues</url>
 		<system>GitHub Issues</system>
+		<url>http://github.com/sparql-generate/sparql-generate/issues</url>
 	</issueManagement>
 
 	<licenses>
@@ -94,12 +79,6 @@
 		<jdk.version>1.8</jdk.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<project.scm.id>git</project.scm.id>
-
-		<repository.domain>github.com</repository.domain>
-		<repository.user>sparql-generate</repository.user>
-		<repository.name>sparql-generate</repository.name>
-
 		<skip>false</skip>
 	</properties>
 
@@ -119,14 +98,14 @@
 	</dependencies>
 
 	<build>
-		<extensions>
-			<extension>
-				<!-- add support for ssh/scp -->
-				<groupId>org.apache.maven.wagon</groupId>
-				<artifactId>wagon-ssh</artifactId>
-				<version>2.10</version>
-			</extension>
-		</extensions>
+<!-- 		<extensions> -->
+<!-- 			<extension> -->
+<!-- 				add support for ssh/scp -->
+<!-- 				<groupId>org.apache.maven.wagon</groupId> -->
+<!-- 				<artifactId>wagon-ssh</artifactId> -->
+<!-- 				<version>2.10</version> -->
+<!-- 			</extension> -->
+<!-- 		</extensions> -->
 		<pluginManagement>
 			<plugins>
 				<!-- ======================== -->
@@ -280,32 +259,19 @@
 					</executions>
 				</plugin>
 
-				<!-- ======================== -->
-				<!-- ADDITIONNAL PLUGINS -->
-				<!-- ======================== -->
 
+				<!-- ============ -->
+				<!-- SET VERSIONS -->
+				<!-- ============ -->
 				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-release-plugin</artifactId>
-					<version>2.5.3</version>
-<!-- 					<executions> -->
-<!-- 						<execution> -->
-<!-- 							<id>clean-release</id> -->
-<!-- 							<phase>clean</phase> -->
-<!-- 							<goals> -->
-<!-- 								<goal>clean</goal> -->
-<!-- 							</goals> -->
-<!-- 						</execution> -->
-<!-- 					</executions> -->
-					<configuration>
-<!-- 						<autoVersionSubmodules>true</autoVersionSubmodules> -->
-<!-- 						<resume>false</resume> -->
-<!-- 						<releaseProfiles>release</releaseProfiles> -->
-						<autoVersionSubmodules>true</autoVersionSubmodules>
-						<tagNameFormat>@{project.version}</tagNameFormat>
-					</configuration>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>versions-maven-plugin</artifactId>
+					<version>2.7</version>
 				</plugin>
 
+				<!-- ====== -->
+				<!-- DEPLOY -->
+				<!-- ====== -->
 				<plugin>
 					<groupId>org.sonatype.plugins</groupId>
 					<artifactId>nexus-staging-maven-plugin</artifactId>
