@@ -5,7 +5,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>fr.mines-stetienne.ci.sparql-generate</groupId>
 	<artifactId>sparql-generate-parent</artifactId>
-	<version>2.0.0</version>
+	<version>2.0.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>SPARQL-Generate-Parent</name>
@@ -47,6 +47,10 @@
 		<url>http://www.mines-stetienne.fr/</url>
 	</organization>
 
+	<scm>
+		<url>https://github.com/sparql-generate/sparql-generate</url>
+	</scm>
+	
 	<issueManagement>
 		<system>GitHub Issues</system>
 		<url>http://github.com/sparql-generate/sparql-generate/issues</url>
@@ -61,15 +65,10 @@
 
 	<distributionManagement>
 		<snapshotRepository>
-			<id>ossrh-snapshot</id>
+			<id>ossrh</id>
 			<name>Sonatype Nexus Snapshots</name>
 			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
 		</snapshotRepository>
-		<repository>
-			<id>ossrh</id>
-			<name>Nexus Release Repository</name>
-			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
-		</repository>
 	</distributionManagement>
 
 	<properties>
@@ -98,14 +97,6 @@
 	</dependencies>
 
 	<build>
-<!-- 		<extensions> -->
-<!-- 			<extension> -->
-<!-- 				add support for ssh/scp -->
-<!-- 				<groupId>org.apache.maven.wagon</groupId> -->
-<!-- 				<artifactId>wagon-ssh</artifactId> -->
-<!-- 				<version>2.10</version> -->
-<!-- 			</extension> -->
-<!-- 		</extensions> -->
 		<pluginManagement>
 			<plugins>
 				<!-- ======================== -->
@@ -153,6 +144,8 @@
 							<exclude>**/*.classpath</exclude>
 							<exclude>**/target/**/*</exclude>
 							<exclude>**/dependency-reduced-pom.xml</exclude>
+							<exclude>**/pom.xml.versionsBackup</exclude>
+							<exclude>**/pom.xml.releaseBackup</exclude>
 							<exclude>**/*.csv</exclude>
 							<exclude>**/*.rqg</exclude>
 							<exclude>**/*.ttl</exclude>
@@ -258,17 +251,6 @@
 						</execution>
 					</executions>
 				</plugin>
-
-
-				<!-- ============ -->
-				<!-- SET VERSIONS -->
-				<!-- ============ -->
-				<plugin>
-					<groupId>org.codehaus.mojo</groupId>
-					<artifactId>versions-maven-plugin</artifactId>
-					<version>2.7</version>
-				</plugin>
-
 				<!-- ====== -->
 				<!-- DEPLOY -->
 				<!-- ====== -->
@@ -303,10 +285,6 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-shade-plugin</artifactId>
 			</plugin>
-			<plugin>
-				<groupId>org.sonatype.plugins</groupId>
-				<artifactId>nexus-staging-maven-plugin</artifactId>
-			</plugin>
 		</plugins>
 	</build>
 
@@ -314,6 +292,44 @@
 		<!-- ======================== -->
 		<!-- ENABLED DURING RELEASE -->
 		<!-- ======================== -->
+		<profile>
+			<id>docs</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-source-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>attach-sources</id>
+								<goals>
+									<goal>jar-no-fork</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-javadoc-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>attach-javadocs</id>
+								<goals>
+									<goal>jar</goal>
+								</goals>
+							</execution>
+						</executions>
+						<configuration>
+							<failOnError>false</failOnError>
+							<includeDependencySources>true</includeDependencySources>
+							<dependencySourceIncludes>
+								<dependencySourceInclude>fr.mines_stetienne.ci.sparql_generate:*</dependencySourceInclude>
+							</dependencySourceIncludes>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
 		<profile>
 			<id>deploy</id>
 			<build>
@@ -370,49 +386,13 @@
 							</execution>
 						</executions>
 					</plugin>
-				</plugins>
-			</build>
-		</profile>
-
-		<profile>
-			<id>tag</id>
-			<build>
-				<plugins>
 					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-release-plugin</artifactId>
+						<groupId>org.sonatype.plugins</groupId>
+						<artifactId>nexus-staging-maven-plugin</artifactId>
 					</plugin>
 				</plugins>
 			</build>
 		</profile>
-
-		<profile>
-			<id>docs</id>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-javadoc-plugin</artifactId>
-						<executions>
-							<execution>
-								<id>attach-javadocs</id>
-								<goals>
-									<goal>jar</goal>
-								</goals>
-							</execution>
-						</executions>
-						<configuration>
-							<failOnError>false</failOnError>
-							<includeDependencySources>true</includeDependencySources>
-							<dependencySourceIncludes>
-								<dependencySourceInclude>fr.mines_stetienne.ci.sparql_generate:*</dependencySourceInclude>
-							</dependencySourceIncludes>
-						</configuration>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-
 		<profile>
 			<id>skip</id>
 			<properties>

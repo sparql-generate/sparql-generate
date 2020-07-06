@@ -1,1 +1,43 @@
-release.yml
+name: Release
+
+# Run workflow on commits to the `master` branch
+on:
+  push:
+    tags:
+      - v*
+
+jobs:
+  release:
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v2
+
+      - name: Install Java and Maven
+        uses: actions/setup-java@v1
+        with:
+          java-version: 11
+
+      - name: Release Maven package
+        uses: samuelmeuli/action-maven-publish@v1
+        with:
+          gpg_private_key: ${{ secrets.gpg_private_key }}
+          gpg_passphrase: ${{ secrets.gpg_passphrase }}
+          nexus_username: ${{ secrets.nexus_username }}
+          nexus_password: ${{ secrets.nexus_password }}
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: true
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: jars
+          path: '**/*.jar'
