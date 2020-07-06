@@ -21,7 +21,7 @@ options
   //  DEBUG_TOKEN_MANAGER = true;
 }
 PARSER_BEGIN(SPARQLExtParser)
-package fr.emse.ci.sparqlext.lang;
+package fr.mines_stetienne.ci.sparql_generate.lang;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.jena.graph.*;
@@ -31,9 +31,9 @@ import org.apache.jena.sparql.syntax.*;
 import org.apache.jena.sparql.expr.*;
 import org.apache.jena.sparql.path.*;
 import org.apache.jena.sparql.expr.aggregate.*;
-import fr.emse.ci.sparqlext.query.*;
-import fr.emse.ci.sparqlext.syntax.*;
-import fr.emse.ci.sparqlext.graph.*;
+import fr.mines_stetienne.ci.sparql_generate.query.*;
+import fr.mines_stetienne.ci.sparql_generate.syntax.*;
+import fr.mines_stetienne.ci.sparql_generate.graph.*;
 
 public class SPARQLExtParser extends SPARQLExtParserBase
 {

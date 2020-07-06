@@ -3,7 +3,7 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>fr.emse.ci</groupId>
+	<groupId>fr.mines-stetienne.ci.sparql-generate</groupId>
 	<artifactId>sparql-generate-parent</artifactId>
 	<version>2.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
@@ -12,18 +12,15 @@
 	<description>The parent project for SPARQL-Generate</description>
 	<url>https://ci.mines-stetienne.fr/sparql-generate/</url>
 	<inceptionYear>2020</inceptionYear>
-    
-    <!-- command to deploy to maven: -->
-    <!--
-    mvn clean
-    mvn scm:checkin -Dmessage="preparing next release"
-    mvn release:prepare release:perform
-    -->
 
-    <!-- cancel last commit -->
-    <!-- git reset - -soft HEAD^ && git push -f -->
-    
-   
+	<!-- command to deploy to maven: -->
+	<!-- mvn clean mvn scm:checkin -Dmessage="preparing next release" mvn release:prepare 
+		release:perform -->
+
+	<!-- cancel last commit -->
+	<!-- git reset - -soft HEAD^ && git push -f -->
+
+
 	<modules>
 		<module>../sparql-generate-jena</module>
 
@@ -61,10 +58,7 @@
 	</organization>
 
 	<scm>
-		<connection>scm:git:https://${repository.domain}/${repository.user}/${repository.name}.git</connection>
-		<url>https://${repository.domain}/${repository.user}/${repository.name}</url>
-		<developerConnection>scm:git:https://${repository.domain}/${repository.user}/${repository.name}.git
-        </developerConnection>
+		<developerConnection>scm:git:https://${repository.domain}/${repository.user}/${repository.name}.git</developerConnection>
 		<tag>1.2.3</tag>
 	</scm>
 
@@ -80,18 +74,18 @@
 		</license>
 	</licenses>
 
-<!-- 	<distributionManagement> -->
-<!-- 		<snapshotRepository> -->
-<!-- 			<id>ossrh</id> -->
-<!-- 			<name>Sonatype Nexus Snapshots</name> -->
-<!-- 			<url>https://oss.sonatype.org/content/repositories/snapshots</url> -->
-<!-- 		</snapshotRepository> -->
-<!-- 		<repository> -->
-<!-- 			<id>ossrh</id> -->
-<!-- 			<name>Nexus Release Repository</name> -->
-<!-- 			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url> -->
-<!-- 		</repository> -->
-<!-- 	</distributionManagement> -->
+	<distributionManagement>
+		<snapshotRepository>
+			<id>ossrh-snapshot</id>
+			<name>Sonatype Nexus Snapshots</name>
+			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+		</snapshotRepository>
+		<repository>
+			<id>ossrh</id>
+			<name>Nexus Release Repository</name>
+			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
+		</repository>
+	</distributionManagement>
 
 	<properties>
 		<maven.compiler.source>1.8</maven.compiler.source>
@@ -105,6 +99,7 @@
 		<repository.domain>github.com</repository.domain>
 		<repository.user>sparql-generate</repository.user>
 		<repository.name>sparql-generate</repository.name>
+
 		<skip>false</skip>
 	</properties>
 
@@ -185,8 +180,8 @@
 							<exclude>**/*.xml</exclude>
 							<exclude>**/*.log</exclude>
 							<exclude>**/java.nio.file.spi.FileTypeDetector</exclude>
-							<exclude>**/fr.emse.ci.sparqlext.iterator.IteratorFunctionLoader</exclude>
-							<exclude>**/fr.emse.ci.sparqlext.function.FunctionLoader</exclude>
+							<exclude>**/fr.mines_stetienne.ci.sparql_generate.iterator.IteratorFunctionLoader</exclude>
+							<exclude>**/fr.mines_stetienne.ci.sparql_generate.function.FunctionLoader</exclude>
 							<exclude>**/*.out</exclude>
 							<exclude>**/*.rqglog</exclude>
 							<exclude>**/*.launch</exclude>
@@ -266,7 +261,7 @@
 										implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
 									<transformer
 										implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-										<mainClass>fr.emse.ci.sparqlext.cli.SPARQLExtCli
+										<mainClass>fr.mines_stetienne.ci.sparql_generate.cli.SPARQLExtCli
 										</mainClass>
 									</transformer>
 								</transformers>
@@ -286,42 +281,45 @@
 				</plugin>
 
 				<!-- ======================== -->
-				<!-- CUSTOM RELEASE LIFECYCLE -->
-				<!-- ======================== -->
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-scm-plugin</artifactId>
-					<version>1.9.5</version>
-					<configuration>
-						<connectionType>developerConnection</connectionType>
-					</configuration>
-				</plugin>
-
-				<!-- ======================== -->
 				<!-- ADDITIONNAL PLUGINS -->
 				<!-- ======================== -->
+
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-release-plugin</artifactId>
 					<version>2.5.3</version>
-					<executions>
-						<execution>
-							<id>clean-release</id>
-							<phase>clean</phase>
-							<goals>
-								<goal>clean</goal>
-							</goals>
-						</execution>
-					</executions>
+<!-- 					<executions> -->
+<!-- 						<execution> -->
+<!-- 							<id>clean-release</id> -->
+<!-- 							<phase>clean</phase> -->
+<!-- 							<goals> -->
+<!-- 								<goal>clean</goal> -->
+<!-- 							</goals> -->
+<!-- 						</execution> -->
+<!-- 					</executions> -->
 					<configuration>
-						<resume>false</resume>
-						<tagNameFormat>@{project.version}</tagNameFormat>
-						<releaseProfiles>release</releaseProfiles>
+<!-- 						<autoVersionSubmodules>true</autoVersionSubmodules> -->
+<!-- 						<resume>false</resume> -->
+<!-- 						<releaseProfiles>release</releaseProfiles> -->
 						<autoVersionSubmodules>true</autoVersionSubmodules>
+						<tagNameFormat>@{project.version}</tagNameFormat>
+					</configuration>
+				</plugin>
+
+				<plugin>
+					<groupId>org.sonatype.plugins</groupId>
+					<artifactId>nexus-staging-maven-plugin</artifactId>
+					<version>1.6.8</version>
+					<extensions>true</extensions>
+					<configuration>
+						<serverId>ossrh</serverId>
+						<nexusUrl>https://oss.sonatype.org/</nexusUrl>
+						<autoReleaseAfterClose>false</autoReleaseAfterClose>
 					</configuration>
 				</plugin>
 			</plugins>
 		</pluginManagement>
+
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -337,20 +335,21 @@
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-release-plugin</artifactId>
+				<artifactId>maven-shade-plugin</artifactId>
 			</plugin>
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-shade-plugin</artifactId>
+				<groupId>org.sonatype.plugins</groupId>
+				<artifactId>nexus-staging-maven-plugin</artifactId>
 			</plugin>
 		</plugins>
 	</build>
+
 	<profiles>
 		<!-- ======================== -->
 		<!-- ENABLED DURING RELEASE -->
 		<!-- ======================== -->
 		<profile>
-			<id>release</id>
+			<id>deploy</id>
 			<build>
 				<plugins>
 					<plugin>
@@ -359,7 +358,6 @@
 						<executions>
 							<execution>
 								<id>attach-sources</id>
-								<phase>package</phase>
 								<goals>
 									<goal>jar-no-fork</goal>
 								</goals>
@@ -381,7 +379,7 @@
 							<failOnError>false</failOnError>
 							<includeDependencySources>true</includeDependencySources>
 							<dependencySourceIncludes>
-								<dependencySourceInclude>fr.emse.ci:*</dependencySourceInclude>
+								<dependencySourceInclude>fr.mines_stetienne.ci.sparql_generate:*</dependencySourceInclude>
 							</dependencySourceIncludes>
 						</configuration>
 					</plugin>
@@ -397,10 +395,11 @@
 									<goal>sign</goal>
 								</goals>
 								<configuration>
-									<arg>--use-agent</arg>
-									<arg>--pinentry-mode</arg>
-									<arg>loopback</arg>
-									<passphraseServerId>${gpg.keyname}</passphraseServerId>
+									<!-- Prevent `gpg` from using pinentry programs -->
+									<gpgArguments>
+										<arg>--pinentry-mode</arg>
+										<arg>loopback</arg>
+									</gpgArguments>
 								</configuration>
 							</execution>
 						</executions>
@@ -410,22 +409,21 @@
 		</profile>
 
 		<profile>
-			<id>docs</id>
+			<id>tag</id>
 			<build>
 				<plugins>
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-source-plugin</artifactId>
-						<executions>
-							<execution>
-								<id>attach-sources</id>
-								<phase>package</phase>
-								<goals>
-									<goal>jar-no-fork</goal>
-								</goals>
-							</execution>
-						</executions>
+						<artifactId>maven-release-plugin</artifactId>
 					</plugin>
+				</plugins>
+			</build>
+		</profile>
+
+		<profile>
+			<id>docs</id>
+			<build>
+				<plugins>
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-javadoc-plugin</artifactId>
@@ -441,7 +439,7 @@
 							<failOnError>false</failOnError>
 							<includeDependencySources>true</includeDependencySources>
 							<dependencySourceIncludes>
-								<dependencySourceInclude>fr.emse.ci:*</dependencySourceInclude>
+								<dependencySourceInclude>fr.mines_stetienne.ci.sparql_generate:*</dependencySourceInclude>
 							</dependencySourceIncludes>
 						</configuration>
 					</plugin>

@@ -5,7 +5,7 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>fr.emse.ci</groupId>
+		<groupId>fr.mines-stetienne.ci.sparql-generate</groupId>
 		<artifactId>sparql-generate-parent</artifactId>
 		<version>2.0-SNAPSHOT</version>
 		<relativePath>../sparql-generate-parent/pom.xml</relativePath>
@@ -19,52 +19,52 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>fr.emse.ci</groupId>
+			<groupId>fr.mines-stetienne.ci.sparql-generate</groupId>
 			<artifactId>sparql-generate-jena</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>fr.emse.ci</groupId>
+			<groupId>fr.mines-stetienne.ci.sparql-generate</groupId>
 			<artifactId>sparql-generate-csv</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>fr.emse.ci</groupId>
+			<groupId>fr.mines-stetienne.ci.sparql-generate</groupId>
 			<artifactId>sparql-generate-geojson</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>fr.emse.ci</groupId>
+			<groupId>fr.mines-stetienne.ci.sparql-generate</groupId>
 			<artifactId>sparql-generate-json</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>fr.emse.ci</groupId>
+			<groupId>fr.mines-stetienne.ci.sparql-generate</groupId>
 			<artifactId>sparql-generate-markdown</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>fr.emse.ci</groupId>
+			<groupId>fr.mines-stetienne.ci.sparql-generate</groupId>
 			<artifactId>sparql-generate-mqtt</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>fr.emse.ci</groupId>
+			<groupId>fr.mines-stetienne.ci.sparql-generate</groupId>
 			<artifactId>sparql-generate-ws</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>fr.emse.ci</groupId>
+			<groupId>fr.mines-stetienne.ci.sparql-generate</groupId>
 			<artifactId>sparql-generate-xml</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>fr.emse.ci</groupId>
+			<groupId>fr.mines-stetienne.ci.sparql-generate</groupId>
 			<artifactId>sparql-generate-sql</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>fr.emse.ci</groupId>
+			<groupId>fr.mines-stetienne.ci.sparql-generate</groupId>
 			<artifactId>sparql-generate-sql</artifactId>
 			<version>${project.version}</version>
 		</dependency>
