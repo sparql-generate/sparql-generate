@@ -1,10 +1,9 @@
-name: Release
+name: Snapshot
 
 on:
   push:
     tags:
-      - 'v*'
-      - '!v*-SNAPSHOT'
+      - v*-SNAPSHOT
 
 jobs:
   release:
@@ -43,7 +42,7 @@ jobs:
           tag_name: ${{ github.ref }}
           release_name: ${{ github.ref }}
           draft: false
-          prerelease: false
+          prerelease: true
 
       - name: Upload Release Asset jar
         id: upload_jar 
