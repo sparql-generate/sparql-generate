@@ -30,6 +30,7 @@ public class FunctionsLoader implements FunctionLoader, IteratorFunctionLoader {
     public void load(FunctionRegistry fnreg) {
         fnreg.put(FUN_JSONPath.URI, FUN_JSONPath.class);
         fnreg.put(FUN_CBOR.URI, FUN_CBOR.class);
+//        fnreg.put(FUN_JSONSurfer.URI, FUN_JSONSurfer.class);
     }
     
     @Override
@@ -37,6 +38,7 @@ public class FunctionsLoader implements FunctionLoader, IteratorFunctionLoader {
         itereg.put(ITER_JSONPath.URI, ITER_JSONPath.class);
         itereg.put(ITER_JSONListKeys.URI, ITER_JSONListKeys.class);
         itereg.put(ITER_CBOR.URI, ITER_CBOR.class);
+        itereg.put(ITER_JSONSurfer.URI, ITER_JSONSurfer.class);
     }
     
 }

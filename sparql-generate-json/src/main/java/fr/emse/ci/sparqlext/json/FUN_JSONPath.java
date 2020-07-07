@@ -29,10 +29,12 @@ import org.apache.jena.sparql.expr.nodevalue.NodeValueString;
 import org.apache.jena.sparql.function.FunctionBase2;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import fr.emse.ci.sparqlext.SPARQLExt;
 import fr.emse.ci.sparqlext.utils.LogUtils;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import org.apache.jena.datatypes.RDFDatatype;
 import org.apache.jena.datatypes.TypeMapper;
@@ -125,8 +127,11 @@ public final class FUN_JSONPath extends FunctionBase2 {
             return new NodeValueString(jsonString);
         } else if (value instanceof Map) {
             String jsonString = GSON.toJson(value, Map.class);
-            return new NodeValueNode(NodeFactory.createLiteral(jsonString, dt));
-        } else {
+            return new NodeValueNode(NodeFactory.createLiteral(jsonString));
+	    } else if (value instanceof JsonElement) {
+	        String jsonString = GSON.toJson(value);
+	        return new NodeValueNode(NodeFactory.createLiteral(jsonString));
+	    } else {
             String strValue = String.valueOf(value);
 
             JsonParser parser = new JsonParser();
