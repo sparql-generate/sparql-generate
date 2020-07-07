@@ -1,0 +1,25 @@
+# this script must be run in the main directory of sparql-generate. it:
+# - removes the -SNAPSHOT from the version of all repositories
+# - commits and push the tag to github
+# - releases the version on maven central
+# - increments the patch version and adds -SNAPSHOT
+# - pushes the new development version
+# - install the new version to get ready to develop
+
+if [ -z "$(git status --porcelain)" ]; then 
+  # Working directory clean
+  cd sparql-generate-parent && \
+  mvn versions:set -DremoveSnapshot && \
+  releaseVersion=$(mvn -q -Dexec.executable="echo" -Dexec.args='${project.version}' --non-recursive exec:exec) && \
+  git commit -am "release $releaseVersion" && \
+  git tag -s "v$releaseVersion" -m "release $releaseVersion" && \
+  git push origin v$releaseVersion && \
+  mvn deploy -P deploy
+  nextVersion=$(semver -i patch $releaseVersion)-SNAPSHOT && \
+  mvn versions:set -DnewVersion=$nextVersion && \
+  mvn install -P docs
+  git commit -am "prepare next version $nextVersion" && \
+  cd ..
+else 
+ echo "working directory is not clean. Commit first.
+fi
