@@ -8,18 +8,18 @@
 
 if [ -z "$(git status --porcelain)" ]; then 
   # Working directory clean
-  cd sparql-generate-parent && \
-  mvn versions:set -DremoveSnapshot && \
+  mvn -B versions:set -DremoveSnapshot --file 'sparql-generate-parent/pom.xml' && \
   releaseVersion=$(mvn -q -Dexec.executable="echo" -Dexec.args='${project.version}' --non-recursive exec:exec --file 'sparql-generate-parent/pom.xml') && \
   git commit -am "release $releaseVersion" && \
+  git tag -d v$releaseVersion
   git tag -s "v$releaseVersion" -m "release $releaseVersion" && \
+  git push --delete origin v$releaseVersion
   git push origin v$releaseVersion && \
-  mvn deploy -P deploy
+  # mvn deploy -P deploy
   nextVersion=$(semver -i patch $releaseVersion)-SNAPSHOT && \
-  mvn versions:set -DnewVersion=$nextVersion && \
-  mvn -B install -P docs --file 'sparql-generate-parent/pom.xml'
-  git commit -am "prepare next version $nextVersion" && \
-  cd ..
+  mvn -B versions:set -DnewVersion=$nextVersion --file 'sparql-generate-parent/pom.xml' && \
+  # mvn -B install -P docs --file 'sparql-generate-parent/pom.xml'
+  git commit -am "prepare next version $nextVersion"
 else 
- echo "working directory is not clean. Commit first.
+ echo "working directory is not clean. Commit first."
 fi

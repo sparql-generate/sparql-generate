@@ -361,7 +361,7 @@
 							<failOnError>false</failOnError>
 							<includeDependencySources>true</includeDependencySources>
 							<dependencySourceIncludes>
-								<dependencySourceInclude>fr.mines_stetienne.ci.sparql_generate:*</dependencySourceInclude>
+								<dependencySourceInclude>fr.mines-stetienne.ci.sparql-generate:*</dependencySourceInclude>
 							</dependencySourceIncludes>
 						</configuration>
 					</plugin>

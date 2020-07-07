@@ -12,6 +12,10 @@ jobs:
       - name: Check out Git repository
         uses: actions/checkout@v2
 
+      - name: Get tag name
+        id: vars
+        run: echo ::set-output name=tag::${GITHUB_REF#refs/*/v}
+
       - name: Install Java and Maven
         uses: actions/setup-java@v1
         with:
@@ -41,7 +45,7 @@ jobs:
         with:
           tag_name: ${{ github.ref }}
           release_name: ${{ github.ref }}
-          draft: false
+          draft: true
           prerelease: true
 
       - name: Upload Release Asset jar
@@ -52,7 +56,7 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: sparql-generate-all/target/sparql-generate.jar
-          asset_name: sparql-generate-${{ github.ref }}.jar
+          asset_name: sparql-generate-${{ steps.vars.outputs.tag }}.jar
           asset_content_type: application/java-archive
 
       - name: Upload Release Asset javadoc
@@ -62,6 +66,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: sparql-generate-all/target/sparql-generate-all-${{ github.ref }}-javadoc.jar
-          asset_name: sparql-generate-${{ github.ref }}-javadoc.jar
+          asset_path: sparql-generate-all/target/sparql-generate-all-${{ steps.vars.outputs.tag }}-javadoc.jar
+          asset_name: sparql-generate-${{ steps.vars.outputs.tag }}-javadoc.jar
           asset_content_type: application/java-archive
