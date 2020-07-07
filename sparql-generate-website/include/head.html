@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>@@title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- <meta name="description" content="" /> -->
+    <meta http-equiv="content-language" content="en" />
+
+    <link rel="stylesheet" href="./css/base.css" />
+    <link rel="stylesheet" href="./css/bootstrap.min.css" />
+    <link rel="stylesheet" href="./css/bootswatch-pulse.min.css" />
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css"/>
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <script src="./js/jquery.min.js"></script>
+    <script src="./js/bootstrap.min.js"></script>
+    <script async="async" defer="defer" src="./js/buttons.js"></script>
+
+@@if( active == "playground") { @@include('./playground-extras.html') }
+
+@@include('./google-analytics.html')
+  </head>
+
+  <body data-spy="scroll" data-offset="60" data-target="#toc-scroll-target">
+
+@@include("./nav.html", {"active" : "@@active"})

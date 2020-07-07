@@ -1,0 +1,29 @@
+PREFIX iter: <http://w3id.org/sparql-generate/iter/>
+PREFIX fun: <http://w3id.org/sparql-generate/fn/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> 
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+PREFIX schema: <http://schema.org/>
+
+BASE <http://example.org/> 
+
+GENERATE { 
+ ?personIRI a foaf:Person ;
+            foaf:name ?name;
+            foaf:mbox ?email ;
+            foaf:phone ?phone ;
+            schema:birthDate ?birthdate ;
+            schema:height ?height ;
+            schema:weight ?weight .
+}
+SOURCE <persons> AS ?persons
+ITERATOR iter:CSV(?persons) AS ?person
+WHERE {
+    BIND( fun:CSV(?person, "PersonId" ) AS ?personId )
+    BIND( URI(CONCAT("http://example.com/person/",?personId)) AS ?personIRI )
+    BIND( fun:CSV(?person, "Name" ) AS ?name )
+    BIND( URI( CONCAT( "tel:", fun:CSV(?person, "Phone" ) ) ) AS ?phone )
+    BIND( URI( CONCAT( "mailto:", fun:CSV(?person, "Email" ) ) ) AS ?email )
+    BIND( xsd:dateTime( fun:CSV(?person, "Birthdate" ) ) AS ?birthdate )
+    BIND( xsd:decimal( fun:CSV(?person, "Height" ) ) AS ?height )
+    BIND( xsd:decimal( fun:CSV(?person, "Weight" ) ) AS ?weight )
+}

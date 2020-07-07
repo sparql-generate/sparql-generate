@@ -1,0 +1,22 @@
+{
+	"Paris": {
+		"country": "France",
+		"population": "2240000"
+	},
+	"London": {
+		"country": "England",
+		"population": "8788000"
+	},
+	"New York": {
+		"country": "USA",
+		"population": "8538000"
+	},
+	"New Delhi": {
+		"country": "India",
+		"population": "21750000"
+	},
+	"New Orleans": {
+		"country": "USA",
+		"population": "391000"
+	}
+}

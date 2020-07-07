@@ -1,0 +1,39 @@
+@prefix rr: <http://www.w3.org/ns/r2rml#>.
+@prefix rml: <http://semweb.mmlab.be/ns/rml#> .
+@prefix ql: <http://semweb.mmlab.be/ns/ql#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
+@prefix ex: <http://www.example.org/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix schema: <http://schema.org/> .
+
+@base <http://example.org/> .
+
+<#PersonMapping>
+    rr:subjectMap [
+	 rr:template "http://example.org/person/{PersonId}{Name}";
+	 rr:class foaf:Person; 
+    ];
+    rr:predicateObjectMap [
+        rr:predicate foaf:name;
+        rr:objectMap [ rml:reference "Name" ];
+    ];
+    rr:predicateObjectMap [
+        rr:predicate foaf:mbox;
+        rr:objectMap [ rr:template "mailto:{Email}" ];
+    ] ;
+    rr:predicateObjectMap [
+        rr:predicate foaf:phone;
+        rr:objectMap [ rr:template "tel:{Phone}" ];
+    ] ;
+    rr:predicateObjectMap [
+        rr:predicate schema:birthDate;
+        rr:objectMap [ rml:reference "Birthdate" ; rr:datatype xsd:dateTime ];
+    ] ;
+    rr:predicateObjectMap [
+        rr:predicate schema:birthDate;
+        rr:objectMap [ rml:reference "Height" ; rr:datatype xsd:decimal ];
+    ] ;
+    rr:predicateObjectMap [
+        rr:predicate schema:birthDate;
+        rr:objectMap [ rml:reference "Weight" ; rr:datatype xsd:decimal ];
+    ] .

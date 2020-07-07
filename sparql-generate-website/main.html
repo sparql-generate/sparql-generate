@@ -1,0 +1,20 @@
+@@include("./include/head.html", {
+  "title": "@@title",
+  "active" : "@@name"
+})
+
+  <div class="container">
+  <div class="row">
+    <div class="span12">
+      <div class="body-content">
+@@body
+      </div>
+    </div>
+  </div>
+  </div>
+
+
+@@include("./include/footer.html", {
+  "active" : "@@name", 
+  "date" : "@@date"
+})

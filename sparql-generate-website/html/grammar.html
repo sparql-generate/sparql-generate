@@ -1,0 +1,1228 @@
+  @@include("../include/head.html", {
+    "title": "SPARQL-Generate - Grammar in EBNF notation",
+    "active" : "grammar"
+  })
+
+
+  <div class="container">
+  <div class="row">
+    <div class="span12">
+      <div class="body-content">
+    <h1>Grammar in EBNF notion</h1>
+    <p>The definition of the syntax for the SPARQL-Generate language, as given by a grammar expressed in EBNF notation. </p>
+    <div class="grammarTable">
+        <table id="grammar" class="bodyTable table table-striped table-hover">
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod1">SPARQLExtUnit</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE"><A HREF="#prod2">ByteOrderMark</A> <A HREF="#prod3">ExtQuery</A> &lt;EOF&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod3">ExtQuery</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE"><A HREF="#prod4">Prologue</A> ( ( <A HREF="#prod5">SelectQuery</A> | <A HREF="#prod6">GenerateQuery</A> | <A HREF="#prod7">TemplateQuery</A> | <A HREF="#prod8">PerformQuery</A> ) <A HREF="#prod9">ValuesClause</A> | <A HREF="#prod10">Function</A> )</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod10">Function</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;FUNCTION&gt; ( <A HREF="#prod11">SourceSelector</A> ) <A HREF="#prod12">VarList</A> &lt;LBRACE&gt; <A HREF="#prod13">PrimaryExpression</A> &lt;RBRACE&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod6">GenerateQuery</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;GENERATE&gt; ( ( <A HREF="#prod11">SourceSelector</A> ) ( <A HREF="#prod12">VarList</A> )? )? <A HREF="#prod14">GenerateClause</A> ( <A HREF="#prod15">DatasetClause</A> )* ( <A HREF="#prod16">BindingClauses</A> )* ( <A HREF="#prod17">WhereClause</A> )? <A HREF="#prod18">SolutionModifier</A> ( <A HREF="#prod19">PostSelectClause</A> )?</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod20">SubQueryUnit</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE"><A HREF="#prod2">ByteOrderMark</A> <A HREF="#prod4">Prologue</A> ( <A HREF="#prod21">SubGenerateQuery</A> | <A HREF="#prod22">SubTemplateQuery</A> | <A HREF="#prod23">SubPerformQuery</A> ) <A HREF="#prod9">ValuesClause</A> &lt;EOF&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod7">TemplateQuery</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;TEMPLATE&gt; ( ( <A HREF="#prod11">SourceSelector</A> ) ( <A HREF="#prod12">VarList</A> )? )? <A HREF="#prod24">TemplateClause</A> ( <A HREF="#prod15">DatasetClause</A> )* ( <A HREF="#prod16">BindingClauses</A> )* ( <A HREF="#prod17">WhereClause</A> )? <A HREF="#prod18">SolutionModifier</A></td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod8">PerformQuery</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;PERFORM&gt; ( ( <A HREF="#prod11">SourceSelector</A> ) ( <A HREF="#prod12">VarList</A> )? )? <A HREF="#prod25">PerformClause</A> ( <A HREF="#prod15">DatasetClause</A> )* ( <A HREF="#prod16">BindingClauses</A> )* ( <A HREF="#prod17">WhereClause</A> )? <A HREF="#prod18">SolutionModifier</A> ( <A HREF="#prod19">PostSelectClause</A> )?</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod12">VarList</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">( &lt;NIL&gt; | &lt;LPAREN&gt; ( <A HREF="#prod26">Var</A> ) ( &lt;COMMA&gt; <A HREF="#prod26">Var</A> )* &lt;RPAREN&gt; )</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod24">TemplateClause</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;LBRACE&gt; <A HREF="#prod27">TemplateInnerClause</A> &lt;RBRACE&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod27">TemplateInnerClause</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">( <A HREF="#prod28">TemplateBefore</A> )? ( <A HREF="#prod29">TExpression</A> )* ( &lt;SEMICOLON&gt; ( <A HREF="#prod30">TemplateSeparator</A> ( &lt;SEMICOLON&gt; <A HREF="#prod31">TemplateAfter</A> )? | <A HREF="#prod31">TemplateAfter</A> ) )?</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod28">TemplateBefore</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;BEFORE&gt; &lt;EQ&gt; <A HREF="#prod32">Expression</A> &lt;SEMICOLON&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod31">TemplateAfter</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;AFTER&gt; &lt;EQ&gt; <A HREF="#prod32">Expression</A></td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod30">TemplateSeparator</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;SEPARATOR&gt; &lt;EQ&gt; <A HREF="#prod32">Expression</A></td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod29">TExpression</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">( <A HREF="#prod33">PrimaryExpressionNotBracketted</A> | <A HREF="#prod34">Box</A> | <A HREF="#prod35">Format</A> | <A HREF="#prod36">Group</A> | <A HREF="#prod22">SubTemplateQuery</A> &lt;DOT&gt; )</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod33">PrimaryExpressionNotBracketted</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">( ( <A HREF="#prod37">BuiltInCall</A> | <A HREF="#prod38">XiriOrFunction</A> ) | ( <A HREF="#prod39">XRDFLiteral</A> | <A HREF="#prod40">NumericLiteral</A> | <A HREF="#prod41">BooleanLiteral</A> | <A HREF="#prod26">Var</A> ) )</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod34">Box</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;BOX&gt; &lt;LBRACE&gt; ( <A HREF="#prod29">TExpression</A> )* &lt;RBRACE&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod35">Format</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;FORMAT&gt; &lt;LBRACE&gt; <A HREF="#prod33">PrimaryExpressionNotBracketted</A> ( <A HREF="#prod29">TExpression</A> )+ &lt;RBRACE&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod36">Group</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;GROUP&gt; ( &lt;DISTINCT&gt; )? &lt;LBRACE&gt; ( ( <A HREF="#prod33">PrimaryExpressionNotBracketted</A> | <A HREF="#prod34">Box</A> | <A HREF="#prod35">Format</A> ) )* ( <A HREF="#prod42">Separator</A> )? &lt;RBRACE&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod22">SubTemplateQuery</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;TEMPLATE&gt; ( ( <A HREF="#prod43">VarOrXIri</A> | &lt;IRI&gt; &lt;LPAREN&gt; <A HREF="#prod32">Expression</A> &lt;RPAREN&gt; | &lt;URI&gt; &lt;LPAREN&gt; <A HREF="#prod32">Expression</A> &lt;RPAREN&gt; ) <A HREF="#prod44">ArgList</A> | ( <A HREF="#prod12">VarList</A> )? <A HREF="#prod24">TemplateClause</A> ) ( <A HREF="#prod15">DatasetClause</A> )* ( <A HREF="#prod16">BindingClauses</A> )* ( &lt;WHERE&gt; <A HREF="#prod45">GroupGraphPattern</A> )? <A HREF="#prod18">SolutionModifier</A></td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod46">Pragma</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">( &lt;PRAGMA&gt; &lt;LBRACE&gt; &lt;RBRACE&gt; )?</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod42">Separator</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;SEMICOLON&gt; &lt;SEPARATOR&gt; &lt;EQ&gt; <A HREF="#prod47">String</A></td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod25">PerformClause</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;LBRACE&gt; <A HREF="#prod48">PerformClauseSub</A> &lt;RBRACE&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod48">PerformClauseSub</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">( <A HREF="#prod23">SubPerformQuery</A> &lt;DOT&gt; )*</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod23">SubPerformQuery</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;PERFORM&gt; ( ( <A HREF="#prod43">VarOrXIri</A> | &lt;IRI&gt; &lt;LPAREN&gt; <A HREF="#prod32">Expression</A> &lt;RPAREN&gt; | &lt;URI&gt; &lt;LPAREN&gt; <A HREF="#prod32">Expression</A> &lt;RPAREN&gt; ) ( <A HREF="#prod44">ArgList</A> )? | ( <A HREF="#prod12">VarList</A> )? <A HREF="#prod25">PerformClause</A> ) ( <A HREF="#prod16">BindingClauses</A> )* ( &lt;WHERE&gt; <A HREF="#prod45">GroupGraphPattern</A> )? <A HREF="#prod18">SolutionModifier</A> ( <A HREF="#prod19">PostSelectClause</A> )?</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod49">PerformCall</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE"><A HREF="#prod43">VarOrXIri</A> ( &lt;NIL&gt; | &lt;LPAREN&gt; <A HREF="#prod50">PExpression</A> ( &lt;COMMA&gt; <A HREF="#prod50">PExpression</A> )* &lt;RPAREN&gt; )?</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod50">PExpression</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">( <A HREF="#prod32">Expression</A> )</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod14">GenerateClause</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;LBRACE&gt; <A HREF="#prod51">GenerateClauseSub</A> &lt;RBRACE&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod51">GenerateClauseSub</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">( <A HREF="#prod52">ConstructTriples</A> )? ( <A HREF="#prod21">SubGenerateQuery</A> &lt;DOT&gt; ( <A HREF="#prod52">ConstructTriples</A> )? )*</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod16">BindingClauses</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">( <A HREF="#prod53">IteratorClause</A> | <A HREF="#prod54">SourceClause</A> | <A HREF="#prod55">Bind</A> )</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod53">IteratorClause</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;ITERATOR&gt; <A HREF="#prod56">FunctionCall</A> &lt;AS&gt; ( <A HREF="#prod26">Var</A> )+</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod54">SourceClause</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;SOURCE&gt; <A HREF="#prod43">VarOrXIri</A> ( &lt;ACCEPT&gt; <A HREF="#prod43">VarOrXIri</A> )? &lt;AS&gt; <A HREF="#prod26">Var</A></td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod21">SubGenerateQuery</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;GENERATE&gt; ( ( <A HREF="#prod43">VarOrXIri</A> | &lt;IRI&gt; &lt;LPAREN&gt; <A HREF="#prod32">Expression</A> &lt;RPAREN&gt; | &lt;URI&gt; &lt;LPAREN&gt; <A HREF="#prod32">Expression</A> &lt;RPAREN&gt; ) ( <A HREF="#prod44">ArgList</A> )? | ( <A HREF="#prod12">VarList</A> )? <A HREF="#prod14">GenerateClause</A> ) ( <A HREF="#prod16">BindingClauses</A> )* ( &lt;WHERE&gt; <A HREF="#prod45">GroupGraphPattern</A> )? <A HREF="#prod18">SolutionModifier</A> ( <A HREF="#prod19">PostSelectClause</A> )?</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod2">ByteOrderMark</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">( &lt;BOM&gt; )?</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod4">Prologue</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">( <A HREF="#prod57">BaseDecl</A> | <A HREF="#prod58">PrefixDecl</A> )*</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod57">BaseDecl</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;BASE&gt; <A HREF="#prod59">IRIREF</A></td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod58">PrefixDecl</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;PREFIX&gt; &lt;PNAME_NS&gt; <A HREF="#prod59">IRIREF</A></td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod5">SelectQuery</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE"><A HREF="#prod60">NamedSelectClause</A> ( <A HREF="#prod15">DatasetClause</A> )* ( <A HREF="#prod16">BindingClauses</A> )* <A HREF="#prod17">WhereClause</A> <A HREF="#prod18">SolutionModifier</A></td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod61">SubSelect</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE"><A HREF="#prod62">SelectClause</A> <A HREF="#prod17">WhereClause</A> <A HREF="#prod18">SolutionModifier</A> <A HREF="#prod9">ValuesClause</A></td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod60">NamedSelectClause</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;SELECT&gt; ( ( <A HREF="#prod11">SourceSelector</A> ) <A HREF="#prod12">VarList</A> )? ( &lt;DISTINCT&gt; | &lt;REDUCED&gt; )? ( ( <A HREF="#prod26">Var</A> | ( &lt;LPAREN&gt; <A HREF="#prod32">Expression</A> &lt;AS&gt; <A HREF="#prod26">Var</A> &lt;RPAREN&gt; ) )+ | &lt;STAR&gt; )</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod62">SelectClause</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;SELECT&gt; ( &lt;DISTINCT&gt; | &lt;REDUCED&gt; )? ( ( <A HREF="#prod26">Var</A> | ( &lt;LPAREN&gt; <A HREF="#prod32">Expression</A> &lt;AS&gt; <A HREF="#prod26">Var</A> &lt;RPAREN&gt; ) )+ | &lt;STAR&gt; )</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod19">PostSelectClause</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;EXPRESSIONS&gt; ( &lt;LPAREN&gt; <A HREF="#prod32">Expression</A> &lt;AS&gt; <A HREF="#prod26">Var</A> &lt;RPAREN&gt; )+</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod63">ConstructQuery</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;CONStrUCT&gt; ( <A HREF="#prod64">ConstructTemplate</A> ( <A HREF="#prod15">DatasetClause</A> )* <A HREF="#prod17">WhereClause</A> <A HREF="#prod18">SolutionModifier</A> | ( <A HREF="#prod15">DatasetClause</A> )* &lt;WHERE&gt; &lt;LBRACE&gt; ( <A HREF="#prod65">TriplesTemplate</A> )? &lt;RBRACE&gt; <A HREF="#prod18">SolutionModifier</A> )</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod66">DescribeQuery</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;DESCRIBE&gt; ( ( <A HREF="#prod43">VarOrXIri</A> )+ | &lt;STAR&gt; ) ( <A HREF="#prod15">DatasetClause</A> )* ( <A HREF="#prod17">WhereClause</A> )? <A HREF="#prod18">SolutionModifier</A></td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod67">AskQuery</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;ASK&gt; ( <A HREF="#prod15">DatasetClause</A> )* <A HREF="#prod17">WhereClause</A> <A HREF="#prod18">SolutionModifier</A></td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod15">DatasetClause</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;FROM&gt; ( <A HREF="#prod68">DefaultGraphClause</A> | <A HREF="#prod69">NamedGraphClause</A> | <A HREF="#prod70">GenerateGraphClause</A> )</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod68">DefaultGraphClause</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE"><A HREF="#prod32">Expression</A></td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod69">NamedGraphClause</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;NAMED&gt; <A HREF="#prod32">Expression</A></td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod70">GenerateGraphClause</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE"><A HREF="#prod21">SubGenerateQuery</A> ( &lt;NAMED&gt; <A HREF="#prod32">Expression</A> | ) &lt;DOT&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod11">SourceSelector</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE"><A HREF="#prod71">iri</A></td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod17">WhereClause</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">( &lt;WHERE&gt; )? <A HREF="#prod45">GroupGraphPattern</A></td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod18">SolutionModifier</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">( <A HREF="#prod72">GroupClause</A> )? ( <A HREF="#prod73">HavingClause</A> )? ( <A HREF="#prod74">OrderClause</A> )? ( <A HREF="#prod75">LimitOffsetClauses</A> )?</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod72">GroupClause</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;GROUP&gt; &lt;BY&gt; ( <A HREF="#prod76">GroupCondition</A> )+</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod76">GroupCondition</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">( <A HREF="#prod37">BuiltInCall</A> | <A HREF="#prod56">FunctionCall</A> | &lt;LPAREN&gt; <A HREF="#prod32">Expression</A> ( &lt;AS&gt; <A HREF="#prod26">Var</A> )? &lt;RPAREN&gt; | <A HREF="#prod26">Var</A> )</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod73">HavingClause</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;HAVING&gt; ( <A HREF="#prod77">HavingCondition</A> )+</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod77">HavingCondition</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE"><A HREF="#prod78">Constraint</A></td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod74">OrderClause</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;ORDER&gt; &lt;BY&gt; ( <A HREF="#prod79">OrderCondition</A> )+</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod79">OrderCondition</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">( ( ( &lt;ASC&gt; | &lt;DESC&gt; ) <A HREF="#prod80">BrackettedExpression</A> ) | ( <A HREF="#prod78">Constraint</A> | <A HREF="#prod26">Var</A> ) )</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod75">LimitOffsetClauses</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">( <A HREF="#prod81">LimitClause</A> ( <A HREF="#prod82">OffsetClause</A> )? | <A HREF="#prod82">OffsetClause</A> ( <A HREF="#prod81">LimitClause</A> )? )</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod81">LimitClause</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;LIMIT&gt; &lt;INTEGER&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod82">OffsetClause</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;OFFSET&gt; &lt;INTEGER&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod9">ValuesClause</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">( &lt;VALUES&gt; <A HREF="#prod83">DataBlock</A> )?</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod65">TriplesTemplate</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE"><A HREF="#prod84">TriplesSameSubject</A> ( &lt;DOT&gt; ( <A HREF="#prod65">TriplesTemplate</A> )? )?</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod45">GroupGraphPattern</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;LBRACE&gt; ( <A HREF="#prod61">SubSelect</A> | <A HREF="#prod85">GroupGraphPatternSub</A> ) &lt;RBRACE&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod85">GroupGraphPatternSub</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">( <A HREF="#prod86">TriplesBlock</A> )? ( <A HREF="#prod87">GraphPatternNotTriples</A> ( &lt;DOT&gt; )? ( <A HREF="#prod86">TriplesBlock</A> )? )*</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod86">TriplesBlock</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE"><A HREF="#prod88">TriplesSameSubjectPath</A> ( &lt;DOT&gt; ( <A HREF="#prod86">TriplesBlock</A> )? )?</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod87">GraphPatternNotTriples</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">( <A HREF="#prod89">GroupOrUnionGraphPattern</A> | <A HREF="#prod90">OptionalGraphPattern</A> | <A HREF="#prod91">MinusGraphPattern</A> | <A HREF="#prod92">GraphGraphPattern</A> | <A HREF="#prod93">ServiceGraphPattern</A> | <A HREF="#prod94">Filter</A> | <A HREF="#prod55">Bind</A> | <A HREF="#prod95">InlineData</A> )</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod90">OptionalGraphPattern</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;OPTIONAL&gt; <A HREF="#prod45">GroupGraphPattern</A></td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod92">GraphGraphPattern</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;GRAPH&gt; <A HREF="#prod43">VarOrXIri</A> <A HREF="#prod45">GroupGraphPattern</A></td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod93">ServiceGraphPattern</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;SERVICE&gt; ( &lt;SILENT&gt; )? <A HREF="#prod43">VarOrXIri</A> <A HREF="#prod45">GroupGraphPattern</A></td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod55">Bind</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;BIND&gt; &lt;LPAREN&gt; <A HREF="#prod32">Expression</A> &lt;AS&gt; <A HREF="#prod26">Var</A> &lt;RPAREN&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod95">InlineData</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;VALUES&gt; <A HREF="#prod83">DataBlock</A></td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod83">DataBlock</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">( <A HREF="#prod96">InlineDataOneVar</A> | <A HREF="#prod97">InlineDataFull</A> )</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod96">InlineDataOneVar</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE"><A HREF="#prod26">Var</A> &lt;LBRACE&gt; ( <A HREF="#prod98">DataBlockValue</A> )* &lt;RBRACE&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod97">InlineDataFull</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">( &lt;NIL&gt; | &lt;LPAREN&gt; ( <A HREF="#prod26">Var</A> )* &lt;RPAREN&gt; ) &lt;LBRACE&gt; ( &lt;LPAREN&gt; ( <A HREF="#prod98">DataBlockValue</A> )* &lt;RPAREN&gt; | &lt;NIL&gt; )* &lt;RBRACE&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod98">DataBlockValue</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE"><A HREF="#prod71">iri</A></td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">|</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE"><A HREF="#prod99">RDFLiteral</A></td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">|</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE"><A HREF="#prod40">NumericLiteral</A></td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">|</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE"><A HREF="#prod41">BooleanLiteral</A></td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">|</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;UNDEF&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod91">MinusGraphPattern</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;MINUS_P&gt; <A HREF="#prod45">GroupGraphPattern</A></td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod89">GroupOrUnionGraphPattern</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE"><A HREF="#prod45">GroupGraphPattern</A> ( &lt;UNION&gt; <A HREF="#prod45">GroupGraphPattern</A> )*</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod94">Filter</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;FILTER&gt; <A HREF="#prod78">Constraint</A></td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod78">Constraint</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">( <A HREF="#prod80">BrackettedExpression</A> | <A HREF="#prod37">BuiltInCall</A> | <A HREF="#prod56">FunctionCall</A> )</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod56">FunctionCall</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE"><A HREF="#prod71">iri</A> <A HREF="#prod44">ArgList</A></td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod44">ArgList</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">( &lt;NIL&gt; | &lt;LPAREN&gt; ( &lt;DISTINCT&gt; )? <A HREF="#prod32">Expression</A> ( &lt;COMMA&gt; <A HREF="#prod32">Expression</A> )* &lt;RPAREN&gt; )</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod64">ConstructTemplate</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;LBRACE&gt; ( <A HREF="#prod52">ConstructTriples</A> )? &lt;RBRACE&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod100">ExpressionList</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">( &lt;NIL&gt; | &lt;LPAREN&gt; <A HREF="#prod32">Expression</A> ( &lt;COMMA&gt; <A HREF="#prod32">Expression</A> )* &lt;RPAREN&gt; )</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod52">ConstructTriples</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE"><A HREF="#prod84">TriplesSameSubject</A> ( &lt;DOT&gt; ( <A HREF="#prod52">ConstructTriples</A> )? )?</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod84">TriplesSameSubject</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE"><A HREF="#prod101">VarOrXTerm</A> <A HREF="#prod102">PropertyListNotEmpty</A></td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">|</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE"><A HREF="#prod103">TriplesNode</A> <A HREF="#prod104">PropertyList</A></td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod104">PropertyList</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">( <A HREF="#prod102">PropertyListNotEmpty</A> )?</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod102">PropertyListNotEmpty</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE"><A HREF="#prod105">Verb</A> <A HREF="#prod106">ObjectList</A> ( &lt;SEMICOLON&gt; ( <A HREF="#prod105">Verb</A> <A HREF="#prod106">ObjectList</A> )? )*</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod105">Verb</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">( <A HREF="#prod101">VarOrXTerm</A> | &lt;KW_A&gt; )</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod106">ObjectList</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE"><A HREF="#prod107">Object</A> ( &lt;COMMA&gt; <A HREF="#prod107">Object</A> )*</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod107">Object</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">( <A HREF="#prod108">GraphNode</A> | <A HREF="#prod109">ListNode</A> )</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod109">ListNode</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;LIST&gt; &lt;LPAREN&gt; <A HREF="#prod32">Expression</A> &lt;RPAREN&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod88">TriplesSameSubjectPath</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE"><A HREF="#prod101">VarOrXTerm</A> <A HREF="#prod110">PropertyListPathNotEmpty</A></td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">|</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE"><A HREF="#prod111">TriplesNodePath</A> <A HREF="#prod112">PropertyListPath</A></td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod112">PropertyListPath</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">( <A HREF="#prod110">PropertyListPathNotEmpty</A> )?</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod110">PropertyListPathNotEmpty</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">( <A HREF="#prod113">VerbPath</A> | <A HREF="#prod114">VerbSimple</A> ) <A HREF="#prod115">ObjectListPath</A> ( &lt;SEMICOLON&gt; ( ( <A HREF="#prod113">VerbPath</A> | <A HREF="#prod114">VerbSimple</A> ) <A HREF="#prod115">ObjectListPath</A> )? )*</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod113">VerbPath</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE"><A HREF="#prod116">Path</A></td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod114">VerbSimple</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE"><A HREF="#prod117">VarOrXExpr</A></td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod115">ObjectListPath</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE"><A HREF="#prod118">ObjectPath</A> ( &lt;COMMA&gt; <A HREF="#prod118">ObjectPath</A> )*</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod118">ObjectPath</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE"><A HREF="#prod119">GraphNodePath</A></td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod116">Path</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE"><A HREF="#prod120">PathAlternative</A></td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod120">PathAlternative</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE"><A HREF="#prod121">PathSequence</A> ( &lt;VBAR&gt; <A HREF="#prod121">PathSequence</A> )*</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod121">PathSequence</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE"><A HREF="#prod122">PathEltOrInverse</A> ( &lt;SLASH&gt; <A HREF="#prod122">PathEltOrInverse</A> )*</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod123">PathElt</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE"><A HREF="#prod124">PathPrimary</A> ( <A HREF="#prod125">PathMod</A> )?</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod122">PathEltOrInverse</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">( <A HREF="#prod123">PathElt</A> | &lt;CARAT&gt; <A HREF="#prod123">PathElt</A> )</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod125">PathMod</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">( &lt;QMARK&gt; | &lt;STAR&gt; | &lt;PLUS&gt; )</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod124">PathPrimary</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">( <A HREF="#prod126">Xiri</A> | &lt;KW_A&gt; | &lt;BANG&gt; <A HREF="#prod127">PathNegatedPropertySet</A> | &lt;LPAREN&gt; <A HREF="#prod116">Path</A> &lt;RPAREN&gt; )</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod127">PathNegatedPropertySet</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">( <A HREF="#prod128">PathOneInPropertySet</A> | &lt;LPAREN&gt; ( <A HREF="#prod128">PathOneInPropertySet</A> ( &lt;VBAR&gt; <A HREF="#prod128">PathOneInPropertySet</A> )* )? &lt;RPAREN&gt; )</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod128">PathOneInPropertySet</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">( <A HREF="#prod126">Xiri</A> | &lt;KW_A&gt; | &lt;CARAT&gt; ( <A HREF="#prod126">Xiri</A> | &lt;KW_A&gt; ) )</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod129">Integer</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;INTEGER&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod103">TriplesNode</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE"><A HREF="#prod130">Collection</A></td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">|</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE"><A HREF="#prod131">BlankNodePropertyList</A></td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod131">BlankNodePropertyList</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;LBRACKET&gt; <A HREF="#prod102">PropertyListNotEmpty</A> &lt;RBRACKET&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod111">TriplesNodePath</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE"><A HREF="#prod132">CollectionPath</A></td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">|</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE"><A HREF="#prod133">BlankNodePropertyListPath</A></td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod133">BlankNodePropertyListPath</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;LBRACKET&gt; <A HREF="#prod110">PropertyListPathNotEmpty</A> &lt;RBRACKET&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod130">Collection</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;LPAREN&gt; ( <A HREF="#prod108">GraphNode</A> )+ &lt;RPAREN&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod132">CollectionPath</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;LPAREN&gt; ( <A HREF="#prod119">GraphNodePath</A> )+ &lt;RPAREN&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod108">GraphNode</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE"><A HREF="#prod101">VarOrXTerm</A></td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">|</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE"><A HREF="#prod103">TriplesNode</A></td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod119">GraphNodePath</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE"><A HREF="#prod101">VarOrXTerm</A></td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">|</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE"><A HREF="#prod111">TriplesNodePath</A></td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod101">VarOrXTerm</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">( <A HREF="#prod26">Var</A> | <A HREF="#prod134">XTerm</A> )</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod43">VarOrXIri</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">( <A HREF="#prod117">VarOrXExpr</A> | <A HREF="#prod126">Xiri</A> )</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod26">Var</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">( &lt;VAR1&gt; | &lt;VAR2&gt; )</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod117">VarOrXExpr</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">( <A HREF="#prod26">Var</A> | <A HREF="#prod135">XExpr</A> )</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod136">XNode</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">( <A HREF="#prod135">XExpr</A> | <A HREF="#prod39">XRDFLiteral</A> | <A HREF="#prod126">Xiri</A> )</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod135">XExpr</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;START_XEXPR&gt; <A HREF="#prod32">Expression</A> &lt;RBRACE&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod134">XTerm</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">( <A HREF="#prod136">XNode</A> | <A HREF="#prod40">NumericLiteral</A> | <A HREF="#prod41">BooleanLiteral</A> | <A HREF="#prod137">BlankNode</A> | &lt;NIL&gt; )</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod32">Expression</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE"><A HREF="#prod138">ConditionalOrExpression</A></td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod138">ConditionalOrExpression</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE"><A HREF="#prod139">ConditionalAndExpression</A> ( &lt;SC_OR&gt; <A HREF="#prod139">ConditionalAndExpression</A> )*</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod139">ConditionalAndExpression</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE"><A HREF="#prod140">ValueLogical</A> ( &lt;SC_AND&gt; <A HREF="#prod140">ValueLogical</A> )*</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod140">ValueLogical</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE"><A HREF="#prod141">RelationalExpression</A></td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod141">RelationalExpression</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE"><A HREF="#prod142">NumericExpression</A> ( &lt;EQ&gt; <A HREF="#prod142">NumericExpression</A> | &lt;NE&gt; <A HREF="#prod142">NumericExpression</A> | &lt;LT&gt; <A HREF="#prod142">NumericExpression</A> | &lt;GT&gt; <A HREF="#prod142">NumericExpression</A> | &lt;LE&gt; <A HREF="#prod142">NumericExpression</A> | &lt;GE&gt; <A HREF="#prod142">NumericExpression</A> | &lt;IN&gt; <A HREF="#prod100">ExpressionList</A> | &lt;NOT&gt; &lt;IN&gt; <A HREF="#prod100">ExpressionList</A> )?</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod142">NumericExpression</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE"><A HREF="#prod143">AdditiveExpression</A></td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod143">AdditiveExpression</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE"><A HREF="#prod144">MultiplicativeExpression</A> ( &lt;PLUS&gt; <A HREF="#prod144">MultiplicativeExpression</A> | &lt;MINUS&gt; <A HREF="#prod144">MultiplicativeExpression</A> | ( <A HREF="#prod145">NumericLiteralPositive</A> | <A HREF="#prod146">NumericLiteralNegative</A> ) ( ( &lt;STAR&gt; <A HREF="#prod147">UnaryExpression</A> ) | ( &lt;SLASH&gt; <A HREF="#prod147">UnaryExpression</A> ) )* )*</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod144">MultiplicativeExpression</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE"><A HREF="#prod147">UnaryExpression</A> ( &lt;STAR&gt; <A HREF="#prod147">UnaryExpression</A> | &lt;SLASH&gt; <A HREF="#prod147">UnaryExpression</A> )*</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod147">UnaryExpression</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;BANG&gt; <A HREF="#prod13">PrimaryExpression</A></td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">|</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;PLUS&gt; <A HREF="#prod13">PrimaryExpression</A></td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">|</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;MINUS&gt; <A HREF="#prod13">PrimaryExpression</A></td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">|</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE"><A HREF="#prod13">PrimaryExpression</A></td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod13">PrimaryExpression</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">( <A HREF="#prod80">BrackettedExpression</A> | <A HREF="#prod37">BuiltInCall</A> | <A HREF="#prod38">XiriOrFunction</A> | <A HREF="#prod39">XRDFLiteral</A> | <A HREF="#prod40">NumericLiteral</A> | <A HREF="#prod41">BooleanLiteral</A> | <A HREF="#prod26">Var</A> )</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod80">BrackettedExpression</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;LPAREN&gt; <A HREF="#prod32">Expression</A> &lt;RPAREN&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod37">BuiltInCall</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE"><A HREF="#prod148">Aggregate</A></td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">|</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;Str&gt; &lt;LPAREN&gt; <A HREF="#prod32">Expression</A> &lt;RPAREN&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">|</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;LANG&gt; &lt;LPAREN&gt; <A HREF="#prod32">Expression</A> &lt;RPAREN&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">|</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;LANGMATCHES&gt; &lt;LPAREN&gt; <A HREF="#prod32">Expression</A> &lt;COMMA&gt; <A HREF="#prod32">Expression</A> &lt;RPAREN&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">|</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;DTYPE&gt; &lt;LPAREN&gt; <A HREF="#prod32">Expression</A> &lt;RPAREN&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">|</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;BOUND&gt; &lt;LPAREN&gt; <A HREF="#prod26">Var</A> &lt;RPAREN&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">|</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;IRI&gt; &lt;LPAREN&gt; <A HREF="#prod32">Expression</A> &lt;RPAREN&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">|</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;URI&gt; &lt;LPAREN&gt; <A HREF="#prod32">Expression</A> &lt;RPAREN&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">|</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;BNODE&gt; ( &lt;LPAREN&gt; <A HREF="#prod32">Expression</A> &lt;RPAREN&gt; | &lt;NIL&gt; )</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">|</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;RAND&gt; &lt;NIL&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">|</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;ABS&gt; &lt;LPAREN&gt; <A HREF="#prod32">Expression</A> &lt;RPAREN&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">|</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;CEIL&gt; &lt;LPAREN&gt; <A HREF="#prod32">Expression</A> &lt;RPAREN&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">|</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;FLOOR&gt; &lt;LPAREN&gt; <A HREF="#prod32">Expression</A> &lt;RPAREN&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">|</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;ROUND&gt; &lt;LPAREN&gt; <A HREF="#prod32">Expression</A> &lt;RPAREN&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">|</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;CONCAT&gt; <A HREF="#prod100">ExpressionList</A></td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">|</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE"><A HREF="#prod149">SubstringExpression</A></td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">|</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;StrLEN&gt; &lt;LPAREN&gt; <A HREF="#prod32">Expression</A> &lt;RPAREN&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">|</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE"><A HREF="#prod150">StrReplaceExpression</A></td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">|</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;UCASE&gt; &lt;LPAREN&gt; <A HREF="#prod32">Expression</A> &lt;RPAREN&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">|</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;LCASE&gt; &lt;LPAREN&gt; <A HREF="#prod32">Expression</A> &lt;RPAREN&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">|</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;ENCODE_FOR_URI&gt; &lt;LPAREN&gt; <A HREF="#prod32">Expression</A> &lt;RPAREN&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">|</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;CONTAINS&gt; &lt;LPAREN&gt; <A HREF="#prod32">Expression</A> &lt;COMMA&gt; <A HREF="#prod32">Expression</A> &lt;RPAREN&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">|</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;StrSTARTS&gt; &lt;LPAREN&gt; <A HREF="#prod32">Expression</A> &lt;COMMA&gt; <A HREF="#prod32">Expression</A> &lt;RPAREN&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">|</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;StrENDS&gt; &lt;LPAREN&gt; <A HREF="#prod32">Expression</A> &lt;COMMA&gt; <A HREF="#prod32">Expression</A> &lt;RPAREN&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">|</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;StrBEFORE&gt; &lt;LPAREN&gt; <A HREF="#prod32">Expression</A> &lt;COMMA&gt; <A HREF="#prod32">Expression</A> &lt;RPAREN&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">|</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;StrAFTER&gt; &lt;LPAREN&gt; <A HREF="#prod32">Expression</A> &lt;COMMA&gt; <A HREF="#prod32">Expression</A> &lt;RPAREN&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">|</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;YEAR&gt; &lt;LPAREN&gt; <A HREF="#prod32">Expression</A> &lt;RPAREN&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">|</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;MONTH&gt; &lt;LPAREN&gt; <A HREF="#prod32">Expression</A> &lt;RPAREN&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">|</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;DAY&gt; &lt;LPAREN&gt; <A HREF="#prod32">Expression</A> &lt;RPAREN&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">|</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;HOURS&gt; &lt;LPAREN&gt; <A HREF="#prod32">Expression</A> &lt;RPAREN&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">|</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;MINUTES&gt; &lt;LPAREN&gt; <A HREF="#prod32">Expression</A> &lt;RPAREN&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">|</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;SECONDS&gt; &lt;LPAREN&gt; <A HREF="#prod32">Expression</A> &lt;RPAREN&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">|</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;TIMEZONE&gt; &lt;LPAREN&gt; <A HREF="#prod32">Expression</A> &lt;RPAREN&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">|</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;TZ&gt; &lt;LPAREN&gt; <A HREF="#prod32">Expression</A> &lt;RPAREN&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">|</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;NOW&gt; &lt;NIL&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">|</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;UUID&gt; &lt;NIL&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">|</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;StrUUID&gt; &lt;NIL&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">|</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;MD5&gt; &lt;LPAREN&gt; <A HREF="#prod32">Expression</A> &lt;RPAREN&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">|</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;SHA1&gt; &lt;LPAREN&gt; <A HREF="#prod32">Expression</A> &lt;RPAREN&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">|</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;SHA256&gt; &lt;LPAREN&gt; <A HREF="#prod32">Expression</A> &lt;RPAREN&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">|</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;SHA384&gt; &lt;LPAREN&gt; <A HREF="#prod32">Expression</A> &lt;RPAREN&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">|</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;SHA512&gt; &lt;LPAREN&gt; <A HREF="#prod32">Expression</A> &lt;RPAREN&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">|</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;COALESCE&gt; <A HREF="#prod100">ExpressionList</A></td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">|</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;IF&gt; &lt;LPAREN&gt; <A HREF="#prod32">Expression</A> &lt;COMMA&gt; <A HREF="#prod32">Expression</A> &lt;COMMA&gt; <A HREF="#prod32">Expression</A> &lt;RPAREN&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">|</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;StrLANG&gt; &lt;LPAREN&gt; <A HREF="#prod32">Expression</A> &lt;COMMA&gt; <A HREF="#prod32">Expression</A> &lt;RPAREN&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">|</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;StrDT&gt; &lt;LPAREN&gt; <A HREF="#prod32">Expression</A> &lt;COMMA&gt; <A HREF="#prod32">Expression</A> &lt;RPAREN&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">|</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;SAME_TERM&gt; &lt;LPAREN&gt; <A HREF="#prod32">Expression</A> &lt;COMMA&gt; <A HREF="#prod32">Expression</A> &lt;RPAREN&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">|</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;IS_IRI&gt; &lt;LPAREN&gt; <A HREF="#prod32">Expression</A> &lt;RPAREN&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">|</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;IS_URI&gt; &lt;LPAREN&gt; <A HREF="#prod32">Expression</A> &lt;RPAREN&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">|</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;IS_BLANK&gt; &lt;LPAREN&gt; <A HREF="#prod32">Expression</A> &lt;RPAREN&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">|</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;IS_LITERAL&gt; &lt;LPAREN&gt; <A HREF="#prod32">Expression</A> &lt;RPAREN&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">|</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;IS_NUMERIC&gt; &lt;LPAREN&gt; <A HREF="#prod32">Expression</A> &lt;RPAREN&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">|</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE"><A HREF="#prod151">RegexExpression</A></td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">|</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE"><A HREF="#prod152">ExistsFunc</A></td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">|</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE"><A HREF="#prod153">NotExistsFunc</A></td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod151">RegexExpression</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;REGEX&gt; &lt;LPAREN&gt; <A HREF="#prod32">Expression</A> &lt;COMMA&gt; <A HREF="#prod32">Expression</A> ( &lt;COMMA&gt; <A HREF="#prod32">Expression</A> )? &lt;RPAREN&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod149">SubstringExpression</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;SUBStr&gt; &lt;LPAREN&gt; <A HREF="#prod32">Expression</A> &lt;COMMA&gt; <A HREF="#prod32">Expression</A> ( &lt;COMMA&gt; <A HREF="#prod32">Expression</A> )? &lt;RPAREN&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod150">StrReplaceExpression</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;REPLACE&gt; &lt;LPAREN&gt; <A HREF="#prod32">Expression</A> &lt;COMMA&gt; <A HREF="#prod32">Expression</A> &lt;COMMA&gt; <A HREF="#prod32">Expression</A> ( &lt;COMMA&gt; <A HREF="#prod32">Expression</A> )? &lt;RPAREN&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod152">ExistsFunc</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;EXISTS&gt; <A HREF="#prod45">GroupGraphPattern</A></td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod153">NotExistsFunc</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;NOT&gt; &lt;EXISTS&gt; <A HREF="#prod45">GroupGraphPattern</A></td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod148">Aggregate</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">( &lt;COUNT&gt; &lt;LPAREN&gt; ( &lt;DISTINCT&gt; )? ( &lt;STAR&gt; | <A HREF="#prod32">Expression</A> ) &lt;RPAREN&gt; | &lt;SUM&gt; &lt;LPAREN&gt; ( &lt;DISTINCT&gt; )? <A HREF="#prod32">Expression</A> &lt;RPAREN&gt; | &lt;MIN&gt; &lt;LPAREN&gt; ( &lt;DISTINCT&gt; )? <A HREF="#prod32">Expression</A> &lt;RPAREN&gt; | &lt;MAX&gt; &lt;LPAREN&gt; ( &lt;DISTINCT&gt; )? <A HREF="#prod32">Expression</A> &lt;RPAREN&gt; | &lt;AVG&gt; &lt;LPAREN&gt; ( &lt;DISTINCT&gt; )? <A HREF="#prod32">Expression</A> &lt;RPAREN&gt; | &lt;SAMPLE&gt; &lt;LPAREN&gt; ( &lt;DISTINCT&gt; )? <A HREF="#prod32">Expression</A> &lt;RPAREN&gt; | &lt;GROUP_CONCAT&gt; &lt;LPAREN&gt; ( &lt;DISTINCT&gt; )? <A HREF="#prod32">Expression</A> ( <A HREF="#prod42">Separator</A> )? &lt;RPAREN&gt; )</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod38">XiriOrFunction</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE"><A HREF="#prod126">Xiri</A> ( <A HREF="#prod44">ArgList</A> )?</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod99">RDFLiteral</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE"><A HREF="#prod47">String</A> ( ( &lt;LANGTAG&gt; ) | ( &lt;DATATYPE&gt; <A HREF="#prod71">iri</A> ) )?</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod39">XRDFLiteral</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE"><A HREF="#prod154">XString</A> ( &lt;LANGTAG&gt; | &lt;DATATYPE&gt; <A HREF="#prod126">Xiri</A> )?</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod40">NumericLiteral</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">( <A HREF="#prod155">NumericLiteralUnsigned</A> | <A HREF="#prod145">NumericLiteralPositive</A> | <A HREF="#prod146">NumericLiteralNegative</A> )</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod155">NumericLiteralUnsigned</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;INTEGER&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">|</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;DECIMAL&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">|</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;DOUBLE&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod145">NumericLiteralPositive</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;INTEGER_POSITIVE&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">|</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;DECIMAL_POSITIVE&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">|</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;DOUBLE_POSITIVE&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod146">NumericLiteralNegative</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;INTEGER_NEGATIVE&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">|</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;DECIMAL_NEGATIVE&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">|</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;DOUBLE_NEGATIVE&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod41">BooleanLiteral</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;trUE&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">|</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;FALSE&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod47">String</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">( &lt;StrING_LITERAL1&gt; | &lt;StrING_LITERAL2&gt; | &lt;StrING_LITERAL_LONG1&gt; | &lt;StrING_LITERAL_LONG2&gt; )</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod154">XString</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">( <A HREF="#prod156">XString_Literal1</A> | <A HREF="#prod157">XString_Literal2</A> | <A HREF="#prod158">XString_Literal_Long1</A> | <A HREF="#prod159">XString_Literal_Long2</A> )</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod156">XString_Literal1</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">( &lt;StrING_LITERAL1&gt; | &lt;StrING_LITERAL1_START&gt; <A HREF="#prod160">XString_Literal1_Sub</A> )</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod160">XString_Literal1_Sub</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE"><A HREF="#prod32">Expression</A> ( &lt;S1&gt; <A HREF="#prod160">XString_Literal1_Sub</A> | &lt;StrING_LITERAL1_END&gt; )</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod157">XString_Literal2</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">( &lt;StrING_LITERAL2&gt; | &lt;StrING_LITERAL2_START&gt; <A HREF="#prod161">XString_Literal2_Sub</A> )</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod161">XString_Literal2_Sub</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE"><A HREF="#prod32">Expression</A> ( ( &lt;S2&gt; ) <A HREF="#prod161">XString_Literal2_Sub</A> | &lt;StrING_LITERAL2_END&gt; )</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod158">XString_Literal_Long1</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">( &lt;StrING_LITERAL_LONG1&gt; | &lt;StrING_LITERAL_LONG1_START&gt; <A HREF="#prod162">XString_Literal_Long1_Sub</A> )</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod162">XString_Literal_Long1_Sub</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE"><A HREF="#prod32">Expression</A> ( &lt;L1&gt; <A HREF="#prod162">XString_Literal_Long1_Sub</A> | &lt;StrING_LITERAL_LONG1_END&gt; )</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod159">XString_Literal_Long2</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">( &lt;StrING_LITERAL_LONG2&gt; | &lt;StrING_LITERAL_LONG2_START&gt; <A HREF="#prod163">XString_Literal_Long2_Sub</A> )</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod163">XString_Literal_Long2_Sub</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE"><A HREF="#prod32">Expression</A> ( &lt;L2&gt; <A HREF="#prod163">XString_Literal_Long2_Sub</A> | &lt;StrING_LITERAL_LONG2_END&gt; )</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod71">iri</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">( <A HREF="#prod59">IRIREF</A> | <A HREF="#prod164">PrefixedName</A> )</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod164">PrefixedName</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">( &lt;PNAME_LN&gt; | &lt;PNAME_NS&gt; )</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod137">BlankNode</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;BLANK_NODE_LABEL&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">|</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;ANON&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod59">IRIREF</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">&lt;IRIref&gt;</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod126">Xiri</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE">( <A HREF="#prod71">iri</A> | &lt;XIRIref_START&gt; <A HREF="#prod165">XIRIREF_Sub</A> )</td>
+    </tr>
+    <tr>
+        <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod165">XIRIREF_Sub</A></td>
+        <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
+        <td ALIGN="LEFT" VALIGN="BASELINE"><A HREF="#prod32">Expression</A> ( &lt;RI&gt; <A HREF="#prod165">XIRIREF_Sub</A> | &lt;XIRIref_END&gt; )</td>
+    </tr>
+</table>
+ 
+      </div>
+    </div>
+  </div>
+  </div>
+</div>
+
+
+
+@@include("../include/footer.html", {
+  "active" : "grammar", 
+  "date" : "@@date"
+})

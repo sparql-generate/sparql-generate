@@ -4,7 +4,6 @@ on:
   push:
     tags:
       - 'v*'
-      - '!v*-SNAPSHOT'
 
 jobs:
   release:
@@ -16,6 +15,7 @@ jobs:
       - name: Get tag name
         id: vars
         run: echo ::set-output name=tag::${GITHUB_REF#refs/*/v}
+        run: echo ::set-output name=prerelease::$( [[ -z ${GITHUB_REF#refs/*/v*-SNAPSHOT} ]] && echo "true" || echo "false" )
 
       - name: Install Java and Maven
         uses: actions/setup-java@v1
@@ -29,14 +29,8 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
-      - name: Release Maven package
-        uses: samuelmeuli/action-maven-publish@v1
-        with:
-          directory: sparql-generate-parent
-          gpg_private_key: ${{ secrets.gpg_private_key }}
-          gpg_passphrase: ${{ secrets.gpg_passphrase }}
-          nexus_username: ${{ secrets.nexus_username }}
-          nexus_password: ${{ secrets.nexus_password }}
+      - name: Run the Maven package phase
+        run: mvn -B package --file sparql-generate-parent/pom.xml
 
       - name: Create Release
         id: create_release
@@ -47,7 +41,7 @@ jobs:
           tag_name: ${{ github.ref }}
           release_name: ${{ github.ref }}
           draft: false
-          prerelease: false
+          prerelease: ${{ steps.vars.outputs.prerelease }}
 
       - name: Upload Release Asset jar
         id: upload_jar 
@@ -70,3 +64,32 @@ jobs:
           asset_path: sparql-generate-all/target/sparql-generate-all-${{ steps.vars.outputs.tag }}-javadoc.jar
           asset_name: sparql-generate-${{ steps.vars.outputs.tag }}-javadoc.jar
           asset_content_type: application/java-archive
+          
+      - name: upload apidocs
+        id: scp_apidocs_javadoc 
+        uses: garygrossgarten/github-action-scp@release
+        with:
+          recursive: true
+          local: "sparql-generate-all/target/apidocs"
+          remote: "~/website/apidocs"
+          host: ci.mines-stetienne.fr
+          username: ${{ secrets.CI_USER }}
+          key: ${{ secrets.CI_KEY }}
+          
+      - name: upload war
+        id: scp_apidocs_javadoc 
+        uses: garygrossgarten/github-action-scp@release
+        with:
+          local: "sparql-generate-server/target/sparql-generate.war"
+          remote: "~/sparql-generate.war"
+          host: ci.mines-stetienne.fr
+          username: ${{ secrets.CI_USER }}
+          key: ${{ secrets.CI_KEY }}
+
+      - name: update server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ci.mines-stetienne.fr
+          username: ${{ secrets.CI_USER }}
+          key: ${{ secrets.CI_KEY }}
+          script: sudo ./update-app

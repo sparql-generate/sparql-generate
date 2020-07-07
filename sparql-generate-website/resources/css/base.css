@@ -1,0 +1,335 @@
+/*h1, */h2 {
+  margin-top: 30px;
+}
+
+h3, h4, h5, h6 {
+  margin-top: 20px;
+}
+
+#readme {
+    margin: 30px;
+    padding: 0.5em 2em ;
+    border: round 5pt;
+    background: #eeeef9;
+    border-radius: 15pt;
+    border: solid 1px black;
+}
+
+.CodeMirror-fullscreen {
+  margin-top: 40px;
+}
+
+h1[id]:before, h2[id]:before, h3[id]:before, h4[id]:before, h5[id]:before, h6[id]:before, a[name]:before {
+  display: block;
+  content: "";
+  height: 0px;
+  margin: 0px 0 0;
+}
+label, select {
+    display: inline;
+}
+
+body {
+    font-family: "Klima", "Open Sans", Helvetica, Arial, sans-serif;
+    line-height: 20px;
+    color: #333;
+}
+
+blockquote p {
+    margin: 0 0 10px;
+    margin-right: 7px;
+    margin-left: 7px;  
+    font-size: 14.5px;
+}
+
+#try-it-online {
+    display: block;
+    position: relative;    
+    z-index: 1;
+    margin: 1em 0em 1em ;
+    padding: .5em 5em .5em;
+    border-radius: 1em;
+    font-size: 20px;
+    text-align: center;
+    color: #fff;
+    background: #61259c;
+}
+
+#new {
+    display: block;
+    position: relative;    
+    z-index: 1;
+    margin: 0em 20% 1em ;
+    padding: .5em;
+    border-radius: 1em;
+    font-size: 20px;
+    text-align: center;
+    color: #fff;
+    background: #0aa82a;
+}
+
+.drop_zone {
+    border-radius: .5em;
+    border: 2px solid black;
+    margin: 5px 30px 0px 30px;
+    padding: 5px; 
+}
+
+.invalid {
+    border-radius: 7px;
+    box-shadow: 0 0 15px #b30000;
+}
+
+.invalidmsg {
+    color: #b30000;
+}
+
+[contenteditable="true"] {
+    border-radius: .5em;
+    box-shadow: 0 0 3px #000;
+    margin:1px;
+    padding:2px;
+}
+
+[contenteditable="true"]:hover {
+    border-radius: .5em;
+    box-shadow: 0 0 3px #0090D2;
+    margin:1px;
+    padding:2px;
+}
+
+.fieldset {
+    border-radius: .5em;
+    margin: 3px;
+    padding: .5em;
+    border: solid #61259c 1px;
+}
+
+#default_query, .named_query, #default_graph, .named_graph, .named_document {
+    margin: 2px;
+}
+
+.sge, .yate, .CodeMirror  {
+    font-size: 12px;
+}
+
+@media (min-width: 800px) {
+    #form {
+        margin: -1em;
+    }   
+
+    #form > div {
+        width: 50%;
+        box-sizing: border-box;
+        float:left;
+        position: relative;
+        min-height: 1px;
+        padding-right: 0px;
+        padding-left: 0px;
+    }
+}
+
+
+input[type="range"] {
+    position: relative;
+    margin-left: 1em;
+    margin-bottom: 1.5em;
+}
+input[type="range"]:after,
+input[type="range"]:before {
+    position: absolute;
+    top: 1em;
+    color: #aaa;
+}
+input[type="range"]:before {
+    left:0em;
+    content: "ERROR";
+}
+input[type="range"]:after {
+    right: 0em;
+    content: "TRACE";
+}
+
+#log pre {
+    max-height: 400px;
+    overflow: auto;
+}
+
+.log.TRACE {
+    color: #999999
+}
+
+.log.DEBUG {
+    color: #5e77d4
+}
+
+.log.INFO {
+    color: #33cc33
+}
+
+.log.WARN {
+    color: #ff751a
+}
+
+.log.ERROR {
+    color: #e62e00
+}
+
+
+/* The switch - the box around the slider */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+}
+
+/* Hide default HTML checkbox */
+.switch input {display:none;}
+
+/* The slider */
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+footer {
+  margin-top: 20px;
+  padding-top: 10px;
+  border-top: 1px solid #333;
+}
+footer p {
+  margin-bottom: 0;
+}
+
+
+input:checked + .slider {
+  background-color: #2196F3;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #2196F3;
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(26px);
+  -ms-transform: translateX(26px);
+  transform: translateX(26px);
+}
+
+/* Rounded sliders */
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+
+#run{
+  background: black;
+  color: #ccc;
+  background: #61259c;
+  padding: 1em;
+  border:1px solid grey;
+  margin-right:1em;
+  margin-bottom: 2em;
+  border-radius: 1em;
+  color:white;
+  box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+}
+
+#run:before{
+    content:"↻ ";
+    font-size:1.2em;
+}
+#run:active{
+    margin-top: 1px;
+    box-shadow: none;
+}
+
+#run:disabled{
+  cursor: not-allowed;
+  background: #9e85c1;
+}
+
+#autocheck, #streamcheck {
+    vertical-align: middle;
+    position: relative;
+    bottom: 1px;
+}
+
+
+
+#selectresult {
+    font-family:Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace;
+    width: 100%;
+    min-height: 250px;
+    height: 100%;
+}
+
+#selectresult > textarea {
+    font-family:Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace;
+    width: 95%;
+    height: 100%;
+    min-height: 250px;
+}
+
+
+#templateresult {
+    font-family:Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace;
+    width: 100%;
+    min-height: 250px;
+    height: 100%;
+}
+
+#templateresult > textarea {
+    font-family:Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace;
+    width: 95%;
+    height: 100%;
+    min-height: 250px;
+}
+/* fix for https://stackoverflow.com/questions/17579750/drop-down-menu-not-working-on-mobile-devices */
+.dropdown-backdrop{
+position: static;
+}
+
+#gh-buttons {
+  display: block;
+  float: left;
+  margin-right: 3em;
+}
+
+#grammar {
+  counter-reset: rowNumber;
+}
+
+#grammar tr {
+  counter-increment: rowNumber;
+}
+
+#grammar tr td:first-child::before {
+  content: counter(rowNumber);
+  min-width: 1em;
+  margin-right: 0.5em;
+}

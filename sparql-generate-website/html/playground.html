@@ -1,0 +1,76 @@
+@@include("../include/head.html", {
+  "title": "SPARQL-Generate - Playground",
+  "active" : "playground"
+})
+
+  <div class="container">
+    <div class="row">
+      <div class="col-12">
+        <h1>SPARQL-Generate and SPARQL-Template (STTL) Playground</h1>
+        
+        <div>
+          <div>
+            <a class="github-button" href="https://github.com/sparql-generate/sparql-generate/subscription" data-icon="octicon-eye" data-size="large" data-show-count="true" aria-label="Watch sparql-generate/sparql-generate on GitHub">Watch</a>
+            <a class="github-button" href="https://github.com/sparql-generate/sparql-generate" data-icon="octicon-star" data-size="large" data-show-count="true" aria-label="Star sparql-generate/sparql-generate on GitHub">Star</a> 
+          </div>
+          Load 
+          <label for="generateex">GENERATE example</label> <select name="generateex" id="generateexs"><option value="---">---</option></select>
+           - <label for="selectex">SELECT example</label> <select name="selectex" id="selectexs"><option value="---">---</option></select>
+           - <label for="templateex">TEMPLATE example</label> <select name="templateex" id="templateexs"><option value="---">---</option></select>
+           - <button class="btn btn-secondary" onclick="copyPermaURL()">Copy permanent URL for the current setting</button>  <input type="text" id="permaURL" value="" style="display:none"/>
+         </div>
+       </div>
+     </div>
+  </div>
+
+  <div class="container-fluid">
+    <div id="readme"></div>
+    <div id="form" class="row">
+      <div class="col-lg-6">
+      <div id="queryset" class="fieldset">
+        <legend>Queries</legend>
+        <p>Links to the documentation of <a href="apidocs/fr/emse/ci/sparqlext/iterator/library/package-summary.html">iterator functions</a> and <a href="apidocs/fr/emse/ci/sparqlext/function/library/package-summary.html">binding functions</a>.</p>
+        <div id="queryset_drop_zone" class="drop_zone">
+          <strong>Click to add a query, or drag and drop files ...</strong>
+        </div>
+      </div>
+      <div id="documentset_list" class="fieldset">
+        <legend>Documentset</legend>
+        <div id="documentset_drop_zone" class="drop_zone">
+          <strong>Click to add a document, or drag and drop files ...</strong>
+        </div>
+      </div>
+      <div id="dataset" class="fieldset">
+        <legend>Dataset</legend>
+        <div id="dataset_drop_zone" class="drop_zone">
+          <strong>Click to add a graph, or drag and drop turtle files ...</strong>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-6">
+      <div class="fieldset">
+        <div id="result_list">
+          <button id="run">Run Query</button>
+          <label><input type="checkbox" id="autocheck"/> run automatically</label>
+          <label><input type="checkbox" id="streamcheck"/> return stream</label>
+          <label><input type="checkbox" id="debugtemplatecheck" checked="checked"/> debug Template</label>
+          <legend>Result</legend>
+          <textarea id="generateresult"> </textarea>
+          <div id="selectresult" style="display:none;" readonly><textarea> </textarea></div>
+          <div id="templateresult" style="display:none;" readonly><textarea> </textarea></div>
+        </div>
+        <div id="log">
+          <legend>Log</legend>
+          <input id="loglevel" type="range" value="5" min="1" max="5"></input>
+          <p>Note that reducing the log level only limits network traffic. On the server side log level is 'TRACE'. For fastest transformations, you should use the <a href="sublime.html">Sublime Text IDE</a>, the <a href="language-cli.html">Executable JAR</a>, the <a href="get-started.html">Java library</a>.</p>
+          <pre></pre>
+        </div>
+      </div>
+    </div>
+    </div>
+  </div>
+
+@@include("../include/footer.html", {
+  "active" : "playground", 
+  "date" : "@@date"
+})

@@ -1,0 +1,29 @@
+    <div class="navbar navbar-expand-lg navbar-light nav-pills flex-column" style="background-color: #f5f5f5;">
+      <div class="container">
+        <a class="navbar-brand mb-0 h1" href="/sparql-generate/">SPARQL-Generate</a>
+
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#top-nav-collapse" aria-controls="top-nav-collapse" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="navbar-collapse collapse justify-content-end float-right" id="top-nav-collapse">
+          <ul class="nav nav-pills">
+            <li class="nav-item @@if( active == "index") { active }"><a class="nav-link" href="index.html" title="Overview">Overview</a></li>
+            <li class="nav-item @@if( active == "playground") { active }"><a class="nav-link" href="playground.html" title="Playground">Playground</a></li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="documentation" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Documentation</a>
+              <div class="dropdown-menu" aria-labelledby="documentation">
+                <a class="dropdown-item @@if( active == "sublime") { active }" href="sublime.html" title="Sublime Text">Sublime Text</a>
+                <a class="dropdown-item @@if( active == "language-cli") { active }" href="language-cli.html" title="Executable JAR">Executable JAR</a>
+                <a class="dropdown-item @@if( active == "get-started") { active }" href="get-started.html" title="Java API Overview">Java API Overview</a>
+                <a class="dropdown-item" href="apidocs/index.html" title="Java API Javadoc">Java API Javadoc</a>
+                <a class="dropdown-item" href="http://sparql-generate.github.io/sparql-generate-editor" title="Web editor" target="_blank" class="externalLink">Web editor</a>
+                <a class="dropdown-item @@if( active == "grammar") { active }" href="grammar.html" title="Grammar">Grammar</a>
+                <a class="dropdown-item @@if( active == "iana") { active }" href="iana.html" title="IANA Considerations">IANA Considerations</a>
+              </div>
+            </li>
+            <li class="nav-item"><a class="nav-link" href="http://github.com/sparql-generate/" title="We are on GitHub">We are on GitHub</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </div>

@@ -14,6 +14,7 @@ if [ -z "$(git status --porcelain)" ]; then
   git tag -d v$releaseVersion
   git tag -s "v$releaseVersion" -m "release $releaseVersion" && \
   git push --delete origin v$releaseVersion
+  git push
   git push origin v$releaseVersion && \
   # mvn deploy -P deploy
   nextVersion=$(semver -i patch $releaseVersion)-SNAPSHOT && \

@@ -1,0 +1,32 @@
+name: Test
+
+on:
+  push:
+    paths:
+      - sparql-generate-website/**
+    branches:
+      - master
+
+jobs:
+  release:
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v2
+
+      - name: Install and run gulp
+        uses: actions/setup-node@v1
+        with:
+          node-version: '10'
+      - run: npm install
+      - run: gulp
+
+      - name: copy public
+        uses: garygrossgarten/github-action-scp@release
+        with:
+          recursive: true
+          local: "sparql-generate-website/public"
+          remote: "~/website"
+          host: ci.mines-stetienne.fr
+          username: ${{ secrets.CI_USER }}
+          key: ${{ secrets.CI_KEY }}

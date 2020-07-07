@@ -1,0 +1,76 @@
+  @@include("../include/head.html", {
+    "title": "SPARQL-Generate",
+    "active" : "index"
+  })
+
+  <div class="container">
+  <div class="row">
+    <h1>SPARQL-Generate - query and generate both RDF and text</h1>
+
+    <p><strong>SPARQL-Generate is an expressive template-based language to generate RDF streams or text streams from RDF datasets <em>and</em> document streams in arbitrary formats.</strong> It presents the following advantages:</p>
+
+    <ul>
+      <li>It extends SPARQL 1.1. Anyone familiar with SPARQL can easily learn SPARQL-Generate;</li>
+      <li>SPARQL-Generate leverages the expressivity of SPARQL 1.1: Aggregates, Solution Sequences and Modifiers, SPARQL functions and their extension mechanism;</li>  
+      <li>It can be extended to support new data sources and formats;</li>
+      <li>It integrates seamlessly with existing standards for consuming Semantic Web data, such as SPARQL or Semantic Web programming frameworks.</li>
+    </ul>
+
+    <p><strong>SPARQL-Generate can generate RDF streams or text streams from RDF, SQL, XML, JSON, CSV, GeoJSON, HTML, CBOR, plain text with regular expressions, large CSV documents, MQTT or WebSocket streams, repeated HTTP GET operations.</strong>. See our predefined <a href="http://w3id.org/sparql-generate/fn/">SPARQL binding functions</a> and SPARQL-Generate <a href="http://w3id.org/sparql-generate/iter/">iterator functions</a>.</p>
+
+    <a class="mx-auto" id="try-it-online" href="playground.html">Try it online</a>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <h2><a name="Publications"></a>Publications</h2>
+      <blockquote>
+      <p>Maxime Lefran&#xe7;ois, Antoine Zimmermann, Noorani Bakerally <i>A SPARQL extension for generating RDF from heterogeneous formats</i>, In Proc. Extended Semantic Web Conference, ESWC, May 2017, Portoroz, Slovenia (long paper - <a class="externalLink" href="http://www.maxime-lefrancois.info/docs/LefrancoisZimmermannBakerally-ESWC2017-Generate.pdf">PDF</a> - <a href="LefrancoisZimmermannBakerally-ESWC2017-SPARQL.bib">BibTeX</a>)</p>
+      <p>Maxime Lefran&#xe7;ois, Antoine Zimmermann, Noorani Bakerally <i>Flexible RDF generation from RDF and heterogeneous data sources with SPARQL-Generate</i>, In Proc. the 20th International Conference on Knowledge Engineering and Knowledge Management, EKAW, Nov 2016, Bologna, Italy (demo track - <a class="externalLink" href="http://www.maxime-lefrancois.info/docs/LefrancoisZimmermannBakerally-EKAW2016-Flexible.pdf">PDF</a> - <a href="LefrancoisZimmermannBakerally-EKAW2016-Flexible.bib">BibTeX</a>)</p>
+      <p>Maxime Lefran&#xe7;ois, Antoine Zimmermann, Noorani Bakerally <i>G&#xe9;n&#xe9;ration de RDF &#xe0; partir de sources de donn&#xe9;es aux formats h&#xe9;t&#xe9;rog&#xe8;nes</i>, Actes de la 17&#xe8;me conf&#xe9;rence Extraction et Gestion des Connaissances, EGC, Jan 2017, Grenoble, France - (<a class="externalLink" href="http://www.maxime-lefrancois.info/docs/LefrancoisZimmermannBakerally-EGC2017-Generation.pdf">PDF</a> - <a href="LefrancoisZimmermannBakerally-EGC2017-Generation.bib">BibTeX</a>)</p>
+      </blockquote>
+    </div>
+
+    <div class="col-md-6">
+      <h2><a name="Implementation"></a>Implementation</h2>
+      <div>
+        <p><b>Use SPARQL-Generate:</b></p>
+        <ul>  
+            <li><a href="playground.html">on the web playground</a>;</li>
+            <li><a href="sublime.html">inside Sublime Text</a>;</li>
+            <li><a href="language-cli.html">as an executable JAR</a>;</li>
+            <li><a href="get-started.html">as an open source Java library</a>;</li>
+        </ul>
+      </div>
+      <div class="center">
+        <a class="github-button" href="https://github.com/sparql-generate/sparql-generate/subscription" data-icon="octicon-eye" data-size="large" data-show-count="true" aria-label="Watch sparql-generate/sparql-generate on GitHub">Watch</a>
+        <a class="github-button" href="https://github.com/sparql-generate/sparql-generate" data-icon="octicon-star" data-size="large" data-show-count="true" aria-label="Star sparql-generate/sparql-generate on GitHub">Star</a> 
+      </div>
+    </div>
+  </div>
+    
+  <div class="row">
+    <div class="col-md-6">
+      <h2><a name="Team"></a>Team</h2>
+      <ul>
+        <li><a href="http://maxime-lefrancois.info/">Maxime Lefrançois</a> (lead) - <a href="https://mines-stetienne.fr/">MINES Saint-Étienne</a></li>
+        <li><a href="http://www.emse.fr/~zimmermann/">Antoine Zimmermann</a> - <a href="https://mines-stetienne.fr/">MINES Saint-Étienne</a></li>
+        <li><a href="http://homepages.laas.fr/mnbakerall">Mohammad-Noorani Bakerally</a></li>
+        <li><a href="https://github.com/infomehdi">El Mehdi Khalfi</a></li>
+        <li><a href="https://perso.univ-st-etienne.fr/alo09685/">Omar Qawasmeh</a></li>
+      </ul>
+    </div>
+
+    <div class="col-md-6">
+      <h2><a name="Acknowledgments"></a>Acknowledgments</h2>
+      <p>This work has been partly funded by the <a href="https://itea3.org/project/seas.html">ITEA2 12004 SEAS (Smart Energy Aware Systems) project</a>, the <a href="https://anr.fr/Project-ANR-14-CE24-0029">ANR 14-CE24-0029 OpenSensingCity project</a>, the <a href="https://portal.etsi.org/STF/STFs/STF-HomePages/STF578">ETSI STF 578</a> project, and bilateral research contracts with <a href="https://www.engie.com/innovation-transition-energetique/centres-de-recherche/crigen">ENGIE R&amp;D CRIGEN</a>.</p>
+    </div>
+  </div>
+
+
+</div>
+
+
+@@include("../include/footer.html", {
+  "active" : "index", 
+  "date" : "@@date"
+})
