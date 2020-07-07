@@ -131,7 +131,6 @@ public class ITER_JSONSurfer extends IteratorStreamFunctionBase {
 
 		final NodeValue json = args.remove(0);
 		final NodeValue jsonquery = args.remove(0);
-		System.out.println(jsonquery);
 		try (InputStream jsonInput = getInputStream(json)) {
 
 			final JsonPath compiledPath = getCompiledPath(jsonquery);
@@ -265,8 +264,7 @@ public class ITER_JSONSurfer extends IteratorStreamFunctionBase {
 			com.jayway.jsonpath.DocumentContext doc = com.jayway.jsonpath.JsonPath.using(config).parse(value);
 
 			for (com.jayway.jsonpath.JsonPath subquery : subqueries) {
-				System.out.println(subquery.toString());
-
+				
 				try {
 					Object subvalue = doc.limit(1).read(subquery);
 					NodeValue subnode = function.nodeForObject(subvalue);
