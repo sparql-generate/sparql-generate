@@ -10,14 +10,14 @@ if [ -z "$(git status --porcelain)" ]; then
   # Working directory clean
   cd sparql-generate-parent && \
   mvn versions:set -DremoveSnapshot && \
-  releaseVersion=$(mvn -q -Dexec.executable="echo" -Dexec.args='${project.version}' --non-recursive exec:exec) && \
+  releaseVersion=$(mvn -q -Dexec.executable="echo" -Dexec.args='${project.version}' --non-recursive exec:exec --file 'sparql-generate-parent/pom.xml') && \
   git commit -am "release $releaseVersion" && \
   git tag -s "v$releaseVersion" -m "release $releaseVersion" && \
   git push origin v$releaseVersion && \
   mvn deploy -P deploy
   nextVersion=$(semver -i patch $releaseVersion)-SNAPSHOT && \
   mvn versions:set -DnewVersion=$nextVersion && \
-  mvn install -P docs
+  mvn -B install -P docs --file 'sparql-generate-parent/pom.xml'
   git commit -am "prepare next version $nextVersion" && \
   cd ..
 else 

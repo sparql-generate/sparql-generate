@@ -5,13 +5,13 @@
 
 if [ -z "$(git status --porcelain)" ]; then 
   # Working directory clean
-  cd sparql-generate-parent && \
-  snapshotVersion=$(mvn -q -Dexec.executable="echo" -Dexec.args='${project.version}' --non-recursive exec:exec) && \
+  snapshotVersion=$(mvn -q -Dexec.executable="echo" -Dexec.args='${project.version}' --non-recursive exec:exec --file 'sparql-generate-parent/pom.xml') && \
   git commit -am "new snapshot $snapshotVersion" && \
+  git tag -d v$snapshotVersion
   git tag -s "v$snapshotVersion" -m "snapshot $snapshotVersion" && \
-  git push --delete origin v$snapshotVersion && \
+  git push --delete origin v$snapshotVersion
   git push origin v$snapshotVersion && \
-  mvn deploy -P deploy
+  mvn -B deploy -P deploy --file 'sparql-generate-parent/pom.xml'
   cd ..
 else 
  echo "working directory is not clean. Commit first.
