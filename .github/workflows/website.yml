@@ -18,9 +18,10 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: '10'
-      - run: npm install
-      - run: npm install gulp
-      - run: gulp
+      - run: |
+          npm install
+          gulp
+        working-directory: sparql-generate-website
 
       - name: copy public
         uses: garygrossgarten/github-action-scp@release
