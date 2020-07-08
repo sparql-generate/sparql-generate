@@ -2,10 +2,8 @@ name: Create github release
 
 on:
   push:
-#    tags:
-#      - 'v*'
-    branches:
-      - master
+   tags:
+     - 'v*'
 
 jobs:
   create-release:
