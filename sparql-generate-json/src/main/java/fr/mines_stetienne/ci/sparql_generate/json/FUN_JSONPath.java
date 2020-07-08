@@ -64,106 +64,105 @@ import org.slf4j.Logger;
  */
 public final class FUN_JSONPath extends FunctionBase2 {
 
-    /**
-     * The logger.
-     */
-    private static final Logger LOG = LoggerFactory.getLogger(FUN_JSONPath.class);
+	/**
+	 * The logger.
+	 */
+	private static final Logger LOG = LoggerFactory.getLogger(FUN_JSONPath.class);
 
-    /**
-     * The SPARQL function URI.
-     */
-    public static final String URI = SPARQLExt.FUN + "JSONPath";
+	/**
+	 * The SPARQL function URI.
+	 */
+	public static final String URI = SPARQLExt.FUN + "JSONPath";
 
-    /**
-     * The datatype URI of the first parameter and the return literals.
-     */
-    private static final String datatypeUri = "http://www.iana.org/assignments/media-types/application/json";
+	/**
+	 * The datatype URI of the first parameter and the return literals.
+	 */
+	private static final String datatypeUri = "http://www.iana.org/assignments/media-types/application/json";
 
-    private static RDFDatatype dt = TypeMapper.getInstance().getSafeTypeByName(datatypeUri);
+	private static RDFDatatype dt = TypeMapper.getInstance().getSafeTypeByName(datatypeUri);
 
-    private static Gson GSON = new Gson();
+	private static Gson GSON = new Gson();
 
-    @Override
-    public NodeValue exec(NodeValue json, NodeValue jsonpath) {
-        if(json == null) {
-        	String msg = "No JSON provided";
-            LOG.debug(msg);
-        	throw new ExprEvalException(msg);
-        }
-        if(jsonpath == null) {
-        	String msg = "No JSONPath provided";
-            LOG.debug(msg);
-        	throw new ExprEvalException(msg);
-        }
-        if (json.getDatatypeURI() != null
-                && !json.getDatatypeURI().equals(datatypeUri)
-                && !json.getDatatypeURI().equals("http://www.w3.org/2001/XMLSchema#string")) {
-            LOG.debug("The datatype of the first argument should be <" + datatypeUri + ">"
-                    + " or <http://www.w3.org/2001/XMLSchema#string>. Got "
-                    + json.getDatatypeURI());
-        }
-        if (!jsonpath.isString()) {
-            LOG.debug("The second argument should be a string. Got " + json);
-        }
+	@Override
+	public NodeValue exec(NodeValue json, NodeValue jsonpath) {
+		if (json == null) {
+			String msg = "No JSON provided";
+			LOG.debug(msg);
+			throw new ExprEvalException(msg);
+		}
+		if (jsonpath == null) {
+			String msg = "No JSONPath provided";
+			LOG.debug(msg);
+			throw new ExprEvalException(msg);
+		}
+		if (json.getDatatypeURI() != null && !json.getDatatypeURI().equals(datatypeUri)
+				&& !json.getDatatypeURI().equals("http://www.w3.org/2001/XMLSchema#string")) {
+			LOG.debug("The datatype of the first argument should be <" + datatypeUri + ">"
+					+ " or <http://www.w3.org/2001/XMLSchema#string>. Got " + json.getDatatypeURI());
+		}
+		if (!jsonpath.isString()) {
+			LOG.debug("The second argument should be a string. Got " + json);
+		}
 
-        try {
-        	JsonPath.compile(jsonpath.getString());
-	    } catch (InvalidPathException ex) {
-	    	LOG.warn("The JSONPath is not valid: " + jsonpath.getString() + " - exception is " + ex.getMessage());
-	    }
-        
-        try {
-            Object value = JsonPath
-                	.parse(json.asNode().getLiteralLexicalForm())
-                    .limit(1).read(jsonpath.getString());
-            return nodeForObject(value);
-        } catch (Exception ex) {
-            if(LOG.isDebugEnabled()) {
-                Node compressed = LogUtils.compress(json.asNode());
-                LOG.debug("No evaluation of " + compressed + ", " + jsonpath);
-            }
-            throw new ExprEvalException("No evaluation of " + jsonpath);
-        }
-    }
+		try {
+			JsonPath.compile(jsonpath.getString());
+		} catch (InvalidPathException ex) {
+			LOG.warn("The JSONPath is not valid: " + jsonpath.getString() + " - exception is " + ex.getMessage());
+		}
 
-    public NodeValue nodeForObject(Object value) {
-        if (value instanceof String) {
-            return new NodeValueString((String) value);
-        } else if (value instanceof Float) {
-            return new NodeValueFloat((Float) value);
-        } else if (value instanceof Boolean) {
-            return new NodeValueBoolean((Boolean) value);
-        } else if (value instanceof Integer) {
-            return new NodeValueInteger((Integer) value);
-        } else if (value instanceof Long) {
-            return new NodeValueInteger((Long) value);
-        } else if (value instanceof Double) {
-            return new NodeValueDouble((Double) value);
-        } else if (value instanceof BigDecimal) {
-            return new NodeValueDecimal((BigDecimal) value);
-        } else if (value instanceof ArrayList) {
-            String jsonString = new Gson().toJson(value);
-            return new NodeValueString(jsonString);
-        } else if (value instanceof Map) {
-            String jsonString = GSON.toJson(value, Map.class);
-            return new NodeValueNode(NodeFactory.createLiteral(jsonString, dt));
-        } else {
-            String strValue = String.valueOf(value);
+		try {
+			Object value = JsonPath.parse(json.asNode().getLiteralLexicalForm()).limit(1).read(jsonpath.getString());
+			return nodeForObject(value);
+		} catch (Exception ex) {
+			if (LOG.isDebugEnabled()) {
+				Node compressed = LogUtils.compress(json.asNode());
+				LOG.debug("No evaluation of " + compressed + ", " + jsonpath);
+			}
+			throw new ExprEvalException("No evaluation of " + jsonpath);
+		}
+	}
 
-            JsonParser parser = new JsonParser();
-            JsonElement valElement = parser.parse(strValue);
-            JsonArray list = valElement.getAsJsonArray();
+	public NodeValue nodeForObject(Object value) {
+		if (value instanceof String) {
+			return new NodeValueString((String) value);
+		} else if (value instanceof Float) {
+			return new NodeValueFloat((Float) value);
+		} else if (value instanceof Boolean) {
+			return new NodeValueBoolean((Boolean) value);
+		} else if (value instanceof Integer) {
+			return new NodeValueInteger((Integer) value);
+		} else if (value instanceof Long) {
+			return new NodeValueInteger((Long) value);
+		} else if (value instanceof Double) {
+			return new NodeValueDouble((Double) value);
+		} else if (value instanceof BigDecimal) {
+			return new NodeValueDecimal((BigDecimal) value);
+		} else if (value instanceof ArrayList) {
+			String jsonString = new Gson().toJson(value);
+			return new NodeValueString(jsonString);
+		} else if (value instanceof Map) {
+			String jsonString = GSON.toJson(value, Map.class);
+			return new NodeValueNode(NodeFactory.createLiteral(jsonString));
+		} else if (value instanceof JsonElement) {
+			String jsonString = GSON.toJson(value);
+			return new NodeValueNode(NodeFactory.createLiteral(jsonString));
+		} else {
+			String strValue = String.valueOf(value);
 
-            if (list.size() == 1) {
-                String jsonstring = list.get(0).getAsString();
-                Node node = NodeFactory.createLiteral(jsonstring);
-                NodeValue nodeValue = new NodeValueNode(node);
-                return nodeValue;
+			JsonParser parser = new JsonParser();
+			JsonElement valElement = parser.parse(strValue);
+			JsonArray list = valElement.getAsJsonArray();
 
-            } else {
-                return new NodeValueString(String.valueOf(value));
-            }
+			if (list.size() == 1) {
+				String jsonstring = list.get(0).getAsString();
+				Node node = NodeFactory.createLiteral(jsonstring);
+				NodeValue nodeValue = new NodeValueNode(node);
+				return nodeValue;
 
-        }
-    }
+			} else {
+				return new NodeValueString(String.valueOf(value));
+			}
+
+		}
+	}
 }
