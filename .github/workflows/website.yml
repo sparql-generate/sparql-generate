@@ -8,7 +8,7 @@ on:
       - master
 
 jobs:
-  release:
+  update-website:
     runs-on: ubuntu-18.04
     steps:
       - name: Check out Git repository
@@ -24,11 +24,12 @@ jobs:
         working-directory: sparql-generate-website
 
       - name: copy public
-        uses: garygrossgarten/github-action-scp@release
+        uses: appleboy/scp-action@master
         with:
-          recursive: true
-          local: "sparql-generate-website/public"
-          remote: "~/website"
+          source: "sparql-generate-website/public"
+          target: "~/website"
+          strip_components: 2
           host: ci.mines-stetienne.fr
           username: ${{ secrets.CI_USER }}
           key: ${{ secrets.CI_KEY }}
+

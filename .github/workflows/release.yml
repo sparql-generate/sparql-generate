@@ -1,21 +1,18 @@
-name: Release
+name: Create github release
 
 on:
   push:
-    tags:
-      - 'v*'
+#    tags:
+#      - 'v*'
+    branches:
+      - master
 
 jobs:
-  release:
+  create-release:
     runs-on: ubuntu-18.04
     steps:
       - name: Check out Git repository
         uses: actions/checkout@v2
-
-      - name: Get tag name
-        id: vars
-        run: echo ::set-output name=tag::${GITHUB_REF#refs/*/v}
-        run: echo ::set-output name=prerelease::$( [[ -z ${GITHUB_REF#refs/*/v*-SNAPSHOT} ]] && echo "true" || echo "false" )
 
       - name: Install Java and Maven
         uses: actions/setup-java@v1
@@ -30,7 +27,14 @@ jobs:
           restore-keys: ${{ runner.os }}-m2
 
       - name: Run the Maven package phase
-        run: mvn -B package --file sparql-generate-parent/pom.xml
+        run: mvn -B package -P docs --file sparql-generate-parent/pom.xml
+
+      - name: Get tag name
+        id: vars
+        run: |
+          echo ::set-output name=tag::${GITHUB_REF#refs/*/v}
+          echo ::set-output name=version::$(mvn -q -Dexec.executable="echo" -Dexec.args='${project.version}' --non-recursive exec:exec --file 'sparql-generate-parent/pom.xml')
+          echo ::set-output name=prerelease::$( [[ -z ${GITHUB_REF#refs/*/v*-SNAPSHOT} ]] && echo "true" || echo "false" )
 
       - name: Create Release
         id: create_release
@@ -38,8 +42,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.ref }}
-          release_name: ${{ github.ref }}
+          tag_name: ${{ steps.vars.outputs.version }}
+          release_name: ${{ steps.vars.outputs.version }}
           draft: false
           prerelease: ${{ steps.vars.outputs.prerelease }}
 
@@ -51,7 +55,7 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: sparql-generate-all/target/sparql-generate.jar
-          asset_name: sparql-generate-${{ steps.vars.outputs.tag }}.jar
+          asset_name: sparql-generate-${{ steps.vars.outputs.version }}.jar
           asset_content_type: application/java-archive
 
       - name: Upload Release Asset javadoc
@@ -61,27 +65,28 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: sparql-generate-all/target/sparql-generate-all-${{ steps.vars.outputs.tag }}-javadoc.jar
-          asset_name: sparql-generate-${{ steps.vars.outputs.tag }}-javadoc.jar
+          asset_path: sparql-generate-all/target/sparql-generate-all-${{ steps.vars.outputs.version }}-javadoc.jar
+          asset_name: sparql-generate-${{ steps.vars.outputs.version }}-javadoc.jar
           asset_content_type: application/java-archive
           
       - name: upload apidocs
         id: scp_apidocs_javadoc 
-        uses: garygrossgarten/github-action-scp@release
+        uses: appleboy/scp-action@master
         with:
-          recursive: true
-          local: "sparql-generate-all/target/apidocs"
-          remote: "~/website/apidocs"
+          source: "sparql-generate-all/target/apidocs"
+          target: "~/website"
+          strip_components: 2
           host: ci.mines-stetienne.fr
           username: ${{ secrets.CI_USER }}
           key: ${{ secrets.CI_KEY }}
           
       - name: upload war
-        id: scp_apidocs_javadoc 
-        uses: garygrossgarten/github-action-scp@release
+        id: scp_war 
+        uses: appleboy/scp-action@master
         with:
-          local: "sparql-generate-server/target/sparql-generate.war"
-          remote: "~/sparql-generate.war"
+          source: "sparql-generate-server/target/sparql-generate.war"
+          target: "~"
+          strip_components: 2
           host: ci.mines-stetienne.fr
           username: ${{ secrets.CI_USER }}
           key: ${{ secrets.CI_KEY }}

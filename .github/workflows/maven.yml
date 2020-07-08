@@ -1,4 +1,4 @@
-name: Snapshot
+name: Publish to maven central
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - 'v*'
 
 jobs:
-  maven:
+  publish-maven-central:
     runs-on: ubuntu-18.04
     steps:
       - name: Check out Git repository
