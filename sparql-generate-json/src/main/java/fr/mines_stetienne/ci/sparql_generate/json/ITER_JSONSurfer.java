@@ -78,17 +78,23 @@ import org.slf4j.Logger;
  * "https://w3id.org/sparql-generate/playground.html#ex=example/generate/Example-JSONSurfer">Live
  * example</a>
  * </p>
- *<p>The list of parameters is interpreted as follows:</p>
- *<ul>
- *<li>Param 1: (json): the URI of the JSON document (a URI), or the JSON document
- * itself (a String)</li>
- *<li>Param 2: the JSONPath query</li>
- *<li>Param 3: (integer: batch) Optional number of rows per batch (by default, all the JSON document is processed as one batch);</li>
- *<li>Param 4 .. N : (auxJsonPath ... ) other JSONPath queries, which will be executed over the results of the execution of jsonPath, and provide one result each.</li>
- *</ul>
+ * <p>
+ * The list of parameters is interpreted as follows:
+ * </p>
+ * <ul>
+ * <li>Param 1: (json): the URI of the JSON document (a URI), or the JSON
+ * document itself (a String)</li>
+ * <li>Param 2: the JSONPath query</li>
+ * <li>Param 3: (integer: batch) Optional number of rows per batch (by default,
+ * all the JSON document is processed as one batch);</li>
+ * <li>Param 4 .. N : (auxJsonPath ... ) other JSONPath queries, which will be
+ * executed over the results of the execution of jsonPath, and provide one
+ * result each.</li>
+ * </ul>
  *
  *
  * @author Maxime Lefrançois, Omar Qawasmeh
+ * @organization Ecole des Mines de Saint Etienne
  */
 public class ITER_JSONSurfer extends IteratorStreamFunctionBase {
 
@@ -233,22 +239,22 @@ public class ITER_JSONSurfer extends IteratorStreamFunctionBase {
 
 		@Override
 		public void onValue(Object value, ParsingContext context) {
-			
+
 			if (!initialized) {
 				initialized = true;
 				ContextUtils.addTaskOnClose(getContext(), context::stop);
 			}
 
 			List<NodeValue> nodeValues = new ArrayList<>(subqueries.length);
-			
+
 			NodeValue node = function.nodeForObject(value);
-			
+
 			nodeValues.add(node);
 
 			com.jayway.jsonpath.DocumentContext doc = com.jayway.jsonpath.JsonPath.using(config).parse(value);
 
 			for (com.jayway.jsonpath.JsonPath subquery : subqueries) {
-				
+
 				try {
 					Object subvalue = doc.limit(1).read(subquery);
 					NodeValue subnode = function.nodeForObject(subvalue);
@@ -259,7 +265,6 @@ public class ITER_JSONSurfer extends IteratorStreamFunctionBase {
 				}
 			}
 
-			
 			listNodeValues.add(nodeValues);
 			rowsInThisBatch++;
 			total++;
