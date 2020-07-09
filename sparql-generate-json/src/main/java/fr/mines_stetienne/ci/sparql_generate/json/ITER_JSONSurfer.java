@@ -78,31 +78,15 @@ import org.slf4j.Logger;
  * "https://w3id.org/sparql-generate/playground.html#ex=example/generate/Example-JSONSurfer">Live
  * example</a>
  * </p>
+ *<p>The list of parameters is interpreted as follows:</p>
+ *<ul>
+ *<li>Param 1: (json): the URI of the JSON document (a URI), or the JSON document
+ * itself (a String)</li>
+ *<li>Param 2: the JSONPath query</li>
+ *<li>Param 3: (integer: batch) Optional number of rows per batch (by default, all the JSON document is processed as one batch);</li>
+ *<li>Param 4 .. N : (auxJsonPath ... ) other JSONPath queries, which will be executed over the results of the execution of jsonPath, and provide one result each.</li>
+ *</ul>
  *
- * <ul>
- * <li>Param 1: (json): the URI of the JSON document (a URI), or the JSON object
- * itself (a String);</li>
- * <li>Param 2: (jsonPath) the JSONPath query;</li>
- * <li>Param 3 .. N : (auxJsonPath ... ) other JSONPath queries, which will be
- * executed over the results of the execution of jsonPath, and provide one
- * result each.</li>
- * </ul>
- *
- * The following variables may be bound:
- *
- * <ul>
- * <li>Output 1: (string) sub-JSON document, encoded in a string literal;</li>
- * <li>Output 2 .. N-1: result of the execution of the auxiliary JsonPath
- * queries on Output 1, encoded as a boolean, float, double, integer, string, as
- * it best fits;</li>
- * <li>Output N: (integer) the position of the result in the list;</li>
- * <li>Output N+1: (boolean) true if this result has a next result in the
- * list.</li>
- * </ul>
- *
- * Output 2 and 3 can be used to generate RDF lists from the input, but the use
- * of keyword <code>LIST( ?var )</code> as the object of a triple pattern covers
- * most cases more elegantly.
  *
  * @author Maxime Lefrançois, Omar Qawasmeh
  */
