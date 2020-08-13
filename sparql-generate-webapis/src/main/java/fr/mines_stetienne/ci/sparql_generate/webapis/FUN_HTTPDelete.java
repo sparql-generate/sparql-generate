@@ -15,67 +15,39 @@
  */
 package fr.mines_stetienne.ci.sparql_generate.webapis;
 
-import java.io.InputStream;
-import java.io.StringWriter;
-import java.math.BigDecimal;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Map;
+
 
 import org.apache.commons.io.IOUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.jena.datatypes.RDFDatatype;
 import org.apache.jena.datatypes.TypeMapper;
-import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
-import org.apache.jena.query.Dataset;
-import org.apache.jena.riot.Lang;
-import org.apache.jena.sparql.ARQInternalErrorException;
-import org.apache.jena.sparql.engine.binding.Binding;
 import org.apache.jena.sparql.expr.ExprEvalException;
-import org.apache.jena.sparql.expr.ExprList;
 import org.apache.jena.sparql.expr.NodeValue;
-import org.apache.jena.sparql.expr.nodevalue.NodeValueBoolean;
-import org.apache.jena.sparql.expr.nodevalue.NodeValueDecimal;
-import org.apache.jena.sparql.expr.nodevalue.NodeValueDouble;
-import org.apache.jena.sparql.expr.nodevalue.NodeValueFloat;
-import org.apache.jena.sparql.expr.nodevalue.NodeValueInteger;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueNode;
-import org.apache.jena.sparql.expr.nodevalue.NodeValueString;
-import org.apache.jena.sparql.function.Function;
 import org.apache.jena.sparql.function.FunctionBase2;
-import org.apache.jena.sparql.function.FunctionBase3;
-import org.apache.jena.sparql.function.FunctionEnv;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
 
 import fr.mines_stetienne.ci.sparql_generate.SPARQLExt;
-import fr.mines_stetienne.ci.sparql_generate.utils.ContextUtils;
+
+public final class FUN_HTTPDelete extends FunctionBase2 {
 
 
-/**
- 
- * @author Omar Qawasmeh, Maxime Lefrançois
- * 
- * @organization Ecole des Mines de Saint Etienne
- */
-public final class FUN_HTTPGet extends FunctionBase2 {
 
-	private static final Logger LOG = LoggerFactory.getLogger(FUN_HTTPGet.class);
-	public static final String URI = SPARQLExt.FUN + "HTTPGet";
+	private static final Logger LOG = LoggerFactory.getLogger(FUN_HTTPDelete.class);
+	public static final String URI = SPARQLExt.FUN + "HTTPDelete";
 
+	@SuppressWarnings("unused")
 	@Override
 	public NodeValue exec(NodeValue iri, NodeValue header) {
 
@@ -107,15 +79,14 @@ public final class FUN_HTTPGet extends FunctionBase2 {
 
 		try {
 
-//			HttpGet req = new HttpGet(fileURI);
-			
-			HttpGet req = new HttpGet(fileURI);
+		
+			HttpDelete req = new HttpDelete(fileURI);
 
 			CloseableHttpResponse res = httpclient.execute(req);
 
 			setHeadersFromArgs(req, headerArgs); // REQUEST?
 
-			int code = res.getStatusLine().getStatusCode(); // response code, 200 (ok), for POST (201 ok)
+			int code = res.getStatusLine().getStatusCode(); // response code, 201 (ok)
 
 			Header[] headers = extractHeaders(res); // Header from response
 
@@ -123,7 +94,7 @@ public final class FUN_HTTPGet extends FunctionBase2 {
 
 			String body = IOUtils.toString(entity.getContent(), StandardCharsets.UTF_8); // will only work if content is
 
-			if (code != 200) {
+			if (code != 201) {
 				LOG.debug("No response from server ");
 				throw new ExprEvalException("No response, return with code: " + code);
 			}
@@ -160,7 +131,7 @@ public final class FUN_HTTPGet extends FunctionBase2 {
 		}
 	}
 
-	private void setHeadersFromArgs(HttpGet req, String[] headerArgs) {
+	private void setHeadersFromArgs(HttpDelete req, String[] headerArgs) {
 		// TODO Auto-generated method stub
 		for (String header : headerArgs) {
 			String hArgs[] = header.split(":");
@@ -193,4 +164,11 @@ public final class FUN_HTTPGet extends FunctionBase2 {
 		}
 	}
 
+
+	
+	
+	
+
+	
+	
 }

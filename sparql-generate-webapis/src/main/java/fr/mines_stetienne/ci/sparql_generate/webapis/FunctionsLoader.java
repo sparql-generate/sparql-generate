@@ -15,18 +15,34 @@
  */
 package fr.mines_stetienne.ci.sparql_generate.webapis;
 
-import fr.mines_stetienne.ci.sparql_generate.iterator.IteratorFunctionRegistry;
+
+import org.apache.jena.sparql.function.FunctionRegistry;
+
+import fr.mines_stetienne.ci.sparql_generate.function.FunctionLoader;
 import fr.mines_stetienne.ci.sparql_generate.iterator.IteratorFunctionLoader;
+import fr.mines_stetienne.ci.sparql_generate.iterator.IteratorFunctionRegistry;
+
 
 /**
  *
  * @author Maxime Lefrançois
  */
-public class FunctionsLoader implements IteratorFunctionLoader {
-    
-    @Override
-    public void load(IteratorFunctionRegistry itereg) {
-        itereg.put(ITER_WebSocket.URI, ITER_WebSocket.class);
+public class FunctionsLoader implements FunctionLoader{
+	@Override
+    public void load(FunctionRegistry fnreg) {
+        fnreg.put(FUN_HTTPGet.URI, FUN_HTTPGet.class);
+        fnreg.put(FUN_HTTPPost.URI, FUN_HTTPPost.class);
+        fnreg.put(FUN_HTTPPut.URI, FUN_HTTPPut.class);
+        fnreg.put(FUN_HTTPDelete.URI, FUN_HTTPDelete.class);
+
+       //fnreg.put(FUN_CBOR.URI, FUN_CBOR.class);
     }
+
+
+    
+//    @Override
+//    public void load(IteratorFunctionRegistry itereg) {
+//        itereg.put(ITER_WebSocket.URI, ITER_WebSocket.class);
+//    }
     
 }
