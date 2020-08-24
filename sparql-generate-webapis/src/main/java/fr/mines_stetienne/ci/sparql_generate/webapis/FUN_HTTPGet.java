@@ -136,19 +136,19 @@ public final class FUN_HTTPGet extends FunctionBase2 {
 																									// datatype URI from
 																									// iana.
 
-				if (checkIanaDt(datatypeUri)) {
+				//if (checkIanaDt(datatypeUri)) {
 
 					dt = TypeMapper.getInstance().getSafeTypeByName(datatypeUri);
 					outNode = new NodeValueNode(NodeFactory.createLiteral(body, dt));
 
-				}
+			//	}
 
-				else {
+				//else {
 
-					dt = TypeMapper.getInstance().getTypeByValue(body); // as String
-					outNode = new NodeValueNode(NodeFactory.createLiteral(body, dt));
-
-				}
+//					dt = TypeMapper.getInstance().getTypeByValue(body); // as String
+//					outNode = new NodeValueNode(NodeFactory.createLiteral(body, dt));
+//
+//				}
 
 				return outNode;// return the literals
 
@@ -160,7 +160,7 @@ public final class FUN_HTTPGet extends FunctionBase2 {
 		}
 	}
 
-	private void setHeadersFromArgs(HttpGet req, String[] headerArgs) {
+	private void setHeadersFromArgs(HttpGet req, String[] headerArgs) { //double check , might have multilple :
 		// TODO Auto-generated method stub
 		for (String header : headerArgs) {
 			String hArgs[] = header.split(":");
