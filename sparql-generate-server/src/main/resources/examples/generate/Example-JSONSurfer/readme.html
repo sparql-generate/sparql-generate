@@ -1,0 +1,15 @@
+<p>Simple example with iterator function
+<a href="http://w3id.org/sparql-generate/iter/JSONSurfer">iter:JSONSurfer</a>, which
+
+ extracts a list of sub-JSON documents of a JSON document, according to a
+ forward-only JSONPath expression. See <a href= "https://github.com/jsurfer/JsonSurfer">https://github.com/jsurfer/JsonSurfer</a>
+ for the JSONPath syntax specification.</p>
+
+<p>The list of parameters is interpreted as follows:</p>
+
+<ul>
+<li>Param 1: (json): the URI of the JSON document (a URI), or the JSON document itself (a String)</li>
+<li>Param 2: the JSONPath query</li>
+<li>Param 3: (integer: batch) Optional number of rows per batch (by default, all the JSON document is processed as one batch);</li>
+<li>Param 4 .. N : (auxJsonPath ... ) other JSONPath queries, which will be executed over the results of the execution of jsonPath, and provide one result each.</li>
+</ul>

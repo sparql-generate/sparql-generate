@@ -37,6 +37,7 @@ public class FunctionsLoader implements FunctionLoader, IteratorFunctionLoader {
         itereg.put(ITER_JSONPath.URI, ITER_JSONPath.class);
         itereg.put(ITER_JSONListKeys.URI, ITER_JSONListKeys.class);
         itereg.put(ITER_CBOR.URI, ITER_CBOR.class);
+        itereg.put(ITER_JSONSurfer.URI, ITER_JSONSurfer.class);
     }
     
 }
