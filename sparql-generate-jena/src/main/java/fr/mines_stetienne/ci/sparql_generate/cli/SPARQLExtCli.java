@@ -480,7 +480,7 @@ public class SPARQLExtCli {
 		}
 		request.query = new File(dirFile, cl.getOptionValue(ARG_QUERY, request.query)).getAbsolutePath();
 		request.base = cl.getOptionValue(ARG_BASE, request.base);
-		request.output = cl.getOptionValue(ARG_OUTPUT);
+		request.output = cl.getOptionValue(ARG_OUTPUT, request.output);
 		if (request.output != null) {
 			request.output = new File(dirFile, cl.getOptionValue(ARG_OUTPUT, request.output)).getAbsolutePath();
 		}
