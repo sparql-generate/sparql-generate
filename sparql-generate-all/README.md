@@ -27,9 +27,9 @@ usage: SPARQL-Generate processor
                              default the output is stored in a file with
                              the same name as the query and the extension
                              '.out'.
- -oa,--output-append         Write from the end of the output file,
+ -ao,--append-output         Write from the end of the output file,
                              instead of replacing it.
- -of,--output-format <arg>   Format of the output file, e.g. TTL, NT, etc.
+ -fo,--format-output <arg>   Format of the output file, e.g. TTL, NT, etc.
                              for GENERATE, or TEXT, XML, CSV, etc. for
                              SELECT.
  -q,--query-file <arg>       Name of the query file in the directory.

@@ -71,16 +71,25 @@ public class CMDConfigurations {
 	 * a file with the same name as the query and the extension '.out'.
 	 */
 	public static final String ARG_OUTPUT_MAN = "Location where the output is to be stored. By default the output is stored in a file with the same name as the query and the extension '.out'.";
+//	/** oa */
+//	public static final String ARG_OUTPUT_APPEND = "oa";
 	/** oa */
-	public static final String ARG_OUTPUT_APPEND = "oa";
+	public static final String ARG_OUTPUT_APPEND = "ao";
 	/** output-append */
-	public static final String ARG_OUTPUT_APPEND_LONG = "output-append";
+	public static final String ARG_OUTPUT_APPEND_LONG = "append-output";
 	/** Write from the end of the output file, instead of replacing it. */
 	public static final String ARG_OUTPUT_APPEND_MAN = "Write from the end of the output file, instead of replacing it.";
+//	/** of */
+//	public static final String ARG_OUTPUT_FORMAT = "of";
+//	/** output-format */
+//	public static final String ARG_OUTPUT_FORMAT_LONG = "output-format";
+	
 	/** of */
-	public static final String ARG_OUTPUT_FORMAT = "of";
+	public static final String ARG_OUTPUT_FORMAT = "fo";
 	/** output-format */
-	public static final String ARG_OUTPUT_FORMAT_LONG = "output-format";
+	public static final String ARG_OUTPUT_FORMAT_LONG = "format-output";
+	
+	
 	/**
 	 * Format of the output file, e.g. TTL, NT, etc. for GENERATE, or TEXT, XML,
 	 * CSV, etc. for SELECT.
