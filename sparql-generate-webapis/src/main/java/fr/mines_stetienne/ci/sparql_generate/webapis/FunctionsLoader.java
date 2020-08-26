@@ -34,7 +34,9 @@ public class FunctionsLoader implements FunctionLoader{
         fnreg.put(FUN_HTTPPost.URI, FUN_HTTPPost.class);
         fnreg.put(FUN_HTTPPut.URI, FUN_HTTPPut.class);
         fnreg.put(FUN_HTTPDelete.URI, FUN_HTTPDelete.class);
-
+        fnreg.put(FUN_HTTPExtractHeader.URI, FUN_HTTPExtractHeader.class);
+        fnreg.put(FUN_HTTPExtractResponseCode.URI, FUN_HTTPExtractResponseCode.class);
+        fnreg.put(FUN_HTTPExtractBody.URI, FUN_HTTPExtractBody.class);
        //fnreg.put(FUN_CBOR.URI, FUN_CBOR.class);
     }
 

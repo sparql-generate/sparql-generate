@@ -15,10 +15,12 @@
  */
 package fr.mines_stetienne.ci.sparql_generate.webapis;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-
 
 import org.apache.commons.io.IOUtils;
 import org.apache.http.Header;
@@ -37,12 +39,9 @@ import org.apache.jena.sparql.function.FunctionBase2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 import fr.mines_stetienne.ci.sparql_generate.SPARQLExt;
 
 public final class FUN_HTTPDelete extends FunctionBase2 {
-
-
 
 	private static final Logger LOG = LoggerFactory.getLogger(FUN_HTTPDelete.class);
 	public static final String URI = SPARQLExt.FUN + "HTTPDelete";
@@ -79,51 +78,13 @@ public final class FUN_HTTPDelete extends FunctionBase2 {
 
 		try {
 
-		
 			HttpDelete req = new HttpDelete(fileURI);
-
 			CloseableHttpResponse res = httpclient.execute(req);
-
-			setHeadersFromArgs(req, headerArgs); // REQUEST?
-
-			int code = res.getStatusLine().getStatusCode(); // response code, 201 (ok)
-
-			Header[] headers = extractHeaders(res); // Header from response
-
-			HttpEntity entity = res.getEntity();
-
-			String body = IOUtils.toString(entity.getContent(), StandardCharsets.UTF_8); // will only work if content is
-
-			if (code != 201) {
-				LOG.debug("No response from server ");
-				throw new ExprEvalException("No response, return with code: " + code);
-			}
-
-			else {
-
-				String dtFromHeader = getContentTypeFromHeader(entity); // will get the content type from headers
-
-				String datatypeUri = "http://www.iana.org/assignments/media-types/" + dtFromHeader; // construct
-																									// datatype URI from
-																									// iana.
-
-				if (checkIanaDt(datatypeUri)) {
-
-					dt = TypeMapper.getInstance().getSafeTypeByName(datatypeUri);
-					outNode = new NodeValueNode(NodeFactory.createLiteral(body, dt));
-
-				}
-
-				else {
-
-					dt = TypeMapper.getInstance().getTypeByValue(body); // as String
-					outNode = new NodeValueNode(NodeFactory.createLiteral(body, dt));
-
-				}
-
-				return outNode;// return the literals
-
-			}
+			setHeadersFromArgs(req, headerArgs);
+			String response = FUN_GenerateResponse.generateResponse(res);
+			dt = TypeMapper.getInstance().getTypeByValue(response);
+			outNode = new NodeValueNode(NodeFactory.createLiteralByValue(response, dt));
+			return outNode;
 
 		} catch (Exception ex) {
 			LOG.debug(ex.getMessage());
@@ -131,7 +92,7 @@ public final class FUN_HTTPDelete extends FunctionBase2 {
 		}
 	}
 
-	private void setHeadersFromArgs(HttpDelete req, String[] headerArgs) {
+	public void setHeadersFromArgs(HttpDelete req, String[] headerArgs) {
 		// TODO Auto-generated method stub
 		for (String header : headerArgs) {
 			String hArgs[] = header.split(":");
@@ -147,28 +108,4 @@ public final class FUN_HTTPDelete extends FunctionBase2 {
 		return entity.getContentType().toString().replaceAll("Content-Type: ", "").trim();
 	}
 
-	public Header[] extractHeaders(CloseableHttpResponse res) {
-
-		return res.getAllHeaders();
-	}
-
-	public static boolean checkIanaDt(String URLName) {
-		try {
-			HttpURLConnection.setFollowRedirects(false);
-			HttpURLConnection con = (HttpURLConnection) new URL(URLName).openConnection();
-			con.setRequestMethod("HEAD");
-			return (con.getResponseCode() == HttpURLConnection.HTTP_OK);
-		} catch (Exception e) {
-			LOG.debug(e.getMessage());
-			return false;
-		}
-	}
-
-
-	
-	
-	
-
-	
-	
 }

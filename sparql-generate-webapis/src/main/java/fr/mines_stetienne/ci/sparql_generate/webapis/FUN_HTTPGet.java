@@ -15,7 +15,10 @@
  */
 package fr.mines_stetienne.ci.sparql_generate.webapis;
 
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.net.HttpURLConnection;
@@ -64,9 +67,8 @@ import com.google.gson.JsonParser;
 import fr.mines_stetienne.ci.sparql_generate.SPARQLExt;
 import fr.mines_stetienne.ci.sparql_generate.utils.ContextUtils;
 
-
 /**
- 
+ * 
  * @author Omar Qawasmeh, Maxime Lefrançois
  * 
  * @organization Ecole des Mines de Saint Etienne
@@ -107,52 +109,13 @@ public final class FUN_HTTPGet extends FunctionBase2 {
 
 		try {
 
-//			HttpGet req = new HttpGet(fileURI);
-			
 			HttpGet req = new HttpGet(fileURI);
-
 			CloseableHttpResponse res = httpclient.execute(req);
-
-			setHeadersFromArgs(req, headerArgs); // REQUEST?
-
-			int code = res.getStatusLine().getStatusCode(); // response code, 200 (ok), for POST (201 ok)
-
-			Header[] headers = extractHeaders(res); // Header from response
-
-			HttpEntity entity = res.getEntity();
-
-			String body = IOUtils.toString(entity.getContent(), StandardCharsets.UTF_8); // will only work if content is
-
-			if (code != 200) {
-				LOG.debug("No response from server ");
-				throw new ExprEvalException("No response, return with code: " + code);
-			}
-
-			else {
-
-				String dtFromHeader = getContentTypeFromHeader(entity); // will get the content type from headers
-
-				String datatypeUri = "http://www.iana.org/assignments/media-types/" + dtFromHeader; // construct
-																									// datatype URI from
-																									// iana.
-
-				//if (checkIanaDt(datatypeUri)) {
-
-					dt = TypeMapper.getInstance().getSafeTypeByName(datatypeUri);
-					outNode = new NodeValueNode(NodeFactory.createLiteral(body, dt));
-
-			//	}
-
-				//else {
-
-//					dt = TypeMapper.getInstance().getTypeByValue(body); // as String
-//					outNode = new NodeValueNode(NodeFactory.createLiteral(body, dt));
-//
-//				}
-
-				return outNode;// return the literals
-
-			}
+			setHeadersFromArgs(req, headerArgs);
+			String response = FUN_GenerateResponse.generateResponse(res);
+			dt = TypeMapper.getInstance().getTypeByValue(response);
+			outNode = new NodeValueNode(NodeFactory.createLiteralByValue(response, dt));
+			return outNode;
 
 		} catch (Exception ex) {
 			LOG.debug(ex.getMessage());
@@ -160,37 +123,17 @@ public final class FUN_HTTPGet extends FunctionBase2 {
 		}
 	}
 
-	private void setHeadersFromArgs(HttpGet req, String[] headerArgs) { //double check , might have multilple :
+
+
+	public void setHeadersFromArgs(HttpGet req, String[] headerArgs) {
 		// TODO Auto-generated method stub
 		for (String header : headerArgs) {
-			String hArgs[] = header.split(":");
+			String hArgs[] = header.split(":", 2);
 			req.addHeader(hArgs[0], hArgs[1]);
 			LOG.info("Header:\t" + hArgs[0] + ":" + hArgs[1] + " added successfully");
 
 		}
 
-	}
-
-	public String getContentTypeFromHeader(HttpEntity entity) {
-
-		return entity.getContentType().toString().replaceAll("Content-Type: ", "").trim();
-	}
-
-	public Header[] extractHeaders(CloseableHttpResponse res) {
-
-		return res.getAllHeaders();
-	}
-
-	public static boolean checkIanaDt(String URLName) {
-		try {
-			HttpURLConnection.setFollowRedirects(false);
-			HttpURLConnection con = (HttpURLConnection) new URL(URLName).openConnection();
-			con.setRequestMethod("HEAD");
-			return (con.getResponseCode() == HttpURLConnection.HTTP_OK);
-		} catch (Exception e) {
-			LOG.debug(e.getMessage());
-			return false;
-		}
 	}
 
 }
