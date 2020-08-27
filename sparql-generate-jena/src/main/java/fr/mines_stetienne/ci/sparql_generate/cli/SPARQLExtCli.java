@@ -154,7 +154,8 @@ public class SPARQLExtCli {
 		}
 		try {
 
-			exec(dirFile, r);
+//			exec(dirFile, r);
+			exec(dirFile, r, cl);
 
 			long millis = Duration.between(start, Instant.now()).toMillis();
 			int min = (int) (millis / 60000);
