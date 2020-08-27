@@ -51,7 +51,7 @@ public class FUN_GenerateResponse {
 			response.append(body);
 		}
 		reader.close();
-		LOG.info("This is the response\n" + response.toString());
+		LOG.info("Generated response:\t" + response.toString());
 		return response.toString();
 
 	}

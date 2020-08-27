@@ -50,7 +50,7 @@ public class FUN_HTTPExtractHeader extends FunctionBase1 {
 	@Override
 	public NodeValue exec(NodeValue response) {
 
-		NodeValue outNode = null;
+		NodeValue outNode;
 		RDFDatatype dt;
 
 		String res = String.valueOf(response.asNode().getLiteralLexicalForm());
@@ -58,10 +58,8 @@ public class FUN_HTTPExtractHeader extends FunctionBase1 {
 
 		String[] responseParts = res.split(blankLine, 2);
 
-		LOG.info("Headers from Fun HttpExtractHeader\n");
-
 		responseParts[0] = responseParts[0].substring(responseParts[0].indexOf("\n") + 1); // To remove first line of
-		LOG.info("Headers from Fun HttpExtractHeader\n" + responseParts[0]);
+		LOG.info("Header list is: \t" + responseParts[0]);
 
 		dt = TypeMapper.getInstance().getTypeByValue(responseParts[0]);
 

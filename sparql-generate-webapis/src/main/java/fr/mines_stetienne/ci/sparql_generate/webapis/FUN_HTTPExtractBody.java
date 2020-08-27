@@ -50,7 +50,7 @@ public class FUN_HTTPExtractBody extends FunctionBase1 {
 	@Override
 	public NodeValue exec(NodeValue response) {
 
-		NodeValue outNode = null;
+		NodeValue outNode;
 		RDFDatatype dt;
 
 		String res = String.valueOf(response.asNode().getLiteralLexicalForm());
@@ -59,10 +59,8 @@ public class FUN_HTTPExtractBody extends FunctionBase1 {
 
 		String[] responseParts = res.split(blankLine, 2);
 
-		LOG.info("Body from inside FUN_HTTPExtractbody\n\n");
-
 		String body = responseParts[1];
-		LOG.info(body);
+		LOG.info("Body is:\t" + body);
 		dt = TypeMapper.getInstance().getTypeByValue(body);
 
 		outNode = new NodeValueNode(NodeFactory.createLiteralByValue(body, dt));

@@ -29,6 +29,7 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.jena.datatypes.RDFDatatype;
 import org.apache.jena.datatypes.TypeMapper;
 import org.apache.jena.graph.NodeFactory;
+import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.NodeValue;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueNode;
 import org.apache.jena.sparql.function.FunctionBase1;
@@ -62,22 +63,20 @@ public class FUN_HTTPExtractResponseCode extends FunctionBase1 {
 
 			List<String> lines = IOUtils.readLines(new StringReader(responseParts[0]));
 
-			// int responseCode = Integer.parseInt(lines.get(0));
 			String responseStatus = lines.get(0);
 
-			LOG.info("response code from HTTPGetresponsecode\n" + responseStatus);
+			LOG.info("Response status:\t" + responseStatus);
 
 			dt = TypeMapper.getInstance().getTypeByValue(responseStatus);
 
 			outNode = new NodeValueNode(NodeFactory.createLiteralByValue(responseStatus, dt));
 
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+
+			throw new ExprEvalException(e.getMessage());
 		}
 
-		LOG.info(outNode + "\t\t\tresponse code");
-		return outNode; // should contain the headers only
+		return outNode;
 	}
 
 }

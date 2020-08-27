@@ -78,11 +78,12 @@ public final class FUN_HTTPGet extends FunctionBase2 {
 	private static final Logger LOG = LoggerFactory.getLogger(FUN_HTTPGet.class);
 	public static final String URI = SPARQLExt.FUN + "HTTPGet";
 
+	@SuppressWarnings("unused")
 	@Override
 	public NodeValue exec(NodeValue iri, NodeValue header) {
 
-		LOG.info("URI is \n" + iri);
-		LOG.info("Header issss \n" + header.asNode().getLiteralLexicalForm());
+		LOG.info("HTTPGet for the URI:\t" + iri);
+		LOG.info("Headers added:\t" + header.asNode().getLiteralLexicalForm());
 
 		String[] headerArgs = String.valueOf(header.asNode().getLiteralLexicalForm()).split("\n");
 
@@ -100,12 +101,12 @@ public final class FUN_HTTPGet extends FunctionBase2 {
 		}
 
 		if (!iri.isIRI()) {
-			LOG.debug("Must be a URI ");
-			throw new ExprEvalException("Must be a URI ");
+			LOG.debug("First argument must be a URI ");
+			throw new ExprEvalException("First argument must be a URI ");
 
 		}
 
-		String fileURI = iri.asNode().getURI(); // construct the URI from args
+		String fileURI = iri.asNode().getURI();
 
 		try {
 
@@ -122,8 +123,6 @@ public final class FUN_HTTPGet extends FunctionBase2 {
 			throw new ExprEvalException(ex.getMessage());
 		}
 	}
-
-
 
 	public void setHeadersFromArgs(HttpGet req, String[] headerArgs) {
 		// TODO Auto-generated method stub

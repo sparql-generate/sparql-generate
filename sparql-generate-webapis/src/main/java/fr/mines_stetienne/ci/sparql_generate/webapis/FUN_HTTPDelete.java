@@ -50,8 +50,8 @@ public final class FUN_HTTPDelete extends FunctionBase2 {
 	@Override
 	public NodeValue exec(NodeValue iri, NodeValue header) {
 
-		LOG.info("URI is \n" + iri);
-		LOG.info("Header issss \n" + header.asNode().getLiteralLexicalForm());
+		LOG.info("HTTPDelete for the URI:\t" + iri);
+		LOG.info("Headers added:\t" + header.asNode().getLiteralLexicalForm());
 
 		String[] headerArgs = String.valueOf(header.asNode().getLiteralLexicalForm()).split("\n");
 
@@ -69,8 +69,8 @@ public final class FUN_HTTPDelete extends FunctionBase2 {
 		}
 
 		if (!iri.isIRI()) {
-			LOG.debug("Must be a URI ");
-			throw new ExprEvalException("Must be a URI ");
+			LOG.debug("First argument must be a URI ");
+			throw new ExprEvalException("First argument must be a URI ");
 
 		}
 
@@ -95,17 +95,12 @@ public final class FUN_HTTPDelete extends FunctionBase2 {
 	public void setHeadersFromArgs(HttpDelete req, String[] headerArgs) {
 		// TODO Auto-generated method stub
 		for (String header : headerArgs) {
-			String hArgs[] = header.split(":");
+			String hArgs[] = header.split(":", 2);
 			req.addHeader(hArgs[0], hArgs[1]);
 			LOG.info("Header:\t" + hArgs[0] + ":" + hArgs[1] + " added successfully");
 
 		}
 
-	}
-
-	public String getContentTypeFromHeader(HttpEntity entity) {
-
-		return entity.getContentType().toString().replaceAll("Content-Type: ", "").trim();
 	}
 
 }

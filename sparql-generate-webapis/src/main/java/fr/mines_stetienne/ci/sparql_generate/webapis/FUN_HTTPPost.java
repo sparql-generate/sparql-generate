@@ -47,7 +47,7 @@ import org.slf4j.LoggerFactory;
 import fr.mines_stetienne.ci.sparql_generate.SPARQLExt;
 
 /**
-
+ * 
  * @author Omar Qawasmeh, Maxime Lefrançois
  * 
  * @organization Ecole des Mines de Saint Etienne
@@ -61,12 +61,14 @@ public final class FUN_HTTPPost extends FunctionBase2 {
 	@Override
 	public NodeValue exec(NodeValue iri, NodeValue header) {
 
+		LOG.info("HTTPPost for the URI:\t" + iri);
+		LOG.info("Headers added:\t" + header.asNode().getLiteralLexicalForm());
+
 		String[] headerArgs = String.valueOf(header.asNode().getLiteralLexicalForm()).split("\n");
 		RDFDatatype dt;
 		NodeValue outNode;
 		CloseableHttpClient httpclient = HttpClients.createDefault();
 
-		
 		if (iri == null) {
 			LOG.debug("Must have two arguments, a URI and a header");
 			throw new ExprEvalException("Must have two arguments, a URI and a header");
@@ -77,8 +79,8 @@ public final class FUN_HTTPPost extends FunctionBase2 {
 		}
 
 		if (!iri.isIRI()) {
-			LOG.debug("Must be a URI ");
-			throw new ExprEvalException("Must be a URI ");
+			LOG.debug("First argument must be a URI ");
+			throw new ExprEvalException("First argument must be a URI ");
 
 		}
 
@@ -86,16 +88,13 @@ public final class FUN_HTTPPost extends FunctionBase2 {
 
 		try {
 
-		
 			HttpPost req = new HttpPost(fileURI);
 			CloseableHttpResponse res = httpclient.execute(req);
-			setHeadersFromArgs(req, headerArgs); 
-			String response= FUN_GenerateResponse.generateResponse(res);
+			setHeadersFromArgs(req, headerArgs);
+			String response = FUN_GenerateResponse.generateResponse(res);
 			dt = TypeMapper.getInstance().getTypeByValue(response);
 			outNode = new NodeValueNode(NodeFactory.createLiteralByValue(response, dt));
 			return outNode;
-			
-
 
 		} catch (Exception ex) {
 			LOG.debug(ex.getMessage());
@@ -103,18 +102,15 @@ public final class FUN_HTTPPost extends FunctionBase2 {
 		}
 	}
 
-	
 	public void setHeadersFromArgs(HttpPost req, String[] headerArgs) {
 		// TODO Auto-generated method stub
 		for (String header : headerArgs) {
-			String hArgs[] = header.split(":");
+			String hArgs[] = header.split(":", 2);
 			req.addHeader(hArgs[0], hArgs[1]);
 			LOG.info("Header:\t" + hArgs[0] + ":" + hArgs[1] + " added successfully");
 
 		}
 
 	}
-
-	
 
 }
