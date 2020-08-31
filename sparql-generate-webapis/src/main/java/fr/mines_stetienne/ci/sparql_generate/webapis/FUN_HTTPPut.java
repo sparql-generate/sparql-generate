@@ -77,8 +77,8 @@ public final class FUN_HTTPPut extends FunctionBase2 {
 		try {
 
 			HttpPut req = new HttpPut(fileURI);
-			CloseableHttpResponse res = httpclient.execute(req);
 			setHeadersFromArgs(req, headerArgs);
+			CloseableHttpResponse res = httpclient.execute(req);
 
 			String response = FUN_GenerateResponse.generateResponse(res);
 			dt = TypeMapper.getInstance().getTypeByValue(response);

@@ -89,8 +89,8 @@ public final class FUN_HTTPPost extends FunctionBase2 {
 		try {
 
 			HttpPost req = new HttpPost(fileURI);
-			CloseableHttpResponse res = httpclient.execute(req);
 			setHeadersFromArgs(req, headerArgs);
+			CloseableHttpResponse res = httpclient.execute(req);
 			String response = FUN_GenerateResponse.generateResponse(res);
 			dt = TypeMapper.getInstance().getTypeByValue(response);
 			outNode = new NodeValueNode(NodeFactory.createLiteralByValue(response, dt));

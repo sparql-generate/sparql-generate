@@ -79,8 +79,8 @@ public final class FUN_HTTPDelete extends FunctionBase2 {
 		try {
 
 			HttpDelete req = new HttpDelete(fileURI);
-			CloseableHttpResponse res = httpclient.execute(req);
 			setHeadersFromArgs(req, headerArgs);
+			CloseableHttpResponse res = httpclient.execute(req);
 			String response = FUN_GenerateResponse.generateResponse(res);
 			dt = TypeMapper.getInstance().getTypeByValue(response);
 			outNode = new NodeValueNode(NodeFactory.createLiteralByValue(response, dt));
