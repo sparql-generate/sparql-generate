@@ -1088,7 +1088,7 @@ var init = function() {
     <div class="col-lg-6">
       <div id="queryset" class="fieldset">
         <legend>Queries</legend>
-        <p>Links to the documentation of <a href="apidocs/fr/emse/ci/sparqlext/iterator/library/package-summary.html">iterator functions</a> and <a href="apidocs/fr/emse/ci/sparqlext/function/library/package-summary.html">binding functions</a>.</p>
+        <p>Links to the documentation of <a href="iter">iterator functions</a> and <a href="fn">binding functions</a>.</p>
         <div id="queryset_drop_zone" class="drop_zone">
           <strong>Click to add a query, or drag and drop files ...</strong>
         </div>

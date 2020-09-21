@@ -15,7 +15,7 @@
  */
 /**
  * Interfaces and abstract classes for
- * <a href="/sparql-generate/apidocs/fr/emse/ci/sparqlext/iterator/library/package-summary.html">
+ * <a href="/sparql-generate/iter/">
  * iterator functions</a>, which are similar to binding functions, except they
  * return a list of list of RDF terms or SPARQL variables.
  */

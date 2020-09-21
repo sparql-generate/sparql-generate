@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 /**
- * Defines some <a href="<a href="/sparql-generate/apidocs/fr/emse/ci/sparqlext/function/library/package-summary.html">binding
+ * Defines some <a href="<a href="/sparql-generate/fn/">binding
  * functions</a> for extracting strings from different data formats.
  *
  * The equivalent package in Jena is org.​apache.​jena.​sparql.function.library
