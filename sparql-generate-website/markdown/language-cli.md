@@ -84,7 +84,7 @@ Notes:
 
 ```
 {
-  "base": "http://example.org/"
+  "base": "http://example.org/",
   "query": "query.rqg",
   "namedqueries": [
     {

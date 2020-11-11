@@ -15,7 +15,7 @@ PREFIX ex: <http://example.org/>
 
 GENERATE {
 
-<loc/{?idx}> a sosa:FeatureOfInterest;
+<loc/{?idx}> a sosa:FeatureOfInterest;  #" ---> http://www.w3.org/ns/sosa/FeatureOfInterest "
   rdfs:label ?name;
   geo:lat ?lat;
   geo:long ?long ;
