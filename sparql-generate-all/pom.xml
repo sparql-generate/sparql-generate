@@ -68,6 +68,11 @@
 			<artifactId>sparql-generate-sql</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>fr.mines-stetienne.ci.sparql-generate</groupId>
+			<artifactId>sparql-generate-webapis</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 	</dependencies>
 
 	<build>

@@ -49,13 +49,13 @@ public final class FUN_Turtle implements Function {
 
 	public static final String URI = SPARQLExt.FUN + "Turtle";
 
-    private static final String datatypeUri = "https://www.iana.org/assignments/media-types/text/turtle";
+	private static final String datatypeUri = "https://www.iana.org/assignments/media-types/text/turtle";
 
-    private static RDFDatatype dt = TypeMapper.getInstance().getSafeTypeByName(datatypeUri);
+	private static RDFDatatype dt = TypeMapper.getInstance().getSafeTypeByName(datatypeUri);
 
 	@Override
 	public final void build(String uri, ExprList args) {
-		if (args.size() !=0 ) {
+		if (args.size() != 0) {
 			throw new ExprEvalException("Expecting zero arguments");
 		}
 	}
@@ -80,6 +80,6 @@ public final class FUN_Turtle implements Function {
 		StringWriter out = new StringWriter();
 		dataset.getDefaultModel().write(out, Lang.TTL.getLabel());
 		String ttl = out.toString();
-        return new NodeValueNode(NodeFactory.createLiteral(ttl, dt));
+		return new NodeValueNode(NodeFactory.createLiteral(ttl, dt));
 	}
 }

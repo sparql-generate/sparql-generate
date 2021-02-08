@@ -24,6 +24,7 @@
 		<module>../sparql-generate-markdown</module>
 		<module>../sparql-generate-sql</module>
 		<module>../sparql-generate-server</module>
+		<module>../sparql-generate-webapis</module>
 		<module>../sparql-generate-all</module>
 	</modules>
 

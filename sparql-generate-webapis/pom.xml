@@ -13,6 +13,18 @@
     <packaging>jar</packaging>
 
     <name>SPARQL-Generate for Calling Web apis</name>
+    <contributors>
+		<contributor>
+			<name>Omar Qawasmeh</name>
+			<email>omar.alqawasmeh@emse.fr</email>
+			<url>https://perso.univ-st-etienne.fr/alo09685/</url>
+			<organization>Ecole des mines de Saint-Etienne</organization>
+			<organizationUrl>http://www.mines-stetienne.fr/</organizationUrl>
+			<timezone>+1</timezone>
+
+		</contributor>
+	</contributors>
+
     
     <dependencies>
         <dependency>
