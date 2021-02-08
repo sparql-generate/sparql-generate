@@ -123,7 +123,7 @@ public class Transform extends HttpServlet {
 		
 		List<Var> signature = q.getSignature();
 		BindingHashMap binding = new BindingHashMap();
-		if(signature == null && params != null) {
+		if(signature == null && params != null && !params.isEmpty()) {
         	throw new BadRequestException(String.format("The query %s has no signature, so no request parameter param may be set", query));
 		}
 		if(signature != null && params == null) {
