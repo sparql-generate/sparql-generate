@@ -1,0 +1,465 @@
+/*
+ * SPARQL-Generate Grammar in EBNF notion.
+ * The definition of the syntax for the SPARQL-Generate language, as given by a grammar expressed in EBNF notation.
+ * Extracted 8-Feb-2021
+ */
+
+/* Non-terminals:  https://ci.mines-stetienne.fr/sparql-generate/grammar.html */
+
+SPARQLExtUnit	::=	ByteOrderMark ExtQuery EOF
+ExtQuery	::=	Prologue ( ( SelectQuery | GenerateQuery | TemplateQuery | PerformQuery ) ValuesClause | Function )
+Function	::=	FUNCTION ( SourceSelector ) VarList LBRACE PrimaryExpression RBRACE
+GenerateQuery	::=	GENERATE ( ( SourceSelector ) ( VarList )? )? GenerateClause ( DatasetClause )* ( BindingClauses )* ( WhereClause )? SolutionModifier ( PostSelectClause )?
+SubQueryUnit	::=	ByteOrderMark Prologue ( SubGenerateQuery | SubTemplateQuery | SubPerformQuery ) ValuesClause EOF
+TemplateQuery	::=	TEMPLATE ( ( SourceSelector ) ( VarList )? )? TemplateClause ( DatasetClause )* ( BindingClauses )* ( WhereClause )? SolutionModifier
+PerformQuery	::=	PERFORM ( ( SourceSelector ) ( VarList )? )? PerformClause ( DatasetClause )* ( BindingClauses )* ( WhereClause )? SolutionModifier ( PostSelectClause )?
+VarList	::=	( NIL | LPAREN ( Var ) ( COMMA Var )* RPAREN )
+TemplateClause	::=	LBRACE TemplateInnerClause RBRACE
+TemplateInnerClause	::=	( TemplateBefore )? ( TExpression )* ( SEMICOLON ( TemplateSeparator ( SEMICOLON TemplateAfter )? | TemplateAfter ) )?
+TemplateBefore	::=	BEFORE EQ Expression SEMICOLON
+TemplateAfter	::=	AFTER EQ Expression
+TemplateSeparator	::=	SEPARATOR EQ Expression
+TExpression	::=	( PrimaryExpressionNotBracketted | Box | Format | Group | SubTemplateQuery DOT )
+PrimaryExpressionNotBracketted	::=	( ( BuiltInCall | XiriOrFunction ) | ( XRDFLiteral | NumericLiteral | BooleanLiteral | Var ) )
+Box	::=	BOX LBRACE ( TExpression )* RBRACE
+Format	::=	FORMAT LBRACE PrimaryExpressionNotBracketted ( TExpression )+ RBRACE
+Group	::=	GROUP ( DISTINCT )? LBRACE ( ( PrimaryExpressionNotBracketted | Box | Format ) )* ( Separator )? RBRACE
+SubTemplateQuery	::=	TEMPLATE ( ( VarOrXIri | IRI LPAREN Expression RPAREN | URI LPAREN Expression RPAREN ) ArgList | ( VarList )? TemplateClause ) ( DatasetClause )* ( BindingClauses )* ( WHERE GroupGraphPattern )? SolutionModifier
+Pragma	::=	( PRAGMA LBRACE RBRACE )?
+Separator	::=	SEMICOLON SEPARATOR EQ String
+PerformClause	::=	LBRACE PerformClauseSub RBRACE
+PerformClauseSub	::=	( SubPerformQuery DOT )*
+SubPerformQuery	::=	PERFORM ( ( VarOrXIri | IRI LPAREN Expression RPAREN | URI LPAREN Expression RPAREN ) ( ArgList )? | ( VarList )? PerformClause ) ( BindingClauses )* ( WHERE GroupGraphPattern )? SolutionModifier ( PostSelectClause )?
+PerformCall	::=	VarOrXIri ( NIL | LPAREN PExpression ( COMMA PExpression )* RPAREN )?
+PExpression	::=	( Expression )
+GenerateClause	::=	LBRACE GenerateClauseSub RBRACE
+GenerateClauseSub	::=	( ConstructTriples )? ( SubGenerateQuery DOT ( ConstructTriples )? )*
+BindingClauses	::=	( IteratorClause | SourceClause | Bind )
+IteratorClause	::=	ITERATOR FunctionCall AS ( Var )+
+SourceClause	::=	SOURCE VarOrXIri ( ACCEPT VarOrXIri )? AS Var
+SubGenerateQuery	::=	GENERATE ( ( VarOrXIri | IRI LPAREN Expression RPAREN | URI LPAREN Expression RPAREN ) ( ArgList )? | ( VarList )? GenerateClause ) ( BindingClauses )* ( WHERE GroupGraphPattern )? SolutionModifier ( PostSelectClause )?
+ByteOrderMark	::=	( BOM )?
+Prologue	::=	( BaseDecl | PrefixDecl )*
+BaseDecl	::=	BASE IRIREF
+PrefixDecl	::=	PREFIX PNAME_NS IRIREF
+SelectQuery	::=	NamedSelectClause ( DatasetClause )* ( BindingClauses )* WhereClause SolutionModifier
+SubSelect	::=	SelectClause WhereClause SolutionModifier ValuesClause
+NamedSelectClause	::=	SELECT ( ( SourceSelector ) VarList )? ( DISTINCT | REDUCED )? ( ( Var | ( LPAREN Expression AS Var RPAREN ) )+ | STAR )
+SelectClause	::=	SELECT ( DISTINCT | REDUCED )? ( ( Var | ( LPAREN Expression AS Var RPAREN ) )+ | STAR )
+PostSelectClause	::=	EXPRESSIONS ( LPAREN Expression AS Var RPAREN )+
+ConstructQuery	::=	CONSTRUCT ( ConstructTemplate ( DatasetClause )* WhereClause SolutionModifier | ( DatasetClause )* WHERE LBRACE ( TriplesTemplate )? RBRACE SolutionModifier )
+DescribeQuery	::=	DESCRIBE ( ( VarOrXIri )+ | STAR ) ( DatasetClause )* ( WhereClause )? SolutionModifier
+AskQuery	::=	ASK ( DatasetClause )* WhereClause SolutionModifier
+DatasetClause	::=	FROM ( DefaultGraphClause | NamedGraphClause | GenerateGraphClause )
+DefaultGraphClause	::=	Expression
+NamedGraphClause	::=	NAMED Expression
+GenerateGraphClause	::=	SubGenerateQuery ( NAMED Expression | ) DOT
+SourceSelector	::=	iri
+WhereClause	::=	( WHERE )? GroupGraphPattern
+SolutionModifier	::=	( GroupClause )? ( HavingClause )? ( OrderClause )? ( LimitOffsetClauses )?
+GroupClause	::=	GROUP BY ( GroupCondition )+
+GroupCondition	::=	( BuiltInCall | FunctionCall | LPAREN Expression ( AS Var )? RPAREN | Var )
+HavingClause	::=	HAVING ( HavingCondition )+
+HavingCondition	::=	Constraint
+OrderClause	::=	ORDER BY ( OrderCondition )+
+OrderCondition	::=	( ( ( ASC | DESC ) BrackettedExpression ) | ( Constraint | Var ) )
+LimitOffsetClauses	::=	( LimitClause ( OffsetClause )? | OffsetClause ( LimitClause )? )
+LimitClause	::=	LIMIT INTEGER
+OffsetClause	::=	OFFSET INTEGER
+ValuesClause	::=	( VALUES DataBlock )?
+TriplesTemplate	::=	TriplesSameSubject ( DOT ( TriplesTemplate )? )?
+GroupGraphPattern	::=	LBRACE ( SubSelect | GroupGraphPatternSub ) RBRACE
+GroupGraphPatternSub	::=	( TriplesBlock )? ( GraphPatternNotTriples ( DOT )? ( TriplesBlock )? )*
+TriplesBlock	::=	TriplesSameSubjectPath ( DOT ( TriplesBlock )? )?
+GraphPatternNotTriples	::=	( GroupOrUnionGraphPattern | OptionalGraphPattern | MinusGraphPattern | GraphGraphPattern | ServiceGraphPattern | Filter | Bind | InlineData )
+OptionalGraphPattern	::=	OPTIONAL GroupGraphPattern
+GraphGraphPattern	::=	GRAPH VarOrXIri GroupGraphPattern
+ServiceGraphPattern	::=	SERVICE ( SILENT )? VarOrXIri GroupGraphPattern
+Bind	::=	BIND LPAREN Expression AS Var RPAREN
+InlineData	::=	VALUES DataBlock
+DataBlock	::=	( InlineDataOneVar | InlineDataFull )
+InlineDataOneVar	::=	Var LBRACE ( DataBlockValue )* RBRACE
+InlineDataFull	::=	( NIL | LPAREN ( Var )* RPAREN ) LBRACE ( LPAREN ( DataBlockValue )* RPAREN | NIL )* RBRACE
+DataBlockValue	::=	iri | RDFLiteral | NumericLiteral | BooleanLiteral | UNDEF
+MinusGraphPattern	::=	MINUS_P GroupGraphPattern
+GroupOrUnionGraphPattern	::=	GroupGraphPattern ( UNION GroupGraphPattern )*
+Filter	::=	FILTER Constraint
+Constraint	::=	( BrackettedExpression | BuiltInCall | FunctionCall )
+FunctionCall	::=	iri ArgList
+ArgList	::=	( NIL | LPAREN ( DISTINCT )? Expression ( COMMA Expression )* RPAREN )
+ConstructTemplate	::=	LBRACE ( ConstructTriples )? RBRACE
+ExpressionList	::=	( NIL | LPAREN Expression ( COMMA Expression )* RPAREN )
+ConstructTriples	::=	TriplesSameSubject ( DOT ( ConstructTriples )? )?
+TriplesSameSubject	::=	VarOrXTerm PropertyListNotEmpty | TriplesNode PropertyList
+PropertyList	::=	( PropertyListNotEmpty )?
+PropertyListNotEmpty	::=	Verb ObjectList ( SEMICOLON ( Verb ObjectList )? )*
+Verb	::=	( VarOrXTerm | KW_A )
+ObjectList	::=	Object ( COMMA Object )*
+Object	::=	( GraphNode | ListNode )
+ListNode	::=	LIST LPAREN Expression RPAREN
+TriplesSameSubjectPath	::=	VarOrXTerm PropertyListPathNotEmpty | TriplesNodePath PropertyListPath
+PropertyListPath	::=	( PropertyListPathNotEmpty )?
+PropertyListPathNotEmpty	::=	( VerbPath | VerbSimple ) ObjectListPath ( SEMICOLON ( ( VerbPath | VerbSimple ) ObjectListPath )? )*
+VerbPath	::=	Path
+VerbSimple	::=	VarOrXExpr
+ObjectListPath	::=	ObjectPath ( COMMA ObjectPath )*
+ObjectPath	::=	GraphNodePath
+Path	::=	PathAlternative
+PathAlternative	::=	PathSequence ( VBAR PathSequence )*
+PathSequence	::=	PathEltOrInverse ( SLASH PathEltOrInverse )*
+PathElt	::=	PathPrimary ( PathMod )?
+PathEltOrInverse	::=	( PathElt | CARAT PathElt )
+PathMod	::=	( QMARK | STAR | PLUS )
+PathPrimary	::=	( Xiri | KW_A | BANG PathNegatedPropertySet | LPAREN Path RPAREN )
+PathNegatedPropertySet	::=	( PathOneInPropertySet | LPAREN ( PathOneInPropertySet ( VBAR PathOneInPropertySet )* )? RPAREN )
+PathOneInPropertySet	::=	( Xiri | KW_A | CARAT ( Xiri | KW_A ) )
+Integer	::=	INTEGER
+TriplesNode	::=	Collection | BlankNodePropertyList
+BlankNodePropertyList	::=	LBRACKET PropertyListNotEmpty RBRACKET
+TriplesNodePath	::=	CollectionPath | BlankNodePropertyListPath
+BlankNodePropertyListPath	::=	LBRACKET PropertyListPathNotEmpty RBRACKET
+Collection	::=	LPAREN ( GraphNode )+ RPAREN
+CollectionPath	::=	LPAREN ( GraphNodePath )+ RPAREN
+GraphNode	::=	VarOrXTerm | TriplesNode
+GraphNodePath	::=	VarOrXTerm | TriplesNodePath
+VarOrXTerm	::=	( Var | XTerm )
+VarOrXIri	::=	( VarOrXExpr | Xiri )
+Var	::=	( VAR1 | VAR2 )
+VarOrXExpr	::=	( Var | XExpr )
+XNode	::=	( XExpr | XRDFLiteral | Xiri )
+XExpr	::=	START_XEXPR Expression RBRACE
+XTerm	::=	( XNode | NumericLiteral | BooleanLiteral | BlankNode | NIL )
+Expression	::=	ConditionalOrExpression
+ConditionalOrExpression	::=	ConditionalAndExpression ( SC_OR ConditionalAndExpression )*
+ConditionalAndExpression	::=	ValueLogical ( SC_AND ValueLogical )*
+ValueLogical	::=	RelationalExpression
+RelationalExpression	::=	NumericExpression ( EQ NumericExpression | NE NumericExpression | LT NumericExpression | GT NumericExpression | LE NumericExpression | GE NumericExpression | IN ExpressionList | NOT IN ExpressionList )?
+NumericExpression	::=	AdditiveExpression
+AdditiveExpression	::=	MultiplicativeExpression ( PLUS MultiplicativeExpression | MINUS MultiplicativeExpression | ( NumericLiteralPositive | NumericLiteralNegative ) ( ( STAR UnaryExpression ) | ( SLASH UnaryExpression ) )* )*
+MultiplicativeExpression	::=	UnaryExpression ( STAR UnaryExpression | SLASH UnaryExpression )*
+UnaryExpression	::=	BANG PrimaryExpression | PLUS PrimaryExpression | MINUS PrimaryExpression | PrimaryExpression
+PrimaryExpression	::=	( BrackettedExpression | BuiltInCall | XiriOrFunction | XRDFLiteral | NumericLiteral | BooleanLiteral | Var )
+BrackettedExpression	::=	LPAREN Expression RPAREN
+BuiltInCall	::=	Aggregate
+|	STR LPAREN Expression RPAREN
+|	LANG LPAREN Expression RPAREN
+|	LANGMATCHES LPAREN Expression COMMA Expression RPAREN
+|	DTYPE LPAREN Expression RPAREN
+|	BOUND LPAREN Var RPAREN
+|	IRI LPAREN Expression RPAREN
+|	URI LPAREN Expression RPAREN
+|	BNODE ( LPAREN Expression RPAREN | NIL )
+|	RAND NIL
+|	ABS LPAREN Expression RPAREN
+|	CEIL LPAREN Expression RPAREN
+|	FLOOR LPAREN Expression RPAREN
+|	ROUND LPAREN Expression RPAREN
+|	CONCAT ExpressionList
+|	SubstringExpression
+|	STRLEN LPAREN Expression RPAREN
+|	StrReplaceExpression
+|	UCASE LPAREN Expression RPAREN
+|	LCASE LPAREN Expression RPAREN
+|	ENCODE_FOR_URI LPAREN Expression RPAREN
+|	CONTAINS LPAREN Expression COMMA Expression RPAREN
+|	STRSTARTS LPAREN Expression COMMA Expression RPAREN
+|	STRENDS LPAREN Expression COMMA Expression RPAREN
+|	STRBEFORE LPAREN Expression COMMA Expression RPAREN
+|	STRAFTER LPAREN Expression COMMA Expression RPAREN
+|	YEAR LPAREN Expression RPAREN
+|	MONTH LPAREN Expression RPAREN
+|	DAY LPAREN Expression RPAREN
+|	HOURS LPAREN Expression RPAREN
+|	MINUTES LPAREN Expression RPAREN
+|	SECONDS LPAREN Expression RPAREN
+|	TIMEZONE LPAREN Expression RPAREN
+|	TZ LPAREN Expression RPAREN
+|	NOW NIL
+|	UUID NIL
+|	STRUUID NIL
+|	MD5 LPAREN Expression RPAREN
+|	SHA1 LPAREN Expression RPAREN
+|	SHA256 LPAREN Expression RPAREN
+|	SHA384 LPAREN Expression RPAREN
+|	SHA512 LPAREN Expression RPAREN
+|	COALESCE ExpressionList
+|	IF LPAREN Expression COMMA Expression COMMA Expression RPAREN
+|	STRLANG LPAREN Expression COMMA Expression RPAREN
+|	STRDT LPAREN Expression COMMA Expression RPAREN
+|	SAME_TERM LPAREN Expression COMMA Expression RPAREN
+|	IS_IRI LPAREN Expression RPAREN
+|	IS_URI LPAREN Expression RPAREN
+|	IS_BLANK LPAREN Expression RPAREN
+|	IS_LITERAL LPAREN Expression RPAREN
+|	IS_NUMERIC LPAREN Expression RPAREN
+|	RegexExpression
+|	ExistsFunc
+|	NotExistsFunc
+RegexExpression	::=	REGEX LPAREN Expression COMMA Expression ( COMMA Expression )? RPAREN
+SubstringExpression	::=	SUBSTR LPAREN Expression COMMA Expression ( COMMA Expression )? RPAREN
+StrReplaceExpression	::=	REPLACE LPAREN Expression COMMA Expression COMMA Expression ( COMMA Expression )? RPAREN
+ExistsFunc	::=	EXISTS GroupGraphPattern
+NotExistsFunc	::=	NOT EXISTS GroupGraphPattern
+Aggregate	::=	( COUNT LPAREN ( DISTINCT )? ( STAR | Expression ) RPAREN | SUM LPAREN ( DISTINCT )? Expression RPAREN | MIN LPAREN ( DISTINCT )? Expression RPAREN | MAX LPAREN ( DISTINCT )? Expression RPAREN | AVG LPAREN ( DISTINCT )? Expression RPAREN | SAMPLE LPAREN ( DISTINCT )? Expression RPAREN | GROUP_CONCAT LPAREN ( DISTINCT )? Expression ( Separator )? RPAREN )
+XiriOrFunction	::=	Xiri ( ArgList )?
+RDFLiteral	::=	String ( ( LANGTAG ) | ( DATATYPE iri ) )?
+XRDFLiteral	::=	XString ( LANGTAG | DATATYPE Xiri )?
+NumericLiteral	::=	( NumericLiteralUnsigned | NumericLiteralPositive | NumericLiteralNegative )
+NumericLiteralUnsigned	::=	INTEGER | DECIMAL | DOUBLE
+NumericLiteralPositive	::=	INTEGER_POSITIVE | DECIMAL_POSITIVE | DOUBLE_POSITIVE
+NumericLiteralNegative	::=	INTEGER_NEGATIVE | DECIMAL_NEGATIVE | DOUBLE_NEGATIVE
+BooleanLiteral	::=	TRUE | FALSE
+String	::=	( STRING_LITERAL1 | STRING_LITERAL2 | STRING_LITERAL_LONG1 | STRING_LITERAL_LONG2 )
+XString	::=	( XString_Literal1 | XString_Literal2 | XString_Literal_Long1 | XString_Literal_Long2 )
+XString_Literal1	::=	( STRING_LITERAL1 | STRING_LITERAL1_START XString_Literal1_Sub )
+XString_Literal1_Sub	::=	Expression ( S1 XString_Literal1_Sub | STRING_LITERAL1_END )
+XString_Literal2	::=	( STRING_LITERAL2 | STRING_LITERAL2_START XString_Literal2_Sub )
+XString_Literal2_Sub	::=	Expression ( ( S2 ) XString_Literal2_Sub | STRING_LITERAL2_END )
+XString_Literal_Long1	::=	( STRING_LITERAL_LONG1 | STRING_LITERAL_LONG1_START XString_Literal_Long1_Sub )
+XString_Literal_Long1_Sub	::=	Expression ( L1 XString_Literal_Long1_Sub | STRING_LITERAL_LONG1_END )
+XString_Literal_Long2	::=	( STRING_LITERAL_LONG2 | STRING_LITERAL_LONG2_START XString_Literal_Long2_Sub )
+XString_Literal_Long2_Sub	::=	Expression ( L2 XString_Literal_Long2_Sub | STRING_LITERAL_LONG2_END )
+iri	::=	( IRIREF | PrefixedName )
+PrefixedName	::=	( PNAME_LN | PNAME_NS )
+BlankNode	::=	BLANK_NODE_LABEL | ANON
+IRIREF	::=	IRIref
+Xiri	::=	( iri | XIRIref_START XIRIREF_Sub )
+XIRIREF_Sub	::=	Expression ( RI XIRIREF_Sub | XIRIref_END )
+
+/* Terminals: https://github.com/sparql-generate/sparql-generate/blob/master/sparql-generate-jena/src/main/javacc/spargl.jj#L2068 */
+
+WS ::= " " | "\t" | "\n" | "\r" | "\f"
+WSC ::= WS| SINGLE_LINE_COMMENT
+BOM ::= "#xFEFF"
+BLANK_NODE_LABEL ::= "_:" (PN_CHARS_U| [0-9]) ((PN_CHARS|".")* PN_CHARS)?
+VAR1 ::= "?" VARNAME
+VAR2 ::= "$" VARNAME
+START_XEXPR ::= ( "$" | "?" ) "{"
+LANGTAG ::= AT(A2Z)+("-" (A2ZN)+)*
+A2Z ::= [a-zA-Z]
+A2ZN ::= [a-zA-Z0-9]
+KW_A ::= "a"
+GENERATE ::= "GENERATE"
+SOURCE ::= "SOURCE"
+ACCEPT ::= "ACCEPT"
+ITERATOR ::= "ITERATOR"
+LIST ::= "LIST"
+EXPRESSIONS ::= "EXPRESSIONS"
+TEMPLATE ::= "TEMPLATE"
+BOX ::= "BOX"
+FORMAT ::= "FORMAT"
+PRAGMA ::= "PRAGMA"
+FUNCTION ::= "FUNCTION"
+BEFORE ::= "BEFORE"
+AFTER ::= "AFTER"
+PERFORM ::= "PERFORM"
+BASE ::= "BASE"
+PREFIX ::= "PREFIX"
+SELECT ::= "SELECT"
+DISTINCT ::= "DISTINCT"
+REDUCED ::= "REDUCED"
+DESCRIBE ::= "DESCRIBE"
+CONSTRUCT ::= "CONSTRUCT"
+ASK ::= "ASK"
+LIMIT ::= "LIMIT"
+OFFSET ::= "OFFSET"
+ORDER ::= "ORDER"
+BY ::= "BY"
+VALUES ::= "VALUES"
+UNDEF ::= "UNDEF"
+ASC ::= "ASC"
+DESC ::= "DESC"
+NAMED ::= "NAMED"
+FROM ::= "FROM"
+WHERE ::= "WHERE" | "WHEREVER"
+AND ::= "AND"
+GRAPH ::= "GRAPH"
+OPTIONAL ::= "OPTIONAL"
+UNION ::= "UNION"
+MINUS_P ::= "MINUS"
+BIND ::= "BIND"
+SERVICE ::= "SERVICE"
+EXISTS ::= "EXISTS"
+NOT ::= "NOT"
+AS ::= "AS"
+GROUP ::= "GROUP"
+HAVING ::= "HAVING"
+SEPARATOR ::= "SEPARATOR"
+AGG ::= "AGG"
+COUNT ::= "COUNT"
+MIN ::= "MIN"
+MAX ::= "MAX"
+SUM ::= "SUM"
+AVG ::= "AVG"
+STDDEV ::= "STDEV"
+SAMPLE ::= "SAMPLE"
+GROUP_CONCAT ::= "GROUP_CONCAT"
+FILTER ::= "FILTER"
+BOUND ::= "BOUND"
+COALESCE ::= "COALESCE"
+IN ::= "IN"
+IF ::= "IF"
+BNODE ::= "BNODE"
+IRI ::= "IRI"
+URI ::= "URI"
+STR ::= "STR"
+STRLANG ::= "STRLANG"
+STRDT ::= "STRDT"
+DTYPE ::= "DATATYPE"
+LANG ::= "LANG"
+LANGMATCHES ::= "LANGMATCHES"
+IS_URI ::= "ISURI"
+IS_IRI ::= "ISIRI"
+IS_BLANK ::= "ISBLANK"
+IS_LITERAL ::= "ISLITERAL"
+IS_NUMERIC ::= "ISNUMERIC"
+REGEX ::= "REGEX"
+SAME_TERM ::= "SAMETERM"
+RAND ::= "RAND"
+ABS ::= "ABS"
+CEIL ::= "CEIL"
+FLOOR ::= "FLOOR"
+ROUND ::= "ROUND"
+CONCAT ::= "CONCAT"
+SUBSTR ::= "SUBSTR"
+STRLEN ::= "STRLEN"
+REPLACE ::= "REPLACE"
+UCASE ::= "UCASE"
+LCASE ::= "LCASE"
+ENCODE_FOR_URI ::= "ENCODE_FOR_URI"
+CONTAINS ::= "CONTAINS"
+STRSTARTS ::= "STRSTARTS"
+STRENDS ::= "STRENDS"
+STRBEFORE ::= "STRBEFORE"
+STRAFTER  ::= "STRAFTER"
+YEAR ::= "YEAR"
+MONTH ::= "MONTH"
+DAY ::= "DAY"
+HOURS ::= "HOURS"
+MINUTES ::= "MINUTES"
+SECONDS ::= "SECONDS"
+TIMEZONE ::= "TIMEZONE"
+TZ ::= "TZ"
+NOW ::= "NOW"
+UUID ::= "UUID"
+STRUUID ::= "STRUUID"
+MD5 ::= "MD5"
+SHA1 ::= "SHA1"
+SHA224 ::= "SHA224"
+SHA256 ::= "SHA256"
+SHA384 ::= "SHA384"
+SHA512 ::= "SHA512"
+TRUE ::= "TRUE"
+FALSE ::= "FALSE"
+DATA ::= "DATA"
+INSERT ::= "INSERT"
+DELETE ::= "DELETE"
+INSERT_DATA ::= INSERT(WSC)* DATA
+DELETE_DATA ::= DELETE(WSC)* DATA
+DELETE_WHERE ::= DELETE(WSC)* WHERE
+LOAD ::= "LOAD"
+CLEAR ::= "CLEAR"
+CREATE ::= "CREATE"
+ADD ::= "ADD"
+MOVE ::= "MOVE"
+COPY ::= "COPY"
+META ::= "META"
+SILENT ::= "SILENT"
+DROP ::= "DROP"
+INTO ::= "INTO"
+TO ::= "TO"
+DFT ::= "DEFAULT"
+ALL ::= "ALL"
+WITH ::= "WITH"
+USING ::= "USING"
+DIGITS ::= ([0-9])+
+INTEGER ::= DIGITS
+DECIMAL ::= (DIGITS)? "." DIGITS
+DOUBLE ::= (([0-9])+ "." ([0-9])* EXPONENT
+        | "." ([0-9])+ (EXPONENT)
+        | ([0-9])+ EXPONENT)
+INTEGER_POSITIVE ::= PLUS INTEGER
+DECIMAL_POSITIVE ::= PLUS DECIMAL
+DOUBLE_POSITIVE ::= PLUS DOUBLE
+INTEGER_NEGATIVE ::= MINUS INTEGER
+DECIMAL_NEGATIVE ::= MINUS DECIMAL
+DOUBLE_NEGATIVE ::= MINUS DOUBLE
+EXPONENT ::= [eE] ([+-])? ([0-9])+
+QUOTE_3D ::= '"""'
+QUOTE_3S ::= "'''"
+ECHAR ::= "\" [tbnrf\"'{}]
+STRING_LITERAL1 ::= "'" ( ([^'\NL CR {]) | ECHAR)* "'"
+STRING_LITERAL1_START ::= "'" ( ([^'\NL CR {]) | ECHAR)* "{"
+STRING_LITERAL2 ::= '"' ( ([^"\NL CR {]) | ECHAR)* '"'
+STRING_LITERAL2_START ::= '"' ( ([^"\NL CR {]) | ECHAR)* "{"
+STRING_LITERAL_LONG1 ::= QUOTE_3S ( ("'" | "''")? ([^'\{] | ECHAR)+)* QUOTE_3S
+STRING_LITERAL_LONG1_START ::= QUOTE_3S ( ("'" | "''")? ([^'\{] | ECHAR)+)* ("'" | "''")? "{"
+STRING_LITERAL_LONG2 ::= QUOTE_3D ( ('"' | '""')? ([^\"\{] | ECHAR)+)* QUOTE_3D
+STRING_LITERAL_LONG2_START ::= QUOTE_3D ( ('"' | '""')? ([^\"\{] | ECHAR)+)* ('"' | '""')? "{"
+IRIref ::= "<" ([^><\"{}{^\|`#x0000-#x0020])* ">"
+XIRIref_START ::= "<" ([^><\"{}{^\|`#x0000-#x0020])* "{"
+PNAME_NS ::= (PN_PREFIX)? ":"
+PNAME_LN ::= PNAME_NS PN_LOCAL
+S1 ::= "}" ( ([^'NL CR {]) | ECHAR)* "{"
+STRING_LITERAL1_END ::= "}" ( ([^'NL CR {]) | ECHAR)* "'"
+S2 ::= "}" ( ([^\"NL CR {]) | ECHAR)* "{"
+STRING_LITERAL2_END ::= "}" ( ([^\"NL CR {]) | ECHAR)* '"'
+L1 ::= "}" ( ("'" | "''")? ([^'\{] | ECHAR)+)* ("'" | "''")? "{"
+STRING_LITERAL_LONG1_END ::= "}" ( ("'" | "''")? ([^'\{] | ECHAR)+)* QUOTE_3S
+L2 ::= "}" ( ('"' | '""')? ([^\"\{] | ECHAR)+)* ('"' | '""')? "{"
+STRING_LITERAL_LONG2_END ::= "}" ( ('"' | '""')? ([^\"\{] | ECHAR))* QUOTE_3D
+RI ::= "}" ([^><\"{}^\|`{#x0000-#x0020])* "{"
+XIRIref_END ::= "}" ([^><\"{}{^\|`#x0000-#x0020])* ">"
+LPAREN ::= "("
+RPAREN ::= ")"
+NIL ::= LPAREN(WSC)* RPAREN
+LBRACE ::= "{"
+RBRACE ::= "}"
+LBRACKET ::= "["
+RBRACKET ::= "]"
+ANON ::= LBRACKET(WSC)* RBRACKET
+SEMICOLON ::= ";"
+COMMA ::= ","
+DOT ::= "."
+EQ ::= "="
+NE ::= "!="
+GT ::= ">"
+LT ::= "<"
+LE ::= "<="
+GE ::= ">="
+BANG ::= "!"
+TILDE ::= "~"
+COLON ::= ":"
+SC_OR ::= "||"
+SC_AND ::= "&&"
+PLUS ::= "+"
+MINUS ::= "-"
+STAR ::= "*"
+SLASH ::= "/"
+DATATYPE ::= "^^"
+AT ::= "@"
+VBAR ::= "|"
+CARAT ::= "^"
+FPATH ::= "->"
+RPATH ::= "<-"
+QMARK ::= "?"
+PN_CHARS_BASE ::=
+          [A-Z] | [a-z] |
+          [#x00C0-#x00D6] | [#x00D8-#x00F6] | [#x00F8-#x02FF] |
+          [#x0370-#x037D] | [#x037F-#x1FFF] |
+          [#x200C-#x200D] | [#x2070-#x218F] | [#x2C00-#x2FEF] |
+          [#x3001-#xD7FF] | [#xF900-#xFFFD]
+PN_CHARS_U ::= PN_CHARS_BASE| "_"
+PN_CHARS ::= (PN_CHARS_U| "-" | [0-9] | #x00B7 |
+              [#x0300-#x036F] | [#x203F-#x2040] )
+PN_PREFIX ::= PN_CHARS_BASE((PN_CHARS|".")* PN_CHARS)?
+PN_LOCAL ::= (PN_CHARS_U| ":" | [0-9] | PLX)
+              ( (PN_CHARS| "." |":" | PLX)*
+                (PN_CHARS| ":" | PLX) )?
+VARNAME ::= ( PN_CHARS_U| [0-9] )
+             ( PN_CHARS_U| [0-9] | #x00B7 |
+               [#x0300-#x036F] | [#x203F-#x2040] )*
+PN_LOCAL_ESC ::= "\" [-_~.!$&'()*+;=/?#@%]
+PLX ::= PERCENT| PN_LOCAL_ESC
+HEX ::= [0-9] | [A-F] | [a-f]
+PERCENT ::= "%" HEX HEX
