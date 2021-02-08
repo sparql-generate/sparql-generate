@@ -19,7 +19,7 @@
 
 :CONTENTS:
 - [[#intro][Intro]]
-  - [[#extracting-the-grammar][Extracting the Grammar]]
+  - [[#extract-the-grammar][Extract the Grammar]]
   - [[#generate-diagrams][Generate Diagrams]]
   - [[#diagram-preview][Diagram Preview]]
   - [[#remaining-tasks][Remaining Tasks]]
@@ -42,9 +42,9 @@ The SPARQL Generate langauge is complex, so one often needs to consult a grammar
   - Generates either a single XHTML with embedded SVG, or a zip with many PNGs
   - Cross-links the definitions and usages
 
-** Extracting the Grammar
+** Extract the Grammar
 :PROPERTIES:
-:CUSTOM_ID: extracting-the-grammar
+:CUSTOM_ID: extract-the-grammar
 :END:
 
 The SPARQL Generate grammar is JavaCC, whereas "rr" takes EBNF grammars.
@@ -108,13 +108,18 @@ Open them as local files, or use a github previewer, eg http://rawgit2.com:
 
 [[./SPARQL-Generate-diagram-preview.png]]
 
-** TODO Remaining Tasks
+** Remaining Tasks
 :PROPERTIES:
 :CUSTOM_ID: remaining-tasks
 :END:
 
+Tasks:
+- [[https://github.com/sparql-generate/sparql-generate/issues/97][#97]]: task to add grammar diagrams
+- [[https://github.com/sparql-generate/sparql-generate/issues/98][#98]]: PR to merge them to master
+
 Some remaining tasks:
-- Fix mixed-case terminal names ~*Str*~ in [[https://ci.mines-stetienne.fr/sparql-generate/grammar.html][grammar.html]]
+- Add these diagrams to the website
+- Fix mixed-case terminal names ~*Str*~ to uppercase in [[https://ci.mines-stetienne.fr/sparql-generate/grammar.html][grammar.html]]
 - Convert all keywords to uppercase for consistency (I belive that SPARQL Generate, like SPARQL, uses case-insensitive keywords)
 - There are 10 non-terminals that are not connected to the grammar ("no reference"):
   - SPARQLExtUnit: this is the root non-terminal
@@ -126,3 +131,4 @@ Some remaining tasks:
   - Integer: ???
 - Check the 15 or so productions from [[http://rawgit2.com/VladimirAlexiev/sparql-generate/master/sparql-generate-website/html/grammar-diagram/sparql-generate-full.xhtml#STRING_LITERAL1][#STRING_LITERAL1]] to [[http://rawgit2.com/VladimirAlexiev/sparql-generate/master/sparql-generate-website/html/grammar-diagram/sparql-generate-full.xhtml#XIRIref_END][#XIRIref_END]] because I had to do a lot of tweaking of char classes, eg is ~[^'\NL CR{]~ correct?
   - Note: EBNF RR doesn't render a *second* backslash in char class, so I had to write ~NL CR~ instead of ~\n\r~
+
