@@ -36,12 +36,14 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
@@ -51,6 +53,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.io.IOUtils;
 import org.apache.jena.atlas.io.IndentedWriter;
+import org.apache.jena.ext.com.google.common.collect.Lists;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.query.Dataset;
@@ -61,7 +64,11 @@ import org.apache.jena.query.ResultSetFormatter;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFLanguages;
+import org.apache.jena.riot.lang.extra.javacc.TurtleJavacc;
 import org.apache.jena.shared.PrefixMapping;
+import org.apache.jena.sparql.core.Var;
+import org.apache.jena.sparql.engine.binding.Binding;
+import org.apache.jena.sparql.engine.binding.BindingHashMap;
 import org.apache.jena.sparql.resultset.ResultsFormat;
 import org.apache.jena.sparql.syntax.Element;
 import org.apache.jena.sparql.util.Context;
@@ -211,12 +218,15 @@ public class SPARQLExtCli {
 		// prepare context
 		final ContextUtils.Builder contextBuilder = ContextUtils.build().setBase(rq.base).setPrefixMapping(q)
 				.setInputDataset(ds).setStreamManager(sm).setDebugTemplate(rq.debugTemplate);
+		
+		// prepare initial binding
+		List<Binding> bindings = getBinding(cl);
 
 		if (q.isTemplateType()) {
 			if (rq.output == null) {
 				try (IndentedWriter output = IndentedWriter.stdout) {
 					Context context = contextBuilder.setTemplateOutput(output).build();
-					plan.execTemplateStream(context);
+					plan.execTemplateStream(bindings, context);
 					output.flush();
 				} catch (Exception ex) {
 					LOG.error("Error while executing the plan.", ex);
@@ -224,7 +234,7 @@ public class SPARQLExtCli {
 			} else {
 				try (IndentedWriter output = new IndentedWriter(new FileOutputStream(rq.output, rq.outputAppend));) {
 					Context context = contextBuilder.setTemplateOutput(output).build();
-					plan.execTemplateStream(context);
+					plan.execTemplateStream(bindings, context);
 					output.flush();
 				} catch (Exception ex) {
 					LOG.error("Error while executing the plan.", ex);
@@ -232,19 +242,47 @@ public class SPARQLExtCli {
 			}
 		} else if (q.isGenerateType() && !rq.stream && !rq.hdt) {
 			Context context = contextBuilder.build();
-			execGenerate(plan, context, rq);
+			execGenerate(bindings, plan, context, rq);
 		} else if (q.isGenerateType() && rq.hdt) {
-			execGenerateHDT(plan, contextBuilder, rq);
+			execGenerateHDT(bindings, plan, contextBuilder, rq);
 		} else if (q.isGenerateType()) {
-			execGenerateStream(plan, contextBuilder, rq);
+			execGenerateStream(bindings, plan, contextBuilder, rq);
 		} else if (q.isSelectType() && !rq.stream) {
 			Context context = contextBuilder.build();
-			execSelect(plan, context, rq);
+			execSelect(bindings, plan, context, rq);
 		} else if (q.isSelectType()) {
-			execSelectStream(plan, contextBuilder, rq);
+			execSelectStream(bindings, plan, contextBuilder, rq);
 		} else {
 			LOG.error("Error: unsupported query type");
 		}
+	}
+
+	private static List<Binding> getBinding(CommandLine cl) {
+		if(!cl.hasOption(CMDConfigurations.ARG_BIND_LONG)) {
+			return new ArrayList<Binding>();
+		}
+		Properties properties = cl.getOptionProperties(CMDConfigurations.ARG_BIND_LONG);
+		if(properties.isEmpty()) {
+			return new ArrayList<Binding>();
+		}
+		final BindingHashMap binding = new BindingHashMap();
+		for(Object param : properties.keySet()) {
+			Var var = Var.alloc((String) param);
+			String value = properties.getProperty((String) param);
+			StringReader valueReader = new StringReader(value);
+			TurtleJavacc valueParser = new TurtleJavacc(valueReader);
+			if(LOG.isTraceEnabled()) {
+				LOG.trace(String.format("With binding %s -> %s", param, value));
+			}
+			try {
+				Node node = valueParser.GraphTerm();
+				binding.add(var, node);
+			} catch (org.apache.jena.riot.lang.extra.javacc.ParseException ex) {
+				LOG.error(String.format("Error while parsing value for parameter %s", param), ex);
+				throw new SPARQLExtException();
+			}
+		}
+		return Lists.newArrayList(binding);
 	}
 
 	/**
@@ -259,7 +297,7 @@ public class SPARQLExtCli {
 		exec(workingDir, rq, null);
 	}
 
-	private static void execGenerateHDT(RootPlan plan, ContextUtils.Builder builder, CliRequest request) {
+	private static void execGenerateHDT(List<Binding> bindings, RootPlan plan, ContextUtils.Builder builder, CliRequest request) {
 		if (request.output == null) {
 			LOG.error("Output needs to be set with the option HDT.");
 		}
@@ -267,7 +305,7 @@ public class SPARQLExtCli {
 		HDTStreamRDF hdtStreamRDF = new HDTStreamRDF(baseURI);
 		HDT hdt = hdtStreamRDF.getHDT();
 		Context context = builder.setGenerateOutput(hdtStreamRDF).build();
-		plan.execGenerateStream(context);
+		plan.execGenerateStream(bindings, context);
 		try (OutputStream out = new FileOutputStream(request.output)) {
 			// Save generated HDT to a file
 			hdt.saveToHDT(out, null);
@@ -281,7 +319,7 @@ public class SPARQLExtCli {
 		}
 	}
 
-	private static void execGenerateStream(RootPlan plan, ContextUtils.Builder builder, CliRequest request) {
+	private static void execGenerateStream(List<Binding> bindings, RootPlan plan, ContextUtils.Builder builder, CliRequest request) {
 		final PrefixMapping pm = plan.getQuery().getPrefixMapping();
 		final ConsoleStreamRDF consoleStreamRDF;
 		if (request.output == null) {
@@ -296,16 +334,16 @@ public class SPARQLExtCli {
 			}
 		}
 		Context context = builder.setGenerateOutput(consoleStreamRDF).build();
-		plan.execGenerateStream(context);
+		plan.execGenerateStream(bindings, context);
 	}
 
-	private static void execGenerate(RootPlan plan, Context context, CliRequest request) {
+	private static void execGenerate(List<Binding> bindings, RootPlan plan, Context context, CliRequest request) {
 		if (request.outputFormat == null) {
 			request.outputFormat = RDFLanguages.strLangTurtle;
 		}
 		Lang lang = RDFLanguages.nameToLang(request.outputFormat);
 		try {
-			Model model = plan.execGenerate(context);
+			Model model = plan.execGenerate(bindings, context);
 			if (request.output == null) {
 				model.write(System.out, lang.getLabel());
 			} else {
@@ -320,9 +358,9 @@ public class SPARQLExtCli {
 		}
 	}
 
-	private static void execSelect(RootPlan plan, Context context, CliRequest request) {
+	private static void execSelect(List<Binding> bindings, RootPlan plan, Context context, CliRequest request) {
 		try {
-			ResultSet result = plan.execSelect(context);
+			ResultSet result = plan.execSelect(bindings, context);
 			OutputStream out;
 			try {
 				if (request.output == null) {
@@ -344,7 +382,7 @@ public class SPARQLExtCli {
 		}
 	}
 
-	private static void execSelectStream(RootPlan plan, ContextUtils.Builder builder, CliRequest request) {
+	private static void execSelectStream(List<Binding> bindings, RootPlan plan, ContextUtils.Builder builder, CliRequest request) {
 		OutputStream out;
 		try {
 			if (request.output == null) {
@@ -362,7 +400,7 @@ public class SPARQLExtCli {
 				}
 				LOG.info("exiting accept");
 			}).build();
-			plan.execSelectStream(context);
+			plan.execSelectStream(bindings, context);
 		} catch (IOException ex) {
 			LOG.error("Error while opening the output file.", ex);
 		}

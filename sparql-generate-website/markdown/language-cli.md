@@ -34,7 +34,8 @@ java -jar sparql-generate.jar [arguments]
 * `-s,--stream` Generate output as stream.
 * `-hdt,--hdt` Generate output as HDT.
 * `-dt,--debug-template` Debug the template output: insert warning identifiers that refer to the log.
-* `--source` Replaces `<source>` in a `SOURCE` clause with the given value, e.g. `urn:sg:source=source.json`.
+* _**(deprecated)**_ `--source` Replaces `<source>` in a `SOURCE` clause with the given value, e.g. `urn:sg:source=source.json`.
+* `-Bvar=GraphTerm` Initially bind `?var` to [a Turtle 1.1 Graph Term](https://www.w3.org/TR/sparql11-query/#rGraphTerm).
 
 
 ##### Configuration file (optional)
