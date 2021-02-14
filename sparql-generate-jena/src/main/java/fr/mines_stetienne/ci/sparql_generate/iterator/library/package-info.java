@@ -15,7 +15,7 @@
  */
 /**
  * Defines common
- * <a href="/sparql-generate/apidocs/fr/emse/ci/sparqlext/iterator/library/package-summary.html">
+ * <a href="/sparql-generate/iter/">
  * iterator functions</a> for different data formats.
  */
 package fr.mines_stetienne.ci.sparql_generate.iterator.library;

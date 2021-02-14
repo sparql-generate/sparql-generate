@@ -1,0 +1,14 @@
+{
+  "documentset": [
+    {
+      "mediatype": "application/json",
+      "path": "documentset/museum.json",
+      "uri": "http://example.com/museum.json"
+    }
+  ],
+  "query": "query.rqg",
+  "namedqueries": [],
+  "graph": "dataset/default.ttl",
+  "namedgraphs": [],
+  "loglevel": 5
+}

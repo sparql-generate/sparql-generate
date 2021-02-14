@@ -27,14 +27,15 @@ java -jar sparql-generate.jar [arguments]
 * `-d,--dir <arg>` Location of the directory with the queryset, documentset, dataset, and configuration files as explained below. Default value is '.' (the current folder)
 * `-q,--query-file <arg>` Name of the query file in the directory. Default value is `./query.rqg`
 * `-o,--output <arg>` Location where the output is to be stored. By default the output is stored in a file with the same name as the query and the extension '.out'.
-* `-oa,--output-append` Write from the end of the output file, instead of replacing it.
-* `-of,--output-format` Format of the output file, e.g. TTL, NT, etc. for GENERATE, or TEXT, XML, CSV, etc. for SELECT. 
+* `-ao,--append-output` Write from the end of the output file, instead of replacing it.
+* `-fo,--format-output` Format of the output file, e.g. TTL, NT, etc. for GENERATE, or TEXT, XML, CSV, etc. for SELECT. 
 * `-l,--log-level <arg>` Set log level, acceptable values are TRACE < DEBUG < INFO < WARN < ERROR < OFF. No value or unrecognized value results in level TRACE
 * `-f,--log-file <arg>` Location where the log is to be stored. Output also goes to the console.
 * `-s,--stream` Generate output as stream.
 * `-hdt,--hdt` Generate output as HDT.
 * `-dt,--debug-template` Debug the template output: insert warning identifiers that refer to the log.
-* `--source` Replaces `<source>` in a `SOURCE` clause with the given value, e.g. `urn:sg:source=source.json`.
+* _**(deprecated)**_ `--source` Replaces `<source>` in a `SOURCE` clause with the given value, e.g. `urn:sg:source=source.json`.
+* `-Bvar=GraphTerm` Initially bind `?var` to [a Turtle 1.1 Graph Term](https://www.w3.org/TR/sparql11-query/#rGraphTerm).
 
 
 ##### Configuration file (optional)
@@ -84,7 +85,7 @@ Notes:
 
 ```
 {
-  "base": "http://example.org/"
+  "base": "http://example.org/",
   "query": "query.rqg",
   "namedqueries": [
     {

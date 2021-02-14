@@ -71,28 +71,39 @@ public class CMDConfigurations {
 	 * a file with the same name as the query and the extension '.out'.
 	 */
 	public static final String ARG_OUTPUT_MAN = "Location where the output is to be stored. By default the output is stored in a file with the same name as the query and the extension '.out'.";
+//	/** oa */
+//	public static final String ARG_OUTPUT_APPEND = "oa";
 	/** oa */
-	public static final String ARG_OUTPUT_APPEND = "oa";
+	public static final String ARG_OUTPUT_APPEND = "ao";
 	/** output-append */
-	public static final String ARG_OUTPUT_APPEND_LONG = "output-append";
+	public static final String ARG_OUTPUT_APPEND_LONG = "append-output";
 	/** Write from the end of the output file, instead of replacing it. */
 	public static final String ARG_OUTPUT_APPEND_MAN = "Write from the end of the output file, instead of replacing it.";
+//	/** of */
+//	public static final String ARG_OUTPUT_FORMAT = "of";
+//	/** output-format */
+//	public static final String ARG_OUTPUT_FORMAT_LONG = "output-format";
+	
 	/** of */
-	public static final String ARG_OUTPUT_FORMAT = "of";
+	public static final String ARG_OUTPUT_FORMAT = "fo";
 	/** output-format */
-	public static final String ARG_OUTPUT_FORMAT_LONG = "output-format";
+	public static final String ARG_OUTPUT_FORMAT_LONG = "format-output";
+	
+	
 	/**
 	 * Format of the output file, e.g. TTL, NT, etc. for GENERATE, or TEXT, XML,
 	 * CSV, etc. for SELECT.
 	 */
 	public static final String ARG_OUTPUT_FORMAT_MAN = "Format of the output file, e.g. TTL, NT, etc. for GENERATE, or TEXT, XML, CSV, etc. for SELECT.";
 	/** source */
+	@Deprecated
 	public static final String ARG_SOURCE_LONG = "source";
 	/**
 	 * Replaces <source> in a SOURCE clause with the given value, e.g.
 	 * urn:sg:source=source.json.
 	 */
-	public static final String ARG_SOURCE_MAN = "Replaces <source> in a SOURCE clause with the given value, e.g. urn:sg:source=source.json.";
+	@Deprecated
+	public static final String ARG_SOURCE_MAN = "DEPRECATED: Replaces <source> in a SOURCE clause with the given value, e.g. urn:sg:source=source.json.";
 	/** s */
 	public static final String ARG_STREAM = "s";
 	/** stream */
@@ -129,6 +140,13 @@ public class CMDConfigurations {
 	 */
 	public static final String ARG_DEBUG_TEMPLATE_MAN = "Debug the template output: insert warning identifiers that refer to the log.";
 
+	/** bind */
+	public static final String ARG_BIND_LONG = "B";
+	/**
+	 * Binds a query parameter to a RDF term
+	 */
+	public static final String ARG_BIND_MAN = "Binds a query parameter to a RDF term, e.g., -Bparam1=<http://example.org/> -Bparam2=12 -Bparam3=\"'a string with spaces'@en\"";
+
 	public static CommandLine parseArguments(String[] args) throws ParseException {
 		DefaultParser commandLineParser = new DefaultParser();
 		CommandLine cl = commandLineParser.parse(getCMDOptions(), args);
@@ -138,6 +156,9 @@ public class CMDConfigurations {
 	public static Options getCMDOptions() {
 		Option sourcesOpt = Option.builder().numberOfArgs(2).valueSeparator().argName("uri=uri")
 				.longOpt(ARG_SOURCE_LONG).desc(ARG_SOURCE_MAN).build();
+
+		Option bindingsOpt = Option.builder().numberOfArgs(2).valueSeparator().hasArgs().argName("param=value")
+				.longOpt(ARG_BIND_LONG).desc(ARG_BIND_MAN).build();
 
 		return new Options().addOption(ARG_HELP, ARG_HELP_LONG, false, ARG_HELP_MAN)
 				.addOption(ARG_DIRECTORY, ARG_DIRECTORY_LONG, true, ARG_DIRECTORY_MAN)
@@ -151,7 +172,8 @@ public class CMDConfigurations {
 				.addOption(ARG_HDT, ARG_HDT_LONG, false, ARG_HDT_MAN)
 				.addOption(ARG_BASE, ARG_BASE_LONG, true, ARG_BASE_MAN)
 				.addOption(ARG_DEBUG_TEMPLATE, ARG_DEBUG_TEMPLATE_LONG, false, ARG_DEBUG_TEMPLATE_MAN)
-				.addOption(sourcesOpt);
+				.addOption(sourcesOpt)
+				.addOption(bindingsOpt);
 	}
 
 	public static void displayHelp() {

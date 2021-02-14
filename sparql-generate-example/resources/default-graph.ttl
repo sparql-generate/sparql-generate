@@ -1,0 +1,111 @@
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix aqio:  <https://ci.mines-stetienne.fr/aqi/ontology#> .
+@prefix map:   <https://ci.mines-stetienne.fr/aqi/mapping#> .
+
+[ rdfs:seeAlso          <https://en.wikipedia.org/wiki/Sulfur_dioxide> ;
+  map:inUcumUnit        "ppm" ;
+  map:jsonKey           "so2" ;
+  map:observationClass  aqio:SulfurDioxideObservation ;
+  map:propertyClass     aqio:SulfurDioxideProperty
+] .
+
+[ rdfs:seeAlso          <https://en.wikipedia.org/wiki/Particulates> ;
+  map:inUcumUnit        "ug.m-3" ;
+  map:jsonKey           "pm10" ;
+  map:observationClass  aqio:PM10ParticulatesObservation ;
+  map:propertyClass     aqio:PM10ParticulatesProperty
+] .
+
+[ rdfs:seeAlso          <https://en.wikipedia.org/wiki/Wind_direction> ;
+  map:inUcumUnit        "deg" ;
+  map:jsonKey           "wd" ;
+  map:observationClass  aqio:WindDirectionObservation ;
+  map:propertyClass     aqio:WindDirectionProperty
+] .
+
+[ rdfs:seeAlso          <https://en.wikipedia.org/wiki/Dew_point> ;
+  map:inUcumUnit        "deg" ;
+  map:jsonKey           "d" ;
+  map:observationClass  aqio:DewPointObservation ;
+  map:propertyClass     aqio:DewPointProperty
+] .
+
+[ rdfs:seeAlso          <https://en.wikipedia.org/wiki/Particulates> ;
+  map:inUcumUnit        "ug.m-3" ;
+  map:jsonKey           "pm25" ;
+  map:observationClass  aqio:PM25ParticulatesObservation ;
+  map:propertyClass     aqio:PM25ParticulatesProperty
+] .
+
+[ map:jsonKey  "pol" ] .
+
+[ map:jsonKey  "r" ] .
+
+[ rdfs:seeAlso          <https://en.wikipedia.org/wiki/Ultraviolet_index> ;
+  map:inUcumUnit        "" ;
+  map:jsonKey           "uvi" ;
+  map:observationClass  aqio:UltravioletIndexObservation ;
+  map:propertyClass     aqio:UltravioletIndexProperty
+] .
+
+[ rdfs:seeAlso          <https://en.wikipedia.org/wiki/Wind_speed> ;
+  map:inUcumUnit        "m.s-1" ;
+  map:jsonKey           "w" ;
+  map:observationClass  aqio:WindSpeedObservation ;
+  map:propertyClass     aqio:WindSpeedProperty
+] .
+
+[ rdfs:seeAlso          <https://en.wikipedia.org/wiki/Particulates> ;
+  map:inUcumUnit        "ug.m-3" ;
+  map:jsonKey           "pm1" ;
+  map:observationClass  aqio:PM1ParticulatesObservation ;
+  map:propertyClass     aqio:PM1ParticulatesProperty
+] .
+
+[ rdfs:seeAlso          <https://en.wikipedia.org/wiki/Nitrogen_dioxide> ;
+  map:inUcumUnit        "ug.m-3" ;
+  map:jsonKey           "no2" ;
+  map:observationClass  aqio:NitrogenDioxideObservation ;
+  map:propertyClass     aqio:NitrogenDioxideProperty
+] .
+
+[ rdfs:seeAlso          <https://en.wikipedia.org/wiki/Carbon_monoxide> ;
+  map:inUcumUnit        "ug.m-3" ;
+  map:jsonKey           "co" ;
+  map:observationClass  aqio:CarbonMonoxideObservation ;
+  map:propertyClass     aqio:CarbonMonoxideProperty
+] .
+
+[ rdfs:seeAlso          <https://en.wikipedia.org/wiki/Humidity> ;
+  map:inUcumUnit        "%" ;
+  map:jsonKey           "h" ;
+  map:observationClass  aqio:HumidityObservation ;
+  map:propertyClass     aqio:HumidityProperty
+] .
+
+[ rdfs:seeAlso          <https://en.wikipedia.org/wiki/Temperature> ;
+  map:inUcumUnit        "Cel" ;
+  map:jsonKey           "t" ;
+  map:observationClass  aqio:TemperatureObservation ;
+  map:propertyClass     aqio:TemperatureProperty
+] .
+
+[ map:inUcumUnit        "m.s-1" ;
+  map:jsonKey           "wg" ;
+  map:observationClass  aqio:WindGustObservation ;
+  map:propertyClass     aqio:WindGustProperty
+] .
+
+[ rdfs:seeAlso          <https://en.wikipedia.org/wiki/Atmospheric_pressure> ;
+  map:inUcumUnit        "hPa" ;
+  map:jsonKey           "p" ;
+  map:observationClass  aqio:AtmosphericPressureObservation ;
+  map:propertyClass     aqio:AtmosphericPressureProperty
+] .
+
+[ rdfs:seeAlso          <https://en.wikipedia.org/wiki/Ozone> ;
+  map:inUcumUnit        "[ppb]" ;
+  map:jsonKey           "o3" ;
+  map:observationClass  aqio:OzoneObservation ;
+  map:propertyClass     aqio:OzoneProperty
+] .
