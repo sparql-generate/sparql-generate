@@ -38,6 +38,15 @@ import org.slf4j.LoggerFactory;
 import fr.mines_stetienne.ci.sparql_generate.SPARQLExt;
 
 /**
+ * Binding function
+ * <a href="http://w3id.org/sparql-generate/fn/HTTPExtractBody">fun:HTTPExtractBody</a> 
+ * extracts the body from a full HTTP response.
+ *
+ * <ul>
+ * <li>Param 1: (a string) the full HTTP response;</li>
+ * </ul>
+ *
+ * Returns the body section of the full HTTP reponse
  * 
  * @author Omar Qawasmeh, Maxime Lefrançois
  * 
@@ -53,14 +62,17 @@ public class FUN_HTTPExtractBody extends FunctionBase1 {
 		NodeValue outNode;
 		RDFDatatype dt;
 
+		// TODO what if the response is not a literal.
 		String res = String.valueOf(response.asNode().getLiteralLexicalForm());
 
+		// TODO there may be issues with different server/client platforms ? 
 		String blankLine = System.getProperty("line.separator") + "{2}";
 
+		// TODO what if the response is not well formed.
 		String[] responseParts = res.split(blankLine, 2);
 
 		String body = responseParts[1];
-		LOG.info("Body is:\t" + body);
+		// LOG.info("Body is:\t" + body);
 		dt = TypeMapper.getInstance().getTypeByValue(body);
 
 		outNode = new NodeValueNode(NodeFactory.createLiteralByValue(body, dt));

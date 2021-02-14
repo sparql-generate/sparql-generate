@@ -39,6 +39,15 @@ import org.slf4j.LoggerFactory;
 import fr.mines_stetienne.ci.sparql_generate.SPARQLExt;
 
 /**
+ * Binding function
+ * <a href="http://w3id.org/sparql-generate/fn/HTTPExtractResponseCode">fun:HTTPExtractResponseCode</a> 
+ * extracts the response code from a full HTTP response.
+ *
+ * <ul>
+ * <li>Param 1: (a string) the full HTTP response;</li>
+ * </ul>
+ *
+ * Returns the response code of the full HTTP reponse
  * 
  * @author Omar Qawasmeh, Maxime Lefrançois
  * 
@@ -53,10 +62,13 @@ public class FUN_HTTPExtractResponseCode extends FunctionBase1 {
 
 		NodeValue outNode = null;
 		RDFDatatype dt;
+		// TODO what if the response is not a literal.
 		String res = String.valueOf(response.asNode().getLiteralLexicalForm());
 
+		// TODO there may be issues with different server/client platforms ? 
 		String blankLine = System.getProperty("line.separator") + "{2}";
 
+		// TODO what if the response is not well formed.
 		String[] responseParts = res.split(blankLine, 2);
 
 		try {
@@ -65,8 +77,9 @@ public class FUN_HTTPExtractResponseCode extends FunctionBase1 {
 
 			String responseStatus = lines.get(0);
 
-			LOG.info("Response status:\t" + responseStatus);
+			// LOG.info("Response status:\t" + responseStatus);
 
+			// TODO: does this select xsd:integer ?
 			dt = TypeMapper.getInstance().getTypeByValue(responseStatus);
 
 			outNode = new NodeValueNode(NodeFactory.createLiteralByValue(responseStatus, dt));

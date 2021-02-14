@@ -38,6 +38,15 @@ import org.slf4j.LoggerFactory;
 import fr.mines_stetienne.ci.sparql_generate.SPARQLExt;
 
 /**
+ * Binding function
+ * <a href="http://w3id.org/sparql-generate/fn/HTTPExtractHeader">fun:HTTPExtractHeader</a> 
+ * extracts the header from a full HTTP response.
+ *
+ * <ul>
+ * <li>Param 1: (a string) the full HTTP response;</li>
+ * </ul>
+ *
+ * Returns the header section of the full HTTP reponse
  * 
  * @author Omar Qawasmeh, Maxime Lefrançois
  * 
@@ -53,13 +62,17 @@ public class FUN_HTTPExtractHeader extends FunctionBase1 {
 		NodeValue outNode;
 		RDFDatatype dt;
 
+		// TODO what if the response is not a literal.
 		String res = String.valueOf(response.asNode().getLiteralLexicalForm());
+
+		// TODO there may be issues with different server/client platforms ? 
 		String blankLine = System.getProperty("line.separator") + "{2}";
 
+		// TODO what if the response is not well formed.
 		String[] responseParts = res.split(blankLine, 2);
 
 		responseParts[0] = responseParts[0].substring(responseParts[0].indexOf("\n") + 1); // To remove first line of
-		LOG.info("Header list is: \t" + responseParts[0]);
+		// LOG.info("Header list is: \t" + responseParts[0]);
 
 		dt = TypeMapper.getInstance().getTypeByValue(responseParts[0]);
 

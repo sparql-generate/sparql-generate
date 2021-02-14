@@ -41,6 +41,20 @@ import org.slf4j.LoggerFactory;
 
 import fr.mines_stetienne.ci.sparql_generate.SPARQLExt;
 
+/**
+ * Binding function
+ * <a href="http://w3id.org/sparql-generate/fn/HTTPDelete">fun:HTTPDelete</a> 
+ * operates a HTTP Delete operation.
+ *
+ * <ul>
+ * <li>Param 1: (a URL) the IRI of the resource to delete;</li>
+ * <li>Param 2: (string): additional HTTP headers for the request.</li>
+ * </ul>
+ *
+ * Returns the full HTTP response as a literal
+ *
+ * @author Omar Qawasmeh
+ */
 public final class FUN_HTTPDelete extends FunctionBase2 {
 
 	private static final Logger LOG = LoggerFactory.getLogger(FUN_HTTPDelete.class);
@@ -49,15 +63,6 @@ public final class FUN_HTTPDelete extends FunctionBase2 {
 	@SuppressWarnings("unused")
 	@Override
 	public NodeValue exec(NodeValue iri, NodeValue header) {
-
-		LOG.info("HTTPDelete for the URI:\t" + iri);
-		LOG.info("Headers added:\t" + header.asNode().getLiteralLexicalForm());
-
-		String[] headerArgs = String.valueOf(header.asNode().getLiteralLexicalForm()).split("\n");
-
-		RDFDatatype dt;
-		NodeValue outNode;
-		CloseableHttpClient httpclient = HttpClients.createDefault();
 
 		if (iri == null) {
 			LOG.debug("Must have two arguments, a URI and a header");
@@ -73,6 +78,17 @@ public final class FUN_HTTPDelete extends FunctionBase2 {
 			throw new ExprEvalException("First argument must be a URI ");
 
 		}
+
+// TODO: need  to check that IRI is http or https
+// TODO: need  to check that header is literal
+// TODO: need  to check that header is well formed
+// TODO: second argument should be optional
+
+		String[] headerArgs = String.valueOf(header.asNode().getLiteralLexicalForm()).split("\n");
+
+		RDFDatatype dt;
+		NodeValue outNode;
+		CloseableHttpClient httpclient = HttpClients.createDefault();
 
 		String fileURI = iri.asNode().getURI(); // construct the URI from args
 

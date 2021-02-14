@@ -37,14 +37,9 @@ public class FunctionsLoader implements FunctionLoader{
         fnreg.put(FUN_HTTPExtractHeader.URI, FUN_HTTPExtractHeader.class);
         fnreg.put(FUN_HTTPExtractResponseCode.URI, FUN_HTTPExtractResponseCode.class);
         fnreg.put(FUN_HTTPExtractBody.URI, FUN_HTTPExtractBody.class);
-       //fnreg.put(FUN_CBOR.URI, FUN_CBOR.class);
+        fnreg.put(FUN_Turtle.URI, FUN_Turtle.class);
+        fnreg.put(FUN_RDFXML.URI, FUN_RDFXML.class);
     }
 
-
-    
-//    @Override
-//    public void load(IteratorFunctionRegistry itereg) {
-//        itereg.put(ITER_WebSocket.URI, ITER_WebSocket.class);
-//    }
     
 }

@@ -25,7 +25,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 
+ * Generates a Literal from a CloseableHttpResponse.
+ *
  * @author Omar Qawasmeh
  * 
  * @organization Ecole des Mines de Saint Etienne
@@ -51,9 +52,8 @@ public class FUN_GenerateResponse {
 			response.append(body);
 		}
 		reader.close();
-		LOG.info("Generated response:\t" + response.toString());
+		// LOG.info("Generated response:\t" + response.toString());
 		return response.toString();
-
 	}
 
 	public static Header[] extractHeaders(CloseableHttpResponse res) {
