@@ -33,6 +33,10 @@ function push {
   ssh -i ~/.ssh/sparql-generate sparql-generate@ci.mines-stetienne.fr "sudo ./update-app"
 }
 
+if [[ $# == 0 ]]; then
+  echo "usage ./update-app.sh [clean] [build] [push]";
+fi
+
 while [[ $# > 0 ]]
 do
   case $1 in
