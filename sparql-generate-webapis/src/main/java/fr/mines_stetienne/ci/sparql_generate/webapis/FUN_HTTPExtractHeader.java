@@ -15,22 +15,9 @@
  */
 package fr.mines_stetienne.ci.sparql_generate.webapis;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.StringReader;
-import java.io.UnsupportedEncodingException;
-import java.util.List;
-
-import org.apache.commons.io.IOUtils;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.jena.datatypes.RDFDatatype;
-import org.apache.jena.datatypes.TypeMapper;
-import org.apache.jena.graph.NodeFactory;
+import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.NodeValue;
-import org.apache.jena.sparql.expr.nodevalue.NodeValueNode;
+import org.apache.jena.sparql.expr.nodevalue.NodeValueString;
 import org.apache.jena.sparql.function.FunctionBase1;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,8 +25,8 @@ import org.slf4j.LoggerFactory;
 import fr.mines_stetienne.ci.sparql_generate.SPARQLExt;
 
 /**
- * Binding function
- * <a href="http://w3id.org/sparql-generate/fn/HTTPExtractHeader">fun:HTTPExtractHeader</a> 
+ * Binding function <a href=
+ * "http://w3id.org/sparql-generate/fn/HTTPExtractHeader">fun:HTTPExtractHeader</a>
  * extracts the header from a full HTTP response.
  *
  * <ul>
@@ -58,27 +45,25 @@ public class FUN_HTTPExtractHeader extends FunctionBase1 {
 
 	@Override
 	public NodeValue exec(NodeValue response) {
-
-		NodeValue outNode;
-		RDFDatatype dt;
-
-		// TODO what if the response is not a literal.
-		String res = String.valueOf(response.asNode().getLiteralLexicalForm());
-
-		// TODO there may be issues with different server/client platforms ? 
-		String blankLine = System.getProperty("line.separator") + "{2}";
-
-		// TODO what if the response is not well formed.
-		String[] responseParts = res.split(blankLine, 2);
-
-		responseParts[0] = responseParts[0].substring(responseParts[0].indexOf("\n") + 1); // To remove first line of
-		// LOG.info("Header list is: \t" + responseParts[0]);
-
-		dt = TypeMapper.getInstance().getTypeByValue(responseParts[0]);
-
-		outNode = new NodeValueNode(NodeFactory.createLiteralByValue(responseParts[0], dt));
-
-		return outNode;
+		if (!response.isLiteral()) {
+			LOG.debug("Argument must be a Literal");
+			throw new ExprEvalException("Argument must be a Literal");
+		}
+		String res = response.asNode().getLiteralLexicalForm();
+		if (!res.startsWith("HTTP/1.1 ")) {
+			LOG.debug("Argument must start with string HTTP/1.1 ");
+			throw new ExprEvalException("Argument must start with string HTTP/1.1 ");
+		}
+		int firstNewLineCharacter = res.indexOf("\n");
+		if (firstNewLineCharacter == -1) {
+			throw new ExprEvalException("Argument does not contain headers");
+		}
+		int firstTwoNewLinesCharacter = res.indexOf("\n\n");
+		if (firstTwoNewLinesCharacter == -1) {
+			return new NodeValueString(res.substring(firstNewLineCharacter+1));
+		} else {
+			return new NodeValueString(res.substring(firstNewLineCharacter+1, firstTwoNewLinesCharacter));
+		}
 	}
 
 }

@@ -15,23 +15,9 @@
  */
 package fr.mines_stetienne.ci.sparql_generate.webapis;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.StringReader;
-import java.io.UnsupportedEncodingException;
-import java.util.List;
-
-import org.apache.commons.io.IOUtils;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.jena.datatypes.RDFDatatype;
-import org.apache.jena.datatypes.TypeMapper;
-import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.NodeValue;
-import org.apache.jena.sparql.expr.nodevalue.NodeValueNode;
+import org.apache.jena.sparql.expr.nodevalue.NodeValueInteger;
 import org.apache.jena.sparql.function.FunctionBase1;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,8 +25,8 @@ import org.slf4j.LoggerFactory;
 import fr.mines_stetienne.ci.sparql_generate.SPARQLExt;
 
 /**
- * Binding function
- * <a href="http://w3id.org/sparql-generate/fn/HTTPExtractResponseCode">fun:HTTPExtractResponseCode</a> 
+ * Binding function <a href=
+ * "http://w3id.org/sparql-generate/fn/HTTPExtractResponseCode">fun:HTTPExtractResponseCode</a>
  * extracts the response code from a full HTTP response.
  *
  * <ul>
@@ -59,37 +45,25 @@ public class FUN_HTTPExtractResponseCode extends FunctionBase1 {
 
 	@Override
 	public NodeValue exec(NodeValue response) {
-
-		NodeValue outNode = null;
-		RDFDatatype dt;
-		// TODO what if the response is not a literal.
-		String res = String.valueOf(response.asNode().getLiteralLexicalForm());
-
-		// TODO there may be issues with different server/client platforms ? 
-		String blankLine = System.getProperty("line.separator") + "{2}";
-
-		// TODO what if the response is not well formed.
-		String[] responseParts = res.split(blankLine, 2);
-
-		try {
-
-			List<String> lines = IOUtils.readLines(new StringReader(responseParts[0]));
-
-			String responseStatus = lines.get(0);
-
-			// LOG.info("Response status:\t" + responseStatus);
-
-			// TODO: does this select xsd:integer ?
-			dt = TypeMapper.getInstance().getTypeByValue(responseStatus);
-
-			outNode = new NodeValueNode(NodeFactory.createLiteralByValue(responseStatus, dt));
-
-		} catch (IOException e) {
-
-			throw new ExprEvalException(e.getMessage());
+		if (!response.isLiteral()) {
+			LOG.debug("Argument must be a Literal");
+			throw new ExprEvalException("Argument must be a Literal");
 		}
-
-		return outNode;
+		String res = response.asNode().getLiteralLexicalForm();
+		if (!res.startsWith("HTTP/1.1 ")) {
+			LOG.debug("Argument must start with string HTTP/1.1 ");
+			throw new ExprEvalException("Argument must start with string HTTP/1.1 ");
+		}
+		String codeString = res.substring(9, 12);
+		try {
+			int code = Integer.parseInt(codeString);
+			return new NodeValueInteger(code);
+		} catch (NumberFormatException ex) {
+			LOG.debug(String.format("Argument must start with HTTP/1.1 , then a three digit response code. Got %s",
+					codeString));
+			throw new ExprEvalException(String.format(
+					"Argument must start with HTTP/1.1 , then a three digit response code. Got %s", codeString));
+		}
 	}
 
 }

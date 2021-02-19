@@ -13,7 +13,7 @@ function echoredirect {
 }
 
 function build {
-  mvn -B package -P docs --file sparql-generate-parent/pom.xml
+  mvn -B install -P docs --file sparql-generate-parent/pom.xml
   cd sparql-generate-website 
   npm i
   gulp
@@ -29,7 +29,7 @@ function push {
   scp -i ~/.ssh/sparql-generate sparql-generate-server/target/sparql-generate.war sparql-generate@ci.mines-stetienne.fr:~/sparql-generate.war
   scp -r -i ~/.ssh/sparql-generate sparql-generate-website/public/* sparql-generate@ci.mines-stetienne.fr:~/website
   scp -r -i ~/.ssh/sparql-generate sparql-generate-website/public/.htaccess sparql-generate@ci.mines-stetienne.fr:~/website/.htaccess
-  scp -r -i ~/.ssh/sparql-generate sparql-generate-all/target/apidocs sparql-generate@ci.mines-stetienne.fr:~/website/apidocs
+  scp -r -i ~/.ssh/sparql-generate sparql-generate-all/target/apidocs sparql-generate@ci.mines-stetienne.fr:~/website
   ssh -i ~/.ssh/sparql-generate sparql-generate@ci.mines-stetienne.fr "sudo ./update-app"
 }
 
