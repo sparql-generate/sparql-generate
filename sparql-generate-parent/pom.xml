@@ -5,7 +5,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>fr.mines-stetienne.ci.sparql-generate</groupId>
 	<artifactId>sparql-generate-parent</artifactId>
-	<version>2.0.3</version>
+	<version>2.0.4-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>SPARQL-Generate-Parent</name>
