@@ -258,14 +258,18 @@ public class SPARQLExtCli {
 	}
 
 	private static List<Binding> getBinding(CommandLine cl) {
+		final BindingHashMap binding = new BindingHashMap();
 		if(!cl.hasOption(CMDConfigurations.ARG_BIND_LONG)) {
-			return new ArrayList<Binding>();
+			ArrayList<Binding> bindings = new ArrayList<Binding>();
+			bindings.add(binding);
+			return bindings;
 		}
 		Properties properties = cl.getOptionProperties(CMDConfigurations.ARG_BIND_LONG);
 		if(properties.isEmpty()) {
-			return new ArrayList<Binding>();
+			ArrayList<Binding> bindings = new ArrayList<Binding>();
+			bindings.add(binding);
+			return bindings;
 		}
-		final BindingHashMap binding = new BindingHashMap();
 		for(Object param : properties.keySet()) {
 			Var var = Var.alloc((String) param);
 			String value = properties.getProperty((String) param);
