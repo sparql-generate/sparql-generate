@@ -520,10 +520,9 @@ public class SPARQLExtCli {
 			String conf = IOUtils.toString(new FileInputStream(new File(dirFile, CONF_FILE)), StandardCharsets.UTF_8);
 			request = (new Gson()).fromJson(conf, CliRequest.class);
 		} catch (IOException ex) {
-			LOG.warn("IOException while loading the location mapping model for the queryset.");
 			request = new CliRequest();
 		} catch (JsonSyntaxException ex) {
-			LOG.warn("JSON Syntax exceptioun while loading the location mapping model for the queryset.", ex);
+			LOG.warn("JSON Syntax exception while loading the location mapping model for the queryset.", ex);
 			request = new CliRequest();
 		}
 		request.query = new File(dirFile, cl.getOptionValue(ARG_QUERY, request.query)).getAbsolutePath();

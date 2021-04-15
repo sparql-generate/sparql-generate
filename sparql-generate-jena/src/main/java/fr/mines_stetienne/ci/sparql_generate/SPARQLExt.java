@@ -137,8 +137,6 @@ public final class SPARQLExt {
 	static final Logger LOG = LoggerFactory.getLogger(SPARQLExt.class);
 
 	static {
-		LOG.trace("initializing SPARQLGenerate");
-
 		SYNTAX = new SPARQLGenerateSyntax(SYNTAX_URI);
 
 		FunctionRegistry fnreg = FunctionRegistry.get();
