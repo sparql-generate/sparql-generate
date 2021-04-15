@@ -100,7 +100,7 @@ public class ITER_XPath extends IteratorFunctionBase {
 
     public static final String URI = SPARQLExt.ITER + "XPath";
 
-    private static final String XML_URI = "http://www.iana.org/assignments/media-types/application/xml";
+    private static final String XML_URI = "https://www.iana.org/assignments/media-types/application/xml";
 
     private static final NodeValue TRUE = new NodeValueBoolean(true);
 

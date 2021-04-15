@@ -154,7 +154,7 @@ public class ITER_JSONSurfer extends IteratorStreamFunctionBase {
 		if (json.isString()) {
 			return IOUtils.toInputStream(json.asString(), StandardCharsets.UTF_8);
 		} else if (json.isLiteral()
-				&& json.asNode().getLiteralDatatypeURI().startsWith("http://www.iana.org/assignments/media-types/")) {
+				&& json.asNode().getLiteralDatatypeURI().startsWith("https://www.iana.org/assignments/media-types/")) {
 			return IOUtils.toInputStream(json.asNode().getLiteralLexicalForm(), StandardCharsets.UTF_8);
 		} else if (json.isIRI()) {
 			String jsonPath = json.asNode().getURI();

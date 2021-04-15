@@ -56,7 +56,7 @@ public class ITER_JSONListKeys extends IteratorFunctionBase1 {
 
     private static final Logger LOG = LoggerFactory.getLogger(ITER_JSONListKeys.class);
 
-    private static final String datatypeUri = "http://www.iana.org/assignments/media-types/application/json";
+    private static final String datatypeUri = "https://www.iana.org/assignments/media-types/application/json";
 
     private static final Gson GSON = new Gson();
 

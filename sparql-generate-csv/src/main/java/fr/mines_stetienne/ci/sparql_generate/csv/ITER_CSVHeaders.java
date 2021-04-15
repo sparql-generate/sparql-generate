@@ -53,7 +53,7 @@ public class ITER_CSVHeaders extends IteratorFunctionBase1 {
 
     public static final String URI = SPARQLExt.ITER + "CSVHeaders";
 
-    private static final String datatypeUri = "http://www.iana.org/assignments/media-types/text/csv";
+    private static final String datatypeUri = "https://www.iana.org/assignments/media-types/text/csv";
 
     @Override
     public List<List<NodeValue>> exec(NodeValue csv) {

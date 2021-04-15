@@ -77,7 +77,7 @@ public final class FUN_JSONPath extends FunctionBase2 {
 	/**
 	 * The datatype URI of the first parameter and the return literals.
 	 */
-	private static final String datatypeUri = "http://www.iana.org/assignments/media-types/application/json";
+	private static final String datatypeUri = "https://www.iana.org/assignments/media-types/application/json";
 
 	private static RDFDatatype dt = TypeMapper.getInstance().getSafeTypeByName(datatypeUri);
 

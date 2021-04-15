@@ -68,7 +68,7 @@ public class FUN_CSSPath extends FunctionBase2 {
 
     public static final String URI = SPARQLExt.FUN + "CSSPath";
 
-    private static final String HTML_URI = "http://www.iana.org/assignments/media-types/text/html";
+    private static final String HTML_URI = "https://www.iana.org/assignments/media-types/text/html";
     
     private static final RDFDatatype DT = TypeMapper.getInstance().getSafeTypeByName(HTML_URI);
 

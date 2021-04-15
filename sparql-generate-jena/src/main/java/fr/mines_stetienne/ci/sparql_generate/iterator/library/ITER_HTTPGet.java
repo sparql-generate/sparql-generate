@@ -120,7 +120,7 @@ public class ITER_HTTPGet extends IteratorStreamFunctionBase {
                 tin.getMediaType().toHeaderString();
                 try (InputStream in = tin.getInputStream()) {
                     message = IOUtils.toString(in, StandardCharsets.UTF_8);
-                    String datatypeUri = "http://www.iana.org/assignments/media-types/application" + tin.getMediaType().toHeaderString();
+                    String datatypeUri = "https://www.iana.org/assignments/media-types/application" + tin.getMediaType().toHeaderString();
                     RDFDatatype dt = TypeMapper.getInstance().getSafeTypeByName(datatypeUri);
                     NodeValue outNode = new NodeValueNode(NodeFactory.createLiteral(message, dt));
 

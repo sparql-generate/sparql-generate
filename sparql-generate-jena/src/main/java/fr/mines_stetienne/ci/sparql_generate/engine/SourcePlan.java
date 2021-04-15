@@ -118,7 +118,7 @@ public class SourcePlan extends BindOrSourcePlan {
 				final RDFDatatype dt;
 				if (stream.getMediaType() != null && stream.getMediaType().getContentType() != null) {
 					dt = tm.getSafeTypeByName(
-							"http://www.iana.org/assignments/media-types/" + stream.getMediaType().getContentType());
+							"https://www.iana.org/assignments/media-types/" + stream.getMediaType().getContentType());
 				} else {
 					dt = tm.getSafeTypeByName("http://www.w3.org/2001/XMLSchema#string");
 				}
@@ -187,7 +187,7 @@ public class SourcePlan extends BindOrSourcePlan {
 		Matcher matcher = pattern.matcher(actualAccept.getURI());
 		if(!matcher.find()) {
 			throw new SPARQLExtException("ACCEPT " + actualAccept.getURI() + " must be a IANA MIME URN (RFC to be"
-					+ " written). For instance,  <http://www.iana.org/assignments/media-types/application/xml> or  <https://www.iana.org/assignments/media-types/application/xml>.");
+					+ " written). For instance,  <https://www.iana.org/assignments/media-types/application/xml> or  <https://www.iana.org/assignments/media-types/application/xml>.");
 		}
 		return matcher.group("mediatype");
 	}

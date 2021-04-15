@@ -79,7 +79,7 @@ public class FUN_XPath extends FunctionBase2 {
     /**
      * The datatype URI of the first parameter and the return literals.
      */
-    private static final String XML_URI = "http://www.iana.org/assignments/media-types/application/xml";
+    private static final String XML_URI = "https://www.iana.org/assignments/media-types/application/xml";
 
     private static final RDFDatatype DT = TypeMapper.getInstance().getSafeTypeByName(XML_URI);
 

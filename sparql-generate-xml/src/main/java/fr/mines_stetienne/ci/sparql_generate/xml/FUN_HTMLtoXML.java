@@ -50,7 +50,7 @@ public class FUN_HTMLtoXML extends FunctionBase1 {
 
     public static final String URI = SPARQLExt.FUN + "HTMLtoXML";
 
-    private static final String HTML_URI = "http://www.iana.org/assignments/media-types/text/html";
+    private static final String HTML_URI = "https://www.iana.org/assignments/media-types/text/html";
     
     private static final RDFDatatype DT = TypeMapper.getInstance().getSafeTypeByName(HTML_URI);
 

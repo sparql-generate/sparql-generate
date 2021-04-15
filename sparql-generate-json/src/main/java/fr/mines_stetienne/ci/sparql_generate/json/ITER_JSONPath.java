@@ -87,7 +87,7 @@ public class ITER_JSONPath extends IteratorFunctionBase {
 
     public static final String URI = SPARQLExt.ITER + "JSONPath";
 
-    private static final String JSON_URI = "http://www.iana.org/assignments/media-types/application/json";
+    private static final String JSON_URI = "https://www.iana.org/assignments/media-types/application/json";
 
     private final static NodeValue TRUE = new NodeValueBoolean(true);
 

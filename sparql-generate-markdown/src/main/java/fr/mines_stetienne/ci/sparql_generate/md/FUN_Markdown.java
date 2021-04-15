@@ -35,7 +35,7 @@ import fr.mines_stetienne.ci.sparql_generate.SPARQLExt;
  * <ul>
  * <li>Param 1 (markdown) is a Markdown document in a RDF Literal
  * with datatype URI
- * {@code <http://www.iana.org/assignments/media-types/text/markdown>} or
+ * {@code <https://www.iana.org/assignments/media-types/text/markdown>} or
  * {@code xsd:string}</li>
  * </ul>
  *
@@ -47,7 +47,7 @@ public final class FUN_Markdown extends FunctionBase1 {
 
     public static final String URI = SPARQLExt.FUN + "markdownToHTML";
 
-    private static final String datatypeUri = "http://www.iana.org/assignments/media-types/text/markdown";
+    private static final String datatypeUri = "https://www.iana.org/assignments/media-types/text/markdown";
 
     @Override
     public NodeValue exec(NodeValue markdown) {

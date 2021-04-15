@@ -48,7 +48,7 @@ import org.slf4j.Logger;
  * <ul>
  * <li>Param 1: (cbor) is a base64 encoding of the CBOR document in a RDF
  * Literal with datatype URI
- * {@code <http://www.iana.org/assignments/media-types/application/cbor>} or
+ * {@code <https://www.iana.org/assignments/media-types/application/cbor>} or
  * {@code xsd:string}</li>
  * <li>Param 2: (jsonpath) is the JSONPath expression in a RDF Literal with
  * datatype {@code xsd:string}</li>
@@ -86,7 +86,7 @@ public class ITER_CBOR extends IteratorFunctionBase2 {
 
     public static final String URI = SPARQLExt.ITER + "CBOR";
 
-    private static final String datatypeUri = "http://www.iana.org/assignments/media-types/application/cbor";
+    private static final String datatypeUri = "https://www.iana.org/assignments/media-types/application/cbor";
 
     @Override
     public List<List<NodeValue>> exec(NodeValue cbor, NodeValue jsonpath) {

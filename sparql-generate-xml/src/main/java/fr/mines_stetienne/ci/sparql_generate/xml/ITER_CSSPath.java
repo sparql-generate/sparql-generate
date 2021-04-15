@@ -106,7 +106,7 @@ public class ITER_CSSPath extends IteratorFunctionBase {
 
     public static final String URI = SPARQLExt.ITER + "CSSPath";
 
-    private static final String HTML_URI = "http://www.iana.org/assignments/media-types/text/html";
+    private static final String HTML_URI = "https://www.iana.org/assignments/media-types/text/html";
 
     private static final NodeValue TRUE = new NodeValueBoolean(true);
 

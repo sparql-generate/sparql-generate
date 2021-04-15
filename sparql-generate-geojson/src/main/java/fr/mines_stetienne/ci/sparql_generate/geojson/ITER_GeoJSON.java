@@ -88,7 +88,7 @@ public class ITER_GeoJSON extends IteratorFunctionBase1 {
      */
     public static final String URI = SPARQLExt.ITER + "GeoJSON";
 
-    private static final String GEOJSON_URI = "http://www.iana.org/assignments/media-types/application/geo+json";
+    private static final String GEOJSON_URI = "https://www.iana.org/assignments/media-types/application/geo+json";
 
     /**
      * Registering the GeometryAdapterFactory. Gson TypeAdapterFactory is
@@ -119,7 +119,7 @@ public class ITER_GeoJSON extends IteratorFunctionBase1 {
             values.add(geometry);
             Node properties = NodeFactory.createLiteral(
                     GSON.toJson(feature.properties()),
-                    TypeMapper.getInstance().getSafeTypeByName("http://www.iana.org/assignments/media-types/application/json"));
+                    TypeMapper.getInstance().getSafeTypeByName("https://www.iana.org/assignments/media-types/application/json"));
             values.add(new NodeValueNode(properties));
             nodeValues.add(values);
         }

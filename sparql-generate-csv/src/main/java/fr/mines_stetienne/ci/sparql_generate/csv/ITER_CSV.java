@@ -221,7 +221,7 @@ public class ITER_CSV extends IteratorStreamFunctionBase {
     private InputStream getInputStream(NodeValue csv) throws ExprEvalException, IOException {
         if (csv.isString()) {
             return IOUtils.toInputStream(csv.asString(), StandardCharsets.UTF_8);
-        } else if (csv.isLiteral() && csv.asNode().getLiteralDatatypeURI().startsWith("http://www.iana.org/assignments/media-types/")) {
+        } else if (csv.isLiteral() && csv.asNode().getLiteralDatatypeURI().startsWith("https://www.iana.org/assignments/media-types/")) {
             return IOUtils.toInputStream(csv.asNode().getLiteralLexicalForm(), StandardCharsets.UTF_8);
         } else if (csv.isIRI()) {
             String csvPath = csv.asNode().getURI();
