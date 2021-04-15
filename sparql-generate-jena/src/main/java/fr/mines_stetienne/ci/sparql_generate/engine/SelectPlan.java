@@ -214,7 +214,12 @@ public class SelectPlan {
 		qData.getRows().forEach((qbinding) -> {
 			values.forEach((binding) -> {
 				BindingHashMap newb = new BindingHashMap(qbinding);
-				variables.forEach((v) -> newb.add(v, binding.get(v)));
+				variables.forEach((v) -> {
+					if(binding.get(v) == null) {
+						return;
+					}
+					newb.add(v, binding.get(v));
+				});
 				data.add(newb);
 			});
 		});
