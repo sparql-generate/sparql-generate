@@ -44,6 +44,7 @@ import org.htmlcleaner.CleanerProperties;
 import org.htmlcleaner.HtmlCleaner;
 import org.htmlcleaner.PrettyXmlSerializer;
 import org.htmlcleaner.TagNode;
+import org.htmlcleaner.CleanerProperties;
 
 import java.nio.charset.StandardCharsets;
 
@@ -121,6 +122,7 @@ public class ITER_XPath extends IteratorFunctionBase {
         
         props.setTranslateSpecialEntities(true);
 		props.setTransResCharsToNCR(true);
+        props.setOmitHtmlEnvelope(true);
 		props.setOmitComments(true);
    }
 
