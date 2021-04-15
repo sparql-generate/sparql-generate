@@ -1,0 +1,134 @@
+#+OPTIONS: ':nil *:t -:t ::t <:t H:5 \n:nil ^:{} anchor:t arch:headline author:t
+#+OPTIONS: broken-links:nil c:nil creator:nil d:(not "LOGBOOK") date:t e:t email:nil f:t
+#+OPTIONS: inline:t num:nil p:nil pri:nil prop:nil stat:t tags:t tasks:t tex:t
+#+OPTIONS: timestamp:nil title:t toc:5 todo:t |:t
+#+TITLE: SPARQL Generate Railroad Grammar Diagram
+#+DATE: <2021-02-08>
+#+AUTHOR: Vladimir Alexiev
+#+EMAIL: vladimir.alexiev@ontotext.com
+#+LANGUAGE: en
+#+SELECT_TAGS: export
+#+EXCLUDE_TAGS: noexport
+#+CREATOR: Emacs 26.1 (Org mode 9.1.9)
+
+* Table of Contents                                 :TOC:noexport:
+:PROPERTIES:
+:TOC:      :include all
+:CUSTOM_ID: table-of-contents
+:END:
+
+:CONTENTS:
+- [[#intro][Intro]]
+  - [[#extract-the-grammar][Extract the Grammar]]
+  - [[#generate-diagrams][Generate Diagrams]]
+  - [[#diagram-preview][Diagram Preview]]
+  - [[#remaining-tasks][Remaining Tasks]]
+:END:
+
+* Intro
+:PROPERTIES:
+:CUSTOM_ID: intro
+:END:
+
+[[https://ci.mines-stetienne.fr/sparql-generate][SPARQL Generate]] is an ingenious way to integrate RDF with many other data formats and sources:
+SQL databases, XML, JSON, large CSV, GeoJSON, HTML, CBOR, MQTT, WebSocket, HTTP GET; streaming, etc.
+
+The SPARQL Generate langauge is complex, so one often needs to consult a grammar reference.
+- [[https://ci.mines-stetienne.fr/sparql-generate/grammar.html][grammar.html]] is hyperlinked grammar documentation as EBNF (in text form), see issue [[https://github.com/sparql-generate/sparql-generate/issues/18][#18]]
+- It's extracted from the grammar source file [[https://github.com/sparql-generate/sparql-generate/blob/master/sparql-generate-jena/src/main/javacc/spargl.jj][javacc/spargl.jj]] 
+- But reading EBNF grammars is not easy. Seeing it on a diagram makes things easier
+- The Railroad Diagram Generator http://bottlecaps.de/rr/ui ("rr") is an excellent tool: 
+  - Can scrape EBNF grammars from W3C specs
+  - Generates either a single XHTML with embedded SVG, or a zip with many PNGs
+  - Cross-links the definitions and usages
+
+** Extract the Grammar
+:PROPERTIES:
+:CUSTOM_ID: extract-the-grammar
+:END:
+
+The SPARQL Generate grammar is JavaCC, whereas "rr" takes EBNF grammars.
+I don't know any convertor from JavaCC to EBNF, so used the following process:
+
+- Non-terminals only:
+  - Copy text from [[https://ci.mines-stetienne.fr/sparql-generate/grammar.html][grammar.html]], save as [[./sparql-generate-nonterminals.ebnf]]
+  - Replace ~<>~ with ~'~ (eg ~<SELECT>~ to ~'SELECT'~)
+  - Upcase some inconsistently spelled terminals: ~CONStrUCT, SUBStr, Str, StrLEN, StrSTARTS, StrENDS, StrBEFORE, StrAFTER, StrUUID~, etc
+  - Save as [[./sparql-generate-nonterminals.ebnf]]
+- Terminals
+  - Extract terminals (there are 176):
+    : perl -ne "print qq{\$1\n} while m{'([^']+)'}g" sparql-generate.ebnf |sort|uniq>sparql-generate-terminals.txt
+  - Terminals fall in 3 groups and not all are obvious:
+    - The value equals the terminal name (eg ~SELECT~)
+    - The value is a char described by the terminal name  (eg ~LPAREN RPAREN COMMA DOT~)
+    - The value is a more complex construction, eg:
+
+| TERMINAL        | meaning                            | comment                                                                                                                          |
+|-----------------|------------------------------------|----------------------------------------------------------------------------------------------------------------------------------|
+| NIL             | ( WSC* )                           | empty (argument) list (WSC is a whitespace char)                                                                                 |
+| ANON            | [ WSC* ]                           | empty blank node                                                                                                                 |
+| EOF             |                                    | end of file                                                                                                                      |
+| BOM             | #xFEFF                             | Byte Order Mark                                                                                                                  |
+| SC_AND          | &&                                 | logical and                                                                                                                      |
+| FPATH           | ->                                 | right arrow (not yet used by the language)                                                                                       |
+| STRING_LITERAL1 | "'" ( ([^'\NL CR {]) \vert ECHAR)* "'" | single-quoted string that doesn't include single-quote, backslach, NL, CR, opening bracket but may include escaped chars (ECHAR) |
+
+- I extracted terminals starting at [[https://github.com/sparql-generate/sparql-generate/blob/master/sparql-generate-jena/src/main/javacc/spargl.jj#L2068][spargl.jj#L2068]] 
+  - Modified them extensively to fit EBNF features, eg:
+    - ~#xABCD~ instead of ~\uABCD~
+    - ~[abc]~ instead of ~["a","b,"c"]~, which can be rendered as a tree of alternative chars
+    - ~[^abc]~ instead of ~~["a","b,"c"]~. (EBNF does not really support negated char classes, so this is rendered as a non-terminal node with the text ~[^abc]~)
+  - Converted all keywords to uppercase for consistency (SPARQL Generate, like SPARQL, uses case-insensitive keywords)
+  - Then I added as a second part to the above EBNF grammar and saved as [[./sparql-generate-full.ebnf]]
+
+** Generate Diagrams
+:PROPERTIES:
+:CUSTOM_ID: generate-diagrams
+:END:
+
+Generating railroad diagrams for SPARQL Generate:
+- Load one of the two EBNF grammars to https://bottlecaps.de/rr/ui
+- Set options:
+  - Uncheck "Show EBNF" because it's redundant
+  - Graphics width: 2000px so that big productions like ~GenerateQuery~ are not broken to several lines
+- Save as XHTML+SVG (single XHTML page with inline SVG graphics): this way you can search for keywords
+
+Results:
+- [[./sparql-generate-nonterminals.xhtml]] (604kb): Only non-terminal symbols
+- [[./sparql-generate-full.xhtml]] (807kb): Full grammar including terminal symbols
+
+Open them as local files, or use a github previewer, eg http://rawgit2.com:
+- [[http://rawgit2.com/VladimirAlexiev/sparql-generate/master/sparql-generate-website/html/grammar-diagram/sparql-generate-nonterminals.xhtml][sparql-generate-nonterminals.xhtml]]
+- [[http://rawgit2.com/VladimirAlexiev/sparql-generate/master/sparql-generate-website/html/grammar-diagram/sparql-generate-full.xhtml][sparql-generate-full.xhtml]]
+
+** Diagram Preview
+:PROPERTIES:
+:CUSTOM_ID: diagram-preview
+:END:
+
+[[./SPARQL-Generate-diagram-preview.png]]
+
+** Remaining Tasks
+:PROPERTIES:
+:CUSTOM_ID: remaining-tasks
+:END:
+
+Tasks:
+- [[https://github.com/sparql-generate/sparql-generate/issues/97][#97]]: task to add grammar diagrams
+- [[https://github.com/sparql-generate/sparql-generate/issues/98][#98]]: PR to merge them to master
+
+Some remaining tasks:
+- Add these diagrams to the website
+- Fix mixed-case terminal names ~*Str*~ to uppercase in [[https://ci.mines-stetienne.fr/sparql-generate/grammar.html][grammar.html]]
+- Convert all keywords to uppercase for consistency (I belive that SPARQL Generate, like SPARQL, uses case-insensitive keywords)
+- There are 10 non-terminals that are not connected to the grammar ("no reference"):
+  - SPARQLExtUnit: this is the root non-terminal
+  - SubQueryUnit: ???
+  - Pragma: not yet used
+  - PerformCall: ???
+  - ConstructQuery, DescribeQuery, AskQuery: SPARQL Generate extends SELECT and adds more queryt types, but doesn't support CONSTRUCT, DESCRIBE and ASK
+  - INSERT_DATA, DELETE_DATA, DELETE_WHERE: SPARQL Generate doesn't include UPDATES
+  - Integer: ???
+- Check the 15 or so productions from [[http://rawgit2.com/VladimirAlexiev/sparql-generate/master/sparql-generate-website/html/grammar-diagram/sparql-generate-full.xhtml#STRING_LITERAL1][#STRING_LITERAL1]] to [[http://rawgit2.com/VladimirAlexiev/sparql-generate/master/sparql-generate-website/html/grammar-diagram/sparql-generate-full.xhtml#XIRIref_END][#XIRIref_END]] because I had to do a lot of tweaking of char classes, eg is ~[^'\NL CR{]~ correct?
+  - Note: EBNF RR doesn't render a *second* backslash in char class, so I had to write ~NL CR~ instead of ~\n\r~
+
