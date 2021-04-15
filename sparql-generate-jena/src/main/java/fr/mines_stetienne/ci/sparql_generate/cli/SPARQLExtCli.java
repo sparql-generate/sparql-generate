@@ -29,6 +29,7 @@ import static fr.mines_stetienne.ci.sparql_generate.cli.CMDConfigurations.ARG_OU
 import static fr.mines_stetienne.ci.sparql_generate.cli.CMDConfigurations.ARG_QUERY;
 import static fr.mines_stetienne.ci.sparql_generate.cli.CMDConfigurations.ARG_SOURCE_LONG;
 import static fr.mines_stetienne.ci.sparql_generate.cli.CMDConfigurations.ARG_STREAM;
+import static fr.mines_stetienne.ci.sparql_generate.cli.CMDConfigurations.ARG_SYNTAX;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -190,8 +191,12 @@ public class SPARQLExtCli {
 		Objects.nonNull(rq);
 
 		final SPARQLExtStreamManager sm = prepareStreamManager(workingDir, rq);
-		final SPARQLExtQuery q = getQueryOrDie(rq, sm);
+		final SPARQLExtQuery q = getQueryOrDie(rq, cl, sm);
 
+		if(cl != null && cl.hasOption(CMDConfigurations.ARG_SYNTAX_LONG)) {
+			return;
+		}
+		
 		if (cl != null) {
 			replaceSourcesIfRequested(cl, q);
 		}
@@ -543,7 +548,7 @@ public class SPARQLExtCli {
 		return request;
 	}
 
-	private static SPARQLExtQuery getQueryOrDie(CliRequest request, SPARQLExtStreamManager sm) {
+	private static SPARQLExtQuery getQueryOrDie(CliRequest request, CommandLine cl, SPARQLExtStreamManager sm) {
 		String query;
 		try {
 			query = IOUtils.toString(sm.open(new LookUpRequest(request.query, SPARQLExt.MEDIA_TYPE)),
@@ -562,7 +567,13 @@ public class SPARQLExtCli {
 			}
 			return q;
 		} catch (Exception ex) {
-			throw new RuntimeException("Error while parsing the query to be executed.", ex);
+			if(cl != null && cl.hasOption(CMDConfigurations.ARG_SYNTAX_LONG)) {
+				System.out.println(ex.getMessage());
+				System.exit(0);
+				return null;
+			} else {
+				throw new RuntimeException("Error while parsing the query to be executed.", ex);
+			}
 		}
 	}
 

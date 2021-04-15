@@ -147,6 +147,13 @@ public class CMDConfigurations {
 	 */
 	public static final String ARG_BIND_MAN = "Binds a query parameter to a RDF term, e.g., -Bparam1=<http://example.org/> -Bparam2=12 -Bparam3=\"'a string with spaces'@en\"";
 
+	/** x */
+	public static final String ARG_SYNTAX = "x";
+	/** syntax */
+	public static final String ARG_SYNTAX_LONG = "log-file";
+	/** Just validate the query, do nothing else */
+	public static final String ARG_SYNTAX_MAN = "Just validate the query, do nothing else.";
+
 	public static CommandLine parseArguments(String[] args) throws ParseException {
 		DefaultParser commandLineParser = new DefaultParser();
 		CommandLine cl = commandLineParser.parse(getCMDOptions(), args);
@@ -172,6 +179,7 @@ public class CMDConfigurations {
 				.addOption(ARG_HDT, ARG_HDT_LONG, false, ARG_HDT_MAN)
 				.addOption(ARG_BASE, ARG_BASE_LONG, true, ARG_BASE_MAN)
 				.addOption(ARG_DEBUG_TEMPLATE, ARG_DEBUG_TEMPLATE_LONG, false, ARG_DEBUG_TEMPLATE_MAN)
+				.addOption(ARG_SYNTAX, ARG_SYNTAX_LONG, false, ARG_SYNTAX_MAN)
 				.addOption(sourcesOpt)
 				.addOption(bindingsOpt);
 	}
