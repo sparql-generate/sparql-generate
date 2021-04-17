@@ -133,6 +133,8 @@ public class IteratorPlan implements BindingsClausePlan {
                 LOG.warn("Unanticipated exception for " + toString(), ex);
             }
         }
+        LOG.trace("some batches are incomplete ?");
+        batches.allExecutionComplete();
     }
     protected class Batches {
 
