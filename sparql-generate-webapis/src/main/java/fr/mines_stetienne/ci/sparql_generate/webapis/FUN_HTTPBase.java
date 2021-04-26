@@ -45,8 +45,8 @@ public abstract class FUN_HTTPBase extends FunctionBase {
 
 	@Override
 	public void checkBuild(String uri, ExprList args) {
-		if (args.size() != 1 && args.size() != 2)
-			throw new QueryBuildException("Function '" + Lib.className(this) + "' takes one or two arguments");
+		if (args.size() != 1 && args.size() != 2 && args.size() != 3)
+			throw new QueryBuildException("Function '" + Lib.className(this) + "' Wrong number of arguments: Wanted 1, 2, or 3.");
 	}
 
 	@Override
