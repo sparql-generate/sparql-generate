@@ -70,6 +70,11 @@
             <artifactId>sparql-generate-webapis</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>fr.mines-stetienne.ci.sparql-generate</groupId>
+            <artifactId>sparql-generate-binary</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>javax.ws.rs</groupId>

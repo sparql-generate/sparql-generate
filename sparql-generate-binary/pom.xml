@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>fr.mines-stetienne.ci.sparql-generate</groupId>
+		<artifactId>sparql-generate-parent</artifactId>
+		<version>2.0.8-SNAPSHOT</version>
+		<relativePath>../sparql-generate-parent/pom.xml</relativePath>
+	</parent>
+
+	<artifactId>sparql-generate-binary</artifactId>
+	<packaging>jar</packaging>
+
+	<name>SPARQL-Generate for binary literals</name>
+
+	<dependencies>
+		<dependency>
+			<groupId>fr.mines-stetienne.ci.sparql-generate</groupId>
+			<artifactId>sparql-generate-jena</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+		    <groupId>at.favre.lib</groupId>
+		    <artifactId>bytes</artifactId>
+		    <version>1.5.0</version>
+		</dependency>
+	</dependencies>
+
+</project>
