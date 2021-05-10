@@ -158,18 +158,18 @@ public class SPARQLExtStreamManager extends StreamManager {
         setLocationMapper(new LocationMapperAccept(configurationModel));
     }
 
-    /**
-     * Add a locator to the end of the locators list
-     */
-    @Override
-    @Deprecated
-    public void addLocator(Locator loc) {
-        try {
-            addLocator((LocatorAccept) loc);
-        } catch (ClassCastException ex) {
-            LOG.error("Locator does not have class LocatorAccept. Aborting");
-        }
-    }
+//    /**
+//     * Add a locator to the end of the locators list
+//     */
+//    @Override
+//    @Deprecated
+//    public void addLocator(Locator loc) {
+//        try {
+//            addLocator((LocatorAccept) loc);
+//        } catch (ClassCastException ex) {
+//            LOG.error("Locator does not have class LocatorAccept. Aborting");
+//        }
+//    }
 
     /**
      * Add a locator to the end of the locators list

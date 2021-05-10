@@ -33,6 +33,7 @@ import org.apache.jena.sparql.syntax.ElementData;
 import org.apache.jena.sparql.syntax.ElementDataset;
 import org.apache.jena.sparql.syntax.ElementExists;
 import org.apache.jena.sparql.syntax.ElementFilter;
+import org.apache.jena.sparql.syntax.ElementFind;
 import org.apache.jena.sparql.syntax.ElementGroup;
 import org.apache.jena.sparql.syntax.ElementMinus;
 import org.apache.jena.sparql.syntax.ElementNamedGraph;
@@ -236,5 +237,10 @@ public class QueryPatternNormalizer implements ElementVisitor {
             result = group;
         }
     }
+
+	@Override
+	public void visit(ElementFind el) {
+        throw new UnsupportedOperationException("ElementFind not supported");
+	}
 
 }

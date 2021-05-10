@@ -90,7 +90,7 @@ public class LocatorURLAccept extends LocatorAcceptBase {
 		boolean redir;
 		int redirects = 0;
 		String contentType = null;
-		String contentEncoding = null;
+//		String contentEncoding = null;
 		do {
 			if (c instanceof HttpURLConnection) {
 				((HttpURLConnection) c).setInstanceFollowRedirects(false);
@@ -107,7 +107,7 @@ public class LocatorURLAccept extends LocatorAcceptBase {
 			// because getHeaderField() et al swallow IOExceptions.
 			InputStream in = new BufferedInputStream(new BOMInputStream(c.getInputStream()));
 			contentType = c.getContentType();
-			contentEncoding = c.getContentEncoding();
+//			contentEncoding = c.getContentEncoding();
 			redir = false;
 			if (c instanceof HttpURLConnection) {
 				HttpURLConnection http = (HttpURLConnection) c;
@@ -134,7 +134,8 @@ public class LocatorURLAccept extends LocatorAcceptBase {
 					if (contentType == null) {
 						contentType = "text/plain";
 					}
-					return new TypedInputStream(in, contentType, contentEncoding);
+//					return new TypedInputStream(in, contentType, contentEncoding);
+					return new TypedInputStream(in, contentType);
 				}
 			}
 		} while (redir);

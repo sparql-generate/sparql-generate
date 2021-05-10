@@ -77,7 +77,7 @@ public class LocatorDirectoryAccept extends LocatorAcceptBase {
 
             try {
                 String ct = Files.probeContentType(Paths.get(f.getName()));
-                return new TypedInputStream(is, ct, "UTF-8");
+                return new TypedInputStream(is, ct);
             } catch (IOException ex) {
                 log.trace("Error while trying to probe content type for " + f + ": " + ex.getMessage());
                 return new TypedInputStream(is, (ContentType) null, "UTF-8");

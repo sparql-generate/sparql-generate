@@ -15,28 +15,28 @@
  */
 package fr.mines_stetienne.ci.sparql_generate.serializer;
 
-import org.apache.jena.atlas.io.IndentedWriter;
-import org.apache.jena.sparql.core.Var;
-import org.apache.jena.sparql.serializer.QuerySerializerFactory;
-import org.apache.jena.sparql.serializer.SerializationContext;
-import org.apache.jena.sparql.serializer.SerializerRegistry;
-import fr.mines_stetienne.ci.sparql_generate.SPARQLExt;
-import fr.mines_stetienne.ci.sparql_generate.query.SPARQLExtQuery;
-import fr.mines_stetienne.ci.sparql_generate.syntax.ElementGenerateTriplesBlock;
-import fr.mines_stetienne.ci.sparql_generate.syntax.ElementIterator;
-import fr.mines_stetienne.ci.sparql_generate.syntax.ElementSource;
-import fr.mines_stetienne.ci.sparql_generate.syntax.ElementSubExtQuery;
+import static org.apache.jena.sparql.serializer.FormatterElement.INDENT;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
+import org.apache.jena.atlas.io.IndentedWriter;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.Triple;
+import org.apache.jena.query.Query;
+import org.apache.jena.query.QueryVisitor;
 import org.apache.jena.sparql.core.BasicPattern;
 import org.apache.jena.sparql.core.PathBlock;
 import org.apache.jena.sparql.core.TriplePath;
+import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.expr.Expr;
-import static org.apache.jena.sparql.serializer.FormatterElement.INDENT;
+import org.apache.jena.sparql.expr.NodeValue;
+import org.apache.jena.sparql.expr.nodevalue.NodeValueString;
 import org.apache.jena.sparql.serializer.QuerySerializer;
+import org.apache.jena.sparql.serializer.QuerySerializerFactory;
+import org.apache.jena.sparql.serializer.SerializationContext;
+import org.apache.jena.sparql.serializer.SerializerRegistry;
 import org.apache.jena.sparql.syntax.Element;
 import org.apache.jena.sparql.syntax.Element1;
 import org.apache.jena.sparql.syntax.ElementAssign;
@@ -45,6 +45,7 @@ import org.apache.jena.sparql.syntax.ElementData;
 import org.apache.jena.sparql.syntax.ElementDataset;
 import org.apache.jena.sparql.syntax.ElementExists;
 import org.apache.jena.sparql.syntax.ElementFilter;
+import org.apache.jena.sparql.syntax.ElementFind;
 import org.apache.jena.sparql.syntax.ElementGroup;
 import org.apache.jena.sparql.syntax.ElementMinus;
 import org.apache.jena.sparql.syntax.ElementNamedGraph;
@@ -57,19 +58,22 @@ import org.apache.jena.sparql.syntax.ElementTriplesBlock;
 import org.apache.jena.sparql.syntax.ElementUnion;
 import org.apache.jena.sparql.util.FmtUtils;
 import org.apache.jena.vocabulary.RDF;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import fr.mines_stetienne.ci.sparql_generate.SPARQLExt;
+import fr.mines_stetienne.ci.sparql_generate.query.SPARQLExtQuery;
 import fr.mines_stetienne.ci.sparql_generate.query.SPARQLExtQueryVisitor;
-import fr.mines_stetienne.ci.sparql_generate.syntax.SPARQLExtElementVisitor;
 import fr.mines_stetienne.ci.sparql_generate.syntax.ElementBox;
 import fr.mines_stetienne.ci.sparql_generate.syntax.ElementExpr;
 import fr.mines_stetienne.ci.sparql_generate.syntax.ElementFormat;
+import fr.mines_stetienne.ci.sparql_generate.syntax.ElementGenerateTriplesBlock;
+import fr.mines_stetienne.ci.sparql_generate.syntax.ElementIterator;
 import fr.mines_stetienne.ci.sparql_generate.syntax.ElementPerform;
+import fr.mines_stetienne.ci.sparql_generate.syntax.ElementSource;
+import fr.mines_stetienne.ci.sparql_generate.syntax.ElementSubExtQuery;
 import fr.mines_stetienne.ci.sparql_generate.syntax.ElementTGroup;
-import org.apache.jena.query.Query;
-import org.apache.jena.query.QueryVisitor;
-import org.apache.jena.sparql.expr.NodeValue;
-import org.apache.jena.sparql.expr.nodevalue.NodeValueString;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import fr.mines_stetienne.ci.sparql_generate.syntax.SPARQLExtElementVisitor;
 
 /**
  * Extends the ARQ Element Formatter with SPARQL-Generate elements.
@@ -817,5 +821,10 @@ public class SPARQLExtFormatterElement extends SPARQLExtFormatterBase implements
             }
         }
     }
+
+	@Override
+	public void visit(ElementFind el) {
+        throw new UnsupportedOperationException("ElementFind	 not supported");
+	}
 
 }
