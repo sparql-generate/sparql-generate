@@ -16,10 +16,16 @@ function build {
   mvn -B install -P docs --file sparql-generate-parent/pom.xml
   cd sparql-generate-website 
   npm i
+  # sudo npm i -g gulp-cli
   gulp
   cd ..
-  javadoc $(find -name 'ITER_*.java' | paste -sd " ") -d sparql-generate-website/public/iter -notree -nohelp -nonavbar  -public -nodeprecated -nodeprecatedlist -encoding utf-8 -windowtitle 'SPARQL-Generate - Iterator functions' -header 'SPARQL-Generate - Iterator functions' -bottom '<p class="legalCopy"><small>Copyright &#169; 2016&#x2013;2020 <a href="http://www.mines-stetienne.fr/">MINES Saint-Étienne</a>. All rights reserved.</small></p>' 
-  javadoc $(find -name 'FUN_*.java' | paste -sd " ") -d sparql-generate-website/public/fn -notree -nohelp -nonavbar  -public -nodeprecated -nodeprecatedlist -encoding utf-8 -windowtitle 'SPARQL-Generate - Binding functions' -header 'SPARQL-Generate - Binding functions' -bottom '<p class="legalCopy"><small>Copyright &#169; 2016&#x2013;2020 <a href="http://www.mines-stetienne.fr/">MINES Saint-Étienne</a>. All rights reserved.</small></p>' 
+  mvn dependency:build-classpath -Dmdep.includeScope=compile -Dmdep.outputFile=target/classpath.txt --file sparql-generate-all/pom.xml
+  javadoc $(find -name 'ITER_*.java' | paste -sd " ") -d sparql-generate-website/public/iter -notree -nohelp -nonavbar  -public -nodeprecated -nodeprecatedlist -encoding utf-8 -windowtitle 'SPARQL-Generate - Iterator functions' -header 'SPARQL-Generate - Iterator functions' -bottom '<p class="legalCopy"><small>Copyright &#169; 2016&#x2013;2021 <a href="http://www.mines-stetienne.fr/">MINES Saint-Étienne</a>. All rights reserved.</small></p>'  -classpath $(cat sparql-generate-all/target/classpath.txt)
+  mv sparql-generate-website/public/iter/allclasses-index.html sparql-generate-website/public/iter/index.html
+  javadoc $(find -name 'FUN_*.java' | paste -sd " ") -d sparql-generate-website/public/fn -notree -nohelp -nonavbar  -public -nodeprecated -nodeprecatedlist -encoding utf-8 -windowtitle 'SPARQL-Generate - Binding functions' -header 'SPARQL-Generate - Binding functions' -bottom '<p class="legalCopy"><small>Copyright &#169; 2016&#x2013;2021 <a href="http://www.mines-stetienne.fr/">MINES Saint-Étienne</a>. All rights reserved.</small></p>'  -classpath $(cat sparql-generate-all/target/classpath.txt)
+  mv sparql-generate-website/public/fn/allclasses-index.html sparql-generate-website/public/fn/index.html
+
+
   export -f echoredirect
   find -name 'ITER_*.java' -exec bash -c 'echoredirect iter ITER "$0"' {} \; >> sparql-generate-website/public/.htaccess
   find -name 'FUN_*.java' -exec bash -c 'echoredirect fn FUN "$0"' {} \; >> sparql-generate-website/public/.htaccess

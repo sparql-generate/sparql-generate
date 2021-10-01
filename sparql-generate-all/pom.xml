@@ -65,7 +65,7 @@
 		</dependency>
 		<dependency>
 			<groupId>fr.mines-stetienne.ci.sparql-generate</groupId>
-			<artifactId>sparql-generate-sql</artifactId>
+			<artifactId>sparql-generate-binary</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>

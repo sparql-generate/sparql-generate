@@ -3,7 +3,7 @@ const gulp = require('gulp');
 const fileinclude = require('gulp-file-include');
 var rename = require("gulp-rename");
 var MarkdownIt = require('markdown-it'), markdown = new MarkdownIt();
-var download = require("gulp-download");
+var download = require("gulp-download-stream");
 
 async function copy_resources() {
   return gulp.src('./resources/**/*', { dot: true })
@@ -56,7 +56,7 @@ async function js() {
   download(["https://sparql-generate.github.io/sparql-generate-editor/dist/sge.bundled.js", "https://sparql-generate.github.io/sparql-generate-editor/dist/sge.bundled.js.map", "https://perfectkb.github.io/yate/dist/yate.bundled.min.js", "https://buttons.github.io/buttons.js"])
     .pipe(gulp.dest("./public/js"));
 
-  download(["https://sparql-generate.github.io/sparql-generate-editor/dist/sge.min.css", "https://sparql-generate.github.io/sparql-generate-editor/dist/sge.min.css.map", "https://perfectkb.github.io/yate/dist/yate.min.css"])
+  download(["https://sparql-generate.github.io/sparql-generate-editor/dist/sge.min.css", "https://perfectkb.github.io/yate/dist/yate.min.css"])
     .pipe(gulp.dest("./public/css"));
 }
 
