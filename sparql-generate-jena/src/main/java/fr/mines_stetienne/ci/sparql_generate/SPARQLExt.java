@@ -35,6 +35,7 @@ import org.apache.jena.sparql.serializer.SerializationContext;
 import org.apache.jena.sparql.serializer.SerializerRegistry;
 import org.apache.jena.sparql.util.NodeToLabelMapBNode;
 import org.apache.jena.sparql.util.Symbol;
+import org.apache.jena.sparql.function.library.struuid;
 import org.apache.jena.sparql.util.TranslationTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -140,6 +141,7 @@ public final class SPARQLExt {
 		SYNTAX = new SPARQLGenerateSyntax(SYNTAX_URI);
 
 		FunctionRegistry fnreg = FunctionRegistry.get();
+		fnreg.put(FUN + "struuid", struuid.class);
 		fnreg.put(FUN_SplitAtPostion.URI, FUN_SplitAtPostion.class);
 		fnreg.put(FUN_regex.URI, FUN_regex.class);
 		fnreg.put(FUN_dateTime.URI, FUN_dateTime.class);

@@ -1,0 +1,17 @@
+BASE <http://example.com/> 
+PREFIX ite: <http://w3id.org/sparql-generate/iter/>
+PREFIX fun: <http://w3id.org/sparql-generate/fn/>
+PREFIX ex: <http://example.com/>
+
+GENERATE { 
+  <{?id}> a ex:Student;
+              ex:name ?name;
+              ex:dob ?dob .
+}
+SOURCE <http://example.com/student.txt> AS ?source
+ITERATOR ite:Split(?source,"#") AS ?student
+WHERE {
+    BIND(fun:struuid() as ?id)
+    BIND(fun:SplitAtPosition(?student,"-",0) as ?name)
+    BIND(fun:SplitAtPosition(?student,"-",1) as ?dob)
+}
