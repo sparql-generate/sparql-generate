@@ -16,24 +16,22 @@
 package fr.mines_stetienne.ci.sparql_generate.geojson;
 
 import com.github.filosganga.geogson.gson.GeometryAdapterFactory;
-import com.github.filosganga.geogson.model.Feature;
-import com.github.filosganga.geogson.model.FeatureCollection;
-import com.github.filosganga.geogson.model.Geometry;
-import com.github.filosganga.geogson.model.GeometryCollection;
-import fr.mines_stetienne.ci.sparql_generate.SPARQLExt;
-import fr.mines_stetienne.ci.sparql_generate.utils.WktLiteral;
+import com.github.filosganga.geogson.model.*;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import fr.mines_stetienne.ci.sparql_generate.SPARQLExt;
+import fr.mines_stetienne.ci.sparql_generate.utils.WktLiteral;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
+import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.NodeValue;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueNode;
 import org.apache.jena.sparql.function.FunctionBase1;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.stream.Collectors;
-import org.apache.jena.sparql.expr.ExprEvalException;
 
 /**
  * Binding function
@@ -91,10 +89,10 @@ public final class FUN_GeoJSONGeometry extends FunctionBase1 {
 
     @Override
     public NodeValue exec(NodeValue json) {
-        if(json == null) {
-        	String msg = "No JSON provided";
+        if (json == null) {
+            String msg = "No JSON provided";
             LOG.debug(msg);
-        	throw new ExprEvalException(msg);
+            throw new ExprEvalException(msg);
         }
         if (!json.isLiteral()) {
             LOG.debug("The argument should be a literal. Got" + json);
@@ -129,7 +127,24 @@ public final class FUN_GeoJSONGeometry extends FunctionBase1 {
             sb.append(")");
             return sb.toString();
         } else {
+            if (geom instanceof LineString || geom instanceof MultiPoint) {
+                StringBuilder lineStringBuilder = new StringBuilder();
+                lineStringBuilder.append(geom instanceof LineString ? "LINESTRING" : "MULTIPOINT");
+                lineStringBuilder.append(" (");
+                List<Point> lineStringPoints;
+                if (geom instanceof LineString)
+                    lineStringPoints = ((LineString) geom).points();
+                else
+                    lineStringPoints = ((MultiPoint) geom).points();
+                for (Point pointInLineString : lineStringPoints)
+                    lineStringBuilder.append(pointInLineString.lon()).append(" ").append(pointInLineString.lat()).append(", ");
+                if (!lineStringPoints.isEmpty())
+                    lineStringBuilder.setLength(lineStringBuilder.length() - 2);
+                lineStringBuilder.append(")");
+                return lineStringBuilder.toString();
+            }
             return geom.getClass().getSimpleName().toUpperCase() + gson.toJson(geom.positions()).
+                    replace("[[[", "[[").replace("]]]", "]]").
                     replace(",", " ").
                     replace("] [", ", ").
                     replace("[", "(").
