@@ -16,11 +16,11 @@ if [ -z "$(git status --porcelain)" ]; then
   git push --delete origin v$releaseVersion
   git push
   git push origin v$releaseVersion && \
-  # mvn deploy -P deploy
-  nextVersion=$(semver -i patch $releaseVersion)-SNAPSHOT && \
-  mvn -B versions:set -DnewVersion=$nextVersion --file 'sparql-generate-parent/pom.xml' && \
-  git commit -am "prepare next version $nextVersion" && \
-  mvn -B install --file 'sparql-generate-parent/pom.xml'
+  mvn deploy -P deploy
+  # nextVersion=$(semver -i patch $releaseVersion)-SNAPSHOT && \
+  # mvn -B versions:set -DnewVersion=$nextVersion --file 'sparql-generate-parent/pom.xml' && \
+  # git commit -am "prepare next version $nextVersion" && \
+  # mvn -B install --file 'sparql-generate-parent/pom.xml'
 else 
  echo "working directory is not clean. Commit first."
 fi
