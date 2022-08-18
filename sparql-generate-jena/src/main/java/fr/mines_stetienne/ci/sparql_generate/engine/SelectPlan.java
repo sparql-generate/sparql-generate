@@ -25,15 +25,13 @@ import java.util.stream.Collectors;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryExecution;
+import org.apache.jena.query.QueryExecutionDatasetBuilder;
 import org.apache.jena.query.ResultSet;
 import org.apache.jena.query.ResultSetFactory;
 import org.apache.jena.query.ResultSetRewindable;
 import org.apache.jena.sparql.core.Var;
-import org.apache.jena.sparql.engine.QueryEngineFactory;
-import org.apache.jena.sparql.engine.QueryEngineRegistry;
-import org.apache.jena.sparql.engine.QueryExecutionBase;
 import org.apache.jena.sparql.engine.binding.Binding;
-import org.apache.jena.sparql.engine.binding.BindingHashMap;
+import org.apache.jena.sparql.engine.binding.BindingBuilder;
 import org.apache.jena.sparql.syntax.ElementData;
 import org.apache.jena.sparql.syntax.ElementGroup;
 import org.apache.jena.sparql.util.Context;
@@ -119,8 +117,7 @@ public class SelectPlan {
 		}
 		try {
 			augmentQuery(q, variables, values);
-			final QueryEngineFactory factory = QueryEngineRegistry.get().find(q, inputDataset.asDatasetGraph(), context);
-			try (QueryExecution exec = new QueryExecutionBase(q, inputDataset, context, factory)) {
+			try (QueryExecution exec = QueryExecutionDatasetBuilder.create().query(q).dataset(inputDataset).context(context).build()) {
 				ResultSet resultSet = exec.execSelect();
 				if (LOG.isTraceEnabled()) {
 					ResultSetRewindable rewindable = ResultSetFactory.copyResults(resultSet);
@@ -213,14 +210,14 @@ public class SelectPlan {
 		variables.forEach(data::add);
 		qData.getRows().forEach((qbinding) -> {
 			values.forEach((binding) -> {
-				BindingHashMap newb = new BindingHashMap(qbinding);
+				BindingBuilder bindingBuilder = Binding.builder();
 				variables.forEach((v) -> {
 					if(binding.get(v) == null) {
 						return;
 					}
-					newb.add(v, binding.get(v));
+					bindingBuilder.add(v, binding.get(v));
 				});
-				data.add(newb);
+				data.add(bindingBuilder.build());
 			});
 		});
 		return data;

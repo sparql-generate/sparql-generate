@@ -422,7 +422,7 @@ public class RootPlan {
 			if (query.isSelectType()) {
 				final List<String> listVar = variables.stream().map(Var::getVarName).collect(Collectors.toList());
 				final Model model = ContextUtils.getDataset(context).getDefaultModel();
-				final ResultSet resultSet = new ResultSetStream(listVar, model, values.iterator());
+				final ResultSet resultSet = ResultSetStream.create(listVar, model, values.iterator());
 				ContextUtils.getSelectOutput(context).accept(resultSet);
 			} else if(query.isGenerateType()) {
 				generatePlan.exec(variables, values, context);

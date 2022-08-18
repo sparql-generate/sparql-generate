@@ -24,8 +24,7 @@ import java.util.concurrent.ExecutionException;
 import org.apache.jena.sparql.ARQException;
 import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.engine.binding.Binding;
-import org.apache.jena.sparql.engine.binding.BindingFactory;
-import org.apache.jena.sparql.engine.binding.BindingMap;
+import org.apache.jena.sparql.engine.binding.BindingBuilder;
 import org.apache.jena.sparql.expr.Expr;
 import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.ExprException;
@@ -69,21 +68,21 @@ public class SPARQLExtFunction implements Function {
             LOG.debug(message);
             throw new ExprEvalException(message);
         }
-        final BindingMap newBinding = BindingFactory.create();
+        final BindingBuilder bindingBuilder = Binding.builder();
         for (int i = 0; i < signature.size(); i++) {
             Var v = signature.get(i);
             Expr e = args.get(i);
             try {
                 NodeValue nv = e.eval(binding, env);
-                newBinding.add(v, nv.asNode());
+                bindingBuilder.add(v, nv.asNode());
             } catch (ExprException ex) {
                 LOG.trace("could not evaluate expression " + e + " with binding");
             }
         }
         final Expr functionExpression = function.getFunctionExpression();
-        Key key = new Key(functionExpression, newBinding, env);
+        Key key = new Key(functionExpression, bindingBuilder.build(), env);
         try {
-            return CACHE.get(key, () -> functionExpression.eval(newBinding, env));
+            return CACHE.get(key, () -> functionExpression.eval(bindingBuilder.build(), env));
         } catch(ExecutionException ex) {
             LOG.trace("could not evaluate expression " + functionExpression + " with binding");
             throw new ExprEvalException("could not evaluate expression " + functionExpression + " with binding");
@@ -93,10 +92,10 @@ public class SPARQLExtFunction implements Function {
     static private class Key {
 
         Expr functionExpression;
-        BindingMap binding;
+        Binding binding;
         FunctionEnv env;
 
-        public Key(Expr functionExpression, BindingMap binding, FunctionEnv env) {
+        public Key(Expr functionExpression, Binding binding, FunctionEnv env) {
             this.functionExpression = functionExpression;
             this.binding = binding;
             this.env = env;

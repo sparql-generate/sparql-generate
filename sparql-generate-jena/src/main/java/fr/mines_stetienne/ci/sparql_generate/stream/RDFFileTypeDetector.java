@@ -40,6 +40,6 @@ public class RDFFileTypeDetector extends FileTypeDetector {
         if(ct==null) {
             throw new IOException();
         }
-        return ct.getContentType();
+        return ct.getContentTypeStr();
     }
 }

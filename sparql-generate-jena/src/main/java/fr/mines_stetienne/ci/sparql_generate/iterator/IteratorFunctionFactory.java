@@ -15,7 +15,7 @@
  */
 package fr.mines_stetienne.ci.sparql_generate.iterator;
 
-import org.apache.jena.sparql.sse.builders.ExprBuildException;
+import org.apache.jena.sparql.sse.builders.SSE_ExprBuildException;
 
 /**
  * Interface for iterator function factories.
@@ -27,7 +27,7 @@ public interface IteratorFunctionFactory {
      *
      * @param uri URI
      * @return IteratorFunction
-     * @throws ExprBuildException May be thrown if there is a problem creating a
+     * @throws SSE_ExprBuildException May be thrown if there is a problem creating a
      * iterator function
      */
     public IteratorFunction create(String uri);

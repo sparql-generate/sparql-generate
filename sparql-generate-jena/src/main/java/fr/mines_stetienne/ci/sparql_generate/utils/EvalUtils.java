@@ -24,8 +24,7 @@ import java.util.Objects;
 import org.apache.jena.graph.Node;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.sparql.engine.binding.Binding;
-import org.apache.jena.sparql.engine.binding.BindingFactory;
-import org.apache.jena.sparql.engine.binding.BindingMap;
+import org.apache.jena.sparql.engine.binding.BindingBuilder;
 import org.apache.jena.sparql.expr.Expr;
 import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.ExprList;
@@ -138,11 +137,11 @@ public class EvalUtils {
     }
 
 	public static Binding createBinding(QuerySolution sol) {
-		final BindingMap binding = BindingFactory.create();
+		final BindingBuilder bindingBuilder = Binding.builder();
 		for (Iterator<String> it = sol.varNames(); it.hasNext();) {
 			final String varName = it.next();
-			binding.add(VarUtils.allocVar(varName), sol.get(varName).asNode());
+			bindingBuilder.add(VarUtils.allocVar(varName), sol.get(varName).asNode());
 		}
-		return binding;
+		return bindingBuilder.build();
 	}
 }

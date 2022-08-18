@@ -23,8 +23,7 @@ import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.graph.Triple;
 import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.engine.binding.Binding;
-import org.apache.jena.sparql.engine.binding.BindingFactory;
-import org.apache.jena.sparql.engine.binding.BindingMap;
+import org.apache.jena.sparql.engine.binding.BindingBuilder;
 import org.apache.jena.sparql.serializer.FormatterElement;
 import org.apache.jena.sparql.syntax.ElementData;
 
@@ -54,10 +53,10 @@ public class LogUtils {
         for (int i = 0; i < 5; i++) {
             addCompressedToElementData(el, input.get(i));
         }
-        BindingMap binding = BindingFactory.create();
+        BindingBuilder bindingBuilder = Binding.builder();
         Node n = NodeFactory.createLiteral("[ " + (input.size() - 10) + " more ]");
-        el.getVars().forEach((v) -> binding.add(v, n));
-        el.add(binding);
+        el.getVars().forEach((v) -> bindingBuilder.add(v, n));
+        el.add(bindingBuilder.build());
         for (int i = input.size() - 5; i < input.size(); i++) {
             addCompressedToElementData(el, input.get(i));
         }
@@ -83,10 +82,10 @@ public class LogUtils {
         for (int i = 0; i < 5; i++) {
             el.add(compress(variables, input.get(i)));
         }
-        BindingMap binding = BindingFactory.create();
+        BindingBuilder bindingBuilder = Binding.builder();
         Node n = NodeFactory.createLiteral("[ " + (input.size() - 10) + " more ]");
-        variables.forEach((v) -> binding.add(v, n));
-        el.add(binding);
+        variables.forEach((v) -> bindingBuilder.add(v, n));
+        el.add(bindingBuilder.build());
         for (int i = input.size() - 5; i < input.size(); i++) {
             el.add(compress(variables, input.get(i)));
         }
@@ -103,14 +102,14 @@ public class LogUtils {
     }
 
     public static Binding compress(List<Var> variables, Binding input) {
-        final BindingMap binding = BindingFactory.create();
+        final BindingBuilder bindingBuilder = Binding.builder();
         for (Var v : variables) {
             Node n = input.get(v);
             if (n != null) {
-                binding.add(v, compress(input.get(v)));
+                bindingBuilder.add(v, compress(input.get(v)));
             }
         }
-        return binding;
+        return bindingBuilder.build();
     }
 
     public static Triple compress(Triple t) {

@@ -35,6 +35,7 @@ import org.apache.jena.sparql.expr.ExprFunction3;
 import org.apache.jena.sparql.expr.ExprFunctionN;
 import org.apache.jena.sparql.expr.ExprFunctionOp;
 import org.apache.jena.sparql.expr.ExprNone;
+import org.apache.jena.sparql.expr.ExprTripleTerm;
 import org.apache.jena.sparql.expr.ExprVar;
 import org.apache.jena.sparql.expr.ExprVisitor;
 import org.apache.jena.sparql.expr.NodeValue;
@@ -201,6 +202,11 @@ public class SPARQLExtFmtExprSPARQL extends FmtExprSPARQL {
 			} finally {
 				out.setAbsoluteIndent(indent);
 			}
+		}
+
+		@Override
+		public void visit(ExprTripleTerm tripleTerm) {
+			throw new UnsupportedOperationException("Not supported yet.");
 		}
 
 		@Override

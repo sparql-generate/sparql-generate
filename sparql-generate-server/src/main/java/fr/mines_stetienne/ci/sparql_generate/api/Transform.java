@@ -51,7 +51,7 @@ import org.apache.jena.query.ResultSetFormatter;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.engine.binding.Binding;
-import org.apache.jena.sparql.engine.binding.BindingHashMap;
+import org.apache.jena.sparql.engine.binding.BindingBuilder;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueString;
 import org.apache.jena.sparql.util.Context;
 import org.slf4j.Logger;
@@ -122,7 +122,7 @@ public class Transform extends HttpServlet {
 		}    	
 		
 		List<Var> signature = q.getSignature();
-		BindingHashMap binding = new BindingHashMap();
+		BindingBuilder bindingBuilder = Binding.builder();
 		if(signature == null && params != null && !params.isEmpty()) {
         	throw new BadRequestException(String.format("The query %s has no signature, so no request parameter param may be set", query));
 		}
@@ -134,11 +134,11 @@ public class Transform extends HttpServlet {
 				throw new BadRequestException(String.format("The query %s has a signature whose size does not match the number of request parameters", query));
 			}
 			for(int i=0;i<signature.size();i++) {
-				binding.add(signature.get(i), NodeFactory.createLiteral(params.get(i)));
+				bindingBuilder.add(signature.get(i), NodeFactory.createLiteral(params.get(i)));
 			}
 		}
 		List<Binding> values = new ArrayList();
-		values.add(binding);
+		values.add(bindingBuilder.build());
 		Context context = ContextUtils.createSimple();
 		
         final ExecutorService service = Executors.newSingleThreadExecutor();
