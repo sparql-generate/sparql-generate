@@ -7,9 +7,9 @@ import org.apache.jena.graph.Graph;
 import org.apache.jena.graph.GraphUtil;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
+import org.apache.jena.irix.IRIs;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetFactory;
-import org.apache.jena.riot.system.IRIResolver;
 import org.apache.jena.riot.system.StreamRDF;
 import org.apache.jena.riot.system.StreamRDFLib;
 import org.apache.jena.sparql.core.DatasetGraph;
@@ -67,9 +67,9 @@ public class DatasetDeclarationPlan {
 	public DatasetDeclarationPlan(final SPARQLExtQuery query) {
 		Objects.requireNonNull(query, "query must not be null");
 		if (query.getBaseURI() != null) {
-			baseURI = IRIResolver.resolveString(query.getBaseURI());
+			baseURI = IRIs.resolve(query.getBaseURI());
 		} else {
-			baseURI = IRIResolver.chooseBaseURI().toString();
+			baseURI = IRIs.getBaseStr();
 		}
 
 		this.fromClauses = query.getFromClauses();
@@ -102,9 +102,9 @@ public class DatasetDeclarationPlan {
 
 	private static String baseURI(String sourceURI, String absBaseURI) {
 		if (absBaseURI == null) {
-			return IRIResolver.resolveString(sourceURI);
+			return IRIs.resolve(sourceURI);
 		} else {
-			return IRIResolver.resolveString(sourceURI, absBaseURI);
+			return IRIs.resolve(sourceURI, absBaseURI);
 		}
 	}
 

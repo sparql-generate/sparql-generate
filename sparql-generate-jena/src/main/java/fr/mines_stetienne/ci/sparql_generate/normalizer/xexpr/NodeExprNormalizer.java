@@ -26,12 +26,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.jena.graph.BlankNodeId;
+import org.apache.jena.graph.Graph;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.Node_ANY;
 import org.apache.jena.graph.Node_Blank;
+import org.apache.jena.graph.Node_Graph;
 import org.apache.jena.graph.Node_Literal;
+import org.apache.jena.graph.Node_Triple;
 import org.apache.jena.graph.Node_URI;
 import org.apache.jena.graph.Node_Variable;
+import org.apache.jena.graph.Triple;
 import org.apache.jena.graph.impl.LiteralLabel;
 import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.expr.E_IRI;
@@ -291,6 +295,18 @@ public class NodeExprNormalizer implements SPARQLExtNodeVisitor {
      */
     @Override
     public Object visitVariable(Node_Variable it, String name) {
+        result = it;
+        return null;
+    }
+
+    @Override
+    public Object visitTriple(Node_Triple it, Triple triple) {
+        result = it;
+        return null;
+    }
+
+    @Override
+    public Object visitGraph(Node_Graph it, Graph graph) {
         result = it;
         return null;
     }

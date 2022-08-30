@@ -65,9 +65,8 @@ public class ParserSPARQLExt extends SPARQLParser {
     @Override
     protected Query parse$(final Query query, String queryString) {
 
-        SPARQLExtQuery q = new SPARQLExtQuery();
+        SPARQLExtQuery q = new SPARQLExtQuery(query.getPrologue());
         q.setSyntax(query.getSyntax());
-        q.setResolver(query.getResolver());
 
         Action action = new Action() {
             @Override
@@ -90,9 +89,8 @@ public class ParserSPARQLExt extends SPARQLParser {
      */
     public static SPARQLExtQuery parseSubQuery(final Query query, String queryString) {
 
-        SPARQLExtQuery q = new SPARQLExtQuery();
+        SPARQLExtQuery q = new SPARQLExtQuery(query.getPrologue());
         q.setSyntax(query.getSyntax());
-        q.setResolver(query.getResolver());
 
         Action action = new Action() {
             @Override

@@ -116,9 +116,9 @@ public class SourcePlan extends BindOrSourcePlan {
 			try (InputStream in = stream.getInputStream()) {
 				final String literal = IOUtils.toString(in, "UTF-8");
 				final RDFDatatype dt;
-				if (stream.getMediaType() != null && stream.getMediaType().getContentType() != null) {
+				if (stream.getMediaType() != null && stream.getMediaType().getContentTypeStr() != null) {
 					dt = tm.getSafeTypeByName(
-							"https://www.iana.org/assignments/media-types/" + stream.getMediaType().getContentType());
+							"https://www.iana.org/assignments/media-types/" + stream.getMediaType().getContentTypeStr());
 				} else {
 					dt = tm.getSafeTypeByName("http://www.w3.org/2001/XMLSchema#string");
 				}

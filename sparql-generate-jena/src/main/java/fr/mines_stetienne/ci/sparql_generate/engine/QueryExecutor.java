@@ -34,7 +34,7 @@ import org.apache.jena.query.ResultSetFactory;
 import org.apache.jena.query.ResultSetRewindable;
 import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.engine.binding.Binding;
-import org.apache.jena.sparql.engine.binding.BindingHashMap;
+import org.apache.jena.sparql.engine.binding.BindingBuilder;
 import org.apache.jena.sparql.util.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -379,13 +379,13 @@ public class QueryExecutor {
             if (callParams.size() != size) {
                 throw new SPARQLExtException("Query " + queryName + " called with " + callParams.size() + " parameters but accepts only " + size);
             }
-            final BindingHashMap b = new BindingHashMap();
+            final BindingBuilder bindingBuilder = Binding.builder();
             for (int i = 0; i < size; i++) {
             	if(callParams.get(i) != null) {
-            		b.add(signature.get(i), callParams.get(i));
+            		bindingBuilder.add(signature.get(i), callParams.get(i));
             	}
             }
-            bindings.add(b);
+            bindings.add(bindingBuilder.build());
         }
         return bindings;
     }

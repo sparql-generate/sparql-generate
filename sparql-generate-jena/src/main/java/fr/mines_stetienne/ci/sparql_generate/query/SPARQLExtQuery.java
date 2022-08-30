@@ -62,7 +62,10 @@ public class SPARQLExtQuery extends Query {
 	 */
 	public SPARQLExtQuery(Prologue prologue) {
 		this();
-		usePrologueFrom(prologue);
+		Prologue p2 = prologue.copy();
+		prefixMap = p2.getPrefixMapping();
+		seenBaseURI = false;
+		resolver = p2.getResolver();
 	}
 
 	/**

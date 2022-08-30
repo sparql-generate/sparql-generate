@@ -30,8 +30,7 @@ import org.apache.jena.graph.Node;
 import org.apache.jena.sparql.ARQConstants;
 import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.engine.binding.Binding;
-import org.apache.jena.sparql.engine.binding.BindingFactory;
-import org.apache.jena.sparql.engine.binding.BindingMap;
+import org.apache.jena.sparql.engine.binding.BindingBuilder;
 import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.ExprList;
 import org.apache.jena.sparql.expr.NodeValue;
@@ -169,14 +168,14 @@ public class IteratorPlan implements BindingsClausePlan {
                     LOG.warn("Too many variables, some will not be bound: " + listNodeValues);
                     return;
                 }
-                final BindingMap b = BindingFactory.create(binding);
+                final BindingBuilder bindingBuilder = Binding.builder(binding);
                 for (int i = 0; i < vars.size(); i++) {
                     if (listNodeValues.get(i) != null) {
                         Node n = listNodeValues.get(i).asNode();
-                        b.add(vars.get(i), n);
+                        bindingBuilder.add(vars.get(i), n);
                     }
                 }
-                listBindings.add(b);
+                listBindings.add(bindingBuilder.build());
             });
             return listBindings;
         }

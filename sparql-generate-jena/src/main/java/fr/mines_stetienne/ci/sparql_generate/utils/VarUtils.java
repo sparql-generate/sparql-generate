@@ -23,8 +23,7 @@ import java.util.List;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.engine.binding.Binding;
-import org.apache.jena.sparql.engine.binding.BindingFactory;
-import org.apache.jena.sparql.engine.binding.BindingMap;
+import org.apache.jena.sparql.engine.binding.BindingBuilder;
 
 /**
  *
@@ -54,12 +53,12 @@ public class VarUtils {
 
     public static Binding getBinding(
             final QuerySolution sol) {
-        final BindingMap binding = BindingFactory.create();
+        final BindingBuilder bindingBuilder = Binding.builder();
         for (Iterator<String> it = sol.varNames(); it.hasNext();) {
             String varName = it.next();
-            binding.add(allocVar(varName), sol.get(varName).asNode());
+            bindingBuilder.add(allocVar(varName), sol.get(varName).asNode());
         }
-        return binding;
+        return bindingBuilder.build();
     }
 
 }

@@ -69,7 +69,7 @@ import org.apache.jena.riot.lang.extra.javacc.TurtleJavacc;
 import org.apache.jena.shared.PrefixMapping;
 import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.engine.binding.Binding;
-import org.apache.jena.sparql.engine.binding.BindingHashMap;
+import org.apache.jena.sparql.engine.binding.BindingBuilder;
 import org.apache.jena.sparql.resultset.ResultsFormat;
 import org.apache.jena.sparql.syntax.Element;
 import org.apache.jena.sparql.util.Context;
@@ -263,16 +263,16 @@ public class SPARQLExtCli {
 	}
 
 	private static List<Binding> getBinding(CommandLine cl) {
-		final BindingHashMap binding = new BindingHashMap();
+		final BindingBuilder bindingBuilder = Binding.builder();
 		if(!cl.hasOption(CMDConfigurations.ARG_BIND_LONG)) {
 			ArrayList<Binding> bindings = new ArrayList<Binding>();
-			bindings.add(binding);
+			bindings.add(bindingBuilder.build());
 			return bindings;
 		}
 		Properties properties = cl.getOptionProperties(CMDConfigurations.ARG_BIND_LONG);
 		if(properties.isEmpty()) {
 			ArrayList<Binding> bindings = new ArrayList<Binding>();
-			bindings.add(binding);
+			bindings.add(bindingBuilder.build());
 			return bindings;
 		}
 		for(Object param : properties.keySet()) {
@@ -284,14 +284,14 @@ public class SPARQLExtCli {
 				LOG.trace(String.format("With binding %s -> %s", param, value));
 			}
 			try {
-				Node node = valueParser.GraphTerm();
-				binding.add(var, node);
+				Node node = valueParser.Literal();
+				bindingBuilder.add(var, node);
 			} catch (org.apache.jena.riot.lang.extra.javacc.ParseException ex) {
 				LOG.error(String.format("Error while parsing value for parameter %s", param), ex);
 				throw new SPARQLExtException();
 			}
 		}
-		return Lists.newArrayList(binding);
+		return Lists.newArrayList(bindingBuilder.build());
 	}
 
 	/**
@@ -471,7 +471,7 @@ public class SPARQLExtCli {
 		}
 		if (request.namedgraphs != null) {
 			request.namedgraphs.forEach((doc) -> {
-				LookUpRequest req = new LookUpRequest(doc.uri, Lang.TTL.getContentType().getContentType());
+				LookUpRequest req = new LookUpRequest(doc.uri, Lang.TTL.getContentType().getContentTypeStr());
 				LookUpRequest alt = new LookUpRequest(doc.path);
 				mapper.addAltEntry(req, alt);
 			});

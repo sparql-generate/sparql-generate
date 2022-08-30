@@ -23,7 +23,8 @@ import org.apache.jena.sparql.core.BasicPattern;
 import org.apache.jena.sparql.core.PathBlock;
 import org.apache.jena.sparql.core.TriplePath;
 import org.apache.jena.sparql.core.Var;
-import org.apache.jena.sparql.engine.binding.BindingHashMap;
+import org.apache.jena.sparql.engine.binding.Binding;
+import org.apache.jena.sparql.engine.binding.BindingBuilder;
 import org.apache.jena.sparql.expr.Expr;
 import org.apache.jena.sparql.path.Path;
 import org.apache.jena.sparql.syntax.Element;
@@ -33,7 +34,6 @@ import org.apache.jena.sparql.syntax.ElementData;
 import org.apache.jena.sparql.syntax.ElementDataset;
 import org.apache.jena.sparql.syntax.ElementExists;
 import org.apache.jena.sparql.syntax.ElementFilter;
-import org.apache.jena.sparql.syntax.ElementFind;
 import org.apache.jena.sparql.syntax.ElementGroup;
 import org.apache.jena.sparql.syntax.ElementMinus;
 import org.apache.jena.sparql.syntax.ElementNamedGraph;
@@ -150,15 +150,15 @@ public class QueryPatternNormalizer implements ElementVisitor {
             nzed.add(v);
         });
         el.getRows().forEach((b) -> {
-            final BindingHashMap binding = new BindingHashMap();
+            final BindingBuilder bindingBuilder = Binding.builder();
             vars.forEach((v) -> {
                 final Node n = b.get(v);
                 if (n != null) {
                     n.visitWith(nenzer);
-                    binding.add(v, nenzer.getResult());
+                    bindingBuilder.add(v, nenzer.getResult());
                 }
             });
-            nzed.add(binding);
+            nzed.add(bindingBuilder.build());
         });
         endVisit(nzed, nenzer);
     }
@@ -237,10 +237,5 @@ public class QueryPatternNormalizer implements ElementVisitor {
             result = group;
         }
     }
-
-	@Override
-	public void visit(ElementFind el) {
-        throw new UnsupportedOperationException("ElementFind not supported");
-	}
 
 }
