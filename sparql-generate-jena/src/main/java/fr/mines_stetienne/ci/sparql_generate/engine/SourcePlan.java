@@ -15,20 +15,13 @@
  */
 package fr.mines_stetienne.ci.sparql_generate.engine;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.jena.atlas.web.TypedInputStream;
-import org.apache.jena.datatypes.DatatypeFormatException;
-import org.apache.jena.datatypes.RDFDatatype;
 import org.apache.jena.datatypes.TypeMapper;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
-import org.apache.jena.riot.SysRIOT;
 import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.engine.binding.Binding;
 import org.apache.jena.sparql.engine.binding.BindingFactory;
@@ -37,8 +30,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import fr.mines_stetienne.ci.sparql_generate.SPARQLExtException;
-import fr.mines_stetienne.ci.sparql_generate.stream.LookUpRequest;
-import fr.mines_stetienne.ci.sparql_generate.stream.SPARQLExtStreamManager;
 import fr.mines_stetienne.ci.sparql_generate.utils.LogUtils;
 
 /**
@@ -104,36 +95,13 @@ public class SourcePlan extends BindOrSourcePlan {
 		if (sourceUri == null) {
 			return BindingFactory.binding(binding, var, null);
 		}
-		final LookUpRequest request = new LookUpRequest(sourceUri, acceptHeader);
-		final SPARQLExtStreamManager sm = (SPARQLExtStreamManager) context.get(SysRIOT.sysStreamManager);
-		Objects.requireNonNull(sm);
-		try (TypedInputStream stream = sm.open(request)) {
-			if (stream == null) {
-				LOG.info(
-						"Exec SOURCE <" + sourceUri + "> ACCEPT " + acceptHeader + " AS " + var + " returned nothing.");
-				return BindingFactory.binding(binding);
-			}
-			try (InputStream in = stream.getInputStream()) {
-				final String literal = IOUtils.toString(in, "UTF-8");
-				final RDFDatatype dt;
-				if (stream.getMediaType() != null && stream.getMediaType().getContentTypeStr() != null) {
-					dt = tm.getSafeTypeByName(
-							"https://www.iana.org/assignments/media-types/" + stream.getMediaType().getContentTypeStr());
-				} else {
-					dt = tm.getSafeTypeByName("http://www.w3.org/2001/XMLSchema#string");
-				}
-				final Node n = NodeFactory.createLiteral(literal, dt);
-				LOG.debug("Exec " + this + " returned. " + "Enable TRACE level for more.");
-				if (LOG.isTraceEnabled()) {
-					LOG.trace("Exec " + this + " returned\n" + LogUtils.compress(n));
-				}
-				return BindingFactory.binding(binding, var, n);
-			}
-		} catch (IOException | DatatypeFormatException ex) {
-			LOG.warn("Exception while looking up " + sourceUri + ":", ex);
-			return BindingFactory.binding(binding);
-		}
 
+		final Node n = NodeFactory.createURI(sourceUri);
+		LOG.debug("Exec " + this + " returned. " + "Enable TRACE level for more.");
+		if (LOG.isTraceEnabled()) {
+			LOG.trace("Exec " + this + " returned\n" + LogUtils.compress(n));
+		}
+		return BindingFactory.binding(binding, var, n);
 	}
 
 	/**
