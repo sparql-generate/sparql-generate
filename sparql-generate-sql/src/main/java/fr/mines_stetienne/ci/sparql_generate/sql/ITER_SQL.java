@@ -28,9 +28,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.function.Consumer;
 
 import org.apache.jena.datatypes.xsd.XSDDatatype;
-import org.apache.jena.datatypes.xsd.XSDDateTime;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.sparql.expr.ExprEvalException;
@@ -48,7 +48,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import fr.mines_stetienne.ci.sparql_generate.SPARQLExt;
-import fr.mines_stetienne.ci.sparql_generate.iterator.IteratorFunctionBase2;
+import fr.mines_stetienne.ci.sparql_generate.iterator.IteratorStreamFunctionBase2;
 
 /**
  * Iterator function <a href="http://w3id.org/sparql-generate/iter/SQL">SQL</a>
@@ -67,10 +67,10 @@ import fr.mines_stetienne.ci.sparql_generate.iterator.IteratorFunctionBase2;
  * </ul>
  *
  * @author Omar Qawasmeh, Maxime Lefrançois
- * 
+ *
  * @organization Ecole des Mines de Saint Etienne
  */
-public class ITER_SQL extends IteratorFunctionBase2 {
+public class ITER_SQL extends IteratorStreamFunctionBase2 {
 
 	/**
 	 * The logger.
@@ -94,7 +94,7 @@ public class ITER_SQL extends IteratorFunctionBase2 {
 	}
 
 	@Override
-	public List<List<NodeValue>> exec(NodeValue nodeSQL, NodeValue querySQL) {
+	public void exec(NodeValue nodeSQL, NodeValue querySQL, Consumer<List<List<NodeValue>>> consumer) {
 		if (nodeSQL == null) {
 			LOG.debug("Must have two arguments, the URI to the data base and the SQL query");
 			throw new ExprEvalException("Must have two arguments, the URI to the data base and the SQL query");
@@ -107,7 +107,7 @@ public class ITER_SQL extends IteratorFunctionBase2 {
 		LOG.trace("Executing SQL with variables: the data base at URI: " + nodeSQL + "\t with query:\t" + querySQL);
 		try (Connection connectionSQL = getConnection(nodeSQL)){
 			LOG.trace("Connected successfuly to " + nodeSQL);
-			return getListSQL(connectionSQL, querySQL);
+			getListSQL(connectionSQL, querySQL, consumer);
 		} catch (Exception ex) {
 			LOG.warn("Can not connect to the data base", ex);
 			throw new ExprEvalException("Can not connect to the data base", ex);
@@ -133,8 +133,7 @@ public class ITER_SQL extends IteratorFunctionBase2 {
 		}
 	}
 
-	public static List<List<NodeValue>> getListSQL(Connection conn, NodeValue querySQL) {
-		List<List<NodeValue>> nodeValuesAllRows = new ArrayList<>();
+	public static void getListSQL(Connection conn, NodeValue querySQL, Consumer<List<List<NodeValue>>> consumer) {
 		if (!querySQL.isString()) {
 			String message = String.format("Second argument (the query) must be a String");
 			LOG.warn(message);
@@ -151,15 +150,13 @@ public class ITER_SQL extends IteratorFunctionBase2 {
 						NodeValue nv = getNodeValueForCell(rs, rsmd, i++);
 						listRow.add(nv);
 					}
-					nodeValuesAllRows.add(listRow);
-
+					consumer.accept(List.of(listRow));
 				}
 			} catch (SQLException e) {
 				LOG.warn(e.getMessage());
 				throw new ExprEvalException(e);
 			}
 		}
-		return nodeValuesAllRows;
 	}
 
 	private static NodeValue getNodeValueForCell(ResultSet rs, ResultSetMetaData rsmd, int i) throws SQLException {
