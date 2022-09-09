@@ -257,7 +257,7 @@ public class ITER_JSONSurfer extends IteratorStreamFunctionBase {
 
 				try {
 					Object subvalue = doc.limit(1).read(subquery);
-					NodeValue subnode = function.nodeForObject(subvalue);
+					NodeValue subnode = function.nodeForObject(jsonProvider.unwrap(subvalue));
 					nodeValues.add(subnode);
 				} catch (Exception ex) {
 					LOG.debug("No evaluation for " + value + ", " + subquery);
