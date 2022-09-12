@@ -143,8 +143,10 @@ public class ITER_CSV extends IteratorStreamFunctionBase {
             parser.parse(in, StandardCharsets.UTF_8);
         } catch (ExprEvalException | IOException ex) {
             LOG.warn("Exception while fetching or parsing CSV document", ex);
+            throw new ExprEvalException("No evaluation", ex);
         } catch (Exception ex) {
             LOG.warn("Exception while fetching or parsing CSV document", ex);
+            throw new ExprEvalException("No evaluation", ex);
         }
     }
 
