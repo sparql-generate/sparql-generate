@@ -161,7 +161,7 @@ public final class FUN_dateTime extends FunctionBase {
         } catch (NumberFormatException ex) {
             final String message = String.format("The first argument %s MUST be an integer.", dateTimeString);
             LOG.debug(message);
-            throw new ExprEvalException(message);
+            throw new ExprEvalException(message, ex);
         }
     }
 
@@ -184,7 +184,7 @@ public final class FUN_dateTime extends FunctionBase {
         } catch (IllegalArgumentException ex) {
             final String message = String.format("The second argument %s is not valid DateTimeFormatter format.", format);
             LOG.debug(message);
-            throw new ExprEvalException(message);
+            throw new ExprEvalException(message, ex);
         }
         try {
             return ZonedDateTime.parse(dateTimeString, parseFormat);
@@ -203,7 +203,7 @@ public final class FUN_dateTime extends FunctionBase {
                 } catch (DateTimeParseException ex3) {
                     final String message3 = String.format("Error parsing with LocalDate: %s", ex1.getMessage());
                     LOG.debug(message3);
-                    throw new ExprEvalException(message3);
+                    throw new ExprEvalException(message3, ex3);
                 }
             }
         }

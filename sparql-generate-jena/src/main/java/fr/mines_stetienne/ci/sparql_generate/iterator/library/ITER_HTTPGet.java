@@ -141,7 +141,7 @@ public class ITER_HTTPGet extends IteratorStreamFunctionBase {
                 TimeUnit.NANOSECONDS.sleep(recurrenceValueNano - (end - start));
             } catch (InterruptedException ex) {
                 LOG.debug("Call HTTPGET to " + url_s + " Interrupted");
-                throw new ExprEvalException("Call HTTPGET to " + url_s + " Interrupted");
+                throw new ExprEvalException("Call HTTPGET to " + url_s + " Interrupted", ex);
             }
         }
     }

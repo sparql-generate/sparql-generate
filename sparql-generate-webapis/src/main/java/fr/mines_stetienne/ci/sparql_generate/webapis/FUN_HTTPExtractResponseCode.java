@@ -62,7 +62,7 @@ public class FUN_HTTPExtractResponseCode extends FunctionBase1 {
 			LOG.debug(String.format("Argument must start with HTTP/1.1 , then a three digit response code. Got %s",
 					codeString));
 			throw new ExprEvalException(String.format(
-					"Argument must start with HTTP/1.1 , then a three digit response code. Got %s", codeString));
+					"Argument must start with HTTP/1.1 , then a three digit response code. Got %s", codeString), ex);
 		}
 	}
 

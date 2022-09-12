@@ -73,7 +73,7 @@ public abstract class FUN_HTTPBase extends FunctionBase {
 			}
 		} catch (IOException ex) {
 			LOG.debug("Exception while executing the HTTP request", ex);
-			throw new ExprEvalException(ex.getMessage());
+			throw new ExprEvalException(ex);
 		}
 	}
 

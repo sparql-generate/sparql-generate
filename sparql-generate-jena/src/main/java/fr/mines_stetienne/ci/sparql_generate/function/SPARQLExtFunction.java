@@ -85,7 +85,7 @@ public class SPARQLExtFunction implements Function {
             return CACHE.get(key, () -> functionExpression.eval(bindingBuilder.build(), env));
         } catch(ExecutionException ex) {
             LOG.trace("could not evaluate expression " + functionExpression + " with binding");
-            throw new ExprEvalException("could not evaluate expression " + functionExpression + " with binding");
+            throw new ExprEvalException("could not evaluate expression " + functionExpression + " with binding", ex);
         }
     }
 

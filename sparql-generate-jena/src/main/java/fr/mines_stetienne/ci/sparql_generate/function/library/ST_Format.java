@@ -113,7 +113,7 @@ public class ST_Format implements Function {
             String output = String.format(getString(format, env), params);
             return new NodeValueString(output);
         } catch (IllegalFormatException ex) {
-            throw new ExprEvalException("Exception while executing st:format(" + args + ")");
+            throw new ExprEvalException("Exception while executing st:format(" + args + ")", ex);
         }
     }
 

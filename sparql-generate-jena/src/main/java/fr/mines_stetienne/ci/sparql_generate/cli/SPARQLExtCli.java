@@ -288,7 +288,7 @@ public class SPARQLExtCli {
 				bindingBuilder.add(var, node);
 			} catch (org.apache.jena.riot.lang.extra.javacc.ParseException ex) {
 				LOG.error(String.format("Error while parsing value for parameter %s", param), ex);
-				throw new SPARQLExtException();
+				throw new SPARQLExtException(ex);
 			}
 		}
 		return Lists.newArrayList(bindingBuilder.build());
