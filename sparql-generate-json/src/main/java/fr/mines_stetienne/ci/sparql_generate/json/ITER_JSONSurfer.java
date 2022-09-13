@@ -138,7 +138,7 @@ public class ITER_JSONSurfer extends IteratorStreamFunctionBase {
 				Node compressed = LogUtils.compress(json.asNode());
 				LOG.debug("No evaluation for " + compressed + ", " + jsonquery);
 			}
-			throw new ExprEvalException("No evaluation for " + jsonquery);
+			throw new ExprEvalException("No evaluation for " + jsonquery, ex);
 		} catch (JsonSurfingException ex) {
 			throw new JsonSurfingException(ex);
 		} catch (Exception ex) {
@@ -146,7 +146,7 @@ public class ITER_JSONSurfer extends IteratorStreamFunctionBase {
 				Node compressed = LogUtils.compress(json.asNode());
 				LOG.debug("No evaluation for " + compressed + ", " + jsonquery);
 			}
-			throw new ExprEvalException("No evaluation for " + jsonquery);
+			throw new ExprEvalException("No evaluation for " + jsonquery, ex);
 		}
 	}
 

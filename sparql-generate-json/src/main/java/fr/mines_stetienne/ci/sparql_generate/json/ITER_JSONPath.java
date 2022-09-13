@@ -204,7 +204,7 @@ public class ITER_JSONPath extends IteratorFunctionBase {
                 Node compressed = LogUtils.compress(json.asNode());
                 LOG.debug("No evaluation for " + compressed + ", " + jsonquery, ex);
             }
-            throw new ExprEvalException("No evaluation for " + jsonquery);
+            throw new ExprEvalException("No evaluation for " + jsonquery, ex);
         }
     }
 

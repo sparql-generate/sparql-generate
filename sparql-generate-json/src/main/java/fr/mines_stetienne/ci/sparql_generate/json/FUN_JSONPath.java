@@ -118,7 +118,7 @@ public final class FUN_JSONPath extends FunctionBase2 {
 				Node compressed = LogUtils.compress(json.asNode());
 				LOG.debug("No evaluation of " + compressed + ", " + jsonpath);
 			}
-			throw new ExprEvalException("No evaluation of " + jsonpath);
+			throw new ExprEvalException("No evaluation of " + jsonpath, ex);
 		}
 	}
 
