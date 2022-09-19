@@ -15,6 +15,7 @@
  */
 package fr.mines_stetienne.ci.sparql_generate.engine;
 
+import fr.mines_stetienne.ci.sparql_generate.utils.ContextUtils;
 import fr.mines_stetienne.ci.sparql_generate.utils.LogUtils;
 import fr.mines_stetienne.ci.sparql_generate.SPARQLExtException;
 import fr.mines_stetienne.ci.sparql_generate.iterator.IteratorFunction;
@@ -128,8 +129,14 @@ public class IteratorPlan implements BindingsClausePlan {
             	iterator.exec(binding, exprList, env, (nodeValues) -> batches.add(binding, nodeValues));
             } catch (ExprEvalException ex) {
                 LOG.debug("No evaluation for " + this + ", caused by " + ex.getMessage());
+                if (ContextUtils.isFailOnException(context)) {
+                    throw ex;
+                }
             } catch (Exception ex) {
                 LOG.warn("Unanticipated exception for " + toString(), ex);
+                if (ContextUtils.isFailOnException(context)) {
+                    throw ex;
+                }
             }
         }
         LOG.trace("some batches are incomplete ?");

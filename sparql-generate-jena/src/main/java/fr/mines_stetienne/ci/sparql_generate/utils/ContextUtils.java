@@ -90,8 +90,10 @@ public class ContextUtils {
 	private static final Symbol LIST_NODES = SystemARQ.allocSymbol(NS, "list_nodes");
 
 	private static final Node[] NIL = new Node[] { RDF.nil.asNode() };
-	
-	static { 
+
+	private static final Symbol FAIL_ON_EXCEPTION = SystemARQ.allocSymbol(NS, "fail_on_exception");
+
+	static {
 		SPARQLExt.init();
 	}
 
@@ -150,6 +152,10 @@ public class ContextUtils {
 		return context.get(PARENT_CONTEXT) == null;
 	}
 
+	public static boolean isFailOnException(Context context) {
+		return context.get(FAIL_ON_EXCEPTION);
+	}
+
 	public static boolean isDebugStConcat(Context context) {
 		Commons commons = context.get(COMMONS);
 		return commons.debugTemplate;
@@ -180,7 +186,7 @@ public class ContextUtils {
 			LOG.warn("Exception while closing context:", ex);
 		}
 	}
-	
+
 	public static IndentedWriter getTemplateOutput(Context context) {
 		IndentedWriter writer = context.get(OUTPUT_TEMPLATE);
 		if(writer != null) {
@@ -192,7 +198,7 @@ public class ContextUtils {
 		}
 		return null;
 	}
-	
+
 	public static Consumer<ResultSet> getSelectOutput(Context context) {
 		Consumer<ResultSet> output = context.get(OUTPUT_SELECT);
 		if(output != null) {
@@ -204,7 +210,7 @@ public class ContextUtils {
 		}
 		return null;
 	}
-	
+
 	public static StreamRDF getGenerateOutput(Context context) {
 		StreamRDF output = context.get(OUTPUT_GENERATE);
 		if(output != null) {
@@ -267,7 +273,7 @@ public class ContextUtils {
 		private final Context context;
 
 		/**
-		 * 
+		 *
 		 * @param ctx
 		 *            the context to fork
 		 */
@@ -369,6 +375,9 @@ public class ContextUtils {
 			// context.set(LIST_NODES, new HashMap<>());
 
 			context.set(COMMONS, commons);
+
+			// default fail on exception is false
+			context.set(FAIL_ON_EXCEPTION, false);
 		}
 
 		private Builder(IndentedWriter output) {
@@ -385,7 +394,7 @@ public class ContextUtils {
 			this();
 			context.set(OUTPUT_SELECT, output);
 		}
-		
+
 		public Builder setBase(String base) {
 			context.set(BASE, base);
 			return this;
@@ -411,7 +420,7 @@ public class ContextUtils {
 			context.set(DATASET, inputDataset);
 			return this;
 		}
-		
+
 		public Builder setTemplateOutput(IndentedWriter output) {
 			context.set(OUTPUT_TEMPLATE, output);
 			return this;
@@ -432,6 +441,11 @@ public class ContextUtils {
 			return this;
 		}
 
+		public Builder setFailOnException(boolean failOnException) {
+			context.set(FAIL_ON_EXCEPTION, failOnException);
+			return this;
+		}
+
 		public Builder setExecutor(ExecutorService executor) {
 			commons.executor = executor;
 			return this;
@@ -446,7 +460,7 @@ public class ContextUtils {
 			commons.queryExecutor = queryExecutor;
 			return this;
 		}
-		
+
 		public Context build() {
 			return context;
 		}
