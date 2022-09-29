@@ -106,7 +106,7 @@ public class ITER_SQL extends IteratorStreamFunctionBase2 {
 
 		LOG.trace("Executing SQL with variables: the data base at URI: " + nodeSQL + "\t with query:\t" + querySQL);
 		try (Connection connectionSQL = getConnection(nodeSQL)){
-			LOG.trace("Connected successfuly to " + nodeSQL);
+			LOG.trace("Connected successfully to " + nodeSQL);
 			getListSQL(connectionSQL, querySQL, consumer);
 		} catch (Exception ex) {
 			LOG.warn("Can not connect to the data base", ex);
@@ -115,7 +115,7 @@ public class ITER_SQL extends IteratorStreamFunctionBase2 {
 
 	}
 
-	public static Connection getConnection(NodeValue sql) throws Exception {
+	public Connection getConnection(NodeValue sql) throws Exception {
 		if (sql.isIRI()) {
 			String sqlPath = sql.asNode().getURI();
 			try {
@@ -133,13 +133,13 @@ public class ITER_SQL extends IteratorStreamFunctionBase2 {
 		}
 	}
 
-	public static void getListSQL(Connection conn, NodeValue querySQL, Consumer<List<List<NodeValue>>> consumer) {
+	public void getListSQL(Connection conn, NodeValue querySQL, Consumer<List<List<NodeValue>>> consumer) {
 		if (!querySQL.isString()) {
 			String message = String.format("Second argument (the query) must be a String");
 			LOG.warn(message);
 			throw new ExprEvalException(message);
 		} else {
-			LOG.trace("Exceuting the quey: " + querySQL.asString());
+			LOG.trace("Executing the query: " + querySQL.asString());
 			try (PreparedStatement ps = conn.prepareStatement(querySQL.asString()); ResultSet rs = ps.executeQuery()) {
 				ResultSetMetaData rsmd = rs.getMetaData();
 				int columnCount = rsmd.getColumnCount();
@@ -159,7 +159,11 @@ public class ITER_SQL extends IteratorStreamFunctionBase2 {
 		}
 	}
 
-	private static NodeValue getNodeValueForCell(ResultSet rs, ResultSetMetaData rsmd, int i) throws SQLException {
+	private NodeValue getNodeValueForCell(ResultSet rs, ResultSetMetaData rsmd, int i) throws SQLException {
+		if (rs.getObject(i) == null) {
+			return null;
+		}
+
 		switch (rsmd.getColumnType(i)) {
 		case Types.NULL:
 			return null;
