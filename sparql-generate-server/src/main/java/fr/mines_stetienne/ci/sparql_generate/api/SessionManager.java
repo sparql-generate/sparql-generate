@@ -25,7 +25,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.websocket.Session;
 
-import org.apache.jena.ext.com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.apache.log4j.Level;
 
 import com.google.gson.Gson;

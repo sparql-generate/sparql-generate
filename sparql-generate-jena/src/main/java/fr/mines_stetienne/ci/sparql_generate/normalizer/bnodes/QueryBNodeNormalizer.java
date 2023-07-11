@@ -132,7 +132,7 @@ public class QueryBNodeNormalizer {
         // replaced by a varible assigned to bnode() in this query 
         final VarExprList postSelect = query.getPostSelect();
         for (String label : Sets.intersection(assignNeeded, assign.keySet())) {
-            postSelect.add(assign.get(label), new E_BNode());
+            postSelect.add(assign.get(label), E_BNode.create());
         }
 
         // the labels in assignNeeded that are also keys of assignSuper need to be 

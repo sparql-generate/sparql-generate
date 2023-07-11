@@ -278,7 +278,8 @@ public class ContextUtils {
 		 *            the context to fork
 		 */
 		private Forker(Context ctx, boolean isRoot) {
-			context = new Context(ctx);
+			context = Context.create();
+			context.putAll(ctx);
 			context.set(SysRIOT.sysStreamManager,
 					context.get(SysRIOT.sysStreamManager, SPARQLExtStreamManager.makeStreamManager()));
 			context.set(BASE, context.get(BASE));
@@ -347,7 +348,8 @@ public class ContextUtils {
 		private final Commons commons;
 
 		private Builder() {
-			this.context = new Context(ARQ.getContext());
+			this.context = Context.create();
+			this.context.putAll(ARQ.getContext());
 			this.commons = new Commons();
 
 			// update functionregistry
