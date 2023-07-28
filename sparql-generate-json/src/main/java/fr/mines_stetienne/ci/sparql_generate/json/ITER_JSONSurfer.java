@@ -247,7 +247,7 @@ public class ITER_JSONSurfer extends IteratorStreamFunctionBase {
 
 			List<NodeValue> nodeValues = new ArrayList<>(subqueries.length);
 
-			NodeValue node = function.nodeForObject(value);
+			NodeValue node = function.nodeForObject(jsonProvider.unwrap(value));
 
 			nodeValues.add(node);
 
