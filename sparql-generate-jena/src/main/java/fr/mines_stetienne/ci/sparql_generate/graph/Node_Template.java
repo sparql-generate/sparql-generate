@@ -15,7 +15,7 @@
  */
 package fr.mines_stetienne.ci.sparql_generate.graph;
 
-import org.apache.jena.ext.com.google.common.base.Objects;
+import com.google.common.base.Objects;
 import org.apache.jena.graph.NodeVisitor;
 
 import fr.mines_stetienne.ci.sparql_generate.query.SPARQLExtQuery;

@@ -46,6 +46,7 @@ import org.apache.jena.sparql.syntax.ElementDataset;
 import org.apache.jena.sparql.syntax.ElementExists;
 import org.apache.jena.sparql.syntax.ElementFilter;
 import org.apache.jena.sparql.syntax.ElementGroup;
+import org.apache.jena.sparql.syntax.ElementLateral;
 import org.apache.jena.sparql.syntax.ElementMinus;
 import org.apache.jena.sparql.syntax.ElementNamedGraph;
 import org.apache.jena.sparql.syntax.ElementNotExists;
@@ -530,6 +531,15 @@ public class SPARQLExtFormatterElement extends SPARQLExtFormatterBase implements
         out.incIndent(INDENT);
         out.newline();
         visitAsGroup(el.getOptionalElement());
+        out.decIndent(INDENT);
+    }
+
+    @Override
+    public void visit(ElementLateral el) {
+        out.print("LATERAL");
+        out.incIndent(INDENT);
+        out.newline();
+        visitAsGroup(el.getLateralElement());
         out.decIndent(INDENT);
     }
 

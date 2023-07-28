@@ -69,7 +69,7 @@ public class LocatorStringMap extends LocatorAcceptBase {
                     return new TypedInputStream(IOUtils.toInputStream(doc.message, "UTF-8"), doc.mediaType);
                 }
             }
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             LOG.error("error", ex);
         }
         return null;

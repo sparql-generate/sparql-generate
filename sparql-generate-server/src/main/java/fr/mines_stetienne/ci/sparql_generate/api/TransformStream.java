@@ -272,7 +272,7 @@ public class TransformStream {
 			Model model = ModelFactory.createDefaultModel();
 			try {
 				RDFDataMgr.read(model, IOUtils.toInputStream(ng.string, "UTF-8"), BASE, Lang.TTL);
-			} catch (IOException ex) {
+			} catch (Exception ex) {
 				logError(sessionManager, "WARN: unable to parse graph " + ng.uri, ex);
 			}
 			dataset.addNamedModel(ng.uri, model);

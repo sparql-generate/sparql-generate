@@ -95,7 +95,7 @@ public class ITER_MQTTSubscribe extends IteratorStreamFunctionBase {
         try {
             String messageString = IOUtils.toString(message, StandardCharsets.UTF_8.name());
             return new NodeValueString(messageString);
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             LOG.warn("Exception while parsing message " + new String(message), ex);
             return null;
         }

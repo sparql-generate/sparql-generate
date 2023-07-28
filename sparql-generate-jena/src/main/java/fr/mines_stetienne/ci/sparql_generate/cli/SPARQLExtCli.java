@@ -54,7 +54,6 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.io.IOUtils;
 import org.apache.jena.atlas.io.IndentedWriter;
-import org.apache.jena.ext.com.google.common.collect.Lists;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.query.Dataset;
@@ -82,6 +81,7 @@ import org.rdfhdt.hdt.hdt.HDT;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 
