@@ -16,7 +16,7 @@ if [ -z "$(git status --porcelain)" ]; then
   git push --delete origin v$releaseVersion
   git push
   git push origin v$releaseVersion && \
-  mvn deploy -P deploy
+  mvn deploy -P deploy --file 'sparql-generate-parent/pom.xml'
   # nextVersion=$(semver -i patch $releaseVersion)-SNAPSHOT && \
   # mvn -B versions:set -DnewVersion=$nextVersion --file 'sparql-generate-parent/pom.xml' && \
   # git commit -am "prepare next version $nextVersion" && \
