@@ -40,3 +40,5 @@ make.sh
 # SPARQL-Generate output and log
 *.rqglog
 *.out
+
+bin
