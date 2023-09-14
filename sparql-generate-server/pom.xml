@@ -113,7 +113,7 @@
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-servlets</artifactId>
-            <version>9.4.14.v20181114</version>
+            <version>9.4.52.v20230823</version>
         </dependency>
 
     </dependencies>
@@ -151,7 +151,7 @@
                     <dependency>
                         <groupId>org.eclipse.jetty</groupId>
                         <artifactId>jetty-servlets</artifactId>
-                        <version>9.4.14.v20181114</version>
+                        <version>9.4.52.v20230823</version>
                     </dependency>
                 </dependencies>
             </plugin>
