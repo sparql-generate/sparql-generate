@@ -261,6 +261,7 @@ public class ITER_CSV extends IteratorStreamFunctionBase {
             parserSettings.getFormat().setDelimiter(delimiter);
             parserSettings.getFormat().setLineSeparator(lineSeparator);
             parserSettings.setMaxColumns(2500);
+            parserSettings.setMaxCharsPerColumn(-1);
             LOG.trace("\tWith custom CSV configuration: header: " + header + ", quote character: '" + quote + "', delimiter character: '" + delimiter + "', line separator: '" + lineSeparator);
         } else {
             LOG.debug("\tWith default CSV parser settings.");
