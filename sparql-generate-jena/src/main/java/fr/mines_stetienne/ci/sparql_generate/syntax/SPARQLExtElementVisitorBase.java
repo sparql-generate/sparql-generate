@@ -31,6 +31,7 @@ import org.apache.jena.sparql.syntax.ElementPathBlock;
 import org.apache.jena.sparql.syntax.ElementService;
 import org.apache.jena.sparql.syntax.ElementSubQuery;
 import org.apache.jena.sparql.syntax.ElementTriplesBlock;
+import org.apache.jena.sparql.syntax.ElementUnfold;
 import org.apache.jena.sparql.syntax.ElementUnion;
 
 /**
@@ -94,6 +95,10 @@ public class SPARQLExtElementVisitorBase implements SPARQLExtElementVisitor {
 
     @Override
     public void visit(ElementBind el) {
+    }
+
+    @Override
+    public void visit(ElementUnfold el) {
     }
 
     @Override

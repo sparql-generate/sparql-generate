@@ -25,12 +25,17 @@
 		</contributor>
 	</contributors>
 
-    
+
     <dependencies>
         <dependency>
             <groupId>fr.mines-stetienne.ci.sparql-generate</groupId>
             <artifactId>sparql-generate-jena</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.5.14</version>
         </dependency>
     </dependencies>
 </project>

@@ -25,6 +25,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.jena.datatypes.RDFDatatype;
 import org.apache.jena.graph.BlankNodeId;
 import org.apache.jena.graph.Graph;
 import org.apache.jena.graph.Node;
@@ -190,7 +192,7 @@ public class NodeExprNormalizer implements SPARQLExtNodeVisitor {
         final ExprList args = new ExprList();
         final List<Expr> components = node.getComponents();
         for (Expr e : components) {
-            Expr n = new E_Str(nzer.normalize(e));            
+            Expr n = new E_Str(nzer.normalize(e));
             args.add(n);
         }
         final Expr str = new E_StrConcat(args);
@@ -252,7 +254,7 @@ public class NodeExprNormalizer implements SPARQLExtNodeVisitor {
         this.result = result;
         return null;
     }
-    
+
 
     /**
      * {@inheritDoc
@@ -267,7 +269,7 @@ public class NodeExprNormalizer implements SPARQLExtNodeVisitor {
      * {@inheritDoc
      */
     @Override
-    public Object visitBlank(Node_Blank it, BlankNodeId id) {
+    public Object visitBlank(Node_Blank it, String id) {
         result = it;
         return null;
     }
@@ -276,7 +278,7 @@ public class NodeExprNormalizer implements SPARQLExtNodeVisitor {
      * {@inheritDoc
      */
     @Override
-    public Object visitLiteral(Node_Literal it, LiteralLabel lit) {
+    public Object visitLiteral(Node_Literal it, String lex, String lang, RDFDatatype dtype) {
         result = it;
         return null;
     }

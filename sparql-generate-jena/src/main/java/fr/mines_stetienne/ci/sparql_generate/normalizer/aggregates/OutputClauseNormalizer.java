@@ -33,6 +33,7 @@ import org.apache.jena.sparql.syntax.ElementPathBlock;
 import org.apache.jena.sparql.syntax.ElementService;
 import org.apache.jena.sparql.syntax.ElementSubQuery;
 import org.apache.jena.sparql.syntax.ElementTriplesBlock;
+import org.apache.jena.sparql.syntax.ElementUnfold;
 import org.apache.jena.sparql.syntax.ElementUnion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,7 +66,7 @@ public class OutputClauseNormalizer implements SPARQLExtElementVisitor {
     public OutputClauseNormalizer(ExprNormalizer enzer) {
         this.enzer = enzer;
     }
-    
+
     public Element getResult() {
     	return result;
     }
@@ -149,6 +150,11 @@ public class OutputClauseNormalizer implements SPARQLExtElementVisitor {
 
     @Override
     public void visit(ElementBind el) {
+        LOG.warn("Should not reach this point");
+    }
+
+    @Override
+    public void visit(ElementUnfold el) {
         LOG.warn("Should not reach this point");
     }
 
