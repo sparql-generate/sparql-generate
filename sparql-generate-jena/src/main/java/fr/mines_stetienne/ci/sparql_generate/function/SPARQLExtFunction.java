@@ -32,6 +32,7 @@ import org.apache.jena.sparql.expr.ExprList;
 import org.apache.jena.sparql.expr.NodeValue;
 import org.apache.jena.sparql.function.Function;
 import org.apache.jena.sparql.function.FunctionEnv;
+import org.apache.jena.sparql.util.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,7 +58,7 @@ public class SPARQLExtFunction implements Function {
     }
 
     @Override
-    public void build(String uri, ExprList args) {
+    public void build(String uri, ExprList args, Context context) {
     }
 
     @Override

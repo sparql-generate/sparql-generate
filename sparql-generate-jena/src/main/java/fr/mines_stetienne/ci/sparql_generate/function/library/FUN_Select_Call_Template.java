@@ -55,7 +55,7 @@ public class FUN_Select_Call_Template implements Function {
     public static String URI = SPARQLExt.FUN + "select-call-template";
 
     @Override
-    public final void build(String uri, ExprList args) {
+    public final void build(String uri, ExprList args, Context context) {
         if (args.size() < 2) {
             throw new ExprEvalException("Expecting at least two arguments");
         }
@@ -103,7 +103,7 @@ public class FUN_Select_Call_Template implements Function {
 	        List<Binding> bindings = new ArrayList<>();
 	        bindings.add(binding);
 	        ResultSet resultSet = selectPlan.execSelect(bindings, context);
-	        
+
 	        for(;resultSet.hasNext();) {
 	            Binding newBinding = resultSet.nextBinding();
 	            callParameters.add(EvalUtils.eval(callArgs, newBinding, env));
