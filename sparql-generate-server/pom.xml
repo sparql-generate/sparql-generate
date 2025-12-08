@@ -3,9 +3,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>fr.mines-stetienne.ci.sparql-generate</groupId>
+        <groupId>com.accurids.sparql-generate</groupId>
         <artifactId>sparql-generate-parent</artifactId>
-        <version>2.1.2-SNAPSHOT</version>
+        <version>3.0.0</version>
         <relativePath>../sparql-generate-parent/pom.xml</relativePath>
     </parent>
 
@@ -15,7 +15,7 @@
     <name>SPARQL-Generate Server</name>
     <description>The source of the API for the demonstration website of SPARQL-Generate</description>
     <url>https://ci.mines-stetienne.fr/sparql-generate/</url>
-    
+
     <properties>
         <endorsed.dir>${project.build.directory}/endorsed</endorsed.dir>
         <jetty.version>9.4.14.v20181114</jetty.version>
@@ -26,52 +26,52 @@
 
     <dependencies>
         <dependency>
-            <groupId>fr.mines-stetienne.ci.sparql-generate</groupId>
+            <groupId>com.accurids.sparql-generate</groupId>
             <artifactId>sparql-generate-jena</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>fr.mines-stetienne.ci.sparql-generate</groupId>
+            <groupId>com.accurids.sparql-generate</groupId>
             <artifactId>sparql-generate-csv</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>fr.mines-stetienne.ci.sparql-generate</groupId>
+            <groupId>com.accurids.sparql-generate</groupId>
             <artifactId>sparql-generate-geojson</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>fr.mines-stetienne.ci.sparql-generate</groupId>
+            <groupId>com.accurids.sparql-generate</groupId>
             <artifactId>sparql-generate-json</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>fr.mines-stetienne.ci.sparql-generate</groupId>
+            <groupId>com.accurids.sparql-generate</groupId>
             <artifactId>sparql-generate-markdown</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>fr.mines-stetienne.ci.sparql-generate</groupId>
+            <groupId>com.accurids.sparql-generate</groupId>
             <artifactId>sparql-generate-mqtt</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>fr.mines-stetienne.ci.sparql-generate</groupId>
+            <groupId>com.accurids.sparql-generate</groupId>
             <artifactId>sparql-generate-ws</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>fr.mines-stetienne.ci.sparql-generate</groupId>
+            <groupId>com.accurids.sparql-generate</groupId>
             <artifactId>sparql-generate-xml</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>fr.mines-stetienne.ci.sparql-generate</groupId>
+            <groupId>com.accurids.sparql-generate</groupId>
             <artifactId>sparql-generate-webapis</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>fr.mines-stetienne.ci.sparql-generate</groupId>
+            <groupId>com.accurids.sparql-generate</groupId>
             <artifactId>sparql-generate-binary</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -120,7 +120,7 @@
 
     <build>
         <finalName>${websiteName}</finalName>
-  
+
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

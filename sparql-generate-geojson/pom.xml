@@ -3,9 +3,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>fr.mines-stetienne.ci.sparql-generate</groupId>
+        <groupId>com.accurids.sparql-generate</groupId>
         <artifactId>sparql-generate-parent</artifactId>
-        <version>2.1.2-SNAPSHOT</version>
+        <version>3.0.0</version>
         <relativePath>../sparql-generate-parent/pom.xml</relativePath>
     </parent>
 
@@ -13,7 +13,7 @@
     <name>SPARQL-Generate for GeoJSON</name>
     <packaging>jar</packaging>
 
-    
+
     <contributors>
         <contributor>
             <name>El Mehdi Khalfi</name>
@@ -27,7 +27,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>fr.mines-stetienne.ci.sparql-generate</groupId>
+            <groupId>com.accurids.sparql-generate</groupId>
             <artifactId>sparql-generate-jena</artifactId>
             <version>${project.version}</version>
         </dependency>

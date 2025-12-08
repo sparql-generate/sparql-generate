@@ -15,7 +15,7 @@ To use it in your Maven project, add the following dependency declaration to you
 
 ```xml
 <dependency>
-    <groupId>fr.mines-stetienne.ci.sparql-generate</groupId>
+    <groupId>com.accurids.sparql-generate</groupId>
     <artifactId>sparql-generate-jena</artifactId>
     <version>x.y.z</version>
 </dependency>
@@ -25,7 +25,7 @@ Separate artifacts contain binding and iterator functions for different file for
 
 ```xml
 <dependency>
-    <groupId>fr.mines-stetienne.ci.sparql-generate</groupId>
+    <groupId>com.accurids.sparql-generate</groupId>
     <artifactId>sparql-generate-json</artifactId>
     <version>x.y.z</version>
 </dependency>
@@ -35,7 +35,7 @@ Artifact `sparql-generate-all` aggregates binding and iterator functions for all
 
 ```xml
 <dependency>
-    <groupId>fr.mines-stetienne.ci.sparql-generate</groupId>
+    <groupId>com.accurids.sparql-generate</groupId>
     <artifactId>sparql-generate-all</artifactId>
     <version>x.y.z</version>
 </dependency>
@@ -150,7 +150,7 @@ And dependency
 
 ```xml
 <dependency>
-    <groupId>fr.mines-stetienne.ci.sparql-generate</groupId>
+    <groupId>com.accurids.sparql-generate</groupId>
     <artifactId>sparql-generate-all</artifactId>
     <version>x.y.z-SNAPSHOT</version>
 </dependency>
