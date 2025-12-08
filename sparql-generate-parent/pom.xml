@@ -3,9 +3,9 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>fr.mines-stetienne.ci.sparql-generate</groupId>
+	<groupId>com.accurids.sparql-generate</groupId>
 	<artifactId>sparql-generate-parent</artifactId>
-	<version>2.1.2-SNAPSHOT</version>
+	<version>2025.12.0</version>
 	<packaging>pom</packaging>
 
 	<name>SPARQL-Generate-Parent</name>
@@ -51,7 +51,7 @@
 	<scm>
 		<url>https://github.com/sparql-generate/sparql-generate</url>
 	</scm>
-	
+
 	<issueManagement>
 		<system>GitHub Issues</system>
 		<url>http://github.com/sparql-generate/sparql-generate/issues</url>
@@ -65,10 +65,15 @@
 	</licenses>
 
 	<distributionManagement>
+		<repository>
+			<id>github</id>
+			<name>GitHub Packages</name>
+			<url>https://maven.pkg.github.com/ACCURIDS/sparql-generate</url>
+		</repository>
 		<snapshotRepository>
-			<id>ossrh</id>
-			<name>Sonatype Nexus Snapshots</name>
-			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+			<id>github</id>
+			<name>GitHub Packages</name>
+			<url>https://maven.pkg.github.com/ACCURIDS/sparql-generate</url>
 		</snapshotRepository>
 	</distributionManagement>
 
@@ -188,7 +193,7 @@
 					<artifactId>maven-war-plugin</artifactId>
 					<version>3.3.1</version>
 				</plugin>
-				
+
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>
