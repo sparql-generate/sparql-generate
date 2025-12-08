@@ -18,7 +18,8 @@ package fr.mines_stetienne.ci.sparql_generate.graph;
 import java.util.Objects;
 import java.util.UUID;
 import org.apache.jena.graph.NodeVisitor;
-import org.apache.jena.graph.Node_Concrete;
+import org.apache.jena.graph.Node_Ext;
+import org.apache.jena.shared.PrefixMapping;
 import org.apache.jena.sparql.expr.Expr;
 
 /**
@@ -27,7 +28,7 @@ import org.apache.jena.sparql.expr.Expr;
  *
  * @author Maxime Lefrançois
  */
-public class Node_List extends Node_Concrete {
+public class Node_List extends Node_Ext<String> {
 
     /**
      * The SPARQL expression specified in this node.
@@ -60,7 +61,7 @@ public class Node_List extends Node_Concrete {
      * @return
      */
     public String getLabel() {
-        return (String) label;
+        return get();
     }
 
     /**
@@ -74,6 +75,11 @@ public class Node_List extends Node_Concrete {
         return null;
     }
 
+    @Override
+    public boolean isConcrete() {
+        return true;
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -81,10 +87,15 @@ public class Node_List extends Node_Concrete {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("NodeList ")
-                .append(label)
+                .append(get())
                 .append(" -> ")
                 .append(expr.toString());
         return sb.toString();
+    }
+
+    @Override
+    public String toString(PrefixMapping pm) {
+        return toString();
     }
 
     /**

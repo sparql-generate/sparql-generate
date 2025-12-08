@@ -43,6 +43,7 @@ import org.apache.jena.sparql.expr.NodeValue;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueString;
 import org.apache.jena.sparql.function.Function;
 import org.apache.jena.sparql.function.FunctionEnv;
+import org.apache.jena.sparql.util.Context;
 import org.apache.jena.sparql.util.ExprUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,7 +59,7 @@ public class ST_Format implements Function {
     public static String URI = ST.format;
 
     @Override
-    public final void build(String uri, ExprList args) {
+    public final void build(String uri, ExprList args, Context context) {
         if (args.size() < 1) {
             throw new ExprEvalException("Expecting at least one argument");
         }
