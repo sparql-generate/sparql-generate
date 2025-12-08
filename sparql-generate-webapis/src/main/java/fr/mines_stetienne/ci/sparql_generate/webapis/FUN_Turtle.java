@@ -30,6 +30,7 @@ import org.apache.jena.sparql.expr.NodeValue;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueNode;
 import org.apache.jena.sparql.function.Function;
 import org.apache.jena.sparql.function.FunctionEnv;
+import org.apache.jena.sparql.util.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,7 +55,7 @@ public final class FUN_Turtle implements Function {
 	private static RDFDatatype dt = TypeMapper.getInstance().getSafeTypeByName(datatypeUri);
 
 	@Override
-	public final void build(String uri, ExprList args) {
+	public final void build(String uri, ExprList args, Context context) {
 		if (args.size() != 0) {
 			throw new ExprEvalException("Expecting zero arguments");
 		}

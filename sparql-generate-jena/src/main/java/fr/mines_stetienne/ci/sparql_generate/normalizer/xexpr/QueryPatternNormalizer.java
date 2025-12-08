@@ -44,6 +44,7 @@ import org.apache.jena.sparql.syntax.ElementPathBlock;
 import org.apache.jena.sparql.syntax.ElementService;
 import org.apache.jena.sparql.syntax.ElementSubQuery;
 import org.apache.jena.sparql.syntax.ElementTriplesBlock;
+import org.apache.jena.sparql.syntax.ElementUnfold;
 import org.apache.jena.sparql.syntax.ElementUnion;
 import org.apache.jena.sparql.syntax.ElementVisitor;
 
@@ -90,7 +91,7 @@ public class QueryPatternNormalizer implements ElementVisitor {
             Node p = nenzer.getResult();
             t.getObject().visitWith(nenzer);
             Node o = nenzer.getResult();
-            nzed.addTriple(new Triple(s, p, o));
+            nzed.addTriple(Triple.create(s, p, o));
         });
         endVisit(nzed, nenzer);
     }
@@ -109,7 +110,7 @@ public class QueryPatternNormalizer implements ElementVisitor {
             if (t.isTriple()) {
                 t.getPredicate().visitWith(nenzer);
                 Node p = nenzer.getResult();
-                nzed.addTriple(new Triple(s, p, o));
+                nzed.addTriple(Triple.create(s, p, o));
             } else {
                 t.getPath().visit(panzer);
                 Path p = panzer.getResult();
@@ -140,6 +141,13 @@ public class QueryPatternNormalizer implements ElementVisitor {
         final Var var = el.getVar();
         final Expr nzed = enzer.normalize(el.getExpr());
         result = new ElementBind(var, nzed);
+    }
+
+    @Override
+    public void visit(ElementUnfold el) {
+        final ExprNormalizer enzer = new ExprNormalizer();
+        final Expr nzed = enzer.normalize(el.getExpr());
+        result = new ElementUnfold(nzed, el.getVar1(), el.getVar2());
     }
 
     @Override

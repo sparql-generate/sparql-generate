@@ -54,7 +54,7 @@ public class ST_Call_Template implements Function {
     public static String URI = ST.callTemplate;
 
     @Override
-    public final void build(String uri, ExprList args) {
+    public final void build(String uri, ExprList args, Context context) {
         if (args.size() < 1) {
             throw new ExprEvalException("Expecting at least one argument");
         }

@@ -114,7 +114,7 @@ public class LogUtils {
 
     public static Triple compress(Triple t) {
         Node o = compress(t.getObject());
-        return new Triple(t.getSubject(), t.getPredicate(), o);
+        return Triple.create(t.getSubject(), t.getPredicate(), o);
     }
 
     public static Node compress(Node n) {

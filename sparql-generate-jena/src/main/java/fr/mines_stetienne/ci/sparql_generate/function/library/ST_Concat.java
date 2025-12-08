@@ -54,7 +54,7 @@ public class ST_Concat implements Function {
     public static final String URI = ST.concat;
 
     @Override
-    public final void build(String uri, ExprList args) {
+    public final void build(String uri, ExprList args, Context context) {
         if (args.size() < 1) {
             throw new ExprEvalException("Expecting at least one argument");
         }

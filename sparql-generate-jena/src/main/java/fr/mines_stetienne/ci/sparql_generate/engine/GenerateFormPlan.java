@@ -136,16 +136,16 @@ public class GenerateFormPlan implements GeneratePlan {
         // potentially substitute subject and predicate
         Node s2 = subst(subject, bNodeMap);
         Node p2 = subst(predicate, bNodeMap);
-        Triple t = new Triple(s2, p2, first);
+        Triple t = Triple.create(s2, p2, first);
         Triple t2 = Substitute.substitute(t, binding);
         outputIfConcrete(sb, outputStream, t2);
         // potentially substitute var
         Node var2 = subst(var, bNodeMap);
         Node var2sub = Substitute.substitute(var2, binding);
-        Triple tfirst = new Triple(current, FIRST, var2sub);
+        Triple tfirst = Triple.create(current, FIRST, var2sub);
         outputIfConcrete(sb, outputStream, tfirst);
         // nothing to substitute here
-        Triple tRest = new Triple(current, REST, next);
+        Triple tRest = Triple.create(current, REST, next);
         outputIfConcrete(sb, outputStream, tRest);
     }
 

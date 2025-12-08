@@ -28,6 +28,7 @@ import org.apache.jena.sparql.expr.NodeValue;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueString;
 import org.apache.jena.sparql.function.Function;
 import org.apache.jena.sparql.function.FunctionEnv;
+import org.apache.jena.sparql.util.Context;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 
@@ -50,7 +51,7 @@ public final class FUN_PrefixedIRI implements Function {
     public static final String URI = SPARQLExt.FUN + "prefixedIRI";
 
     @Override
-    public final void build(String uri, ExprList args) {
+    public final void build(String uri, ExprList args, Context context) {
         if (args.size() < 1) {
             throw new ExprEvalException("Expecting at least one argument");
         }
@@ -87,7 +88,7 @@ public final class FUN_PrefixedIRI implements Function {
 
         String longIRI = node.asNode().getURI();
         Dataset dataset = ContextUtils.getDataset(env.getContext());
-        
+
         final Map<String, String> prefixMap = dataset.getDefaultModel().getNsPrefixMap();
         final Set<String> prefixes = prefixMap.keySet();
         String prefix = null;
