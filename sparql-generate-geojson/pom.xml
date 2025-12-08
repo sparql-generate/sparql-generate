@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.accurids.sparql-generate</groupId>
         <artifactId>sparql-generate-parent</artifactId>
-        <version>3.0.0</version>
+        <version>2025.12.0</version>
         <relativePath>../sparql-generate-parent/pom.xml</relativePath>
     </parent>
 
