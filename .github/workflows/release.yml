@@ -18,7 +18,7 @@ jobs:
           java-version: 11
 
       - name: Cache Maven packages
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
@@ -46,7 +46,7 @@ jobs:
           prerelease: ${{ steps.vars.outputs.prerelease }}
 
       - name: Upload Release Asset jar
-        id: upload_jar 
+        id: upload_jar
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -57,7 +57,7 @@ jobs:
           asset_content_type: application/java-archive
 
       - name: Upload Release Asset javadoc
-        id: upload_javadoc 
+        id: upload_javadoc
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -66,9 +66,9 @@ jobs:
           asset_path: sparql-generate-all/target/sparql-generate-all-${{ steps.vars.outputs.version }}-javadoc.jar
           asset_name: sparql-generate-${{ steps.vars.outputs.version }}-javadoc.jar
           asset_content_type: application/java-archive
-          
+
       - name: upload apidocs
-        id: scp_apidocs_javadoc 
+        id: scp_apidocs_javadoc
         uses: appleboy/scp-action@master
         with:
           source: "sparql-generate-all/target/apidocs"
@@ -77,9 +77,9 @@ jobs:
           host: ci.mines-stetienne.fr
           username: ${{ secrets.CI_USER }}
           key: ${{ secrets.CI_KEY }}
-          
+
       - name: upload war
-        id: scp_war 
+        id: scp_war
         uses: appleboy/scp-action@master
         with:
           source: "sparql-generate-server/target/sparql-generate.war"
