@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.accurids.sparql-generate</groupId>
         <artifactId>sparql-generate-parent</artifactId>
-        <version>2025.12.0</version>
+        <version>2026.05.0</version>
         <relativePath>../sparql-generate-parent/pom.xml</relativePath>
     </parent>
 
@@ -17,7 +17,7 @@
     <url>https://w3id.org/sparql-generate/</url>
 
     <properties>
-        <jena.version>5.3.0</jena.version>
+        <jena.version>5.6.0</jena.version>
     </properties>
 
     <dependencies>
