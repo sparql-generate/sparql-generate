@@ -52,7 +52,7 @@ public class HDTStreamRDF implements StreamRDF {
 	long num = 0;
 	long size = 0;
 
-	public HDTStreamRDF(String base) {
+	public HDTStreamRDF(String base) throws IOException {
 		if (base == null) {
 			base = "http://example.org/";
 		}

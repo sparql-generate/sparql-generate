@@ -97,6 +97,9 @@ public class LocatorDirectoryAccept extends LocatorAcceptBase {
             }
             log.debug("Not found: " + f);
             return null;
+        } catch (IOException ex) {
+            log.debug("IO exception: " + f, ex);
+            return null;
         }
     }
 

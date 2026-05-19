@@ -311,7 +311,13 @@ public class SPARQLExtCli {
 			LOG.error("Output needs to be set with the option HDT.");
 		}
 		final String baseURI = plan.getQuery().getBaseURI();
-		HDTStreamRDF hdtStreamRDF = new HDTStreamRDF(baseURI);
+		HDTStreamRDF hdtStreamRDF;
+		try {
+			hdtStreamRDF = new HDTStreamRDF(baseURI);
+		} catch (IOException ex) {
+			LOG.error("Error while opening the HDT stream." , ex);
+			return;
+		}
 		HDT hdt = hdtStreamRDF.getHDT();
 		Context context = builder.setGenerateOutput(hdtStreamRDF).build();
 		plan.execGenerateStream(bindings, context);
