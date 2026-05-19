@@ -236,7 +236,7 @@ public class RootPlan {
 		boolean isRoot = ContextUtils.isRootContext(context);
 		final Context newContext = ContextUtils.fork(context, isRoot).setSelectOutput(results::add).fork();
 		execSelectStream(values, newContext);
-		return ResultSetUtils.union(results.toArray(new ResultSet[results.size()]));
+		return ResultSetUtils.merge(results.toArray(new ResultSet[results.size()]));
 	}
 
 	public void execSelectStream(final Context context) {

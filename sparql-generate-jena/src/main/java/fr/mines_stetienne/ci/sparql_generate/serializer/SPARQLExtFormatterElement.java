@@ -39,6 +39,7 @@ import org.apache.jena.sparql.serializer.SerializationContext;
 import org.apache.jena.sparql.serializer.SerializerRegistry;
 import org.apache.jena.sparql.syntax.Element;
 import org.apache.jena.sparql.syntax.Element1;
+import org.apache.jena.sparql.syntax.ElementAntiJoin;
 import org.apache.jena.sparql.syntax.ElementAssign;
 import org.apache.jena.sparql.syntax.ElementBind;
 import org.apache.jena.sparql.syntax.ElementData;
@@ -52,6 +53,7 @@ import org.apache.jena.sparql.syntax.ElementNamedGraph;
 import org.apache.jena.sparql.syntax.ElementNotExists;
 import org.apache.jena.sparql.syntax.ElementOptional;
 import org.apache.jena.sparql.syntax.ElementPathBlock;
+import org.apache.jena.sparql.syntax.ElementSemiJoin;
 import org.apache.jena.sparql.syntax.ElementService;
 import org.apache.jena.sparql.syntax.ElementSubQuery;
 import org.apache.jena.sparql.syntax.ElementTriplesBlock;
@@ -551,6 +553,26 @@ public class SPARQLExtFormatterElement extends SPARQLExtFormatterBase implements
         out.incIndent(INDENT);
         out.newline();
         visitAsGroup(el.getLateralElement());
+        out.decIndent(INDENT);
+    }
+
+    @Override
+    public void visit(ElementSemiJoin el) {
+        // TODO[DP, 2026-05-19]: Did not find documentation on the semijoin syntax, this is probably not correct
+        out.print("SEMIJOIN");
+        out.incIndent(INDENT);
+        out.newline();
+        visitAsGroup(el.getSubElement());
+        out.decIndent(INDENT);
+    }
+
+    @Override
+    public void visit(ElementAntiJoin el) {
+        // TODO[DP, 2026-05-19]: Did not find documentation on the antijoin syntax, this is probably not correct
+        out.print("ANTIJOIN");
+        out.incIndent(INDENT);
+        out.newline();
+        visitAsGroup(el.getSubElement());
         out.decIndent(INDENT);
     }
 

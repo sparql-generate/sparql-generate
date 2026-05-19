@@ -15,6 +15,7 @@
  */
 package fr.mines_stetienne.ci.sparql_generate.syntax;
 
+import org.apache.jena.sparql.syntax.ElementAntiJoin;
 import org.apache.jena.sparql.syntax.ElementAssign;
 import org.apache.jena.sparql.syntax.ElementBind;
 import org.apache.jena.sparql.syntax.ElementData;
@@ -28,6 +29,7 @@ import org.apache.jena.sparql.syntax.ElementNamedGraph;
 import org.apache.jena.sparql.syntax.ElementNotExists;
 import org.apache.jena.sparql.syntax.ElementOptional;
 import org.apache.jena.sparql.syntax.ElementPathBlock;
+import org.apache.jena.sparql.syntax.ElementSemiJoin;
 import org.apache.jena.sparql.syntax.ElementService;
 import org.apache.jena.sparql.syntax.ElementSubQuery;
 import org.apache.jena.sparql.syntax.ElementTriplesBlock;
@@ -115,6 +117,14 @@ public class SPARQLExtElementVisitorBase implements SPARQLExtElementVisitor {
 
     @Override
     public void visit(ElementLateral el) {
+    }
+
+    @Override
+    public void visit(ElementSemiJoin el) {
+    }
+
+    @Override
+    public void visit(ElementAntiJoin el) {
     }
 
     @Override

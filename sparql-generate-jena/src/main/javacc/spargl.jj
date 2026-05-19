@@ -1819,7 +1819,7 @@ Node RDFLiteral() : { Token t ; String lex = null ; }
   |
     ( <DATATYPE> uri = iri() )
   )?
-    { return createLiteral(lex, lang, uri) ; }
+    { return uri!=null ? createLiteralDT(lex, uri, -1, -1) : createLiteralLang(lex, lang, -1, -1) ; }
 }
 Node XRDFLiteral() : { Token t ; Node_ExtendedLiteral.Builder n = new Node_ExtendedLiteral.Builder(); }
 {

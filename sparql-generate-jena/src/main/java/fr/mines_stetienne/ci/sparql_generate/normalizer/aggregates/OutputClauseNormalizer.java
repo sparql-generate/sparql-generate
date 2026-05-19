@@ -17,6 +17,7 @@ package fr.mines_stetienne.ci.sparql_generate.normalizer.aggregates;
 
 import org.apache.jena.sparql.expr.Expr;
 import org.apache.jena.sparql.syntax.Element;
+import org.apache.jena.sparql.syntax.ElementAntiJoin;
 import org.apache.jena.sparql.syntax.ElementAssign;
 import org.apache.jena.sparql.syntax.ElementBind;
 import org.apache.jena.sparql.syntax.ElementData;
@@ -30,6 +31,7 @@ import org.apache.jena.sparql.syntax.ElementNamedGraph;
 import org.apache.jena.sparql.syntax.ElementNotExists;
 import org.apache.jena.sparql.syntax.ElementOptional;
 import org.apache.jena.sparql.syntax.ElementPathBlock;
+import org.apache.jena.sparql.syntax.ElementSemiJoin;
 import org.apache.jena.sparql.syntax.ElementService;
 import org.apache.jena.sparql.syntax.ElementSubQuery;
 import org.apache.jena.sparql.syntax.ElementTriplesBlock;
@@ -175,6 +177,16 @@ public class OutputClauseNormalizer implements SPARQLExtElementVisitor {
 
     @Override
     public void visit(ElementLateral el) {
+        LOG.warn("Should not reach this point");
+    }
+
+    @Override
+    public void visit(ElementSemiJoin el) {
+        LOG.warn("Should not reach this point");
+    }
+
+    @Override
+    public void visit(ElementAntiJoin el) {
         LOG.warn("Should not reach this point");
     }
 
