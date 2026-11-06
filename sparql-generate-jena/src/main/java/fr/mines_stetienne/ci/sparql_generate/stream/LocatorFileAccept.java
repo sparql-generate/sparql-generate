@@ -18,6 +18,7 @@ package fr.mines_stetienne.ci.sparql_generate.stream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import org.apache.commons.io.input.BOMInputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.AccessControlException;
@@ -163,7 +164,8 @@ public class LocatorFileAccept extends LocatorAcceptBase {
         }
 
         try {
-            InputStream in = IO.openFileEx(fn);
+            // a UTF-8 byte order mark is not part of the content
+            InputStream in = new BOMInputStream(IO.openFileEx(fn));
             try {
                 String ct = Files.probeContentType(Paths.get(new File(filenameIRI).getName()));
                 return new TypedInputStream(in, ContentType.create(ct), filenameIRI);
