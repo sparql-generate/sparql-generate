@@ -203,14 +203,16 @@ public class SelectPlan {
 		}
 		List<Var> vars = qData.getVars();
 		if (!Collections.disjoint(vars, variables)) {
-			throw new SPARQLExtException("Variables " + vars.retainAll(variables) + "were already bound.");
+			List<Var> bound = new ArrayList<>(vars);
+			bound.retainAll(variables);
+			throw new SPARQLExtException("Variables " + bound + " were already bound.");
 		}
 		ElementData data = new ElementData();
 		qData.getVars().forEach(data::add);
 		variables.forEach(data::add);
 		qData.getRows().forEach((qbinding) -> {
 			values.forEach((binding) -> {
-				BindingBuilder bindingBuilder = Binding.builder();
+				BindingBuilder bindingBuilder = Binding.builder(qbinding);
 				variables.forEach((v) -> {
 					if(binding.get(v) == null) {
 						return;

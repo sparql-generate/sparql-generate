@@ -79,6 +79,7 @@ public class GenerateConformanceTest {
 	/**
 	 * Test cases that do not pass yet. Each one is either an engine defect or a
 	 * stale expected output; an entry is removed with the commit that resolves it.
+	 * Run them anyway with {@code -Dconformance.all=true}.
 	 */
 	private static final Set<String> KNOWN_FAILURES = new HashSet<>(Arrays.asList("bnode", "bnode2",
 			"chargingplan", "chargingplan2", "cordis", "generatelistjson", "geojsontest1", "geojsontest2",
@@ -108,7 +109,8 @@ public class GenerateConformanceTest {
 
 	@Test
 	public void generatesExpectedOutput() throws Exception {
-		assumeFalse("known failure: " + name, KNOWN_FAILURES.contains(name));
+		assumeFalse("known failure: " + name,
+				KNOWN_FAILURES.contains(name) && !Boolean.getBoolean("conformance.all"));
 		SPARQLExt.init();
 		FileConfigurations conf = readConfiguration(dir);
 		SPARQLExtStreamManager sm = prepareStreamManager(dir, conf);

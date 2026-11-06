@@ -1,0 +1,42 @@
+/*
+ * Copyright 2020 MINES Saint-Étienne
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package fr.mines_stetienne.ci.sparql_generate.engine;
+
+import static fr.mines_stetienne.ci.sparql_generate.engine.EngineTestUtils.assertGenerates;
+
+import org.junit.Test;
+
+/**
+ * Nested GENERATE queries: each solution of the outer query is passed to the
+ * sub-query, whose own WHERE clause is joined with it.
+ */
+public class NestedGenerateTest {
+
+	@Test
+	public void subQueryValuesAreJoinedWithOuterSolutions() {
+		assertGenerates("<http://ex/1> <http://ex/q> 1, 2 . <http://ex/2> <http://ex/q> 1, 2 .",
+				"GENERATE { GENERATE { ?s <http://ex/q> ?j } WHERE { VALUES ?j { 1 2 } } . } "
+						+ "WHERE { VALUES ?s { <http://ex/1> <http://ex/2> } }");
+	}
+
+	@Test
+	public void subQueryValuesWithSeveralVariables() {
+		assertGenerates("<http://ex/1> <http://ex/a> <http://ex/b> .",
+				"GENERATE { GENERATE { ?s ?p ?o } WHERE { VALUES (?p ?o) { (<http://ex/a> <http://ex/b>) } } . } "
+						+ "WHERE { VALUES ?s { <http://ex/1> } }");
+	}
+
+}
