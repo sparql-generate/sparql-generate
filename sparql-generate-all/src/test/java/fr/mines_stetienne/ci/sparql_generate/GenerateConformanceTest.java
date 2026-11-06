@@ -82,7 +82,7 @@ public class GenerateConformanceTest {
 	 * Run them anyway with {@code -Dconformance.all=true}.
 	 */
 	private static final Set<String> KNOWN_FAILURES = new HashSet<>(Arrays.asList(
-			"cordis", "geojsontest1", "geojsontest2", "htmltest1", "jose", "list"));
+			"cordis", "htmltest1", "jose", "list"));
 
 	private final File dir;
 
