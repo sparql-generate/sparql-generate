@@ -225,7 +225,8 @@ public class NodeExprNormalizer implements SPARQLExtNodeVisitor {
         List<Expr> components = node.getComponents();
         for (Expr e : components) {
             if (e instanceof E_URIParam) {
-                Expr subst = new E_StrEncodeForURI(nzer.normalize(((E_URIParam) e).getArg()));
+                // STR first, as for literals: ENCODE_FOR_URI only accepts strings
+                Expr subst = new E_StrEncodeForURI(new E_Str(nzer.normalize(((E_URIParam) e).getArg())));
                 args.add(nzer.normalize(subst));
             } else {
                 args.add(nzer.normalize(e));

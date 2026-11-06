@@ -84,7 +84,8 @@ public class ExprNormalizer {
     private Expr normalize(ExprFunction1 func) {
         Expr arg = normalize(func.getArg());
         if (func instanceof E_URIParam) {
-            return new E_StrEncodeForURI(arg);
+            // STR first, as for literals: ENCODE_FOR_URI only accepts strings
+            return new E_StrEncodeForURI(new E_Str(arg));
         } else {
             return func.copy(arg);
         }
