@@ -76,6 +76,12 @@
 	</dependencies>
 
 	<build>
+		<testResources>
+			<!-- the conformance test cases live next to the engine, but need every format module -->
+			<testResource>
+				<directory>${project.basedir}/../sparql-generate-jena/src/test/resources</directory>
+			</testResource>
+		</testResources>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
