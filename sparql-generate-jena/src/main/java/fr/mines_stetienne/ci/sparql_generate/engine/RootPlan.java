@@ -405,7 +405,11 @@ public class RootPlan {
 				IteratorPlan iteratorPlan = (IteratorPlan) plan;
 				iteratorPlan.exec(variables, values, context, (newValues) -> {
 					final List<Var> newVariables = new ArrayList<>(variables);
-					newVariables.addAll(iteratorPlan.getVars());
+					for (Var var : iteratorPlan.getVars()) {
+						if (!newVariables.contains(var)) {
+							newVariables.add(var);
+						}
+					}
 					execIteratorAndSourcePlans(newVariables, newValues, context, i + 1);
 					LOG.debug("Finished batch for " + iteratorPlan);
 				});

@@ -83,7 +83,7 @@ public class GenerateConformanceTest {
 	 */
 	private static final Set<String> KNOWN_FAILURES = new HashSet<>(Arrays.asList(
 			"cordis", "geojsontest1", "geojsontest2", "htmltest1", "jose", "list",
-			"poptest", "rmlproeg3", "rmlspeceg4"));
+			"poptest"));
 
 	private final File dir;
 

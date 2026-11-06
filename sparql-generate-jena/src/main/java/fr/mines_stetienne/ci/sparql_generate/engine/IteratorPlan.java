@@ -170,12 +170,15 @@ public class IteratorPlan implements BindingsClausePlan {
                 final Binding binding,
                 final List<List<NodeValue>> nodeValues) {
             final List<Binding> listBindings = new ArrayList<>();
+            // a variable of the iterator that is already bound, by an outer
+            // query, is bound anew, as in nested loops
+            final Binding parent = withoutVars(binding);
             nodeValues.forEach((listNodeValues) -> {
                 if (vars.size() > listNodeValues.size()) {
                     LOG.warn("Too many variables, some will not be bound: " + listNodeValues);
                     return;
                 }
-                final BindingBuilder bindingBuilder = Binding.builder(binding);
+                final BindingBuilder bindingBuilder = Binding.builder(parent);
                 for (int i = 0; i < vars.size(); i++) {
                     if (listNodeValues.get(i) != null) {
                         Node n = listNodeValues.get(i).asNode();
@@ -185,6 +188,19 @@ public class IteratorPlan implements BindingsClausePlan {
                 listBindings.add(bindingBuilder.build());
             });
             return listBindings;
+        }
+
+        private Binding withoutVars(final Binding binding) {
+            if (vars.stream().noneMatch(binding::contains)) {
+                return binding;
+            }
+            final BindingBuilder builder = Binding.builder();
+            binding.forEach((v, n) -> {
+                if (!vars.contains(v)) {
+                    builder.add(v, n);
+                }
+            });
+            return builder.build();
         }
 
         synchronized Batch getNextBatch(final Binding execution) {
