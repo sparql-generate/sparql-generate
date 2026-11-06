@@ -35,7 +35,6 @@ import org.apache.jena.sparql.engine.ResultSetStream;
 import org.apache.jena.sparql.engine.binding.Binding;
 import org.apache.jena.sparql.engine.binding.BindingFactory;
 import org.apache.jena.sparql.util.Context;
-import org.apache.jena.sparql.util.ResultSetUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -236,7 +235,7 @@ public class RootPlan {
 		boolean isRoot = ContextUtils.isRootContext(context);
 		final Context newContext = ContextUtils.fork(context, isRoot).setSelectOutput(results::add).fork();
 		execSelectStream(values, newContext);
-		return ResultSetUtils.union(results.toArray(new ResultSet[results.size()]));
+		return union(results);
 	}
 
 	public void execSelectStream(final Context context) {
@@ -450,6 +449,25 @@ public class RootPlan {
 				}
 			});
 		}
+	}
+
+	/**
+	 * Concatenates result sets, as ResultSetUtils.union did before Jena 5.
+	 */
+	private static ResultSet union(List<ResultSet> results) {
+		final List<String> vars = new ArrayList<>();
+		final List<Binding> bindings = new ArrayList<>();
+		for (ResultSet rs : results) {
+			for (String var : rs.getResultVars()) {
+				if (!vars.contains(var)) {
+					vars.add(var);
+				}
+			}
+			while (rs.hasNext()) {
+				bindings.add(rs.nextBinding());
+			}
+		}
+		return ResultSetStream.create(Var.varList(vars), bindings.iterator());
 	}
 
 	private void checkContextHasNoOutput(Context context) {

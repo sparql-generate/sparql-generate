@@ -15,6 +15,10 @@
  */
 package fr.mines_stetienne.ci.sparql_generate.lang;
 
+import org.apache.jena.datatypes.RDFDatatype;
+import org.apache.jena.datatypes.TypeMapper;
+import org.apache.jena.graph.Node;
+import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.sparql.lang.SPARQLParserBase;
 import fr.mines_stetienne.ci.sparql_generate.query.SPARQLExtQuery;
 import org.apache.jena.query.Query;
@@ -27,6 +31,20 @@ import org.apache.jena.sparql.core.Prologue;
  *
  */
 public class SPARQLExtParserBase extends SPARQLParserBase {
+
+    /**
+     * Creates a literal; used by rule RDFLiteral of the grammar. Jena 5 moved
+     * this method to a package-private class.
+     */
+    protected Node createLiteral(String lexicalForm, String langTag, String datatypeURI) {
+        if (datatypeURI != null) {
+            RDFDatatype dType = TypeMapper.getInstance().getSafeTypeByName(datatypeURI);
+            return NodeFactory.createLiteralDT(lexicalForm, dType);
+        } else if (langTag != null && !langTag.isEmpty()) {
+            return NodeFactory.createLiteralLang(lexicalForm, langTag);
+        }
+        return NodeFactory.createLiteralString(lexicalForm);
+    }
 
     public static String unescapeStr(String s, int line, int column) {
         s = s.replace("\\{", "{");

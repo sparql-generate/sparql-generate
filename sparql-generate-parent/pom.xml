@@ -73,10 +73,10 @@
 	</distributionManagement>
 
 	<properties>
-		<maven.compiler.source>1.8</maven.compiler.source>
-		<maven.compiler.target>1.8</maven.compiler.target>
+		<!-- Apache Jena 5 requires Java 17 -->
+		<maven.compiler.release>17</maven.compiler.release>
 		<maven.build.timestamp.format>yyyy-MM-dd'T'HH:mm:ssZ</maven.build.timestamp.format>
-		<jdk.version>1.8</jdk.version>
+		<jdk.version>17</jdk.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<skip>false</skip>
@@ -177,6 +177,9 @@
 									<requireMavenVersion>
 										<version>3.5</version>
 									</requireMavenVersion>
+									<requireJavaVersion>
+										<version>[17,)</version>
+									</requireJavaVersion>
 								</rules>
 							</configuration>
 						</execution>
@@ -192,11 +195,16 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>
-					<version>3.8.1</version>
+					<version>3.14.0</version>
 					<configuration>
-						<source>1.8</source>
-						<target>1.8</target>
+						<release>${maven.compiler.release}</release>
 					</configuration>
+				</plugin>
+
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-surefire-plugin</artifactId>
+					<version>3.5.6</version>
 				</plugin>
 
 				<plugin>

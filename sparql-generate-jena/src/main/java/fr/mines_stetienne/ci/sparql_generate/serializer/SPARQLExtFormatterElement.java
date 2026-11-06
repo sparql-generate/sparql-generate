@@ -46,7 +46,9 @@ import org.apache.jena.sparql.syntax.ElementDataset;
 import org.apache.jena.sparql.syntax.ElementExists;
 import org.apache.jena.sparql.syntax.ElementFilter;
 import org.apache.jena.sparql.syntax.ElementGroup;
+import org.apache.jena.sparql.syntax.ElementAntiJoin;
 import org.apache.jena.sparql.syntax.ElementLateral;
+import org.apache.jena.sparql.syntax.ElementSemiJoin;
 import org.apache.jena.sparql.syntax.ElementMinus;
 import org.apache.jena.sparql.syntax.ElementNamedGraph;
 import org.apache.jena.sparql.syntax.ElementNotExists;
@@ -424,12 +426,15 @@ public class SPARQLExtFormatterElement extends SPARQLExtFormatterBase implements
 
     @Override
     public void visit(ElementUnfold el) {
-        out.print("UNFOLD ");
+        out.print("UNFOLD(");
         SPARQLExtFmtExprSPARQL v = new SPARQLExtFmtExprSPARQL(out, context);
         v.format(el.getExpr());
-        out.print(" AS");
-        out.print(" " + el.getVar1());
-        out.print(" " + el.getVar2());
+        out.print(" AS ");
+        out.print("?" + el.getVar1().getVarName());
+        if (el.getVar2() != null) {
+            out.print(", ?" + el.getVar2().getVarName());
+        }
+        out.print(")");
     }
 
     @Override
@@ -551,6 +556,24 @@ public class SPARQLExtFormatterElement extends SPARQLExtFormatterBase implements
         out.incIndent(INDENT);
         out.newline();
         visitAsGroup(el.getLateralElement());
+        out.decIndent(INDENT);
+    }
+
+    @Override
+    public void visit(ElementSemiJoin el) {
+        out.print("SEMIJOIN");
+        out.incIndent(INDENT);
+        out.newline();
+        visitAsGroup(el.getSubElement());
+        out.decIndent(INDENT);
+    }
+
+    @Override
+    public void visit(ElementAntiJoin el) {
+        out.print("ANTIJOIN");
+        out.incIndent(INDENT);
+        out.newline();
+        visitAsGroup(el.getSubElement());
         out.decIndent(INDENT);
     }
 

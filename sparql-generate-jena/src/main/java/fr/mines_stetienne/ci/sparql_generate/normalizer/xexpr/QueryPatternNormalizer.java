@@ -35,7 +35,9 @@ import org.apache.jena.sparql.syntax.ElementDataset;
 import org.apache.jena.sparql.syntax.ElementExists;
 import org.apache.jena.sparql.syntax.ElementFilter;
 import org.apache.jena.sparql.syntax.ElementGroup;
+import org.apache.jena.sparql.syntax.ElementAntiJoin;
 import org.apache.jena.sparql.syntax.ElementLateral;
+import org.apache.jena.sparql.syntax.ElementSemiJoin;
 import org.apache.jena.sparql.syntax.ElementMinus;
 import org.apache.jena.sparql.syntax.ElementNamedGraph;
 import org.apache.jena.sparql.syntax.ElementNotExists;
@@ -190,7 +192,20 @@ public class QueryPatternNormalizer implements ElementVisitor {
 
     @Override
     public void visit(ElementLateral el) {
-        throw new NullPointerException("should not reach this point");
+        el.getLateralElement().visit(this);
+        result = new ElementLateral(result);
+    }
+
+    @Override
+    public void visit(ElementSemiJoin el) {
+        el.getSubElement().visit(this);
+        result = new ElementSemiJoin(result);
+    }
+
+    @Override
+    public void visit(ElementAntiJoin el) {
+        el.getSubElement().visit(this);
+        result = new ElementAntiJoin(result);
     }
 
     @Override

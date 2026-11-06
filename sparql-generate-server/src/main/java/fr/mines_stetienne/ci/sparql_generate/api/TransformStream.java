@@ -340,7 +340,7 @@ public class TransformStream {
 
 		@Override
 		public void base(String base) {
-			sc.setBaseIRI(base);
+			sc.getPrologue().setBaseURI(base);
 			sessionManager.appendGenerate("@base <" + base + "> .");
 		}
 
