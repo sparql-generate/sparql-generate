@@ -24,6 +24,7 @@ import org.apache.jena.sparql.expr.NodeValue;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueString;
 import org.apache.jena.sparql.function.Function;
 import org.apache.jena.sparql.function.FunctionEnv;
+import org.apache.jena.sparql.util.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,11 +40,11 @@ public class ST_Incr implements Function {
     private static final Logger LOG = LoggerFactory.getLogger(ST_Incr.class);
 
     public static String URI = ST.incr;
-    
+
     private static NodeValue EMPTY_NODE = new NodeValueString("");
 
     @Override
-    public final void build(String uri, ExprList args) {
+    public final void build(String uri, ExprList args, Context context) {
         if (args.size() != 0) {
             throw new ExprEvalException("Expecting zero argument");
         }

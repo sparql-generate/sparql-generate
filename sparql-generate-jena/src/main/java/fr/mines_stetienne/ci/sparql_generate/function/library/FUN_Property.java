@@ -64,7 +64,7 @@ public final class FUN_Property implements Function {
     public static final String URI = SPARQLExt.FUN + "property";
 
     @Override
-    public final void build(String uri, ExprList args) {
+    public final void build(String uri, ExprList args, Context context) {
         if (args.size() != 2) {
             throw new ExprEvalException("Expecting two argument");
         }

@@ -50,6 +50,7 @@ import org.apache.jena.sparql.syntax.ElementPathBlock;
 import org.apache.jena.sparql.syntax.ElementService;
 import org.apache.jena.sparql.syntax.ElementSubQuery;
 import org.apache.jena.sparql.syntax.ElementTriplesBlock;
+import org.apache.jena.sparql.syntax.ElementUnfold;
 import org.apache.jena.sparql.syntax.ElementUnion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -95,7 +96,7 @@ public class OutputClauseNormalizer implements SPARQLExtElementVisitor {
             Node p = nenzer.getResult();
             t.getObject().visitWith(nenzer);
             Node o = nenzer.getResult();
-            nzed.addTriple(new Triple(s, p, o));
+            nzed.addTriple(Triple.create(s, p, o));
         });
         result = nzed;
     }
@@ -192,6 +193,11 @@ public class OutputClauseNormalizer implements SPARQLExtElementVisitor {
 
     @Override
     public void visit(ElementBind el) {
+        LOG.warn("Should not reach this point");
+    }
+
+    @Override
+    public void visit(ElementUnfold el) {
         LOG.warn("Should not reach this point");
     }
 

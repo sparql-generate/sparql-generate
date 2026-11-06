@@ -43,10 +43,10 @@ import fr.mines_stetienne.ci.sparql_generate.utils.VarUtils;
  * @author Maxime Lefrançois
  */
 public class QueryBNodeNormalizer {
-    /// 
+    ///
 
-    // when there is a bnode with same label "bn" in a query and a sub*-query, 
-    //  replace all of them by a fresh variable ?bn, 
+    // when there is a bnode with same label "bn" in a query and a sub*-query,
+    //  replace all of them by a fresh variable ?bn,
     //  add (bnode() as ?bn) to the project vars of the outer query
     //  add add ?bn to the query parameters of each sub-query
     public static void normalizeCallParameters(SPARQLExtQuery query) {
@@ -121,21 +121,21 @@ public class QueryBNodeNormalizer {
                     Node s = replace(t.getSubject(), assignNeeded, assignSuper, assign);
                     Node p = replace(t.getPredicate(), assignNeeded, assignSuper, assign);
                     Node o = replace(t.getObject(), assignNeeded, assignSuper, assign);
-                    bgp.add(new Triple(s, p, o));
+                    bgp.add(Triple.create(s, p, o));
                 }
                 Element newElem = new ElementGenerateTriplesBlock(bgp);
                 query.getGenerateClause().set(i, newElem);
             }
         }
 
-        // the labels in assignNeeded that are also keys of assign need to be 
-        // replaced by a varible assigned to bnode() in this query 
+        // the labels in assignNeeded that are also keys of assign need to be
+        // replaced by a varible assigned to bnode() in this query
         final VarExprList postSelect = query.getPostSelect();
         for (String label : Sets.intersection(assignNeeded, assign.keySet())) {
             postSelect.add(assign.get(label), E_BNode.create());
         }
 
-        // the labels in assignNeeded that are also keys of assignSuper need to be 
+        // the labels in assignNeeded that are also keys of assignSuper need to be
         // replaced by a varible assigned to bnode() in a superquery.
         return Sets.intersection(assignNeeded, assignSuper.keySet());
     }

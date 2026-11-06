@@ -55,6 +55,7 @@ import org.apache.jena.sparql.syntax.ElementPathBlock;
 import org.apache.jena.sparql.syntax.ElementService;
 import org.apache.jena.sparql.syntax.ElementSubQuery;
 import org.apache.jena.sparql.syntax.ElementTriplesBlock;
+import org.apache.jena.sparql.syntax.ElementUnfold;
 import org.apache.jena.sparql.syntax.ElementUnion;
 import org.apache.jena.sparql.util.FmtUtils;
 import org.apache.jena.vocabulary.RDF;
@@ -286,7 +287,7 @@ public class SPARQLExtFormatterElement extends SPARQLExtFormatterBase implements
 
     @Override
     public void visit(ElementPathBlock el) {
-        // Write path block - don't put in a final trailing "." 
+        // Write path block - don't put in a final trailing "."
         if (el.isEmpty()) {
             out.println("# Empty BGP");
             return;
@@ -309,7 +310,7 @@ public class SPARQLExtFormatterElement extends SPARQLExtFormatterBase implements
                 if(o.isVariable()) {
                     o = Var.alloc(Var.canonical(((Var)o).getVarName()));
                 }
-                bgp.add(new Triple(s, p, o));
+                bgp.add(Triple.create(s, p, o));
                 continue;
             }
 
@@ -362,7 +363,7 @@ public class SPARQLExtFormatterElement extends SPARQLExtFormatterBase implements
 //                    if ( ! first )
 //                        out.newline() ;
 //                    out.print("FROM <") ;
-//                    String s = (String)iter.next() ; 
+//                    String s = (String)iter.next() ;
 //                    out.print(s) ;
 //                    out.print(">") ;
 //                }
@@ -419,6 +420,16 @@ public class SPARQLExtFormatterElement extends SPARQLExtFormatterBase implements
         out.print(" AS ");
         out.print("?" + el.getVar().getVarName());
         out.print(")");
+    }
+
+    @Override
+    public void visit(ElementUnfold el) {
+        out.print("UNFOLD ");
+        SPARQLExtFmtExprSPARQL v = new SPARQLExtFmtExprSPARQL(out, context);
+        v.format(el.getExpr());
+        out.print(" AS");
+        out.print(" " + el.getVar1());
+        out.print(" " + el.getVar2());
     }
 
     @Override

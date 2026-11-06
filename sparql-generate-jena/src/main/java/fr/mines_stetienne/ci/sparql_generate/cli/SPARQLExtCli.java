@@ -101,7 +101,7 @@ import fr.mines_stetienne.ci.sparql_generate.utils.ContextUtils;
 /**
  * Main class for the CLI interface to SPARQL-Generate; see {@link HDTStreamRDF}
  * for the options.
- * 
+ *
  * @author Maxime Lefrançois
  */
 public class SPARQLExtCli {
@@ -120,7 +120,7 @@ public class SPARQLExtCli {
 
 	/**
 	 * see {@link HDTStreamRDF} for the options.
-	 * 
+	 *
 	 * @param args
 	 * @throws ParseException
 	 */
@@ -180,7 +180,7 @@ public class SPARQLExtCli {
 	 * Executes SPARQL-Generate in a working directory, with {@link CliRequest}
 	 * parameters, and an optional CommandLink that contains URL-URL binding for the
 	 * sources in the main query
-	 * 
+	 *
 	 * @param workingDir
 	 * @param rq
 	 * @param cl
@@ -196,7 +196,7 @@ public class SPARQLExtCli {
 		if(cl != null && cl.hasOption(CMDConfigurations.ARG_SYNTAX_LONG)) {
 			return;
 		}
-		
+
 		if (cl != null) {
 			replaceSourcesIfRequested(cl, q);
 		}
@@ -223,7 +223,7 @@ public class SPARQLExtCli {
 		// prepare context
 		final ContextUtils.Builder contextBuilder = ContextUtils.build().setBase(rq.base).setPrefixMapping(q)
 				.setInputDataset(ds).setStreamManager(sm).setDebugTemplate(rq.debugTemplate);
-		
+
 		// prepare initial binding
 		List<Binding> bindings = getBinding(cl);
 
@@ -297,7 +297,7 @@ public class SPARQLExtCli {
 	/**
 	 * Executes SPARQL-Generate in a working directory, with {@link CliRequest}
 	 * parameters
-	 * 
+	 *
 	 * @param workingDir
 	 * @param rq
 	 * @throws SPARQLExtException
@@ -430,7 +430,7 @@ public class SPARQLExtCli {
 		List<Element> updatedSources = query.getBindingClauses().stream().map(element -> {
 			if (element instanceof ElementSource) {
 				ElementSource elementSource = (ElementSource) element;
-				String sourceURI = elementSource.getSource().toString(query.getPrefixMapping(), false);
+				String sourceURI = elementSource.getSource().toString(query.getPrefixMapping());
 
 				if (replacementSources.containsKey(sourceURI)) {
 					Node replacementSource = NodeFactory.createURI(replacementSources.getProperty(sourceURI));

@@ -25,12 +25,24 @@
 		</contributor>
 	</contributors>
 
-    
+
     <dependencies>
         <dependency>
             <groupId>fr.mines-stetienne.ci.sparql-generate</groupId>
             <artifactId>sparql-generate-jena</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.5.14</version>
+            <exclusions>
+                <!-- commons-codec 1.11 would win over the version Jena needs (MurmurHash3, since 1.13) -->
+                <exclusion>
+                    <groupId>commons-codec</groupId>
+                    <artifactId>commons-codec</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 </project>

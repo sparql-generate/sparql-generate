@@ -18,7 +18,8 @@ package fr.mines_stetienne.ci.sparql_generate.graph;
 import fr.mines_stetienne.ci.sparql_generate.serializer.SPARQLExtFmtUtils;
 import java.util.UUID;
 import org.apache.jena.atlas.io.IndentedLineBuffer;
-import org.apache.jena.graph.Node_Fluid;
+import org.apache.jena.graph.Node_Ext;
+import org.apache.jena.shared.PrefixMapping;
 import org.apache.jena.sparql.serializer.SerializationContext;
 
 /**
@@ -27,7 +28,7 @@ import org.apache.jena.sparql.serializer.SerializationContext;
  *
  * @author Maxime Lefrançois
  */
-public abstract class Node_Extended extends Node_Fluid {
+public abstract class Node_Extended extends Node_Ext<String> {
 
     /**
      * Constructor
@@ -45,7 +46,7 @@ public abstract class Node_Extended extends Node_Fluid {
      * @return
      */
     public String getLabel() {
-        return (String) label;
+        return get();
     }
 
     /**
@@ -54,10 +55,15 @@ public abstract class Node_Extended extends Node_Fluid {
     @Override
     public String toString() {
         IndentedLineBuffer buff = new IndentedLineBuffer();
-        buff.print("?" + label + " := ");
+        buff.print("?" + get() + " := ");
         SerializationContext context = new SerializationContext();
         SPARQLExtFmtUtils.printNode(buff, this, context);
         return buff.toString();
+    }
+
+    @Override
+    public String toString(PrefixMapping pm) {
+        return toString();
     }
 
 }
