@@ -1,26 +1,27 @@
-# this script must be run in the main directory of sparql-generate. it:
-# - removes the -SNAPSHOT from the version of all repositories
-# - commits and push the tag to github
-# - releases the version on maven central
-# - increments the patch version and adds -SNAPSHOT
-# - pushes the new development version
-# - install the new version to get ready to develop
+#!/bin/sh
+# Run from the root of the repository, on a clean working tree, on master.
+#   1. removes -SNAPSHOT from the version of every module;
+#   2. commits "release X.Y.Z", creates the signed tag vX.Y.Z and pushes both;
+#      the tag triggers .github/workflows/release.yml, which publishes to Maven
+#      Central (Central Portal), creates the GitHub release and updates the
+#      playground server;
+#   3. sets the next development version X.Y.(Z+1)-SNAPSHOT and pushes it.
+set -e
 
-if [ -z "$(git status --porcelain)" ]; then 
-  # Working directory clean
-  mvn -B versions:set -DremoveSnapshot --file 'sparql-generate-parent/pom.xml' && \
-  releaseVersion=$(mvn -q -Dexec.executable="echo" -Dexec.args='${project.version}' --non-recursive exec:exec --file 'sparql-generate-parent/pom.xml') && \
-  git commit -am "release $releaseVersion" && \
-  git tag -d v$releaseVersion
-  git tag -s "v$releaseVersion" -m "release $releaseVersion" && \
-  git push --delete origin v$releaseVersion
-  git push
-  git push origin v$releaseVersion && \
-  mvn deploy -P deploy --file 'sparql-generate-parent/pom.xml'
-  # nextVersion=$(semver -i patch $releaseVersion)-SNAPSHOT && \
-  # mvn -B versions:set -DnewVersion=$nextVersion --file 'sparql-generate-parent/pom.xml' && \
-  # git commit -am "prepare next version $nextVersion" && \
-  # mvn -B install --file 'sparql-generate-parent/pom.xml'
-else 
- echo "working directory is not clean. Commit first."
+if [ -n "$(git status --porcelain)" ]; then
+  echo "working directory is not clean. Commit first." >&2
+  exit 1
 fi
+
+POM=sparql-generate-parent/pom.xml
+mvn -B -q versions:set -DremoveSnapshot -DgenerateBackupPoms=false --file $POM
+version=$(mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec --file $POM)
+git commit -qam "release $version"
+git tag -s "v$version" -m "release $version"
+git push origin HEAD "v$version"
+
+next=$(echo "$version" | awk -F. '{ printf "%d.%d.%d-SNAPSHOT", $1, $2, $3 + 1 }')
+mvn -B -q versions:set -DnewVersion="$next" -DgenerateBackupPoms=false --file $POM
+git commit -qam "prepare next version $next"
+git push origin HEAD
+echo "released $version; the Release workflow publishes it: gh run watch"

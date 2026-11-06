@@ -12,19 +12,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out Git repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Install and run gulp
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v4
         with:
-          node-version: '10'
+          node-version: '20'
       - run: |
           npm install
-          gulp
+          npx gulp
         working-directory: sparql-generate-website
 
       - name: copy public
-        uses: appleboy/scp-action@master
+        uses: appleboy/scp-action@v0.1.7
         with:
           source: "sparql-generate-website/public"
           target: "~/website"
