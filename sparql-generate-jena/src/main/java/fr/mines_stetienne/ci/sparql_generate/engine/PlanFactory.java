@@ -148,6 +148,13 @@ public class PlanFactory {
      */
     private static RootPlan make(final SPARQLExtQuery query) {
         Objects.requireNonNull(query, "The query must not be null");
+        if (!query.isSubQuery()) {
+            // Blank nodes shared by a query and its sub-queries are the same
+            // Node objects only in the parsed query: the copy made below by
+            // serializing and parsing again would give them different labels.
+            // Replace them by variables bound to BNODE() first. Idempotent.
+            query.normalizeBNode();
+        }
         if (query.hasEmbeddedExpressions()) {
             LOG.debug("Query has embedded expressions:\n" + query);
             String qs = query.toString();

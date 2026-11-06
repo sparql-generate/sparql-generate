@@ -16,6 +16,11 @@
 package fr.mines_stetienne.ci.sparql_generate.engine;
 
 import static fr.mines_stetienne.ci.sparql_generate.engine.EngineTestUtils.assertGenerates;
+import static fr.mines_stetienne.ci.sparql_generate.engine.EngineTestUtils.generate;
+import static org.junit.Assert.assertEquals;
+
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.ResourceFactory;
 
 import org.junit.Test;
 
@@ -30,6 +35,52 @@ public class NestedGenerateTest {
 		assertGenerates("<http://ex/1> <http://ex/q> 1, 2 . <http://ex/2> <http://ex/q> 1, 2 .",
 				"GENERATE { GENERATE { ?s <http://ex/q> ?j } WHERE { VALUES ?j { 1 2 } } . } "
 						+ "WHERE { VALUES ?s { <http://ex/1> <http://ex/2> } }");
+	}
+
+	/**
+	 * A blank node label used in a GENERATE and in its sub-GENERATE denotes the
+	 * same blank node, one per solution of the outer query.
+	 */
+	@Test
+	public void blankNodeIsSharedWithSubQuery() {
+		assertGenerates("[ <http://ex/p> 1 ; <http://ex/q> 1, 2 ] . [ <http://ex/p> 2 ; <http://ex/q> 1, 2 ] .",
+				"GENERATE { _:b <http://ex/p> ?i . GENERATE { _:b <http://ex/q> ?j } WHERE { VALUES ?j { 1 2 } } . } "
+						+ "WHERE { VALUES ?i { 1 2 } }");
+	}
+
+	/**
+	 * Same with embedded expressions, which make the engine rewrite the query.
+	 */
+	@Test
+	public void blankNodeIsSharedWithSubQueryWithEmbeddedExpressions() {
+		assertGenerates(
+				"[ <http://ex/p1> 1 ; <http://ex/q11> 1 ; <http://ex/q12> 2 ] . "
+						+ "[ <http://ex/p2> 2 ; <http://ex/q21> 1 ; <http://ex/q22> 2 ] .",
+				"GENERATE { _:b <http://ex/p{STR(?i)}> ?i . "
+						+ "GENERATE { _:b <http://ex/q{STR(?i)}{STR(?j)}> ?j } WHERE { VALUES ?j { 1 2 } } . } "
+						+ "WHERE { VALUES ?i { 1 2 } }");
+	}
+
+	/**
+	 * A blank node of the outer query used two levels below.
+	 */
+	@Test
+	public void blankNodeIsSharedWithSubSubQuery() {
+		assertGenerates("[ <http://ex/p> 1 ; <http://ex/r> 3 ] . [ <http://ex/p> 2 ; <http://ex/r> 3 ] .",
+				"GENERATE { _:b <http://ex/p> ?i . "
+						+ "GENERATE { GENERATE { _:b <http://ex/r> ?k } WHERE { VALUES ?k { 3 } } . } . } "
+						+ "WHERE { VALUES ?i { 1 2 } }");
+	}
+
+	/**
+	 * A blank node label that only appears in the sub-query is fresh for each
+	 * solution of the sub-query.
+	 */
+	@Test
+	public void blankNodeOfSubQueryIsFreshPerSolution() {
+		Model model = generate("GENERATE { GENERATE { _:c <http://ex/q> ?j } WHERE { VALUES ?j { 1 2 } } . } "
+				+ "WHERE { VALUES ?i { 1 2 } }");
+		assertEquals(4, model.listSubjectsWithProperty(ResourceFactory.createProperty("http://ex/q")).toList().size());
 	}
 
 	@Test
