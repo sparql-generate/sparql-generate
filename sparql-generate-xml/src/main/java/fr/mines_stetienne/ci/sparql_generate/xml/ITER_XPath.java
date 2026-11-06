@@ -25,6 +25,7 @@ import fr.mines_stetienne.ci.sparql_generate.stream.LookUpRequest;
 import fr.mines_stetienne.ci.sparql_generate.stream.SPARQLExtStreamManager;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringReader;
 import java.net.URL;
 import java.util.List;
 import javax.xml.parsers.DocumentBuilder;
@@ -38,6 +39,10 @@ import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.NodeValue;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
+import org.xml.sax.ErrorHandler;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueBoolean;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueInteger;
 import org.htmlcleaner.CleanerProperties;
@@ -176,15 +181,9 @@ public class ITER_XPath extends IteratorFunctionBase {
         }
 
         try {
-        	
-        	//to clean the xmlString
-        	TagNode tagNode = new HtmlCleaner(props).clean(xmlString);
-            String xmlStringCleaned= new PrettyXmlSerializer(props).getAsString(tagNode);
-        	//********            
-            
-            InputStream is = new ByteArrayInputStream(xmlStringCleaned.getBytes("UTF-8"));
             DocumentBuilder builder = builderFactory.newDocumentBuilder();
-            Document document = builder.parse(is);
+            builder.setErrorHandler(SILENT);
+            Document document = parse(builder, xmlString);
             XPath xPath = XPathFactory.newInstance().newXPath();
             xPath.setNamespaceContext(new FUN_XPath.UniversalNamespaceResolver(document));
             NodeList nodeList = (NodeList) xPath
@@ -224,6 +223,38 @@ public class ITER_XPath extends IteratorFunctionBase {
             throw new ExprEvalException("No evaluation for " + xPathNode, ex);
         }
     }
+
+    /**
+     * Parses the document as XML. Only if it is not well-formed, such as HTML
+     * with unclosed elements, clean it first with HtmlCleaner: cleaning
+     * well-formed XML would lower the case of names and restructure elements
+     * that have an HTML name (body, head, title, p, ...).
+     */
+    private Document parse(DocumentBuilder builder, String xmlString) throws IOException, SAXException {
+        try {
+            return builder.parse(new InputSource(new StringReader(xmlString)));
+        } catch (SAXParseException ex) {
+            LOG.debug("Not well-formed XML, cleaning it as HTML: " + ex.getMessage());
+        }
+        TagNode tagNode = new HtmlCleaner(props).clean(xmlString);
+        String xmlStringCleaned = new PrettyXmlSerializer(props).getAsString(tagNode);
+        return builder.parse(new InputSource(new StringReader(xmlStringCleaned)));
+    }
+
+    private static final ErrorHandler SILENT = new ErrorHandler() {
+        @Override
+        public void warning(SAXParseException exception) {
+        }
+
+        @Override
+        public void error(SAXParseException exception) {
+        }
+
+        @Override
+        public void fatalError(SAXParseException exception) throws SAXException {
+            throw exception;
+        }
+    };
 
     private String getString(NodeValue xml) throws ExprEvalException {
         if (xml.isString()) {

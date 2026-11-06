@@ -81,9 +81,9 @@ public class GenerateConformanceTest {
 	 * stale expected output; an entry is removed with the commit that resolves it.
 	 * Run them anyway with {@code -Dconformance.all=true}.
 	 */
-	private static final Set<String> KNOWN_FAILURES = new HashSet<>(Arrays.asList("chargingplan", "chargingplan2", "cordis", "generatelistjson", "geojsontest1", "geojsontest2",
-			"htmltest1", "jose", "list", "poptest", "rmlLanguageMap", "rmlproeg1", "rmlproeg1small", "rmlproeg2",
-			"rmlproeg3", "rmlproeg6", "rmlspeceg4", "xsparql1"));
+	private static final Set<String> KNOWN_FAILURES = new HashSet<>(Arrays.asList(
+			"cordis", "generatelistjson", "geojsontest1", "geojsontest2", "htmltest1",
+			"jose", "list", "poptest", "rmlproeg2", "rmlproeg3", "rmlspeceg4", "xsparql1"));
 
 	private final File dir;
 
