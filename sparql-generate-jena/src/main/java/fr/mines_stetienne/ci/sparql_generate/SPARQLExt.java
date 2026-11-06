@@ -41,6 +41,7 @@ import org.slf4j.LoggerFactory;
 
 import fr.mines_stetienne.ci.sparql_generate.function.FunctionLoader;
 import fr.mines_stetienne.ci.sparql_generate.function.library.FUN_CamelCase;
+import fr.mines_stetienne.ci.sparql_generate.function.library.FUN_bnode;
 import fr.mines_stetienne.ci.sparql_generate.function.library.FUN_Log;
 import fr.mines_stetienne.ci.sparql_generate.function.library.FUN_MixedCase;
 import fr.mines_stetienne.ci.sparql_generate.function.library.FUN_PrefixedIRI;
@@ -150,6 +151,7 @@ public final class SPARQLExt {
 		fnreg.put(FUN_PrefixedIRI.URI, FUN_PrefixedIRI.class);
 		fnreg.put(FUN_Select_Call_Template.URI, FUN_Select_Call_Template.class);
 		fnreg.put(FUN_Log.URI, FUN_Log.class);
+		fnreg.put(FUN_bnode.URI, FUN_bnode.class);
 
 		final ServiceLoader<FunctionLoader> functionLoaders = ServiceLoader.load(FunctionLoader.class);
 		functionLoaders.forEach((loader) -> {

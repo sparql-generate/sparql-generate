@@ -82,8 +82,8 @@ public class GenerateConformanceTest {
 	 * Run them anyway with {@code -Dconformance.all=true}.
 	 */
 	private static final Set<String> KNOWN_FAILURES = new HashSet<>(Arrays.asList(
-			"cordis", "generatelistjson", "geojsontest1", "geojsontest2", "htmltest1",
-			"jose", "list", "poptest", "rmlproeg3", "rmlspeceg4", "xsparql1"));
+			"cordis", "geojsontest1", "geojsontest2", "htmltest1", "jose", "list",
+			"poptest", "rmlproeg3", "rmlspeceg4"));
 
 	private final File dir;
 

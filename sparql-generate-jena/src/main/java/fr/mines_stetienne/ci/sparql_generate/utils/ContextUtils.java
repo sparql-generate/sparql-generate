@@ -22,6 +22,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
@@ -132,6 +133,18 @@ public class ContextUtils {
 		}
 		nodes[size] = RDF.nil.asNode();
 		listNodes.put(list, nodes);
+	}
+
+	/**
+	 * Gets the blank node for a label, the same for the whole execution.
+	 * Outside of a SPARQL-Generate execution, returns a fresh blank node.
+	 */
+	public static Node getBlankNode(final Context context, final String label) {
+		Commons commons = context == null ? null : context.get(COMMONS);
+		if (commons == null) {
+			return NodeFactory.createBlankNode();
+		}
+		return commons.blankNodes.computeIfAbsent(label, (l) -> NodeFactory.createBlankNode());
 	}
 
 	public static Dataset getDataset(Context context) {
@@ -475,6 +488,7 @@ public class ContextUtils {
 		private ExecutorService executor = Executors.newSingleThreadExecutor();
 		private QueryExecutor queryExecutor = new QueryExecutor();
 		private final Set<Runnable> closingTasks = new HashSet<>();
+		private final Map<String, Node> blankNodes = new ConcurrentHashMap<>();
 
 		private Commons() {
 		}
