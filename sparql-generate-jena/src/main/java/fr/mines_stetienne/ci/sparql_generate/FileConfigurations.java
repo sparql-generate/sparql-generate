@@ -88,6 +88,19 @@ public class FileConfigurations {
      * log level for the query execution, ERROR=1 WARN=2 INFO=3 DEBUG=4 TRACE=5
      */
     public int loglevel; // 
+
+    /**
+     * log level, the documented name of {@link #loglevel}; takes precedence
+     */
+    public Integer log;
+
+    /**
+     * @return the log level, from field log or else loglevel, between 0 and 5
+     */
+    public int getLogLevel() {
+        int level = log != null ? log : loglevel;
+        return Math.max(0, Math.min(5, level));
+    }
     
     /**
      * description of the query execution, can contain html markup
