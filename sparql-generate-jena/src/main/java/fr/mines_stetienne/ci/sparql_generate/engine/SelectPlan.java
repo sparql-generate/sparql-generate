@@ -139,11 +139,13 @@ public class SelectPlan {
 					LOG.debug(String.format("Query has %s output for variables %s", size, rewindable.getResultVars()));
 					rewindable.reset();
 					resultSet = rewindable;
-				} else {
-					// got exception with call of unionOf in RootPlan. Would be better not to need to make rewindable
-					ResultSetRewindable rewindable = ResultSetFactory.copyResults(resultSet);
-					resultSet = rewindable;
-				}				
+				} else if (isSelectType) {
+					// the results of a SELECT query outlive the execution
+					// (union of the results in RootPlan.execSelect)
+					resultSet = ResultSetFactory.copyResults(resultSet);
+				}
+				// otherwise the output reads the results as they are computed,
+				// before the execution is closed
 				output.accept(resultSet);
 			}
 		} catch (Exception ex) {

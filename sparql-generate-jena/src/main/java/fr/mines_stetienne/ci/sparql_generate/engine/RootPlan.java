@@ -460,8 +460,7 @@ public class RootPlan {
 					newVariables.addAll(selectPlan.getVars());
 					final List<Binding> newValues = new ArrayList<>();
 					while (resultSet.hasNext()) {
-						final Binding p = EvalUtils.createBinding(resultSet.next());
-						newValues.add(p);
+						newValues.add(resultSet.nextBinding());
 					}
 					if(query.isGenerateType()) {
 						generatePlan.exec(newVariables, newValues, context);
