@@ -2,6 +2,13 @@
 
 This page summarises the changes of the engine since version 2.0. The full history is in the [commits](https://github.com/sparql-generate/sparql-generate/commits/master) and the [releases](https://github.com/sparql-generate/sparql-generate/releases).
 
+## 2.3.1
+
+Not yet released.
+
+- The message about an unknown function or iterator suggests the closest known one: `Unknown iterator <.../iter/JSONpath>. Did you mean <.../iter/JSONPath>?`.
+- An execution can be given a time limit and a limit of triples (`ContextUtils.Builder.setTimeLimit`, `setMaxTriples`). The playground server sets them (`SPARQL_GENERATE_MAX_TIME`, 10 s, and `SPARQL_GENERATE_MAX_TRIPLES`, 1,000,000 by default) and stops an execution that exceeds them; it went on running after the request had timed out.
+
 ## 2.3.0
 
 Released on 2026-11-07. A change of the typing of JSON numbers, marked **Changed**; a fix that is a reason to upgrade from 2.2.4: an out-of-memory error could give a partial output with exit status 0; and a faster engine.
