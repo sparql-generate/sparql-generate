@@ -304,16 +304,7 @@ public class SPARQLExtFormatterElement extends SPARQLExtFormatterBase implements
         for (TriplePath tp : pBlk) {
             if (tp.isTriple()) {
                 Triple t = tp.asTriple();
-                Node s = t.getSubject();
-                if(s.isVariable()) {
-                    s = Var.alloc(Var.canonical(((Var)s).getVarName()));
-                }
-                Node p = t.getPredicate();
-                Node o = t.getObject();
-                if(o.isVariable()) {
-                    o = Var.alloc(Var.canonical(((Var)o).getVarName()));
-                }
-                bgp.add(Triple.create(s, p, o));
+                bgp.add(Triple.create(canonical(t.getSubject()), t.getPredicate(), canonical(t.getObject())));
                 continue;
             }
 
@@ -328,11 +319,11 @@ public class SPARQLExtFormatterElement extends SPARQLExtFormatterBase implements
                 out.println(" .");
             }
             // Path
-            printSubject(tp.getSubject());
+            printSubject(canonical(tp.getSubject()));
             out.print(" ");
             SPARQLExtPathWriter.write(out, tp.getPath(), context);
             out.print(" ");
-            printObject(tp.getObject());
+            printObject(canonical(tp.getObject()));
             first = false;
         }
         // Flush any stored triple patterns.
@@ -343,6 +334,17 @@ public class SPARQLExtFormatterElement extends SPARQLExtFormatterBase implements
             flush(bgp);
             first = false;
         }
+    }
+
+    /**
+     * A variable that stands for a blank node of the pattern, such as ??0,
+     * is written ?0, which can be parsed again.
+     */
+    private static Node canonical(Node n) {
+        if (n.isVariable()) {
+            return Var.alloc(Var.canonical(((Var) n).getVarName()));
+        }
+        return n;
     }
 
     private void flush(BasicPattern bgp) {

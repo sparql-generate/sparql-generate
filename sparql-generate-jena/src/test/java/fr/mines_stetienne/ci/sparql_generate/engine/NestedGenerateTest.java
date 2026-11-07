@@ -18,9 +18,12 @@ package fr.mines_stetienne.ci.sparql_generate.engine;
 import static fr.mines_stetienne.ci.sparql_generate.engine.EngineTestUtils.assertGenerates;
 import static fr.mines_stetienne.ci.sparql_generate.engine.EngineTestUtils.generate;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ResourceFactory;
+
+import fr.mines_stetienne.ci.sparql_generate.utils.ContextUtils;
 
 import org.junit.Test;
 
@@ -118,6 +121,22 @@ public class NestedGenerateTest {
 		assertGenerates("<http://ex/1> <http://ex/a> <http://ex/b> .",
 				"GENERATE { GENERATE { ?s ?p ?o } WHERE { VALUES (?p ?o) { (<http://ex/a> <http://ex/b>) } } . } "
 						+ "WHERE { VALUES ?s { <http://ex/1> } }");
+	}
+
+	/**
+	 * A blank node at the end of a property path, in the WHERE clause of a
+	 * sub-query, survives the rewriting of a query with embedded expressions.
+	 */
+	@Test
+	public void blankNodeInPropertyPathOfSubQuery() {
+		Model input = EngineTestUtils.turtle("<http://ex/a> <http://ex/p> [] . <http://ex/b> <http://ex/r> 1 .");
+		Model model = PlanFactory
+				.create("GENERATE { <http://ex/{STR(?i)}> <http://ex/q> ?i . "
+						+ "GENERATE { ?s <http://ex/q> ?i } WHERE { ?s <http://ex/p>|<http://ex/r> [] "
+						+ "FILTER NOT EXISTS { ?s <http://ex/r> [] } } . } WHERE { VALUES ?i { 1 } }")
+				.execGenerate(ContextUtils.build().setInputModel(input).build());
+		Model expected = EngineTestUtils.turtle("<http://ex/1> <http://ex/q> 1 . <http://ex/a> <http://ex/q> 1 .");
+		assertTrue(EngineTestUtils.write(model), model.isIsomorphicWith(expected));
 	}
 
 }
