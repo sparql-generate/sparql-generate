@@ -113,7 +113,8 @@ public final class FUN_JSONPath extends FunctionBase2 {
 		}
 
 		try {
-			Object value = JsonPath.parse(json.asNode().getLiteralLexicalForm()).limit(1).read(jsonpath.getString());
+			Object value = JsonPath.using(JsonNumbers.CONFIGURATION).parse(json.asNode().getLiteralLexicalForm()).limit(1)
+					.read(jsonpath.getString());
 			// an indefinite path, with a filter, a wildcard or a deep scan, gives a
 			// list even for one match: give the match. A definite path that selects
 			// an array gives the array, even of one element.

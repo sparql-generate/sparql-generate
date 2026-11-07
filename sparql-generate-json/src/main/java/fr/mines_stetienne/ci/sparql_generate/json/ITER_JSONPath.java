@@ -96,8 +96,7 @@ public class ITER_JSONPath extends IteratorFunctionBase {
     private final FUN_JSONPath function = new FUN_JSONPath();
 
 
-    private final static Configuration conf = Configuration.builder()
-            .options(Option.ALWAYS_RETURN_LIST).build();
+    private final static Configuration conf = JsonNumbers.LIST_CONFIGURATION;
     
     /**
      * Get the general JSONPath JayWay configuration.
@@ -182,7 +181,7 @@ public class ITER_JSONPath extends IteratorFunctionBase {
                 List<NodeValue> nodeValues = new ArrayList<>(args.size() + 1);
                 nodeValues.add(function.nodeForObject(value));
                 // a JSON null element gives unbound values
-                DocumentContext context = value == null ? null : JsonPath.parse(value);
+                DocumentContext context = value == null ? null : JsonPath.using(JsonNumbers.CONFIGURATION).parse(value);
                 for (JsonPath subquery : subqueries) {
                 	if(subquery == null || context == null) {
                         nodeValues.add(null);

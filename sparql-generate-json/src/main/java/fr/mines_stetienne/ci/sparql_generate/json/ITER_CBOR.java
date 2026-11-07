@@ -58,29 +58,6 @@ import org.slf4j.Logger;
  */
 public class ITER_CBOR extends IteratorFunctionBase2 {
 
-    static {
-        Configuration.setDefaults(new Configuration.Defaults() {
-
-            private final JsonProvider jsonProvider = new JacksonJsonProvider();
-            private final MappingProvider mappingProvider
-                    = new JacksonMappingProvider();
-
-            @Override
-            public JsonProvider jsonProvider() {
-                return jsonProvider;
-            }
-
-            @Override
-            public MappingProvider mappingProvider() {
-                return mappingProvider;
-            }
-
-            @Override
-            public Set<Option> options() {
-                return EnumSet.noneOf(Option.class);
-            }
-        });
-    }
 
     private static final Logger LOG = LoggerFactory.getLogger(ITER_CBOR.class);
 
@@ -109,8 +86,7 @@ public class ITER_CBOR extends IteratorFunctionBase2 {
                     + cbor.getDatatypeURI() + ">. Returning null.");
         }
 
-        Configuration conf = Configuration.builder()
-                .options(Option.ALWAYS_RETURN_LIST).build();
+        Configuration conf = JsonNumbers.LIST_CONFIGURATION;
 
         String json = CBORDocuments.toJson(cbor.asNode().getLiteralLexicalForm());
 

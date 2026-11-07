@@ -17,6 +17,7 @@ package fr.mines_stetienne.ci.sparql_generate.json;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.regex.Pattern;
 
@@ -33,7 +34,8 @@ import com.google.gson.stream.JsonReader;
  * integers. The Gson parser of JsonSurfer reads every number with
  * {@link JsonReader#nextDouble()}: 1 became 1.0, typed xsd:double. Here the
  * reader keeps the text of the number, and the provider makes an integer of
- * a number written without fraction or exponent, as iter:JSONPath does.
+ * a number written without fraction or exponent, and an xsd:decimal of a
+ * number with a fraction and no exponent, as iter:JSONPath does.
  */
 final class JsonSurferNumbers {
 
@@ -59,6 +61,9 @@ final class JsonSurferNumbers {
 			LAST_NUMBER.remove();
 			if (text != null && INTEGER.matcher(text).matches()) {
 				return new JsonPrimitive(new BigInteger(text));
+			}
+			if (text != null && JsonNumbers.DECIMAL.matcher(text).matches()) {
+				return new JsonPrimitive(new BigDecimal(text));
 			}
 			return super.primitive(value);
 		}

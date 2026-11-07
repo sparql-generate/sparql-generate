@@ -31,8 +31,10 @@ import fr.mines_stetienne.ci.sparql_generate.engine.PlanFactory;
 import fr.mines_stetienne.ci.sparql_generate.utils.ContextUtils;
 
 /**
- * The numbers of a JSON document: integers are xsd:integer, of any size, for
- * iter:JSONPath, iter:JSONSurfer and fun:JSONPath; the others are xsd:double.
+ * The numbers of a JSON document, for iter:JSONPath, iter:JSONSurfer and
+ * fun:JSONPath: an integer is an xsd:integer, of any size; a number with a
+ * decimal point and no exponent an xsd:decimal; a number with an exponent an
+ * xsd:double.
  */
 public class JSONNumbersTest {
 
@@ -40,7 +42,7 @@ public class JSONNumbersTest {
 		SPARQLExt.init();
 	}
 
-	private static final String JSON = "[\\{\\\"n\\\": 1, \\\"x\\\": 1.5, \\\"b\\\": 9223372036854775808\\}]";
+	private static final String JSON = "[\\{\\\"n\\\": 1, \\\"x\\\": 1.5, \\\"b\\\": 9223372036854775808, \\\"e\\\": 1.5e3\\}]";
 
 	private static void assertGenerates(String expected, String query) {
 		Model expectedModel = ModelFactory.createDefaultModel();
@@ -52,25 +54,26 @@ public class JSONNumbersTest {
 		assertTrue("got:\n" + sw, actual.isIsomorphicWith(expectedModel));
 	}
 
-	private static final String EXPECTED = "<http://ex/s> <http://ex/n> 1 ; <http://ex/x> 1.5e0 ; "
-			+ "<http://ex/b> 9223372036854775808 .";
+	private static final String EXPECTED = "<http://ex/s> <http://ex/n> 1 ; <http://ex/x> 1.5 ; "
+			+ "<http://ex/b> 9223372036854775808 ; <http://ex/e> \"1500.0e0\"^^<http://www.w3.org/2001/XMLSchema#double> .";
 
 	@Test
 	public void jsonSurfer() {
-		assertGenerates(EXPECTED, "GENERATE { <http://ex/s> <http://ex/n> ?n ; <http://ex/x> ?x ; <http://ex/b> ?b } "
-				+ "ITERATOR iter:JSONSurfer(\"" + JSON + "\", \"$[*]\", \"$.n\", \"$.x\", \"$.b\") AS ?e ?n ?x ?b");
+		assertGenerates(EXPECTED, "GENERATE { <http://ex/s> <http://ex/n> ?n ; <http://ex/x> ?x ; <http://ex/b> ?b ; <http://ex/e> ?f } "
+				+ "ITERATOR iter:JSONSurfer(\"" + JSON + "\", \"$[*]\", \"$.n\", \"$.x\", \"$.b\", \"$.e\") AS ?e ?n ?x ?b ?f");
 	}
 
 	@Test
 	public void jsonPath() {
-		assertGenerates(EXPECTED, "GENERATE { <http://ex/s> <http://ex/n> ?n ; <http://ex/x> ?x ; <http://ex/b> ?b } "
-				+ "ITERATOR iter:JSONPath(\"" + JSON + "\", \"$[*]\", \"$.n\", \"$.x\", \"$.b\") AS ?e ?n ?x ?b");
+		assertGenerates(EXPECTED, "GENERATE { <http://ex/s> <http://ex/n> ?n ; <http://ex/x> ?x ; <http://ex/b> ?b ; <http://ex/e> ?f } "
+				+ "ITERATOR iter:JSONPath(\"" + JSON + "\", \"$[*]\", \"$.n\", \"$.x\", \"$.b\", \"$.e\") AS ?e ?n ?x ?b ?f");
 	}
 
 	@Test
 	public void jsonPathFunction() {
-		assertGenerates(EXPECTED, "GENERATE { <http://ex/s> <http://ex/n> ?n ; <http://ex/x> ?x ; <http://ex/b> ?b } "
+		assertGenerates(EXPECTED, "GENERATE { <http://ex/s> <http://ex/n> ?n ; <http://ex/x> ?x ; <http://ex/b> ?b ; <http://ex/e> ?f } "
 				+ "WHERE { BIND(fun:JSONPath(\"" + JSON + "\", \"$[0].n\") AS ?n) BIND(fun:JSONPath(\"" + JSON
-				+ "\", \"$[0].x\") AS ?x) BIND(fun:JSONPath(\"" + JSON + "\", \"$[0].b\") AS ?b) }");
+				+ "\", \"$[0].x\") AS ?x) BIND(fun:JSONPath(\"" + JSON + "\", \"$[0].b\") AS ?b) "
+				+ "BIND(fun:JSONPath(\"" + JSON + "\", \"$[0].e\") AS ?f) }");
 	}
 }

@@ -87,7 +87,7 @@ public final class FUN_CBOR extends FunctionBase2 {
 
         String json = CBORDocuments.toJson(cbor.asNode().getLiteralLexicalForm());
         try {
-            Object value = JsonPath.parse(json)
+            Object value = JsonPath.using(JsonNumbers.CONFIGURATION).parse(json)
                     .limit(1).read(jsonpath.getString());
 
             if (value instanceof String) {
