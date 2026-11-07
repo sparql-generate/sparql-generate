@@ -32,8 +32,12 @@ A named query has an IRI and a signature. A template calls it with `GENERATE <na
 
 !example lists
 
-!!! warning "Known limitation in 2.2"
-    `LIST` collects the values of all the solutions of the query that contains it. With `GROUP BY`, or inside a nested `GENERATE`, the engine 2.2 does not yet build one list per group or per execution of the nested query.
+With `GROUP BY`, `LIST` is an aggregate: the template is instantiated once per group, with the list of the values of the group.
+
+!example lists-group
+
+!!! warning "Known limitation"
+    Inside a nested `GENERATE` without `GROUP BY`, the engine 2.2 builds one list with the values of all the executions of the nested query, instead of one list per execution. Use `GROUP BY` in the outer query, as above.
 
 ## Aggregates
 

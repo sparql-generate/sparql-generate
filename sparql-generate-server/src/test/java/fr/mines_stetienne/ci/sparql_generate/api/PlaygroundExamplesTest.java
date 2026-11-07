@@ -132,9 +132,7 @@ public class PlaygroundExamplesTest {
 	/**
 	 * Examples that fail because of an engine defect, with the defect.
 	 */
-	static final Set<String> KNOWN_FAILURES = new HashSet<>(Arrays.asList(
-			// an aggregate inside BOX is not evaluated: TEMPLATE { BOX { str(avg(?x)) } }
-			"template/05-Box"));
+	static final Set<String> KNOWN_FAILURES = new HashSet<>();
 
 	/**
 	 * Examples whose source is an endless stream.

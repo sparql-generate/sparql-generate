@@ -23,9 +23,6 @@ The expressions are literals, variables, function calls and built-in calls; a br
 
 !example template-group-box-format
 
-!!! warning "Known limitation in 2.2"
-    An aggregate inside `BOX`, such as `BOX { str(avg(?x)) }`, outputs nothing in the engine 2.2; move the aggregate out of the `BOX`.
-
 ## Named templates and sub-templates
 
 A named `TEMPLATE` query has an IRI and a signature. A template calls it with a sub-template `TEMPLATE <name>(arguments) .`, which can have its own binding clauses and `WHERE` clause after the arguments. The function `st:call-template(<name>, arguments)` calls it from an expression.

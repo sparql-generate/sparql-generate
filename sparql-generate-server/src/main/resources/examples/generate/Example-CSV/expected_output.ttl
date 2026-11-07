@@ -93,37 +93,36 @@ PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
 <http://example.com/store/8>
         ex:totalAmount  3914.5 .
 
-ex:statistics  ex:perDay  ( [ ex:averageAmount  353.64;
-                              ex:date           "2019-05-01"^^xsd:date
-                            ]
-                            [ ex:averageAmount  358.67;
-                              ex:date           "2019-05-02"^^xsd:date
-                            ]
-                            [ ex:averageAmount  351.856666666666666666666667;
-                              ex:date           "2019-05-03"^^xsd:date
-                            ]
-                            [ ex:averageAmount  343.4;
-                              ex:date           "2019-05-04"^^xsd:date
-                            ]
-                            [ ex:averageAmount  320.19;
-                              ex:date           "2019-05-05"^^xsd:date
-                            ]
-                            [ ex:averageAmount  364.035;
-                              ex:date           "2019-05-06"^^xsd:date
-                            ]
-                            [ ex:averageAmount  358.33;
-                              ex:date           "2019-05-07"^^xsd:date
-                            ]
-                            [ ex:averageAmount  336.25;
-                              ex:date           "2019-05-08"^^xsd:date
-                            ]
-                            [ ex:averageAmount  350.75;
-                              ex:date           "2019-05-09"^^xsd:date
-                            ]
-                            [ ex:averageAmount  316.875;
-                              ex:date           "2019-05-10"^^xsd:date
-                            ]
-                          ) .
+ex:statistics  ex:perDay  [ ex:averageAmount  336.25;
+                            ex:date           "2019-05-08"^^xsd:date
+                          ];
+        ex:perDay  [ ex:averageAmount  358.33;
+                     ex:date           "2019-05-07"^^xsd:date
+                   ];
+        ex:perDay  [ ex:averageAmount  364.035;
+                     ex:date           "2019-05-06"^^xsd:date
+                   ];
+        ex:perDay  [ ex:averageAmount  320.19;
+                     ex:date           "2019-05-05"^^xsd:date
+                   ];
+        ex:perDay  [ ex:averageAmount  358.67;
+                     ex:date           "2019-05-02"^^xsd:date
+                   ];
+        ex:perDay  [ ex:averageAmount  343.4;
+                     ex:date           "2019-05-04"^^xsd:date
+                   ];
+        ex:perDay  [ ex:averageAmount  350.75;
+                     ex:date           "2019-05-09"^^xsd:date
+                   ];
+        ex:perDay  [ ex:averageAmount  351.856666666666666666666667;
+                     ex:date           "2019-05-03"^^xsd:date
+                   ];
+        ex:perDay  [ ex:averageAmount  353.64;
+                     ex:date           "2019-05-01"^^xsd:date
+                   ];
+        ex:perDay  [ ex:averageAmount  316.875;
+                     ex:date           "2019-05-10"^^xsd:date
+                   ] .
 
 <http://example.com/store/29>
         ex:totalAmount  3403.31 .

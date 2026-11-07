@@ -1,0 +1,7 @@
+{
+  "people": [
+    { "id": 1, "name": "Ada Lovelace", "born": "1815-12-10", "skills": ["mathematics", "programming"] },
+    { "id": 2, "name": "Alan Turing", "born": "1912-06-23", "skills": ["mathematics", "cryptanalysis", "computing"] },
+    { "id": 3, "name": "Grace Hopper", "born": "1906-12-09", "skills": ["programming", "compilers"] }
+  ]
+}

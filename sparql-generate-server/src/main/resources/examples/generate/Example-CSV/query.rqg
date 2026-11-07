@@ -11,7 +11,7 @@ GENERATE {
    } GROUP BY ?store .
 
   GENERATE {
-    <statistics> ex:perDay LIST( ?bnode ) .
+    <statistics> ex:perDay ?bnode .
     ?bnode ex:averageAmount ?{ avg("{?amount}"^^xsd:decimal ) } ;
       ex:date ?date
   } WHERE {
