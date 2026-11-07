@@ -204,15 +204,17 @@ public class TransformStream {
 			// the execution checks its own time limit; one more second here
 			execution.get(JerseyApp.MAX_TIME + 1, TimeUnit.SECONDS);
 		} catch (TimeoutException ex) {
+			// not an error: the output so far was sent
 			logError(sessionManager, String.format(
-					"In this web interface query execution cannot exceed %s s. Consider using the executable jar instead.",
+					"Time limit of %s s reached, output truncated. Use the command-line tool for longer executions.",
 					JerseyApp.MAX_TIME), null);
 		} catch (final InterruptedException ex) {
 			logError(sessionManager, "Interrupted while executing the request", ex);
 		} catch (final ExecutionException ex) {
 			final ExecutionLimitException limit = ExecutionLimitException.findIn(ex);
 			if (limit != null) {
-				logError(sessionManager, limit.getMessage() + " Consider using the executable jar instead.", null);
+				// not an error: the output so far was sent
+				logError(sessionManager, limit.getMessage() + " Use the command-line tool for longer executions.", null);
 			} else {
 				logError(sessionManager, "An exception occurred", ex);
 			}

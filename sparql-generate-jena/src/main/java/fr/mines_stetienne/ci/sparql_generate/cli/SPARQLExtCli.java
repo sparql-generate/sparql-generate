@@ -91,6 +91,7 @@ import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 
+import fr.mines_stetienne.ci.sparql_generate.ExecutionLimitException;
 import fr.mines_stetienne.ci.sparql_generate.FileConfigurations;
 import fr.mines_stetienne.ci.sparql_generate.SPARQLExt;
 import fr.mines_stetienne.ci.sparql_generate.SPARQLExtException;
@@ -184,8 +185,12 @@ public class SPARQLExtCli {
 		} catch (Exception ex) {
 			// a non-zero exit status, for scripts and continuous integration
 			final DocumentNotFoundException notFound = DocumentNotFoundException.findIn(ex);
+			final ExecutionLimitException limit = ExecutionLimitException.findIn(ex);
 			if (notFound != null) {
 				LOG.error(notFound.getMessage());
+			} else if (limit != null) {
+				// the output written so far is incomplete
+				LOG.error(limit.getMessage());
 			} else {
 				LOG.error(ex.getMessage(), ex);
 			}
@@ -240,7 +245,8 @@ public class SPARQLExtCli {
 
 		// prepare context
 		final ContextUtils.Builder contextBuilder = ContextUtils.build().setBase(rq.base).setPrefixMapping(q)
-				.setInputDataset(ds).setStreamManager(sm).setDebugTemplate(rq.debugTemplate);
+				.setInputDataset(ds).setStreamManager(sm).setDebugTemplate(rq.debugTemplate)
+				.setTimeLimit(rq.timeLimit).setMaxTriples(rq.maxTriples);
 
 		// prepare initial binding
 		List<Binding> bindings = getBinding(cl, q.getPrefixMapping());
@@ -580,6 +586,16 @@ public class SPARQLExtCli {
 		request.hdt = cl.hasOption(ARG_HDT) || request.hdt;
 		request.debugTemplate = cl.hasOption(ARG_DEBUG_TEMPLATE) || request.debugTemplate;
 		request.failOnMissing = cl.hasOption(CMDConfigurations.ARG_FAIL_ON_MISSING_LONG) || request.failOnMissing;
+		try {
+			if (cl.hasOption(CMDConfigurations.ARG_TIME_LIMIT_LONG)) {
+				request.timeLimit = Integer.parseInt(cl.getOptionValue(CMDConfigurations.ARG_TIME_LIMIT_LONG).trim());
+			}
+			if (cl.hasOption(CMDConfigurations.ARG_MAX_TRIPLES_LONG)) {
+				request.maxTriples = Long.parseLong(cl.getOptionValue(CMDConfigurations.ARG_MAX_TRIPLES_LONG).trim());
+			}
+		} catch (NumberFormatException ex) {
+			throw new SPARQLExtException("--time-limit and --max-triples take a number", ex);
+		}
 		request.logFile = resolve(dirFile, cl.getOptionValue(ARG_LOG_FILE), request.logFile);
 		try {
 			request.logLevelObject = Level.toLevel(cl.getOptionValue(ARG_LOG_LEVEL), LOG_LEVELS[request.getLogLevel()]);

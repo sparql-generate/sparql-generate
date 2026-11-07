@@ -15,6 +15,7 @@
  */
 package fr.mines_stetienne.ci.sparql_generate.iterator.library;
 
+import fr.mines_stetienne.ci.sparql_generate.utils.ContextUtils;
 import fr.mines_stetienne.ci.sparql_generate.utils.LogUtils;
 import fr.mines_stetienne.ci.sparql_generate.SPARQLExt;
 import fr.mines_stetienne.ci.sparql_generate.iterator.IteratorStreamFunctionBase;
@@ -139,10 +140,18 @@ public class ITER_HTTPGet extends IteratorStreamFunctionBase {
                 // no wait after the last call
                 break;
             }
+            ContextUtils.checkLimits(getContext());
             long end = System.nanoTime();
             try {
                 LOG.debug("Will sleep  " + recurrenceValueNano + " - " + (end - start )+ " = " + (recurrenceValueNano - (end - start)));
-                TimeUnit.NANOSECONDS.sleep(recurrenceValueNano - (end - start));
+                long wait = recurrenceValueNano - (end - start);
+                final long remaining = ContextUtils.remainingMillis(getContext());
+                if (remaining >= 0) {
+                    // not beyond the time limit of the execution
+                    wait = Math.min(wait, remaining * 1_000_000L);
+                }
+                TimeUnit.NANOSECONDS.sleep(wait);
+                ContextUtils.checkLimits(getContext());
             } catch (InterruptedException ex) {
                 LOG.debug("Call HTTPGET to " + url_s + " Interrupted");
                 throw new ExprEvalException("Call HTTPGET to " + url_s + " Interrupted", ex);

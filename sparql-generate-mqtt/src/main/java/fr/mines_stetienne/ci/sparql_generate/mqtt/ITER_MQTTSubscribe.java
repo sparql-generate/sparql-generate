@@ -205,7 +205,8 @@ public class ITER_MQTTSubscribe extends IteratorStreamFunctionBase {
             }
         }
         try {
-            semaphore.get();
+            // until the stream ends, or the time limit of the execution
+            ContextUtils.awaitWithinLimits(getContext(), semaphore);
         } catch (InterruptedException ex) {
             LOG.debug("Execution interrupted");
             throw new ExprEvalException("A MqttException occurred", ex);

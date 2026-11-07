@@ -210,9 +210,12 @@ public class PlaygroundExamplesTest {
 		ExecutorService executor = Executors.newSingleThreadExecutor();
 		ExecutorService engineExecutor = Executors.newCachedThreadPool();
 		try {
+			// the default limits of the server
 			ContextUtils.Builder builder = ContextUtils.build().setStreamManager(sm)
 					.setDebugTemplate(request.debugTemplate).setPrefixMapping(query.getPrefixMapping())
-					.setInputDataset(dataset).setExecutor(engineExecutor);
+					.setInputDataset(dataset).setExecutor(engineExecutor)
+					.setTimeLimit(fr.mines_stetienne.ci.sparql_generate.JerseyApp.MAX_TIME)
+					.setMaxTriples(fr.mines_stetienne.ci.sparql_generate.JerseyApp.MAX_TRIPLES);
 			if (ENDLESS.contains(name)) {
 				runEndless(plan, query, builder, executor);
 			} else if (query.isGenerateType()) {

@@ -206,12 +206,30 @@ public class ContextUtils {
 	 */
 	public static void checkLimits(Context context) {
 		if (Thread.currentThread().isInterrupted()) {
-			throw new ExecutionLimitException("The execution was interrupted.");
+			throw new ExecutionLimitException("Execution interrupted, output truncated.");
 		}
 		Commons commons = context == null ? null : context.get(COMMONS);
 		if (commons != null && commons.deadline != 0 && System.nanoTime() - commons.deadline > 0) {
 			throw new ExecutionLimitException(
-					String.format("The execution exceeded its time limit of %d s.", commons.timeLimitSeconds));
+					String.format("Time limit of %d s reached, output truncated.", commons.timeLimitSeconds));
+		}
+	}
+
+	/**
+	 * Waits for a future, such as the end of a stream, within the limits of
+	 * the execution: when the time limit is reached, or the thread is
+	 * interrupted, throws an {@link ExecutionLimitException}.
+	 */
+	public static <T> T awaitWithinLimits(Context context, java.util.concurrent.Future<T> future)
+			throws InterruptedException, java.util.concurrent.ExecutionException {
+		while (true) {
+			checkLimits(context);
+			final long remaining = remainingMillis(context);
+			try {
+				return future.get(remaining < 0 ? 1000 : Math.min(remaining, 1000), java.util.concurrent.TimeUnit.MILLISECONDS);
+			} catch (java.util.concurrent.TimeoutException ex) {
+				// check the limits again
+			}
 		}
 	}
 
@@ -223,7 +241,7 @@ public class ContextUtils {
 		Commons commons = context == null ? null : context.get(COMMONS);
 		if (commons != null && commons.maxTriples > 0 && commons.triples.incrementAndGet() > commons.maxTriples) {
 			throw new ExecutionLimitException(
-					String.format("The execution exceeded its limit of %d triples.", commons.maxTriples));
+					String.format("Limit of %d triples reached, output truncated.", commons.maxTriples));
 		}
 	}
 

@@ -47,7 +47,7 @@ public class ExecutionLimitTest {
 							.setGenerateOutput(new org.apache.jena.riot.system.StreamRDFBase()).build());
 			fail("the time limit stops the execution");
 		} catch (ExecutionLimitException ex) {
-			assertTrue(ex.getMessage(), ex.getMessage().contains("time limit"));
+			assertTrue(ex.getMessage(), ex.getMessage().startsWith("Time limit of 1 s reached, output truncated"));
 		}
 		long millis = (System.nanoTime() - start) / 1_000_000;
 		assertTrue("stopped after " + millis + " ms", millis < 10000);
@@ -61,7 +61,7 @@ public class ExecutionLimitTest {
 					.execGenerate(ContextUtils.build().setMaxTriples(10).build());
 			fail("the limit of triples stops the execution");
 		} catch (ExecutionLimitException ex) {
-			assertTrue(ex.getMessage(), ex.getMessage().contains("10 triples"));
+			assertTrue(ex.getMessage(), ex.getMessage().startsWith("Limit of 10 triples reached, output truncated"));
 		}
 	}
 }

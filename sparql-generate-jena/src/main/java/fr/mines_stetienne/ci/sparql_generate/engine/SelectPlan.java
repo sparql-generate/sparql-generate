@@ -172,7 +172,7 @@ public class SelectPlan {
 				output.accept(resultSet);
 			}
 		} catch (org.apache.jena.query.QueryCancelledException ex) {
-			throw new ExecutionLimitException("The execution exceeded its time limit.");
+			throw new ExecutionLimitException("Time limit reached, output truncated.");
 		} catch (ExecutionLimitException ex) {
 			throw ex;
 		} catch (Exception ex) {

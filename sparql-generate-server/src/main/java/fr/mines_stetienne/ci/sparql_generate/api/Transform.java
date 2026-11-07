@@ -186,7 +186,7 @@ public class Transform extends HttpServlet {
             final ExecutionLimitException limit = ExecutionLimitException.findIn(ex);
             if (limit != null) {
                 return Response.status(Response.Status.REQUEST_TIMEOUT)
-                        .entity(limit.getMessage() + " Please use the executable jar instead.").build();
+                        .entity(limit.getMessage() + " Use the command-line tool for longer executions.").build();
             }
         	throw new InternalServerErrorException(ex);
         } catch (final Exception ex) {

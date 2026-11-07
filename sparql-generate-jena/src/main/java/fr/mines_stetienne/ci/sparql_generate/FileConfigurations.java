@@ -160,6 +160,16 @@ public class FileConfigurations {
      */
     public boolean failOnMissing;
 
+    /**
+     * the time limit of the execution, in seconds; 0 for none
+     */
+    public int timeLimit;
+
+    /**
+     * the largest number of triples of a GENERATE execution; 0 for no limit
+     */
+    public long maxTriples;
+
     
     public class NamedQuery {
         public String uri;

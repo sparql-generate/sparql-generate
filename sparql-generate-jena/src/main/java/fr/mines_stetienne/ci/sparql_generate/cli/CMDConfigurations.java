@@ -151,6 +151,12 @@ public class CMDConfigurations {
 	public static final String ARG_FAIL_ON_MISSING_LONG = "fail-on-missing";
 	public static final String ARG_FAIL_ON_MISSING_MAN = "Fail if a document, a graph or a query cannot be found. By default, an iterator over a missing document gives no solution, the variable of a SOURCE clause is unbound, and the graph of a FROM clause is empty.";
 
+	public static final String ARG_TIME_LIMIT_LONG = "time-limit";
+	public static final String ARG_TIME_LIMIT_MAN = "Stop the execution after this number of seconds, with exit status 1 and the message that the output is truncated.";
+
+	public static final String ARG_MAX_TRIPLES_LONG = "max-triples";
+	public static final String ARG_MAX_TRIPLES_MAN = "Stop a GENERATE execution beyond this number of triples, with exit status 1 and the message that the output is truncated.";
+
 	public static final String ARG_SYNTAX = "x";
 	/** syntax */
 	public static final String ARG_SYNTAX_LONG = "syntax";
@@ -184,6 +190,8 @@ public class CMDConfigurations {
 				.addOption(ARG_DEBUG_TEMPLATE, ARG_DEBUG_TEMPLATE_LONG, false, ARG_DEBUG_TEMPLATE_MAN)
 				.addOption(ARG_SYNTAX, ARG_SYNTAX_LONG, false, ARG_SYNTAX_MAN)
 				.addOption(Option.builder().longOpt(ARG_FAIL_ON_MISSING_LONG).desc(ARG_FAIL_ON_MISSING_MAN).build())
+				.addOption(Option.builder().longOpt(ARG_TIME_LIMIT_LONG).hasArg().argName("seconds").desc(ARG_TIME_LIMIT_MAN).build())
+				.addOption(Option.builder().longOpt(ARG_MAX_TRIPLES_LONG).hasArg().argName("n").desc(ARG_MAX_TRIPLES_MAN).build())
 				.addOption(sourcesOpt)
 				.addOption(bindingsOpt);
 	}

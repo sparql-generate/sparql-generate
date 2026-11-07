@@ -292,6 +292,28 @@ public class CliTest {
 		assertEquals(3, Files.readAllLines(out.toPath()).size());
 	}
 
+	/**
+	 * A limit reached gives exit status 1 and says that the output is
+	 * truncated: no partial output without a word.
+	 */
+	@Test
+	public void maxTriplesReached() throws Exception {
+		Result result = run(QUERY, "--max-triples", "1", "-s");
+		assertEquals(result.err, 1, result.exitCode);
+		assertTrue(result.err, result.err.contains("Limit of 1 triples reached, output truncated."));
+	}
+
+	@Test
+	public void timeLimitReached() throws Exception {
+		File out = new File(folder.getRoot(), "big.nt");
+		Result result = run("PREFIX iter: <http://w3id.org/sparql-generate/iter/> "
+				+ "GENERATE { GENERATE { <http://ex/s> <http://ex/p> ?k } ITERATOR iter:for(0, 1, 5000) AS ?j "
+				+ "WHERE { BIND(?i * ?j AS ?k) } . } ITERATOR iter:for(0, 1, 5000) AS ?i",
+				"--time-limit", "1", "-s", "-fo", "NT", "-o", out.getAbsolutePath());
+		assertEquals(result.err, 1, result.exitCode);
+		assertTrue(result.err, result.err.contains("Time limit of 1 s reached, output truncated."));
+	}
+
 	@Test
 	public void selectOutputFile() throws Exception {
 		File out = new File(folder.getRoot(), "result.csv");
