@@ -49,6 +49,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * Function <a href="http://ns.inria.fr/sparql-template/format">st:format</a>
+ * formats its arguments, as in <a href="https://ns.inria.fr/sparql-template/">STTL</a>.
+ *
+ * <ul>
+ * <li>Param 1: the format, a string, or the IRI of a document that contains
+ * the format;</li>
+ * <li>Params 2 .. N: the values, each written as its unquoted string where the
+ * format has %s, as with {@link String#format(String, Object...)}.</li>
+ * </ul>
+ * FORMAT { "format" expr1 ... } in a TEMPLATE query is compiled to a call to
+ * st:format. An argument that cannot be evaluated is skipped; with the option
+ * debugTemplate, an error message is given in its place.
  *
  * @author Maxime Lefrançois
  */

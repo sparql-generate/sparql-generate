@@ -32,6 +32,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * Function <a href="http://ns.inria.fr/sparql-template/decr">st:decr</a>
+ * takes no argument, decreases by one level the indentation of the output of
+ * the TEMPLATE query that is executed, and returns the empty string. BOX {
+ * ... } calls st:incr() at its beginning and st:decr() at its end.
  *
  * @author Maxime Lefrançois
  */

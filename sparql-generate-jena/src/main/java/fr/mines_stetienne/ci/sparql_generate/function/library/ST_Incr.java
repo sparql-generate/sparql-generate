@@ -32,6 +32,10 @@ import fr.mines_stetienne.ci.sparql_generate.utils.ContextUtils;
 import fr.mines_stetienne.ci.sparql_generate.utils.ST;
 
 /**
+ * Function <a href="http://ns.inria.fr/sparql-template/incr">st:incr</a>
+ * takes no argument, increases by one level the indentation of the output of
+ * the TEMPLATE query that is executed, and returns the empty string. BOX {
+ * ... } calls st:incr() at its beginning and st:decr() at its end.
  *
  * @author Maxime Lefrançois
  */
