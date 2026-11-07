@@ -91,6 +91,11 @@ public class SelectExtractionVisitor implements SPARQLExtQueryVisitor {
         project.forEachVar((v) -> {
             output.addResultVar(v, project.getExpr(v));
         });
+        // DISTINCT, REDUCED and projected expressions need the SELECT, even
+        // without WHERE clause
+        if (query.isDistinct() || query.isReduced() || !project.getExprs().isEmpty()) {
+            isDummyQuery = false;
+        }
     }
 
     @Override

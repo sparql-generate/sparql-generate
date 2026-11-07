@@ -50,6 +50,29 @@ public class SelectQueryTest {
 		assertEquals("2", binding.get(Var.alloc("y")).getLiteralLexicalForm());
 	}
 
+	/**
+	 * DISTINCT and projected expressions apply without a WHERE clause too.
+	 */
+	@Test
+	public void distinctWithoutWhereClause() {
+		ResultSet rs = PlanFactory.create("PREFIX iter: <http://w3id.org/sparql-generate/iter/> "
+				+ "SELECT DISTINCT ?c ITERATOR iter:Split(\"a,b,a,a\", \",\") AS ?c WHERE { }")
+				.execSelect(ContextUtils.build().build());
+		int n = 0;
+		while (rs.hasNext()) {
+			rs.next();
+			n++;
+		}
+		assertEquals(2, n);
+	}
+
+	@Test
+	public void expressionWithoutWhereClause() {
+		ResultSet rs = PlanFactory.create("SELECT (?x + 1 AS ?y) BIND(1 AS ?x) WHERE { }")
+				.execSelect(ContextUtils.build().build());
+		assertEquals("2", rs.nextBinding().get(Var.alloc("y")).getLiteralLexicalForm());
+	}
+
 	@Test
 	public void starWithoutWhereClause() {
 		ResultSet rs = PlanFactory.create("SELECT * BIND(1 AS ?x) BIND(2 AS ?y) WHERE { }")
