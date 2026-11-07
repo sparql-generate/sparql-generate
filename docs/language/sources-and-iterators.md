@@ -56,7 +56,7 @@ An iterator function returns a list of rows. `ITERATOR` binds the variables afte
 | XML, HTML | `iter:XPath`, `iter:CSSPath` |
 | GeoJSON | `iter:GeoJSON` |
 | CBOR | `iter:CBOR` |
-| SQL | `iter:SQL` |
+| SQL | `iter:SQL(<jdbc:...>, "SELECT ...")`: the JDBC URL carries the user and the password (`jdbc:postgresql://host/db?user=me&password=secret`); any JDBC driver of the classpath, MySQL included |
 | text | `iter:regex`, `iter:Split` |
 | numbers | `iter:for` |
 | streams | `iter:HTTPGet`, `iter:MQTTSubscribe`, `iter:WebSocket` |

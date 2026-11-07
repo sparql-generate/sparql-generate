@@ -2,6 +2,24 @@
 
 This page summarises the changes of the engine since version 2.0. The full history is in the [commits](https://github.com/sparql-generate/sparql-generate/commits/master) and the [releases](https://github.com/sparql-generate/sparql-generate/releases).
 
+## 2.2.4
+
+Not yet released.
+
+**Performance**
+
+- A `WHERE` clause made of `BIND` and `FILTER`, without solution modifier, is evaluated without Jena's query engine; a nested `GENERATE` receives the variables of its parent instead of computing them again; a `BIND` clause no longer builds a log message for each binding. The query translated from RML for the KGCW 2024 task records-1M (20 M triples): 219 s to 30 s; the flat CSV mapping translated from RML at 8 M triples: 61 s to 16 s.
+
+**Language and engine**
+
+- `fun:JSONPath` on a JSON `null` leaves the variable unbound; the whole query failed with an internal error.
+- `fun:CBOR` and `iter:CBOR` read CBOR; they parsed the decoded bytes as JSON text, which is still accepted.
+- **Changed**: `iter:JSONSurfer` gives the integers of a JSON document as `xsd:integer`, as `iter:JSONPath` does; it gave them as `xsd:double`. An integer beyond 64 bits is an `xsd:integer` for `fun:JSONPath` and `iter:JSONPath` (it left the variable unbound).
+- `iter:CSV` with a batch size no longer sends an empty last batch, on which an aggregate gave one more solution.
+- `fun:HTTPExtractBody`, `fun:HTTPExtractHeader` and `fun:HTTPExtractResponseCode` accept the response of a server of any version of HTTP, not only HTTP/1.1.
+- `iter:HTTPGet` types each response with its media type, `https://www.iana.org/assignments/media-types/application/json` (the prefix was doubled), and no longer waits after its last call.
+- **Changed**: `iter:SQL` connects with the JDBC URL alone, with the user and password it carries, and any JDBC driver of the classpath; it used the user `root` and the password `password`, and only MySQL. The rows of the result are one batch; each row was a batch of its own.
+
 ## 2.2.3
 
 Released on 2026-11-07. Fixes of the defects found by the benchmark and by the formal semantics, a few changes of behaviour (marked **Changed**), and a faster evaluation.
