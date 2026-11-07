@@ -170,10 +170,11 @@ public class ITER_JSONPath extends IteratorFunctionBase {
             }
         }
         
-        List<Object> values = JsonPath
+        // JSONPath gives a LinkedList: get(i) would be linear
+        List<Object> values = new ArrayList<>(JsonPath
                     .using(conf)
                     .parse(jsonString)
-                    .read(jsonquery.getString());
+                    .<List<Object>>read(jsonquery.getString()));
             int size = values.size();
             List<List<NodeValue>> listNodeValues = new ArrayList<>(size);
             for (int i = 0; i < size; i++) {
