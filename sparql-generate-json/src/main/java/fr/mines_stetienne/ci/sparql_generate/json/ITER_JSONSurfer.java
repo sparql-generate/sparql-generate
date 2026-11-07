@@ -56,7 +56,6 @@ import org.apache.jena.sparql.expr.nodevalue.NodeValueBoolean;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueInteger;
 import org.jsfr.json.JsonPathListener;
 import org.jsfr.json.JsonSurfer;
-import org.jsfr.json.JsonSurferGson;
 import org.jsfr.json.ParsingContext;
 import org.jsfr.json.SurfingConfiguration;
 import org.jsfr.json.compiler.JsonPathCompiler;
@@ -104,7 +103,8 @@ public class ITER_JSONSurfer extends IteratorStreamFunctionBase {
 
 	private static final FUN_JSONPath function = new FUN_JSONPath();
 
-	private static final JsonSurfer surfer = JsonSurferGson.INSTANCE;
+	// as JsonSurferGson.INSTANCE, but integers stay integers
+	private static final JsonSurfer surfer = JsonSurferNumbers.SURFER;
 
 	@Override
 	public void checkBuild(ExprList args) {

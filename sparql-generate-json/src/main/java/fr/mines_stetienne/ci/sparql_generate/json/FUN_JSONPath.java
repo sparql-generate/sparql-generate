@@ -22,6 +22,7 @@ import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.Option;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.NodeValue;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueBoolean;
@@ -156,6 +157,9 @@ public final class FUN_JSONPath extends FunctionBase2 {
 			return new NodeValueDouble((Double) value);
 		} else if (value instanceof BigDecimal) {
 			return new NodeValueDecimal((BigDecimal) value);
+		} else if (value instanceof BigInteger) {
+			// an integer beyond 64 bits, as json-smart and JsonSurfer give it
+			return NodeValue.makeInteger((BigInteger) value);
 		} else if (value instanceof ArrayList) {
 			String jsonString = new Gson().toJson(value);
 			return new NodeValueString(jsonString);
