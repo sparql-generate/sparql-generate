@@ -1,0 +1,11 @@
+PREFIX iter: <http://w3id.org/sparql-generate/iter/>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+PREFIX ex: <http://example.com/>
+BASE <http://example.com/>
+
+GENERATE {
+  <student/{?id}> a foaf:Person ;
+    foaf:name ?name ;
+    ex:practises <sport/{?sport}> .
+}
+ITERATOR iter:CSV(<http://example.com/student.csv>, "ID", "Name", "Sport") AS ?id ?name ?sport

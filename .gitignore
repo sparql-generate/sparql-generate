@@ -42,3 +42,5 @@ make.sh
 *.out
 
 bin
+# MkDocs build output
+/site/

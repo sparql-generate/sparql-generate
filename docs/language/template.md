@@ -29,4 +29,4 @@ A named `TEMPLATE` query has an IRI and a signature. A template calls it with a 
 
 !example named-template
 
-[^sttl]: Olivier Corby, Catherine Faron-Zucker. STTL: A SPARQL-based Transformation Language for RDF. WEBIST 2015. <https://ns.inria.fr/sparql-template/>
+[^sttl]: Olivier Corby, Catherine Faron-Zucker. STTL: A SPARQL-based Transformation Language for RDF. WEBIST 2015. <http://ns.inria.fr/sparql-template/>
