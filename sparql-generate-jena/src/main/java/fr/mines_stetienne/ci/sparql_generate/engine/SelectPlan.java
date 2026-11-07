@@ -64,6 +64,11 @@ public class SelectPlan {
 	private final List<Var> signature;
 
 	/**
+	 * The evaluation without Jena's query engine, or null if it does not apply.
+	 */
+	private final DirectSelect direct;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param query
@@ -81,6 +86,7 @@ public class SelectPlan {
 		// the expressions of IRI templates, lost when the query was copied
 		E_IRITemplate.optimize(select);
 		this.isSelectType = isSelectType;
+		this.direct = DirectSelect.of(select, isSelectType);
 		this.signature = signature;
 	}
 
@@ -102,6 +108,13 @@ public class SelectPlan {
 	final public void exec(final List<Var> variables, final List<Binding> values, final Context context, Consumer<ResultSet> output) {
 		if (Thread.interrupted()) {
 			throw new SPARQLExtException(new InterruptedException());
+		}
+		if (direct != null && !LOG.isTraceEnabled()) {
+			final ResultSet resultSet = direct.exec(variables, values, context);
+			if (resultSet != null) {
+				output.accept(resultSet);
+				return;
+			}
 		}
 		final Query q = createQuery(select, variables, values, context);
 		final Dataset inputDataset = ContextUtils.getDataset(context);
