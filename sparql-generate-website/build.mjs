@@ -66,7 +66,11 @@ async function pages(layout, date) {
       .replaceAll('{{date}}', date)
       .replace('{{head}}', head)
       .replace('{{nav}}', nav(meta.active))
-      .replace('{{body}}', () => source.slice(match[0].length));
+      .replace('{{body}}', () => source.slice(match[0].length)
+        .replaceAll('{{docs}}', DOCS)
+        .replaceAll('{{date}}', date));
+    const left = html.match(/\{\{(title|description|bodyClass|docs|date|head|nav|body)\}\}/);
+    if (left) throw new Error(`${name}: placeholder ${left[0]} left in the page`);
     await writeFile(join(OUT, name), html);
   }
 }
