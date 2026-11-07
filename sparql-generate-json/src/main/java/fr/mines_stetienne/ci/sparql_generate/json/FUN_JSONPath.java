@@ -113,6 +113,13 @@ public final class FUN_JSONPath extends FunctionBase2 {
 
 		try {
 			Object value = JsonPath.parse(json.asNode().getLiteralLexicalForm()).limit(1).read(jsonpath.getString());
+			// an indefinite path, with a filter, a wildcard or a deep scan, gives a
+			// list even for one match: give the match. A definite path that selects
+			// an array gives the array, even of one element.
+			if (value instanceof List && ((List<?>) value).size() == 1
+					&& !JsonPath.compile(jsonpath.getString()).isDefinite()) {
+				value = ((List<?>) value).get(0);
+			}
 			return nodeForObject(value);
 		} catch (Exception ex) {
 			if (LOG.isDebugEnabled()) {
@@ -138,9 +145,6 @@ public final class FUN_JSONPath extends FunctionBase2 {
 			return new NodeValueDouble((Double) value);
 		} else if (value instanceof BigDecimal) {
 			return new NodeValueDecimal((BigDecimal) value);
-		} else if (value instanceof List && ((List<?>) value).size() == 1) {
-			// a path with a filter or a wildcard gives a list, even for one match
-			return nodeForObject(((List<?>) value).get(0));
 		} else if (value instanceof ArrayList) {
 			String jsonString = new Gson().toJson(value);
 			return new NodeValueString(jsonString);
