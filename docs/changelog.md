@@ -4,7 +4,7 @@ This page summarises the changes of the engine since version 2.0. The full histo
 
 ## 2.3.0
 
-Not yet released.
+Released on 2026-11-07. A change of the typing of JSON numbers, marked **Changed**; a fix that is a reason to upgrade from 2.2.4: an out-of-memory error could give a partial output with exit status 0; and a faster engine.
 
 **Language and engine**
 
