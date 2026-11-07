@@ -47,6 +47,7 @@ public abstract class BindOrSourcePlan implements BindingsClausePlan {
     final public List<Binding> exec(
             final List<Binding> values,
             final Context context) {
+        prepare(context);
         return values
                 .stream()
                 .map((binding) -> exec(binding, context))
@@ -56,6 +57,12 @@ public abstract class BindOrSourcePlan implements BindingsClausePlan {
     abstract protected Binding exec(
             final Binding binding,
             final Context context);
+
+    /**
+     * Called once before the bindings of a batch are processed.
+     */
+    protected void prepare(final Context context) {
+    }
 
     public final Var getVar() {
         return var;

@@ -66,9 +66,16 @@ public class BindPlan extends BindOrSourcePlan {
     }
 
     @Override
-    protected final Binding exec(Binding binding, Context context) {
-        LOG.debug("Start " + this);
+    protected void prepare(Context context) {
+        // NOW() is the same for the bindings of a batch
         context.set(ARQConstants.sysCurrentTime, NodeFactoryExtra.nowAsDateTime());
+    }
+
+    @Override
+    protected final Binding exec(Binding binding, Context context) {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Start " + this);
+        }
         final FunctionEnv env = new FunctionEnvBase(context);
         try {
             final NodeValue n = expr.eval(binding, env);
@@ -77,7 +84,9 @@ public class BindPlan extends BindOrSourcePlan {
             }
             return BindingFactory.binding(parentBinding(binding), var, n.asNode());
         } catch(ExprEvalException ex) {
-            LOG.trace("No evaluation for " + this + " " + ex.getMessage());
+            if (LOG.isTraceEnabled()) {
+                LOG.trace("No evaluation for " + this + " " + ex.getMessage());
+            }
             return parentBinding(binding);
         }
     }
