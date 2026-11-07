@@ -1,0 +1,5 @@
+<http://example.org/s/2>
+        <http://example.org/p>  ( "c" ) .
+
+<http://example.org/s/1>
+        <http://example.org/p>  ( "a" "b" ) .
