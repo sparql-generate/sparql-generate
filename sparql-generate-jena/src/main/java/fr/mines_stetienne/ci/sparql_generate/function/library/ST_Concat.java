@@ -41,9 +41,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * https://ns.inria.fr/sparql-template/ sec. 4.3 A named template is called by
- * name with parameter values using the st:call-template function. When several
- * parameters occur, parameter passing is done by position (i.e. not by name).
+ * Function <a href="http://ns.inria.fr/sparql-template/concat">st:concat</a>
+ * concatenates the string values of its arguments, as in
+ * <a href="https://ns.inria.fr/sparql-template/">STTL</a>. The template
+ * expressions of a TEMPLATE query are compiled to a call to st:concat.
+ *
+ * <p>
+ * The arguments are evaluated in turn and written to a template output of
+ * their own, so that the indentation set by st:incr and st:decr, the
+ * functions that BOX uses, applies to them. An argument that cannot be
+ * evaluated is skipped; with the option debugTemplate, an error message is
+ * written in its place.
+ * </p>
  *
  * @author Maxime Lefrançois
  */
