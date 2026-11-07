@@ -15,7 +15,10 @@
  */
 package fr.mines_stetienne.ci.sparql_generate.cli;
 
+import java.io.BufferedOutputStream;
+import java.io.OutputStream;
 import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import org.apache.jena.graph.Triple;
 import org.apache.jena.riot.system.StreamRDF;
 import org.apache.jena.shared.PrefixMapping;
@@ -24,7 +27,8 @@ import org.apache.jena.sparql.serializer.SerializationContext;
 import org.apache.jena.sparql.util.FmtUtils;
 
 /**
- * Outputs Stream RDF as N3 to a PrintStream with a PrefixMapping
+ * Outputs Stream RDF as Turtle, one triple per line, to a PrintStream with a
+ * PrefixMapping. The stream is flushed at the end, not closed.
  * 
  * @author Maxime Lefrançois
  */
@@ -42,6 +46,13 @@ public class ConsoleStreamRDF implements StreamRDF {
 		this.out = out;
 		this.pm = pm;
 		context = new SerializationContext(pm);
+	}
+
+	/**
+	 * Writes to an output stream through a buffer, in UTF-8.
+	 */
+	public ConsoleStreamRDF(OutputStream out, PrefixMapping pm) {
+		this(new PrintStream(new BufferedOutputStream(out, 1 << 16), false, StandardCharsets.UTF_8), pm);
 	}
 
 	@Override
@@ -74,5 +85,6 @@ public class ConsoleStreamRDF implements StreamRDF {
 
 	@Override
 	public void finish() {
+		out.flush();
 	}
 }

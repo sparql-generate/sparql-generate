@@ -31,12 +31,12 @@ import static fr.mines_stetienne.ci.sparql_generate.cli.CMDConfigurations.ARG_SO
 import static fr.mines_stetienne.ci.sparql_generate.cli.CMDConfigurations.ARG_STREAM;
 import static fr.mines_stetienne.ci.sparql_generate.cli.CMDConfigurations.ARG_SYNTAX;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.PrintStream;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -53,6 +53,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.output.CloseShieldOutputStream;
 import org.apache.jena.atlas.io.IndentedWriter;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
@@ -64,7 +65,10 @@ import org.apache.jena.query.ResultSetFormatter;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFLanguages;
+import org.apache.jena.riot.RDFFormat;
 import org.apache.jena.riot.RiotException;
+import org.apache.jena.riot.system.StreamRDF;
+import org.apache.jena.riot.system.StreamRDFWriter;
 import org.apache.jena.riot.system.PrefixMapFactory;
 import org.apache.jena.sparql.util.NodeFactoryExtra;
 import org.apache.jena.shared.PrefixMapping;
@@ -342,21 +346,49 @@ public class SPARQLExtCli {
 		}
 	}
 
+	/**
+	 * The output file, or the standard output, which is not closed.
+	 */
+	private static OutputStream openOutput(CliRequest request) {
+		if (request.output == null) {
+			return CloseShieldOutputStream.wrap(System.out);
+		}
+		try {
+			return new BufferedOutputStream(new FileOutputStream(request.output, request.outputAppend), 1 << 16);
+		} catch (IOException ex) {
+			throw new SPARQLExtException("Error while opening the output file.", ex);
+		}
+	}
+
+	/**
+	 * With --stream, a GENERATE query writes N-Triples if asked to, and
+	 * Turtle, one triple per line, otherwise.
+	 */
+	private static boolean isNTriples(CliRequest request) {
+		if (request.outputFormat == null) {
+			return false;
+		}
+		Lang lang = RDFLanguages.nameToLang(request.outputFormat);
+		if (Lang.NTRIPLES.equals(lang) || Lang.NQUADS.equals(lang)) {
+			return true;
+		}
+		if (!Lang.TURTLE.equals(lang) && !Lang.N3.equals(lang)) {
+			LOG.warn("With --stream, the output of a GENERATE query is Turtle or N-Triples, not " + request.outputFormat);
+		}
+		return false;
+	}
+
 	private static void execGenerateStream(List<Binding> bindings, RootPlan plan, ContextUtils.Builder builder, CliRequest request) {
 		final PrefixMapping pm = plan.getQuery().getPrefixMapping();
-		final ConsoleStreamRDF consoleStreamRDF;
-		if (request.output == null) {
-			consoleStreamRDF = new ConsoleStreamRDF(System.out, pm);
-		} else {
-			try {
-				consoleStreamRDF = new ConsoleStreamRDF(
-						new PrintStream(new FileOutputStream(request.output, request.outputAppend)), pm);
-			} catch (IOException ex) {
-				throw new SPARQLExtException("Error while opening the output file.", ex);
-			}
+		try (OutputStream out = openOutput(request)) {
+			final StreamRDF stream = isNTriples(request) ? StreamRDFWriter.getWriterStream(out, RDFFormat.NTRIPLES)
+					: new ConsoleStreamRDF(out, pm);
+			// the plan calls start() and finish(), which flushes the stream
+			Context context = builder.setGenerateOutput(stream).build();
+			plan.execGenerateStream(bindings, context);
+		} catch (IOException ex) {
+			throw new SPARQLExtException("Error while writing the output file.", ex);
 		}
-		Context context = builder.setGenerateOutput(consoleStreamRDF).build();
-		plan.execGenerateStream(bindings, context);
 	}
 
 	private static void execGenerate(List<Binding> bindings, RootPlan plan, Context context, CliRequest request) {
@@ -364,67 +396,51 @@ public class SPARQLExtCli {
 			request.outputFormat = RDFLanguages.strLangTurtle;
 		}
 		Lang lang = RDFLanguages.nameToLang(request.outputFormat);
+		final Model model;
 		try {
-			Model model = plan.execGenerate(bindings, context);
-			if (request.output == null) {
-				model.write(System.out, lang.getLabel());
-			} else {
-				try {
-					model.write(new FileOutputStream(request.output, request.outputAppend), lang.getLabel());
-				} catch (IOException ex) {
-					throw new SPARQLExtException("Error while opening the output file.", ex);
-				}
-			}
+			model = plan.execGenerate(bindings, context);
 		} catch (Exception ex) {
 			throw new SPARQLExtException("Error while executing the plan.", ex);
+		}
+		try (OutputStream out = openOutput(request)) {
+			model.write(out, lang.getLabel());
+		} catch (IOException ex) {
+			throw new SPARQLExtException("Error while writing the output file.", ex);
+		}
+	}
+
+	private static void writeResultSet(OutputStream out, ResultSet result, ResultsFormat format) {
+		if (format.equals(ResultsFormat.FMT_TEXT)) {
+			ResultSetFormatter.out(out, result);
+		} else {
+			ResultSetFormatter.output(out, result, format);
 		}
 	}
 
 	private static void execSelect(List<Binding> bindings, RootPlan plan, Context context, CliRequest request) {
+		final ResultSet result;
 		try {
-			ResultSet result = plan.execSelect(bindings, context);
-			OutputStream out;
-			try {
-				if (request.output == null) {
-					out = System.out;
-				} else {
-					out = new FileOutputStream(request.output, request.outputAppend);
-				}
-				ResultsFormat format = getResultsFormat(request);
-				if (format.equals(ResultsFormat.FMT_TEXT)) {
-					ResultSetFormatter.out(out, result);
-				} else {
-					ResultSetFormatter.output(out, result, format);
-				}
-			} catch (IOException ex) {
-				throw new SPARQLExtException("Error while opening the output file.", ex);
-			}
+			result = plan.execSelect(bindings, context);
 		} catch (Exception ex) {
 			throw new SPARQLExtException("Error while executing the plan.", ex);
+		}
+		final ResultsFormat format = getResultsFormat(request);
+		try (OutputStream out = openOutput(request)) {
+			writeResultSet(out, result, format);
+		} catch (IOException ex) {
+			throw new SPARQLExtException("Error while writing the output file.", ex);
 		}
 	}
 
 	private static void execSelectStream(List<Binding> bindings, RootPlan plan, ContextUtils.Builder builder, CliRequest request) {
-		OutputStream out;
-		try {
-			if (request.output == null) {
-				out = System.out;
-			} else {
-				out = new FileOutputStream(request.output, request.outputAppend);
-			}
-			ResultsFormat format = getResultsFormat(request);
+		final ResultsFormat format = getResultsFormat(request);
+		try (OutputStream out = openOutput(request)) {
 			Context context = builder.setSelectOutput((result) -> {
-				LOG.info("entering accept");
-				if (format.equals(ResultsFormat.FMT_TEXT)) {
-					ResultSetFormatter.out(out, result);
-				} else {
-					ResultSetFormatter.output(out, result, format);
-				}
-				LOG.info("exiting accept");
+				writeResultSet(out, result, format);
 			}).build();
 			plan.execSelectStream(bindings, context);
 		} catch (IOException ex) {
-			throw new SPARQLExtException("Error while opening the output file.", ex);
+			throw new SPARQLExtException("Error while writing the output file.", ex);
 		}
 	}
 

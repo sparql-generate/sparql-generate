@@ -246,6 +246,41 @@ public class CliTest {
 		assertEquals(2, RDFDataMgr.loadModel(out.getAbsolutePath(), Lang.TTL).size());
 	}
 
+	/**
+	 * With -fo NT, the stream is N-Triples: full IRIs, no prefix. A stream
+	 * may repeat a triple, here once per solution.
+	 */
+	@Test
+	public void streamedNTriples() throws Exception {
+		File out = new File(folder.getRoot(), "result.nt");
+		Result result = run("PREFIX ex: <http://ex/> GENERATE { ex:s ex:p ?o, \"a\" } WHERE { VALUES ?o { 1 2 } }",
+				"-s", "-fo", "NT", "-o", out.getAbsolutePath());
+		assertEquals(result.err, 0, result.exitCode);
+		List<String> lines = Files.readAllLines(out.toPath());
+		assertEquals(lines.toString(), 4, lines.size());
+		for (String line : lines) {
+			assertTrue(line, line.startsWith("<http://ex/s> <http://ex/p> ") && line.endsWith(" ."));
+		}
+		assertEquals(3, RDFDataMgr.loadModel(out.getAbsolutePath(), Lang.NT).size());
+	}
+
+	@Test
+	public void streamedNTriplesToStandardOutput() throws Exception {
+		Result result = run(QUERY, "-s", "-fo", "NT");
+		assertEquals(result.err, 0, result.exitCode);
+		Model model = ModelFactory.createDefaultModel();
+		RDFDataMgr.read(model, new StringReader(result.out), null, Lang.NT);
+		assertEquals(2, model.size());
+	}
+
+	@Test
+	public void selectStreamedOutputFile() throws Exception {
+		File out = new File(folder.getRoot(), "result.csv");
+		Result result = run("SELECT ?x WHERE { VALUES ?x { 1 2 } }", "-s", "-fo", "CSV", "-o", out.getAbsolutePath());
+		assertEquals(result.err, 0, result.exitCode);
+		assertEquals(3, Files.readAllLines(out.toPath()).size());
+	}
+
 	@Test
 	public void selectOutputFile() throws Exception {
 		File out = new File(folder.getRoot(), "result.csv");
