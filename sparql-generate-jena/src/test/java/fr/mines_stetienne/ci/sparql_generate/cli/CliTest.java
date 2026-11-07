@@ -51,6 +51,14 @@ public class CliTest {
 	}
 
 	private Result run(String query, String... args) throws Exception {
+		return runIn(null, query, args);
+	}
+
+	/**
+	 * @param cwd the working directory of the process, or null for the
+	 *            current one
+	 */
+	private Result runIn(File cwd, String query, String... args) throws Exception {
 		File dir = folder.getRoot();
 		if (query != null) {
 			Files.write(new File(dir, "query.rqg").toPath(), query.getBytes(StandardCharsets.UTF_8));
@@ -61,7 +69,11 @@ public class CliTest {
 				new File(System.getProperty("java.home"), "bin/java").getAbsolutePath(), "-cp",
 				System.getProperty("java.class.path"), SPARQLExtCli.class.getName(), "-d", dir.getAbsolutePath()));
 		command.addAll(Arrays.asList(args));
-		Process process = new ProcessBuilder(command).redirectOutput(out).redirectError(err).start();
+		ProcessBuilder builder = new ProcessBuilder(command).redirectOutput(out).redirectError(err);
+		if (cwd != null) {
+			builder.directory(cwd);
+		}
+		Process process = builder.start();
 		assertTrue("the CLI did not finish", process.waitFor(60, TimeUnit.SECONDS));
 		Result result = new Result();
 		result.exitCode = process.exitValue();
@@ -99,7 +111,7 @@ public class CliTest {
 
 	@Test
 	public void logFileOption() throws Exception {
-		Result result = run(QUERY, "--log-file", "log.txt", "-l", "INFO");
+		Result result = run(QUERY, "--log-file", new File(folder.getRoot(), "log.txt").getAbsolutePath(), "-l", "INFO");
 		assertEquals(result.err, 0, result.exitCode);
 		assertTrue(new File(folder.getRoot(), "log.txt").exists());
 		assertTrue(result.out.contains("http://ex/p"));
@@ -143,17 +155,73 @@ public class CliTest {
 
 	@Test
 	public void invalidOptionCombinationFails() throws Exception {
-		Result result = run("SELECT * WHERE { BIND(1 AS ?x) }", "--hdt", "-o", "out.hdt");
+		Result result = run("SELECT * WHERE { BIND(1 AS ?x) }", "--hdt", "-o",
+				new File(folder.getRoot(), "out.hdt").getAbsolutePath());
 		assertTrue(result.err, result.exitCode != 0);
 	}
 
 	@Test
 	public void hdtOutput() throws Exception {
-		Result result = run(QUERY, "--hdt", "-o", "out.hdt");
-		assertEquals(result.err, 0, result.exitCode);
 		File hdtFile = new File(folder.getRoot(), "out.hdt");
+		Result result = run(QUERY, "--hdt", "-o", hdtFile.getAbsolutePath());
+		assertEquals(result.err, 0, result.exitCode);
 		try (org.rdfhdt.hdt.hdt.HDT hdt = org.rdfhdt.hdt.hdt.HDTManager.loadHDT(hdtFile.getAbsolutePath(), null)) {
 			assertEquals(2, hdt.getTriples().getNumberOfElements());
 		}
+	}
+
+	private static final String BIND_QUERY = "PREFIX ex: <http://ex/> GENERATE { ex:s ex:p ?x } WHERE { }";
+
+	private Model bind(String value) throws Exception {
+		Result result = run(BIND_QUERY, "-B", "x=" + value);
+		assertEquals(result.err, 0, result.exitCode);
+		Model model = ModelFactory.createDefaultModel();
+		RDFDataMgr.read(model, new StringReader(result.out), null, Lang.TTL);
+		assertEquals(result.out, 1, model.size());
+		return model;
+	}
+
+	/**
+	 * -B binds a variable to an RDF term: a number, a literal, an IRI or a
+	 * prefixed name of the query.
+	 */
+	@Test
+	public void bindInteger() throws Exception {
+		assertEquals(42, bind("42").listObjects().next().asLiteral().getInt());
+	}
+
+	@Test
+	public void bindLanguageTaggedString() throws Exception {
+		assertEquals("en", bind("\"a string with spaces\"@en").listObjects().next().asLiteral().getLanguage());
+	}
+
+	@Test
+	public void bindIri() throws Exception {
+		assertEquals("http://ex/o", bind("<http://ex/o>").listObjects().next().asResource().getURI());
+	}
+
+	@Test
+	public void bindPrefixedName() throws Exception {
+		assertEquals("http://ex/o", bind("ex:o").listObjects().next().asResource().getURI());
+	}
+
+	/**
+	 * -o is resolved against the current directory, not against -d; an absolute
+	 * path stays absolute.
+	 */
+	@Test
+	public void absoluteOutputPath() throws Exception {
+		File out = new File(folder.newFolder("elsewhere"), "result.ttl");
+		Result result = run(QUERY, "-o", out.getAbsolutePath());
+		assertEquals(result.err, 0, result.exitCode);
+		assertTrue(out.exists());
+	}
+
+	@Test
+	public void relativeOutputPathIsRelativeToCurrentDirectory() throws Exception {
+		File cwd = folder.newFolder("cwd");
+		Result result = runIn(cwd, QUERY, "-o", "result.ttl");
+		assertEquals(result.err, 0, result.exitCode);
+		assertTrue(new File(cwd, "result.ttl").exists());
 	}
 }
