@@ -201,6 +201,10 @@ public class SPARQLExtCli {
 			return;
 		}
 
+		if (q.isPerformType()) {
+			throw new SPARQLExtException("PERFORM queries are not supported: the engine parses them but cannot execute them.");
+		}
+
 		if (cl != null) {
 			replaceSourcesIfRequested(cl, q);
 		}

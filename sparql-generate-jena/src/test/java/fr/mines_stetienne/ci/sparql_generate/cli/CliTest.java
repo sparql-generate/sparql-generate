@@ -224,4 +224,14 @@ public class CliTest {
 		assertEquals(result.err, 0, result.exitCode);
 		assertTrue(new File(cwd, "result.ttl").exists());
 	}
+
+	/**
+	 * PERFORM queries are parsed but cannot be executed: say so.
+	 */
+	@Test
+	public void performQueryIsNotSupported() throws Exception {
+		Result result = run("PERFORM { } WHERE { }");
+		assertTrue(result.exitCode != 0);
+		assertTrue(result.err, result.err.contains("PERFORM queries are not supported"));
+	}
 }
