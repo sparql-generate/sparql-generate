@@ -250,4 +250,38 @@ public class CliTest {
 		assertTrue(result.exitCode != 0);
 		assertTrue(result.err, result.err.contains("PERFORM queries are not supported"));
 	}
+
+	private Result runWithConf(String conf) throws Exception {
+		Files.write(new File(folder.getRoot(), "sparql-generate-conf.json").toPath(),
+				conf.getBytes(StandardCharsets.UTF_8));
+		return run(QUERY);
+	}
+
+	/**
+	 * Without -l nor configuration, the log level is WARN.
+	 */
+	@Test
+	public void defaultLogLevelIsWarn() throws Exception {
+		Result result = run(QUERY);
+		assertTrue(result.err, !result.err.contains(" INFO ") && !result.err.contains(" DEBUG "));
+	}
+
+	/**
+	 * The log level of sparql-generate-conf.json is "log", as documented, or
+	 * "loglevel", as in former versions.
+	 */
+	@Test
+	public void logLevelFromConfigurationLog() throws Exception {
+		assertTrue(runWithConf("{ \"log\": 4 }").err.contains(" DEBUG "));
+	}
+
+	@Test
+	public void logLevelFromConfigurationLogAsString() throws Exception {
+		assertTrue(runWithConf("{ \"log\": \"4\" }").err.contains(" DEBUG "));
+	}
+
+	@Test
+	public void logLevelFromConfigurationLoglevel() throws Exception {
+		assertTrue(runWithConf("{ \"loglevel\": 4 }").err.contains(" DEBUG "));
+	}
 }

@@ -113,7 +113,7 @@ public class Request {
             }
             documentset.add(doc2);
         });
-        loglevel = config.loglevel;
+        loglevel = config.getLogLevel();
         stream = config.stream;
         debugTemplate = config.debugTemplate;
     }

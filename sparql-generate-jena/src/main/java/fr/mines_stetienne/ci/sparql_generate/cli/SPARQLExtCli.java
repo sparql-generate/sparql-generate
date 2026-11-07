@@ -544,7 +544,7 @@ public class SPARQLExtCli {
 		request.debugTemplate = cl.hasOption(ARG_DEBUG_TEMPLATE) || request.debugTemplate;
 		request.logFile = resolve(dirFile, cl.getOptionValue(ARG_LOG_FILE), request.logFile);
 		try {
-			request.logLevelObject = Level.toLevel(cl.getOptionValue(ARG_LOG_LEVEL), LOG_LEVELS[request.loglevel]);
+			request.logLevelObject = Level.toLevel(cl.getOptionValue(ARG_LOG_LEVEL), LOG_LEVELS[request.getLogLevel()]);
 		} catch (Exception ex) {
 			request.logLevelObject = Level.DEBUG;
 		}
