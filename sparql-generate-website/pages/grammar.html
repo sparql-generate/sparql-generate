@@ -1,17 +1,9 @@
-  @@include("../include/head.html", {
-    "title": "SPARQL-Generate - Grammar in EBNF notation",
-    "active" : "grammar"
-  })
-
-
-  <div class="container">
-  <div class="row">
-    <div class="span12">
-      <div class="body-content">
-    <h1>Grammar in EBNF notion</h1>
-    <p>The definition of the syntax for the SPARQL-Generate language, as given by a grammar expressed in EBNF notation. </p>
-    <div class="grammarTable">
-        <table id="grammar" class="bodyTable table table-striped table-hover">
+<!-- {"title": "SPARQL-Generate grammar", "active": "docs", "description": "The grammar of SPARQL-Generate in EBNF notation."} -->
+    <main class="page">
+      <h1>Grammar in EBNF notation</h1>
+      <p>The grammar of the SPARQL-Generate language, generated from the JavaCC grammar of the engine, <a href="https://github.com/sparql-generate/sparql-generate/blob/master/sparql-generate-jena/src/main/javacc/spargl.jj"><code>spargl.jj</code></a>. The <a href="https://sparql-generate.readthedocs.io/en/latest/reference/grammar/">documentation</a> gives the main productions added to SPARQL 1.1.</p>
+      <div class="grammar">
+        <table id="grammar">
     <tr>
         <td ALIGN="RIGHT" VALIGN="BASELINE"><A NAME="prod1">SPARQLExtUnit</A></td>
         <td ALIGN="CENTER" VALIGN="BASELINE">::=</td>
@@ -1213,16 +1205,5 @@
         <td ALIGN="LEFT" VALIGN="BASELINE"><A HREF="#prod32">Expression</A> ( &lt;RI&gt; <A HREF="#prod165">XIRIREF_Sub</A> | &lt;XIRIref_END&gt; )</td>
     </tr>
 </table>
- 
       </div>
-    </div>
-  </div>
-  </div>
-</div>
-
-
-
-@@include("../include/footer.html", {
-  "active" : "grammar", 
-  "date" : "@@date"
-})
+    </main>

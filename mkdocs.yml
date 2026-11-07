@@ -90,6 +90,7 @@ nav:
       - Command line: cli.md
       - Java API: java-api.md
       - Python API: python-api.md
+      - Web API: web-api.md
       - VS Code extension: vscode.md
   - Comparisons:
       - From RML: rml.md

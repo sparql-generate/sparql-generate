@@ -44,3 +44,6 @@ make.sh
 bin
 # MkDocs build output
 /site/
+
+# Python bytecode
+__pycache__/

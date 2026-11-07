@@ -14,13 +14,16 @@ jobs:
       - name: Check out Git repository
         uses: actions/checkout@v4
 
-      - name: Install and run gulp
+      - name: Install Node
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-      - run: |
-          npm install
-          npx gulp
+
+      - name: Test and build the website
+        run: |
+          npm ci
+          npm test
+          npm run build
         working-directory: sparql-generate-website
 
       - name: copy public
