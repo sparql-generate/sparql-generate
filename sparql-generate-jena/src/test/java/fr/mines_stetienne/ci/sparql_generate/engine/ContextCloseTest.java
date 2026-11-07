@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.NodeValue;
 import org.apache.jena.sparql.util.Context;
 import org.junit.Test;
@@ -55,9 +56,39 @@ public class ContextCloseTest {
 		}
 	}
 
+	static final String FATAL = "http://ex/test-fatal";
+
+	/**
+	 * Wraps an error of the JVM, as a CSV parser does with an OutOfMemoryError.
+	 */
+	public static class ITER_Fatal extends IteratorFunctionBase0 {
+		@Override
+		public List<List<NodeValue>> exec() {
+			throw new ExprEvalException("No evaluation", new RuntimeException(new StackOverflowError("test")));
+		}
+	}
+
 	static {
 		SPARQLExt.init();
 		IteratorFunctionRegistry.get().put(OPEN, ITER_Open.class);
+		IteratorFunctionRegistry.get().put(FATAL, ITER_Fatal.class);
+	}
+
+	/**
+	 * An error of the JVM wrapped by an iterator stops the execution, and the
+	 * streams are closed.
+	 */
+	@Test
+	public void errorOfTheJvmStopsTheExecution() {
+		CLOSED.set(0);
+		try {
+			PlanFactory.create("GENERATE { <http://ex/s> <http://ex/p> ?x } ITERATOR <" + OPEN + ">() AS ?x "
+					+ "ITERATOR <" + FATAL + ">() AS ?y").execGenerate(ContextUtils.build().build());
+			fail("the error stops the execution");
+		} catch (StackOverflowError ex) {
+			assertEquals("test", ex.getMessage());
+		}
+		assertEquals(1, CLOSED.get());
 	}
 
 	@Test

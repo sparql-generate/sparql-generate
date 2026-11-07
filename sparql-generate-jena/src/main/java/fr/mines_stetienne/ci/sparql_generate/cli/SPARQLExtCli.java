@@ -178,6 +178,9 @@ public class SPARQLExtCli {
 			int milli = (int) (millis % 1000);
 			LOG.info("Program finished in " + String.format("%d min, %d.%d sec", min, sec, milli));
 
+		} catch (OutOfMemoryError ex) {
+			LOG.error("Out of memory: give the JVM more memory (-Xmx), or write the output as it is generated (--stream) and read large documents in batches.");
+			System.exit(1);
 		} catch (Exception ex) {
 			// a non-zero exit status, for scripts and continuous integration
 			final DocumentNotFoundException notFound = DocumentNotFoundException.findIn(ex);

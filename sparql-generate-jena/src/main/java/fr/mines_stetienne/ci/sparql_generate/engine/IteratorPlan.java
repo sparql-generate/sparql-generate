@@ -136,6 +136,10 @@ public class IteratorPlan implements BindingsClausePlan {
                     }
                 });
             } catch (Exception ex) {
+                // an iterator may have wrapped an OutOfMemoryError or a
+                // StackOverflowError: it stops the execution, which would
+                // otherwise go on with part of the rows
+                rethrowFatal(ex);
                 // the rest of the query failed, not the iterator: an iterator
                 // may have wrapped the exception
                 final DownstreamException downstream = DownstreamException.findIn(ex);
@@ -162,6 +166,21 @@ public class IteratorPlan implements BindingsClausePlan {
         LOG.trace("some batches are incomplete ?");
         batches.allExecutionComplete();
     }
+    /**
+     * Throws the VirtualMachineError (OutOfMemoryError, StackOverflowError...)
+     * in the causes of the exception, if any.
+     */
+    static void rethrowFatal(final Throwable ex) {
+        for (Throwable t = ex; t != null; t = t.getCause()) {
+            if (t instanceof VirtualMachineError) {
+                throw (VirtualMachineError) t;
+            }
+            if (t.getCause() == t) {
+                break;
+            }
+        }
+    }
+
     /**
      * An exception of the rest of the query, raised in the callback of the
      * iterator: it is not an error of the iterator.
