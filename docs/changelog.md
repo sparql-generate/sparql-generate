@@ -14,6 +14,9 @@ Not yet released.
 **Performance**
 
 - Consecutive `BIND` clauses after an `ITERATOR` run in one pass, each row extended by one flat binding: as fast as the same `BIND` in the `WHERE` clause.
+- `iter:XPath` evaluates a query or a sub-query that is a path of element names (or `*`), possibly ending with an attribute or `text()`, by walking the document, without the XPath engine of the JDK: a nested XML mapping of 1.3 M triples, 71 s to 13 s; its translation from RML, 111 s to 52 s.
+- `iter:JSONPath` is linear in the number of matches (it was quadratic): the Facade-X graph of a nested JSON document of 1.3 M triples, 70 s to 28 s.
+- `IRI()` takes a plain absolute `http` or `https` IRI as it is, without parsing it again; the shortcut of IRI templates also applies after a `#` or a `?` in their constant part.
 
 **Command line**
 
