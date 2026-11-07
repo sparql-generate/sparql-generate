@@ -102,4 +102,19 @@ public class JSONPathTest {
 		RDFDataMgr.write(sw, actual, Lang.NT);
 		assertTrue("got:\n" + sw, actual.isIsomorphicWith(expected));
 	}
+
+	/**
+	 * A JSON null element gives an unbound value; the other elements are kept.
+	 */
+	@Test
+	public void iteratorWithNullElement() {
+		Model expected = ModelFactory.createDefaultModel();
+		RDFDataMgr.read(expected, new StringReader("<http://ex/s> <http://ex/p> 1, 2 ."), null, Lang.TTL);
+		String query = "PREFIX ite: <http://w3id.org/sparql-generate/iter/> GENERATE { <http://ex/s> <http://ex/p> ?o } "
+				+ "ITERATOR ite:JSONPath(\"[1, null, 2]\", \"$[*]\") AS ?o";
+		Model actual = PlanFactory.create(query).execGenerate(ContextUtils.build().build());
+		StringWriter sw = new StringWriter();
+		RDFDataMgr.write(sw, actual, Lang.NT);
+		assertTrue("got:\n" + sw, actual.isIsomorphicWith(expected));
+	}
 }

@@ -75,10 +75,10 @@ public class BindPlan extends BindOrSourcePlan {
             if (LOG.isTraceEnabled()) {
                 LOG.trace("New binding " + var + " = " + LogUtils.compress(n.asNode()));
             }
-            return BindingFactory.binding(binding, var, n.asNode());
+            return BindingFactory.binding(parentBinding(binding), var, n.asNode());
         } catch(ExprEvalException ex) {
             LOG.trace("No evaluation for " + this + " " + ex.getMessage());
-            return binding;
+            return parentBinding(binding);
         }
     }
 

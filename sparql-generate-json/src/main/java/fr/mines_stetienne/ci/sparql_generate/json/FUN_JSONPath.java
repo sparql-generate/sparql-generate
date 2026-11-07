@@ -131,6 +131,10 @@ public final class FUN_JSONPath extends FunctionBase2 {
 	}
 
 	public NodeValue nodeForObject(Object value) {
+		if (value == null) {
+			// JSON null: no value
+			return null;
+		}
 		if (value instanceof String) {
 			return new NodeValueString((String) value);
 		} else if (value instanceof Float) {

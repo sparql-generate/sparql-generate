@@ -104,7 +104,8 @@ public class DatasetDeclarationPlan {
 		if (absBaseURI == null) {
 			return IRIs.resolve(sourceURI);
 		} else {
-			return IRIs.resolve(sourceURI, absBaseURI);
+			// the base first
+			return IRIs.resolve(absBaseURI, sourceURI);
 		}
 	}
 
@@ -129,20 +130,29 @@ public class DatasetDeclarationPlan {
 		final String absURI = baseURI(sourceURI, baseURI);
 		Dataset dataset = ContextUtils.getDataset(context);
 		Node n = NodeFactory.createURI(absURI);
-		Graph g = dsg.getGraph(n);
-		if (g == null) {
-			g = GraphFactory.createJenaDefaultGraph();
+		Graph g = GraphFactory.createJenaDefaultGraph();
+		if (dataset.containsNamedModel(absURI)) {
+			// default: check the dataset
+			GraphUtil.addInto(g, dataset.getNamedModel(absURI).getGraph());
+		} else {
+			// fallback: load as RDF graph
+			StreamRDF dest = StreamRDFLib.graph(g);
+			ContextUtils.loadGraph(context, sourceURI, absURI, dest);
+		}
+		putNamedGraph(dsg, n, g);
+	}
+
+	/**
+	 * Adds the graph as a named graph, or merges it into the named graph.
+	 * DatasetGraph.getGraph may give a graph that is not in the dataset, so
+	 * the graph is filled first and then added.
+	 */
+	private static void putNamedGraph(DatasetGraph dsg, Node n, Graph g) {
+		if (dsg.containsGraph(n)) {
+			GraphUtil.addInto(dsg.getGraph(n), g);
+		} else {
 			dsg.addGraph(n, g);
 		}
-		// default: check the dataset
-		if (dataset.containsNamedModel(absURI)) {
-			Graph dg = dataset.getNamedModel(absURI).getGraph();
-			GraphUtil.addInto(g, dg);
-			return;
-		}
-		// fallback: load as RDF graph
-		StreamRDF dest = StreamRDFLib.graph(g);
-		ContextUtils.loadGraph(context, sourceURI, absURI, dest);
 	}
 
 	private void addDefaultGraph(Binding binding, Context context, DatasetGraph dsg, SPARQLExtQuery generate) {
@@ -153,12 +163,9 @@ public class DatasetDeclarationPlan {
 		String sourceURI = evalSourceURI(binding, context, name);
 		final String absURI = baseURI(sourceURI, baseURI);
 		Node n = NodeFactory.createURI(absURI);
-		Graph g = dsg.getGraph(n);
-		if (g == null) {
-			g = GraphFactory.createJenaDefaultGraph();
-			dsg.addGraph(n, g);
-		}
+		Graph g = GraphFactory.createJenaDefaultGraph();
 		loadGraph(binding, context, generate, g);
+		putNamedGraph(dsg, n, g);
 	}
 
 	private String evalSourceURI(Binding binding, Context context, Expr sourceExpr) {

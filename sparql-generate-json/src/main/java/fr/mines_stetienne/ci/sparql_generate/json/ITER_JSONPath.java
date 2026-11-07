@@ -181,10 +181,12 @@ public class ITER_JSONPath extends IteratorFunctionBase {
                 Object value = values.get(i);
                 List<NodeValue> nodeValues = new ArrayList<>(args.size() + 1);
                 nodeValues.add(function.nodeForObject(value));
-                DocumentContext context = JsonPath.parse(value);
+                // a JSON null element gives unbound values
+                DocumentContext context = value == null ? null : JsonPath.parse(value);
                 for (JsonPath subquery : subqueries) {
-                	if(subquery == null) {
+                	if(subquery == null || context == null) {
                         nodeValues.add(null);
+                        continue;
                 	}
                     try {
                         Object subvalue = context.limit(1).read(subquery);

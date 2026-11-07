@@ -20,6 +20,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.engine.binding.Binding;
+import org.apache.jena.sparql.engine.binding.BindingBuilder;
 import org.apache.jena.sparql.util.Context;
 
 
@@ -58,6 +59,23 @@ public abstract class BindOrSourcePlan implements BindingsClausePlan {
 
     public final Var getVar() {
         return var;
+    }
+
+    /**
+     * The binding without the variable of this clause: a variable already
+     * bound is bound anew, as by ITERATOR.
+     */
+    protected final Binding parentBinding(final Binding binding) {
+        if (!binding.contains(var)) {
+            return binding;
+        }
+        final BindingBuilder builder = Binding.builder();
+        binding.forEach((v, n) -> {
+            if (!v.equals(var)) {
+                builder.add(v, n);
+            }
+        });
+        return builder.build();
     }
 
 }

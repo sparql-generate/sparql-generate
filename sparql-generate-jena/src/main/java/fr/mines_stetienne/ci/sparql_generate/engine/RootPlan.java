@@ -398,7 +398,9 @@ public class RootPlan {
 			final BindingsClausePlan plan = iteratorAndSourcePlans.get(i);
 			if (plan instanceof BindOrSourcePlan) {
 				final BindOrSourcePlan bindOrSourcePlan = (BindOrSourcePlan) plan;
-				variables.add(bindOrSourcePlan.getVar());
+				if (!variables.contains(bindOrSourcePlan.getVar())) {
+					variables.add(bindOrSourcePlan.getVar());
+				}
 				final List<Binding> newValues = bindOrSourcePlan.exec(values, context);
 				execIteratorAndSourcePlans(variables, newValues, context, i + 1);
 				LOG.debug("Finished plan " + bindOrSourcePlan);

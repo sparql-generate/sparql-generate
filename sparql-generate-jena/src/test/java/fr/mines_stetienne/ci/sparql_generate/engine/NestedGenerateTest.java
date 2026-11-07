@@ -95,6 +95,24 @@ public class NestedGenerateTest {
 						+ "WHERE { VALUES (?s ?i) { (<http://ex/a> 7) (<http://ex/b> 8) } }");
 	}
 
+	/**
+	 * A binding clause BIND or SOURCE rebinds a variable already bound, as
+	 * ITERATOR does: the last clause wins.
+	 */
+	@Test
+	public void bindRebindsVariable() {
+		assertGenerates("<http://ex/s> <http://ex/p> 5 .",
+				"PREFIX ite: <http://w3id.org/sparql-generate/iter/> "
+						+ "GENERATE { <http://ex/s> <http://ex/p> ?x } ITERATOR ite:for(1, 1, 2) AS ?x BIND(5 AS ?x)");
+	}
+
+	@Test
+	public void bindCanUseThePreviousValue() {
+		assertGenerates("<http://ex/s> <http://ex/p> 2 .",
+				"PREFIX ite: <http://w3id.org/sparql-generate/iter/> "
+						+ "GENERATE { <http://ex/s> <http://ex/p> ?x } ITERATOR ite:for(1, 1, 2) AS ?x BIND(?x + 1 AS ?x)");
+	}
+
 	@Test
 	public void subQueryValuesWithSeveralVariables() {
 		assertGenerates("<http://ex/1> <http://ex/a> <http://ex/b> .",
