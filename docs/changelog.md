@@ -14,10 +14,18 @@ Not yet released.
 - The functions that Jena loads by class name are available: `afn:bnode`, `afn:localname` and the other `afn:` functions, and `java:` IRIs.
 - An unknown function or iterator in the namespace of XSD, XPath, SPARQL, Jena or SPARQL-Generate is reported at once; it is no longer looked up as a query on the Web. Connections to a URL time out after 15 s (`-Dsun.net.client.defaultConnectTimeout` overrides it).
 - A `SOURCE` clause whose document cannot be found logs a warning, as the iterators do.
+- A named query called on several rows, whose `FROM`, `FROM NAMED` or `FROM GENERATE` clause depends on its parameters (`FROM <http://ex/g{?n}>`), is evaluated on the dataset of each row; it used the dataset of the first row for all of them. The rows that determine the same dataset are evaluated together.
+- **Changed**: an error in the rest of a query, after an `ITERATOR` clause (a `SOURCE` with an invalid `ACCEPT`, a failed `SELECT`...), stops the execution, as it does in a query without `ITERATOR`; it was logged as "Unanticipated exception for ITERATOR" and the execution went on.
+- The streams of the MQTT and WebSocket iterators are closed when the execution fails too, and their thread no longer keeps the JVM alive.
+- **Changed**: the last variable of `iter:CSSPath`, "has next", is true when another element follows, as for `iter:XPath` and `iter:JSONPath`; it was the opposite.
+- **Changed**: `fun:GeoJSONGeometry` writes a `MultiPolygon` as `MULTIPOLYGON(((a)), ((b)))`, one list of rings per polygon; it wrote all the rings in one polygon.
+- No more warning "No query pattern in non-DESCRIBE query" for a query without `WHERE` clause.
 
 **Command line**
 
 - `--fail-on-missing` (key `failOnMissing` of `sparql-generate-conf.json`): a document, a graph or a named query that cannot be found stops the execution with status 1. In the Java API: `SPARQLExtStreamManager.setFailOnMissingDocument(true)`.
+- With `--stream`, `-fo NT` writes N-Triples (full IRIs, no prefix); the default is still Turtle, one triple per line. The streamed output is buffered: it was written with one system call per piece of a line.
+- The output files are closed at the end of the execution.
 
 ## 2.2.2
 

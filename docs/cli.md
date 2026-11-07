@@ -28,7 +28,7 @@ The engine looks a document, a named query or a graph up in this order:
 | `-o`, `--output` | file | write the output to this file; by default the output goes to the standard output |
 | `-ao`, `--append-output` | | append to the output file instead of replacing it |
 | `-fo`, `--format-output` | format | the output format: `TTL` (default), `NT`, `JSON-LD`, `RDF/XML`... for `GENERATE`; `TEXT`, `CSV`, `TSV`, `JSON`, `XML` for `SELECT` |
-| `-s`, `--stream` | | write the output as it is generated (see [streaming](language/generate.md#streaming)) |
+| `-s`, `--stream` | | write the output as it is generated (see [streaming](language/generate.md#streaming)): Turtle, one triple per line, or N-Triples with `-fo NT`; a triple may be written more than once |
 | `-hdt`, `--hdt` | | write a `GENERATE` output as HDT; requires `--output` |
 | `-dt`, `--debug-template` | | in `TEMPLATE` output, insert identifiers that refer to the warnings of the log |
 | `-x`, `--syntax` | | check the syntax of the query and exit |
