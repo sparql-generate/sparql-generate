@@ -15,12 +15,10 @@
  */
 package fr.mines_stetienne.ci.sparql_generate.function;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
 import fr.mines_stetienne.ci.sparql_generate.query.SPARQLExtQuery;
+import fr.mines_stetienne.ci.sparql_generate.utils.ContextUtils;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.ExecutionException;
 import org.apache.jena.sparql.ARQException;
 import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.engine.binding.Binding;
@@ -30,6 +28,7 @@ import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.ExprException;
 import org.apache.jena.sparql.expr.ExprList;
 import org.apache.jena.sparql.expr.NodeValue;
+import org.apache.jena.sparql.expr.Unstable;
 import org.apache.jena.sparql.function.Function;
 import org.apache.jena.sparql.function.FunctionEnv;
 import org.apache.jena.sparql.util.Context;
@@ -42,12 +41,16 @@ import org.slf4j.LoggerFactory;
  */
 public class SPARQLExtFunction implements Function {
 
-    public static final int CACHE_SIZE = 1000;
-    static final Cache<Key, NodeValue> CACHE = CacheBuilder.newBuilder().maximumSize(CACHE_SIZE).build();
 
     static final Logger LOG = LoggerFactory.getLogger(SPARQLExtFunction.class);
 
     private final SPARQLExtQuery function;
+
+    /**
+     * Whether the results may be memoised: false if the expression uses
+     * BNODE, RAND, UUID or STRUUID.
+     */
+    private final boolean stable;
 
     public SPARQLExtFunction(SPARQLExtQuery function) {
         if (!function.isFunctionType()) {
@@ -55,6 +58,21 @@ public class SPARQLExtFunction implements Function {
         }
         this.function = function;
         function.normalizeXExpr();
+        this.stable = isStable(function.getFunctionExpression());
+    }
+
+    private static boolean isStable(Expr expr) {
+        if (expr instanceof Unstable) {
+            return false;
+        }
+        if (expr.isFunction()) {
+            for (Expr arg : expr.getFunction().getArgs()) {
+                if (!isStable(arg)) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     @Override
@@ -81,47 +99,13 @@ public class SPARQLExtFunction implements Function {
             }
         }
         final Expr functionExpression = function.getFunctionExpression();
-        Key key = new Key(functionExpression, bindingBuilder.build(), env);
-        try {
-            return CACHE.get(key, () -> functionExpression.eval(bindingBuilder.build(), env));
-        } catch(ExecutionException ex) {
-            LOG.trace("could not evaluate expression " + functionExpression + " with binding");
-            throw new ExprEvalException("could not evaluate expression " + functionExpression + " with binding", ex);
+        final Binding callBinding = bindingBuilder.build();
+        if (!stable) {
+            return functionExpression.eval(callBinding, env);
         }
-    }
-
-    static private class Key {
-
-        Expr functionExpression;
-        Binding binding;
-        FunctionEnv env;
-
-        public Key(Expr functionExpression, Binding binding, FunctionEnv env) {
-            this.functionExpression = functionExpression;
-            this.binding = binding;
-            this.env = env;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (obj == null || !(obj instanceof Key)) {
-                return false;
-            }
-            Key other = (Key) obj;
-            return functionExpression.equals(other.functionExpression)
-                    && binding.equals(other.binding)
-                    && env.equals(other.env);
-        }
-
-        @Override
-        public int hashCode() {
-            int hash = 5;
-            hash = 79 * hash + Objects.hashCode(this.functionExpression);
-            hash = 79 * hash + Objects.hashCode(this.binding);
-            hash = 79 * hash + Objects.hashCode(this.env);
-            return hash;
-        }
-
+        // memoised for the duration of the execution only
+        return ContextUtils.memoise(env.getContext(), Arrays.asList(functionExpression, callBinding),
+                () -> functionExpression.eval(callBinding, env));
     }
 
 }
