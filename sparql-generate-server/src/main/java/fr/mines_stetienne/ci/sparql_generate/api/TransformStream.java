@@ -20,8 +20,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
-import java.util.EnumSet;
-import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -35,19 +33,13 @@ import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.WriterOutputStream;
 import org.apache.jena.atlas.io.IndentedWriter;
 import org.apache.jena.graph.Triple;
 import org.apache.jena.query.Dataset;
-import org.apache.jena.query.DatasetFactory;
-import org.apache.jena.query.QueryFactory;
 import org.apache.jena.query.ResultSet;
 import org.apache.jena.query.ResultSetFormatter;
 import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.ModelFactory;
-import org.apache.jena.riot.Lang;
-import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.system.StreamRDF;
 import org.apache.jena.sparql.core.Quad;
 import org.apache.jena.sparql.serializer.SerializationContext;
@@ -58,20 +50,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
-import com.jayway.jsonpath.Option;
-import com.jayway.jsonpath.spi.json.JacksonJsonProvider;
-import com.jayway.jsonpath.spi.json.JsonProvider;
-import com.jayway.jsonpath.spi.mapper.JacksonMappingProvider;
-import com.jayway.jsonpath.spi.mapper.MappingProvider;
 
 import fr.mines_stetienne.ci.sparql_generate.JerseyApp;
-import fr.mines_stetienne.ci.sparql_generate.SPARQLExt;
 import fr.mines_stetienne.ci.sparql_generate.api.entities.Request;
 import fr.mines_stetienne.ci.sparql_generate.engine.PlanFactory;
 import fr.mines_stetienne.ci.sparql_generate.engine.RootPlan;
 import fr.mines_stetienne.ci.sparql_generate.query.SPARQLExtQuery;
-import fr.mines_stetienne.ci.sparql_generate.stream.LocatorStringMap;
 import fr.mines_stetienne.ci.sparql_generate.stream.SPARQLExtStreamManager;
 import fr.mines_stetienne.ci.sparql_generate.utils.ContextUtils;
 
@@ -88,11 +72,10 @@ public class TransformStream {
 			.getAppender("WEBSOCKET");
 	private static final Level[] LEVELS = new Level[] { Level.FATAL, Level.ERROR, Level.WARN, Level.INFO, Level.DEBUG,
 			Level.TRACE };
-	private static final String TURTLE_MEDIATYPE = "text/turtle";
-	private static final String BASE = "http://example.org/";
 
 	@OnOpen
 	public void open(Session session) {
+		RequestSetup.init();
 		LOG.info("Open session " + session.getId());
 		session.setMaxTextMessageBufferSize((int) (2 * Math.pow(2, 20)));
 	}
@@ -134,7 +117,7 @@ public class TransformStream {
 
 		final Dataset dataset;
 		try {
-			dataset = getDataset(sessionManager, request);
+			dataset = RequestSetup.dataset(request, (msg, ex) -> logError(sessionManager, msg, ex));
 		} catch (Exception ex) {
 			logError(sessionManager, "ERROR: while reading parameters:", ex);
 			return;
@@ -142,8 +125,8 @@ public class TransformStream {
 
 		final SPARQLExtStreamManager sm;
 		try {
-			sm = getStreamManager(request);
-		} catch (JsonSyntaxException | IOException ex) {
+			sm = RequestSetup.streamManager(request);
+		} catch (RuntimeException ex) {
 			logError(sessionManager, "ERROR: while reading parameters:", ex);
 			return;
 		}
@@ -151,7 +134,7 @@ public class TransformStream {
 		final SPARQLExtQuery q;
 		try {
 			q = supply(sessionManager,
-					() -> (SPARQLExtQuery) QueryFactory.create(request.defaultquery, SPARQLExt.SYNTAX));
+					() -> RequestSetup.query(request));
 		} catch (InterruptedException | ExecutionException ex) {
 			logError(sessionManager, "ERROR: while parsing query:", ex);
 			return;
@@ -177,7 +160,7 @@ public class TransformStream {
 					if (q.isGenerateType()) {
 						Model model = plan.execGenerate(context);
 						final StringWriter sw = new StringWriter();
-						model.write(sw, "TTL", BASE);
+						model.write(sw, "TTL", RequestSetup.BASE);
 						sessionManager.appendGenerate(sw.toString());
 					} else if (q.isSelectType()) {
 						ResultSet resultSet = plan.execSelect(context);
@@ -238,60 +221,6 @@ public class TransformStream {
 		} else {
 			LOG.error("Error", error);
 		}
-	}
-
-	static {
-		com.jayway.jsonpath.Configuration.setDefaults(new com.jayway.jsonpath.Configuration.Defaults() {
-
-			private final JsonProvider jsonProvider = new JacksonJsonProvider();
-			private final MappingProvider mappingProvider = new JacksonMappingProvider();
-
-			@Override
-			public JsonProvider jsonProvider() {
-				return jsonProvider;
-			}
-
-			@Override
-			public MappingProvider mappingProvider() {
-				return mappingProvider;
-			}
-
-			@Override
-			public Set<Option> options() {
-				return EnumSet.noneOf(Option.class);
-			}
-		});
-	}
-
-	private Dataset getDataset(SessionManager sessionManager, Request request) throws IOException {
-		Dataset dataset = DatasetFactory.create();
-		Model g = ModelFactory.createDefaultModel();
-		RDFDataMgr.read(g, IOUtils.toInputStream(request.defaultgraph, "UTF-8"), BASE, Lang.TTL);
-		dataset.setDefaultModel(g);
-		request.namedgraphs.forEach((ng) -> {
-			Model model = ModelFactory.createDefaultModel();
-			try {
-				RDFDataMgr.read(model, IOUtils.toInputStream(ng.string, "UTF-8"), BASE, Lang.TTL);
-			} catch (Exception ex) {
-				logError(sessionManager, "WARN: unable to parse graph " + ng.uri, ex);
-			}
-			dataset.addNamedModel(ng.uri, model);
-		});
-		return dataset;
-	}
-
-	private SPARQLExtStreamManager getStreamManager(Request request) throws IOException {
-		final LocatorStringMap loc = new LocatorStringMap();
-		request.namedqueries.forEach((nq) -> {
-			loc.put(nq.uri, nq.string, nq.mediatype);
-		});
-		request.namedgraphs.forEach((ng) -> {
-			loc.put(ng.uri, ng.string, TURTLE_MEDIATYPE);
-		});
-		request.documentset.forEach((doc) -> {
-			loc.put(doc.uri, doc.string, doc.mediatype);
-		});
-		return SPARQLExtStreamManager.makeStreamManager(loc);
 	}
 
 	private void logError(SessionManager sessionManager, String error, Exception ex) {

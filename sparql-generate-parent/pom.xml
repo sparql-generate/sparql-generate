@@ -131,6 +131,7 @@
 							<exclude>**/src/site/**/*.*</exclude>
 							<exclude>**/src/main/resources/**/*.json</exclude>
 							<exclude>**/src/main/resources/**/*.geojson</exclude>
+							<exclude>**/src/main/resources/**/*.srj</exclude>
 							<exclude>**/*.js</exclude>
 							<exclude>**/*.rqg</exclude>
 							<exclude>**/src/main/**/*.html</exclude>
