@@ -1,0 +1,16 @@
+PREFIX iter: <http://w3id.org/sparql-generate/iter/>
+PREFIX schema: <http://schema.org/>
+BASE <http://example.org/>
+
+GENERATE {
+  ?person schema:colleague ?other .
+}
+FROM GENERATE {
+  <person/{?id}> schema:nationality <country/{?country}> .
+}
+ITERATOR iter:CSV(<http://example.org/people.csv>, "id", "country") AS ?id ?country .
+WHERE {
+  ?person schema:nationality ?country .
+  ?other schema:nationality ?country .
+  FILTER(?person != ?other)
+}
