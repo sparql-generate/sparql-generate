@@ -1,7 +1,15 @@
 package fr.mines_stetienne.ci.sparql_generate.engine;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.jena.graph.Graph;
 import org.apache.jena.graph.GraphUtil;
@@ -14,6 +22,7 @@ import org.apache.jena.riot.system.StreamRDF;
 import org.apache.jena.riot.system.StreamRDFLib;
 import org.apache.jena.sparql.core.DatasetGraph;
 import org.apache.jena.sparql.core.DatasetGraphFactory;
+import org.apache.jena.sparql.core.Var;
 /*
  * Copyright 2020 MINES Saint-Étienne
  *
@@ -61,8 +70,18 @@ public class DatasetDeclarationPlan {
 	 */
 	private final List<FromClause> fromClauses;
 
-	// private Binding signatureBinding;
-	// private FunctionEnv env;
+	/**
+	 * For each FROM GENERATE clause, the names of the variables its query
+	 * mentions.
+	 */
+	private final Map<FromClause, Set<String>> generateVariables = new HashMap<>();
+
+	/**
+	 * True if the dataset depends on the binding of the variables.
+	 */
+	private final boolean dependsOnBinding;
+
+	private static final Pattern VARIABLE = Pattern.compile("[?$]([\\p{L}\\p{N}_][\\p{L}\\p{N}_\\u00B7\\u0300-\\u036F\\u203F-\\u2040]*)");
 
 	public DatasetDeclarationPlan(final SPARQLExtQuery query) {
 		Objects.requireNonNull(query, "query must not be null");
@@ -73,6 +92,79 @@ public class DatasetDeclarationPlan {
 		}
 
 		this.fromClauses = query.getFromClauses();
+		boolean depends = false;
+		if (fromClauses != null) {
+			for (FromClause fromClause : fromClauses) {
+				if (fromClause.getName() != null && !fromClause.getName().getVarsMentioned().isEmpty()) {
+					depends = true;
+				}
+				if (fromClause.getGenerate() != null) {
+					final Set<String> names = new HashSet<>();
+					final Matcher matcher = VARIABLE.matcher(fromClause.getGenerate().toString());
+					while (matcher.find()) {
+						names.add(matcher.group(1));
+					}
+					generateVariables.put(fromClause, names);
+					depends = depends || !names.isEmpty();
+				}
+			}
+		}
+		this.dependsOnBinding = depends;
+	}
+
+	/**
+	 * Groups the bindings by the dataset they determine, in the order of their
+	 * first occurrence. A dataset that does not depend on the bindings gives
+	 * one group.
+	 *
+	 * @param values the bindings
+	 * @param context the execution context
+	 * @return the groups of bindings.
+	 */
+	protected final List<List<Binding>> groupByDataset(final List<Binding> values, final Context context) {
+		final List<List<Binding>> groups = new ArrayList<>();
+		if (!dependsOnBinding || values.size() <= 1) {
+			groups.add(values);
+			return groups;
+		}
+		final Map<List<Object>, List<Binding>> byKey = new LinkedHashMap<>();
+		for (Binding binding : values) {
+			byKey.computeIfAbsent(datasetKey(binding, context), (k) -> new ArrayList<>()).add(binding);
+		}
+		groups.addAll(byKey.values());
+		return groups;
+	}
+
+	/**
+	 * What the dataset of a binding depends on: the value of the expressions
+	 * of the FROM clauses, and the variables that the queries of the FROM
+	 * GENERATE clauses mention.
+	 */
+	private List<Object> datasetKey(final Binding binding, final Context context) {
+		final List<Object> key = new ArrayList<>();
+		final FunctionEnv env = new FunctionEnvBase(context);
+		for (FromClause fromClause : fromClauses) {
+			final Expr name = fromClause.getName();
+			if (name != null && !name.getVarsMentioned().isEmpty()) {
+				try {
+					key.add(name.eval(binding, env).asNode());
+				} catch (ExprEvalException ex) {
+					// an error, reported when the dataset is prepared
+					key.add(null);
+				}
+			}
+			if (fromClause.getGenerate() != null) {
+				final Map<Var, Node> projection = new HashMap<>();
+				final Set<String> names = generateVariables.get(fromClause);
+				binding.forEach((v, n) -> {
+					if (names.contains(v.getVarName())) {
+						projection.put(v, n);
+					}
+				});
+				key.add(projection);
+			}
+		}
+		return key;
 	}
 
 	protected final Context prepareDataset(Binding binding, Context context) {

@@ -376,9 +376,14 @@ public class RootPlan {
 			LOG.trace("Starting sub-execution");
 		}
 
-		Binding binding = values.size() > 0 ? values.get(0) : null;
-		Context newContext = datasetDeclarationPlan.prepareDataset(binding, context);
-		execIteratorAndSourcePlans(variables, values, newContext, 0);
+		// a query called on several rows is evaluated once per dataset
+		final List<List<Binding>> groups = datasetDeclarationPlan.groupByDataset(values, context);
+		for (List<Binding> group : groups) {
+			final Binding binding = group.size() > 0 ? group.get(0) : null;
+			final Context newContext = datasetDeclarationPlan.prepareDataset(binding, context);
+			final List<Var> groupVariables = groups.size() == 1 ? variables : new ArrayList<>(variables);
+			execIteratorAndSourcePlans(groupVariables, group, newContext, 0);
+		}
 
 		if (ContextUtils.isRootContext(context)) {
 			StreamRDF outputGenerate = ContextUtils.getGenerateOutput(context);
