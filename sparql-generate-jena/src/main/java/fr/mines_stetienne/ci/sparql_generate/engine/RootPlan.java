@@ -371,10 +371,7 @@ public class RootPlan {
 	}
 
 	private void exec(final List<Var> variables, final List<Binding> values, final Context context) {
-		if (Thread.interrupted()) {
-			LOG.warn("Interrupted " + System.identityHashCode(this));
-			return;
-		}
+		ContextUtils.checkLimits(context);
 		if (ContextUtils.isRootContext(context)) {
 			LOG.info("Starting execution");
 			StreamRDF outputGenerate = ContextUtils.getGenerateOutput(context);

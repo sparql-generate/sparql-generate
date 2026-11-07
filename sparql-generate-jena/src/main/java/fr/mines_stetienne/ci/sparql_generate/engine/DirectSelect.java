@@ -194,9 +194,14 @@ final class DirectSelect {
 		final Iterator<Binding> solutions = new Iterator<Binding>() {
 			private Binding next = null;
 
+			private int row = 0;
+
 			@Override
 			public boolean hasNext() {
 				while (next == null && input.hasNext()) {
+					if ((row++ & 255) == 0) {
+						ContextUtils.checkLimits(context);
+					}
 					next = solution(input.next(), env, projection);
 				}
 				return next != null;

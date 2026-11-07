@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -58,6 +59,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import fr.mines_stetienne.ci.sparql_generate.JerseyApp;
+import fr.mines_stetienne.ci.sparql_generate.ExecutionLimitException;
 import fr.mines_stetienne.ci.sparql_generate.SPARQLExt;
 import fr.mines_stetienne.ci.sparql_generate.engine.PlanFactory;
 import fr.mines_stetienne.ci.sparql_generate.engine.RootPlan;
@@ -139,7 +141,9 @@ public class Transform extends HttpServlet {
 		}
 		List<Binding> values = new ArrayList();
 		values.add(bindingBuilder.build());
-		Context context = ContextUtils.createSimple();
+		// the limits of an execution on the server
+		Context context = ContextUtils.build().setTimeLimit(JerseyApp.MAX_TIME).setMaxTriples(JerseyApp.MAX_TRIPLES)
+				.build();
 		
         final ExecutorService service = Executors.newSingleThreadExecutor();
         try {
@@ -168,15 +172,28 @@ public class Transform extends HttpServlet {
         			throw new BadRequestException("The request should be a SELECT, GENERATE, or TEMPLATE query");
         		}
             });
-            return f.get(JerseyApp.MAX_TIME, TimeUnit.SECONDS);
+            try {
+                // the execution checks its own time limit; one more second here
+                return f.get(JerseyApp.MAX_TIME + 1, TimeUnit.SECONDS);
+            } finally {
+                f.cancel(true);
+            }
         } catch (final TimeoutException ex) {
              return Response.status(Response.Status.REQUEST_TIMEOUT)
                     .entity(String.format("In this API, request timeout is set at %s s. Please use the executable jar instead.", JerseyApp.MAX_TIME))
                     .build();
+        } catch (final ExecutionException ex) {
+            final ExecutionLimitException limit = ExecutionLimitException.findIn(ex);
+            if (limit != null) {
+                return Response.status(Response.Status.REQUEST_TIMEOUT)
+                        .entity(limit.getMessage() + " Please use the executable jar instead.").build();
+            }
+        	throw new InternalServerErrorException(ex);
         } catch (final Exception ex) {
         	throw new InternalServerErrorException(ex);
         } finally {
-            service.shutdown();
+            // interrupts the execution if it still runs
+            service.shutdownNow();
         }
     }
 

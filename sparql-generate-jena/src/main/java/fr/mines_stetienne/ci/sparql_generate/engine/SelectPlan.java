@@ -38,6 +38,7 @@ import org.apache.jena.sparql.util.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import fr.mines_stetienne.ci.sparql_generate.ExecutionLimitException;
 import fr.mines_stetienne.ci.sparql_generate.SPARQLExtException;
 import fr.mines_stetienne.ci.sparql_generate.expr.E_IRITemplate;
 import fr.mines_stetienne.ci.sparql_generate.query.SPARQLExtQuery;
@@ -133,7 +134,13 @@ public class SelectPlan {
 		}
 		try {
 			augmentQuery(q, variables, values);
-			try (QueryExecution exec = QueryExecutionDatasetBuilder.create().query(q).dataset(inputDataset).context(context).build()) {
+			ContextUtils.checkLimits(context);
+			final QueryExecutionDatasetBuilder builder = QueryExecutionDatasetBuilder.create().query(q).dataset(inputDataset).context(context);
+			final long remaining = ContextUtils.remainingMillis(context);
+			if (remaining > 0) {
+				builder.overallTimeout(remaining, java.util.concurrent.TimeUnit.MILLISECONDS);
+			}
+			try (QueryExecution exec = builder.build()) {
 				ResultSet resultSet = exec.execSelect();
 				if (LOG.isTraceEnabled()) {
 					ResultSetRewindable rewindable = ResultSetFactory.copyResults(resultSet);
@@ -164,7 +171,15 @@ public class SelectPlan {
 				// before the execution is closed
 				output.accept(resultSet);
 			}
+		} catch (org.apache.jena.query.QueryCancelledException ex) {
+			throw new ExecutionLimitException("The execution exceeded its time limit.");
+		} catch (ExecutionLimitException ex) {
+			throw ex;
 		} catch (Exception ex) {
+			final ExecutionLimitException limit = ExecutionLimitException.findIn(ex);
+			if (limit != null) {
+				throw limit;
+			}
 			LOG.error("Error while executing SELECT Query " + q, ex);
 			throw new SPARQLExtException("Error while executing SELECT Query " + q, ex);
 		}

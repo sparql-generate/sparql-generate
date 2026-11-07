@@ -61,6 +61,7 @@ import org.apache.jena.vocabulary.RDF;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import fr.mines_stetienne.ci.sparql_generate.ExecutionLimitException;
 import fr.mines_stetienne.ci.sparql_generate.SPARQLExt;
 import fr.mines_stetienne.ci.sparql_generate.engine.QueryExecutor;
 import fr.mines_stetienne.ci.sparql_generate.function.SPARQLExtFunctionRegistry;
@@ -197,6 +198,45 @@ public class ContextUtils {
 
 	public static boolean isFailOnException(Context context) {
 		return context.get(FAIL_ON_EXCEPTION);
+	}
+
+	/**
+	 * Throws an {@link ExecutionLimitException} if the time limit of the
+	 * execution is past, or if its thread was interrupted.
+	 */
+	public static void checkLimits(Context context) {
+		if (Thread.currentThread().isInterrupted()) {
+			throw new ExecutionLimitException("The execution was interrupted.");
+		}
+		Commons commons = context == null ? null : context.get(COMMONS);
+		if (commons != null && commons.deadline != 0 && System.nanoTime() - commons.deadline > 0) {
+			throw new ExecutionLimitException(
+					String.format("The execution exceeded its time limit of %d s.", commons.timeLimitSeconds));
+		}
+	}
+
+	/**
+	 * Counts a generated triple, and throws an {@link ExecutionLimitException}
+	 * beyond the limit of the execution.
+	 */
+	public static void countTriple(Context context) {
+		Commons commons = context == null ? null : context.get(COMMONS);
+		if (commons != null && commons.maxTriples > 0 && commons.triples.incrementAndGet() > commons.maxTriples) {
+			throw new ExecutionLimitException(
+					String.format("The execution exceeded its limit of %d triples.", commons.maxTriples));
+		}
+	}
+
+	/**
+	 * @return the time left before the time limit, in milliseconds, or -1 if
+	 *         there is no limit.
+	 */
+	public static long remainingMillis(Context context) {
+		Commons commons = context == null ? null : context.get(COMMONS);
+		if (commons == null || commons.deadline == 0) {
+			return -1;
+		}
+		return Math.max(1, (commons.deadline - System.nanoTime()) / 1_000_000);
 	}
 
 	public static boolean isDebugStConcat(Context context) {
@@ -516,6 +556,29 @@ public class ContextUtils {
 			return this;
 		}
 
+		/**
+		 * @param seconds the time limit of the execution, from now; 0 for none.
+		 * @return this builder
+		 */
+		public Builder setTimeLimit(int seconds) {
+			commons.timeLimitSeconds = seconds;
+			commons.deadline = seconds > 0 ? System.nanoTime() + seconds * 1_000_000_000L : 0;
+			if (commons.deadline == 0 && seconds > 0) {
+				commons.deadline = 1;
+			}
+			return this;
+		}
+
+		/**
+		 * @param maxTriples the largest number of triples that a GENERATE
+		 *                   execution may generate; 0 for no limit.
+		 * @return this builder
+		 */
+		public Builder setMaxTriples(long maxTriples) {
+			commons.maxTriples = maxTriples;
+			return this;
+		}
+
 		public Builder setDebugTemplate(boolean debugTemplate) {
 			commons.debugTemplate = debugTemplate;
 			return this;
@@ -535,6 +598,10 @@ public class ContextUtils {
 	private static class Commons {
 
 		private boolean debugTemplate = false;
+		private long deadline = 0;
+		private int timeLimitSeconds = 0;
+		private long maxTriples = 0;
+		private final java.util.concurrent.atomic.AtomicLong triples = new java.util.concurrent.atomic.AtomicLong();
 		private ExecutorService executor = null;
 		private boolean defaultExecutor = true;
 		private QueryExecutor queryExecutor = new QueryExecutor();

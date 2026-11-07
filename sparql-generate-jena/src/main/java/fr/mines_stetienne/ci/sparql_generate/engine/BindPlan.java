@@ -15,6 +15,7 @@
  */
 package fr.mines_stetienne.ci.sparql_generate.engine;
 
+import fr.mines_stetienne.ci.sparql_generate.utils.ContextUtils;
 import fr.mines_stetienne.ci.sparql_generate.utils.LogUtils;
 import java.util.ArrayList;
 import java.util.List;
@@ -114,7 +115,11 @@ public class BindPlan extends BindOrSourcePlan {
         final int n = plans.size();
         final Node[] nodes = new Node[n];
         final List<Binding> result = new ArrayList<>(values.size());
+        int row = 0;
         for (Binding binding : values) {
+            if ((row++ & 255) == 0) {
+                ContextUtils.checkLimits(context);
+            }
             Binding current = binding;
             for (int k = 0; k < n; k++) {
                 final BindPlan plan = plans.get(k);

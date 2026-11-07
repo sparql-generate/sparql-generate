@@ -83,6 +83,9 @@ public class GenerateFormPlan implements GeneratePlan {
                 .fork();
 
         for (int i = 0; i < size; i++) {
+            if ((i & 255) == 0) {
+                ContextUtils.checkLimits(context);
+            }
             final Map<Node, Node> bNodeMap = new HashMap<>();
             final Binding binding = values.get(i);
             for (Triple t : bgp.getList()) {
@@ -91,9 +94,9 @@ public class GenerateFormPlan implements GeneratePlan {
                 } else {
                     Triple t2 = TemplateLib.subst(t, binding, bNodeMap);
                     if (ListAggregate.isList(t2.getObject())) {
-                        outputList(sb, outputStream, t2);
+                        outputList(sb, outputStream, newContext, t2);
                     } else {
-                        outputIfConcrete(sb, outputStream, t2);
+                        outputIfConcrete(sb, outputStream, context, t2);
                     }
                 }
             }
@@ -112,9 +115,11 @@ public class GenerateFormPlan implements GeneratePlan {
     private synchronized void outputIfConcrete(
             final StringBuilder sb,
             final StreamRDF outputStream,
+            final Context context,
             final Triple t) {
         // as in CONSTRUCT, a triple that is not valid RDF is not output
         if (t.isConcrete() && isValid(t)) {
+            ContextUtils.countTriple(context);
             if (LOG.isTraceEnabled()) {
                 Triple t2 = LogUtils.compress(t);
                 sb.append("\n  ").append(t2);
@@ -126,14 +131,14 @@ public class GenerateFormPlan implements GeneratePlan {
     /**
      * Writes the value of a list aggregate as a fresh RDF list.
      */
-    private void outputList(final StringBuilder sb, final StreamRDF outputStream, final Triple t) {
+    private void outputList(final StringBuilder sb, final StreamRDF outputStream, final Context context, final Triple t) {
         final List<Node> nodes = ListAggregate.nodes(t.getObject());
         Node current = nodes.isEmpty() ? RDF.nil.asNode() : NodeFactory.createBlankNode();
-        outputIfConcrete(sb, outputStream, Triple.create(t.getSubject(), t.getPredicate(), current));
+        outputIfConcrete(sb, outputStream, context, Triple.create(t.getSubject(), t.getPredicate(), current));
         for (int i = 0; i < nodes.size(); i++) {
             final Node next = i == nodes.size() - 1 ? RDF.nil.asNode() : NodeFactory.createBlankNode();
-            outputIfConcrete(sb, outputStream, Triple.create(current, FIRST, nodes.get(i)));
-            outputIfConcrete(sb, outputStream, Triple.create(current, REST, next));
+            outputIfConcrete(sb, outputStream, context, Triple.create(current, FIRST, nodes.get(i)));
+            outputIfConcrete(sb, outputStream, context, Triple.create(current, REST, next));
             current = next;
         }
     }
@@ -163,15 +168,15 @@ public class GenerateFormPlan implements GeneratePlan {
         Node p2 = subst(predicate, bNodeMap);
         Triple t = Triple.create(s2, p2, first);
         Triple t2 = Substitute.substitute(t, binding);
-        outputIfConcrete(sb, outputStream, t2);
+        outputIfConcrete(sb, outputStream, context, t2);
         // potentially substitute var
         Node var2 = subst(var, bNodeMap);
         Node var2sub = Substitute.substitute(var2, binding);
         Triple tfirst = Triple.create(current, FIRST, var2sub);
-        outputIfConcrete(sb, outputStream, tfirst);
+        outputIfConcrete(sb, outputStream, context, tfirst);
         // nothing to substitute here
         Triple tRest = Triple.create(current, REST, next);
-        outputIfConcrete(sb, outputStream, tRest);
+        outputIfConcrete(sb, outputStream, context, tRest);
     }
 
     private Node subst(Node n, Map<Node, Node> bNodeMap) {

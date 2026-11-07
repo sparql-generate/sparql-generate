@@ -59,6 +59,7 @@ public class TemplatePlan {
 		final FunctionEnv env = new FunctionEnvBase(context);
 		String result;
 		for(Iterator<Binding> it=values.iterator(); it.hasNext();) {
+			ContextUtils.checkLimits(context);
 			Binding binding = it.next();
 			if (first && before != null) {
 				result = getExprEval(before, binding, context, env);

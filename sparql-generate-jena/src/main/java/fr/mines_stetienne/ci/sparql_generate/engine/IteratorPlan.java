@@ -15,6 +15,7 @@
  */
 package fr.mines_stetienne.ci.sparql_generate.engine;
 
+import fr.mines_stetienne.ci.sparql_generate.ExecutionLimitException;
 import fr.mines_stetienne.ci.sparql_generate.function.Suggestions;
 import fr.mines_stetienne.ci.sparql_generate.stream.DocumentNotFoundException;
 import fr.mines_stetienne.ci.sparql_generate.utils.ContextUtils;
@@ -129,6 +130,7 @@ public class IteratorPlan implements BindingsClausePlan {
         final FunctionEnv env = new FunctionEnvBase(context);
         final IteratorPlan.Batches batches = new IteratorPlan.Batches(values, listBindingStream);
         for (Binding binding : values) {
+            ContextUtils.checkLimits(context);
             try {
                 iterator.exec(binding, exprList, env, (nodeValues) -> {
                     try {
@@ -151,6 +153,10 @@ public class IteratorPlan implements BindingsClausePlan {
                 final DocumentNotFoundException notFound = DocumentNotFoundException.findIn(ex);
                 if (notFound != null) {
                     throw notFound;
+                }
+                final ExecutionLimitException limit = ExecutionLimitException.findIn(ex);
+                if (limit != null) {
+                    throw limit;
                 }
                 if (ex instanceof ExprEvalException) {
                     LOG.debug("No evaluation for " + this + ", caused by " + ex.getMessage());

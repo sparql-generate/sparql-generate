@@ -53,6 +53,7 @@ import com.google.gson.Gson;
 
 import fr.mines_stetienne.ci.sparql_generate.JerseyApp;
 import fr.mines_stetienne.ci.sparql_generate.api.entities.Request;
+import fr.mines_stetienne.ci.sparql_generate.ExecutionLimitException;
 import fr.mines_stetienne.ci.sparql_generate.engine.PlanFactory;
 import fr.mines_stetienne.ci.sparql_generate.engine.RootPlan;
 import fr.mines_stetienne.ci.sparql_generate.query.SPARQLExtQuery;
@@ -142,7 +143,7 @@ public class TransformStream {
 
 		final ContextUtils.Builder contextBuilder = ContextUtils.build().setStreamManager(sm)
 				.setDebugTemplate(request.debugTemplate).setPrefixMapping(q.getPrefixMapping())
-				.setInputDataset(dataset);
+				.setInputDataset(dataset).setTimeLimit(JerseyApp.MAX_TIME).setMaxTriples(JerseyApp.MAX_TRIPLES);
 
 		final RootPlan plan;
 		try {
@@ -153,8 +154,9 @@ public class TransformStream {
 		}
 		
 
+		java.util.concurrent.Future<?> execution = null;
 		try {
-			sessionManager.getExecutor().submit(() -> {
+			execution = sessionManager.getExecutor().submit(() -> {
 				if (!request.stream) {
 					Context context = contextBuilder.build();
 					if (q.isGenerateType()) {
@@ -198,16 +200,27 @@ public class TransformStream {
 						logError(sessionManager, "Error: unknown query type:", null);
 					}
 				}
-			}).get(JerseyApp.MAX_TIME, TimeUnit.SECONDS);
+			});
+			// the execution checks its own time limit; one more second here
+			execution.get(JerseyApp.MAX_TIME + 1, TimeUnit.SECONDS);
 		} catch (TimeoutException ex) {
-			logError(sessionManager,
-					"In this web interface query execution cannot exceed 10 s. Consider using the executable jar instead.",
-					ex);
+			logError(sessionManager, String.format(
+					"In this web interface query execution cannot exceed %s s. Consider using the executable jar instead.",
+					JerseyApp.MAX_TIME), null);
 		} catch (final InterruptedException ex) {
 			logError(sessionManager, "Interrupted while executing the request", ex);
 		} catch (final ExecutionException ex) {
-			logError(sessionManager, "An exception occurred", ex);
+			final ExecutionLimitException limit = ExecutionLimitException.findIn(ex);
+			if (limit != null) {
+				logError(sessionManager, limit.getMessage() + " Consider using the executable jar instead.", null);
+			} else {
+				logError(sessionManager, "An exception occurred", ex);
+			}
 		} finally {
+			if (execution != null) {
+				// interrupts the execution if it still runs
+				execution.cancel(true);
+			}
 			sessionManager.flush();
 			sessionManager.close();
 		}
