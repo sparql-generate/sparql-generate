@@ -17,11 +17,13 @@ package fr.mines_stetienne.ci.sparql_generate.engine;
 
 import static fr.mines_stetienne.ci.sparql_generate.engine.EngineTestUtils.assertGenerates;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import org.apache.jena.rdf.model.Model;
 import org.junit.Test;
 
 import fr.mines_stetienne.ci.sparql_generate.SPARQLExt;
+import fr.mines_stetienne.ci.sparql_generate.SPARQLExtException;
 import fr.mines_stetienne.ci.sparql_generate.stream.LocatorStringMap;
 import fr.mines_stetienne.ci.sparql_generate.stream.SPARQLExtStreamManager;
 import fr.mines_stetienne.ci.sparql_generate.utils.ContextUtils;
@@ -62,5 +64,22 @@ public class SourceTest {
 				+ "SOURCE <http://ex.org/doc> ACCEPT <https://www.iana.org/assignments/media-types/text/plain> AS ?d")
 				.execGenerate(ContextUtils.build().setStreamManager(sm).build());
 		assertTrue(EngineTestUtils.write(model), EngineTestUtils.write(model).contains("\"hello\""));
+	}
+
+	/**
+	 * An error in the rest of the query is not an error of the iterator that
+	 * precedes it: the execution fails, as without the iterator.
+	 */
+	@Test
+	public void errorAfterAnIteratorFails() {
+		try {
+			PlanFactory.create("PREFIX iter: <http://w3id.org/sparql-generate/iter/> "
+					+ "GENERATE { <http://ex.org/s> <http://ex.org/p> ?i } ITERATOR iter:for(1, 1, 2) AS ?i "
+					+ "SOURCE <http://example.invalid/x> ACCEPT <http://example.org/not-a-media-type> AS ?d")
+					.execGenerate(ContextUtils.build().build());
+			fail("an ACCEPT that is not a media type is an error");
+		} catch (SPARQLExtException ex) {
+			assertTrue(ex.getMessage(), ex.getMessage().contains("not-a-media-type"));
+		}
 	}
 }

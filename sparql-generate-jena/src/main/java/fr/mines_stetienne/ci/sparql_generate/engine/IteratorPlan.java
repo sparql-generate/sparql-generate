@@ -127,23 +127,30 @@ public class IteratorPlan implements BindingsClausePlan {
         final IteratorPlan.Batches batches = new IteratorPlan.Batches(values, listBindingStream);
         for (Binding binding : values) {
             try {
-            	iterator.exec(binding, exprList, env, (nodeValues) -> batches.add(binding, nodeValues));
-            } catch (DocumentNotFoundException ex) {
-                throw ex;
-            } catch (ExprEvalException ex) {
-                // an iterator may wrap the exception of the stream manager
-                final DocumentNotFoundException notFound = DocumentNotFoundException.findIn(ex);
-                if (notFound != null) {
-                    throw notFound;
-                }
-                LOG.debug("No evaluation for " + this + ", caused by " + ex.getMessage());
-                if (ContextUtils.isFailOnException(context)) {
-                    throw ex;
-                }
+                iterator.exec(binding, exprList, env, (nodeValues) -> {
+                    try {
+                        batches.add(binding, nodeValues);
+                    } catch (RuntimeException ex) {
+                        throw new DownstreamException(ex);
+                    }
+                });
             } catch (Exception ex) {
+                // the rest of the query failed, not the iterator: an iterator
+                // may have wrapped the exception
+                final DownstreamException downstream = DownstreamException.findIn(ex);
+                if (downstream != null) {
+                    throw downstream.unwrap();
+                }
                 final DocumentNotFoundException notFound = DocumentNotFoundException.findIn(ex);
                 if (notFound != null) {
                     throw notFound;
+                }
+                if (ex instanceof ExprEvalException) {
+                    LOG.debug("No evaluation for " + this + ", caused by " + ex.getMessage());
+                    if (ContextUtils.isFailOnException(context)) {
+                        throw (ExprEvalException) ex;
+                    }
+                    continue;
                 }
                 LOG.warn("Unanticipated exception for " + toString(), ex);
                 if (ContextUtils.isFailOnException(context)) {
@@ -154,6 +161,35 @@ public class IteratorPlan implements BindingsClausePlan {
         LOG.trace("some batches are incomplete ?");
         batches.allExecutionComplete();
     }
+    /**
+     * An exception of the rest of the query, raised in the callback of the
+     * iterator: it is not an error of the iterator.
+     */
+    private static final class DownstreamException extends RuntimeException {
+
+        private static final long serialVersionUID = 1L;
+
+        DownstreamException(RuntimeException cause) {
+            super(cause);
+        }
+
+        RuntimeException unwrap() {
+            return (RuntimeException) getCause();
+        }
+
+        static DownstreamException findIn(Throwable ex) {
+            for (Throwable t = ex; t != null; t = t.getCause()) {
+                if (t instanceof DownstreamException) {
+                    return (DownstreamException) t;
+                }
+                if (t.getCause() == t) {
+                    break;
+                }
+            }
+            return null;
+        }
+    }
+
     protected class Batches {
 
         final Consumer<List<Binding>> listBindingStream;
