@@ -4,9 +4,11 @@ This page summarises the changes of the engine since version 2.0. The full histo
 
 ## 2.2.3
 
-Not yet released.
+Released on 2026-11-07. Fixes of the defects found by the benchmark and by the formal semantics, a few changes of behaviour (marked **Changed**), and a faster evaluation.
 
 **Language and engine**
+
+- `SELECT DISTINCT` (and `REDUCED`, and expressions in the projection) without `WHERE` clause apply to the solutions of the binding clauses; they were ignored.
 
 - An unbound argument in a call to a named `SELECT` query, `ITERATOR <q.rqg>(?u)`, leaves the parameter unbound instead of failing.
 - `"a\\}b"` is read as `a\}b`: the escape `\\` is read before the brace.
@@ -20,6 +22,10 @@ Not yet released.
 - **Changed**: the last variable of `iter:CSSPath`, "has next", is true when another element follows, as for `iter:XPath` and `iter:JSONPath`; it was the opposite.
 - **Changed**: `fun:GeoJSONGeometry` writes a `MultiPolygon` as `MULTIPOLYGON(((a)), ((b)))`, one list of rings per polygon; it wrote all the rings in one polygon.
 - No more warning "No query pattern in non-DESCRIBE query" for a query without `WHERE` clause.
+
+**Performance**
+
+- The results of the `WHERE` clause are passed to `GENERATE` and `TEMPLATE` as they are computed, without copies; an IRI template such as `<stop/{?id}>` resolves its constant part once instead of parsing each IRI. On the synthetic workloads of pysparql-generate, 100,000 rows: CSV with a nested `GENERATE` 10.0 s to 7.2 s and half the memory, nested JSON 10.0 s to 7.2 s; flat CSV at 1,000,000 rows with `-s -fo NT`, 21 s to 9 s (with the buffered output below).
 
 **Command line**
 
