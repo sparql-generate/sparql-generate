@@ -105,7 +105,7 @@ public class GenerateFormPlan implements GeneratePlan {
 
         for (int i = 0; i < subQueries.size(); i++) {
             RootPlan subPlan = subQueries.get(i);
-            subPlan.execGenerateStream(values, newContext);
+            subPlan.execSubGenerateStream(variables, values, newContext);
         }
     }
 

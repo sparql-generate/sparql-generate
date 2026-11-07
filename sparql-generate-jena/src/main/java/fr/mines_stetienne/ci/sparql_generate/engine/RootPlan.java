@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -210,6 +211,20 @@ public class RootPlan {
 	}
 
 	
+	/**
+	 * Executes a GENERATE sub-query on the bindings of its parent, whose
+	 * variables are known: they are not computed again from every binding.
+	 */
+	void execSubGenerateStream(final List<Var> variables, final List<Binding> values, final Context context) {
+		if (query.getSignature() != null || values == null) {
+			execGenerateStream(values, context);
+			return;
+		}
+		Objects.requireNonNull(context);
+		Objects.requireNonNull(ContextUtils.getGenerateOutput(context));
+		exec(new ArrayList<>(new LinkedHashSet<>(variables)), values, context);
+	}
+
 	/**
 	 * Executes a SELECT query and returns the results.
 	 *
@@ -455,9 +470,13 @@ public class RootPlan {
 				if (query.isSelectType()) {
 					ContextUtils.getSelectOutput(context).accept(resultSet);
 				} else {
-					final List<Var> newVariables = new ArrayList<>();
-					newVariables.addAll(variables); // can we delete this?
-					newVariables.addAll(selectPlan.getVars());
+					// every variable that a solution may bind: those of the input and
+					// those of the results
+					final Set<Var> allVariables = new LinkedHashSet<>(variables);
+					for (String name : resultSet.getResultVars()) {
+						allVariables.add(Var.alloc(name));
+					}
+					final List<Var> newVariables = new ArrayList<>(allVariables);
 					final List<Binding> newValues = new ArrayList<>();
 					while (resultSet.hasNext()) {
 						newValues.add(resultSet.nextBinding());
