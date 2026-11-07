@@ -664,6 +664,9 @@ public class SPARQLExtFormatterElement extends SPARQLExtFormatterBase implements
         // Serialize with respect to the existing context
         QuerySerializerFactory factory = SerializerRegistry.get().getQuerySerializerFactory(SPARQLExt.SYNTAX);
         QueryVisitor serializer = factory.create(SPARQLExt.SYNTAX, context, out);
+        if (serializer instanceof SPARQLExtQuerySerializer) {
+            ((SPARQLExtQuerySerializer) serializer).setPrintPrologue(false);
+        }
         q.visit(serializer);
 
         out.decIndent(INDENT);
