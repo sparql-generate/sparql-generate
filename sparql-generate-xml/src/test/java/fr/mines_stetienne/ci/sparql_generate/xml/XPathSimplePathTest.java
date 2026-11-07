@@ -41,7 +41,11 @@ public class XPathSimplePathTest {
 
 	private static final String XML = "<r><p id=\"1\"><n>a &amp; b</n><n>second</n><q><n>deep</n></q></p>"
 			+ "<p id=\"2\"><n><![CDATA[c <d>]]></n><x:n xmlns:x=\"urn:x\">prefixed</x:n></p>"
-			+ "<p><n/><n>  </n><m><k>1</k></m><m><k>2</k></m></p><p id=\"\"/></r>";
+			+ "<p><n/><n>  </n><m><k>1</k></m><m><k>2</k></m></p><p id=\"\"/>"
+			+ "<p xmlns='urn:default'><n>in a namespace</n></p></r>";
+
+	private static final String[] MAIN = { "/r/p", "/r/*", "/*/p/@id", "/r/p/n/text()", "/r/p/m/k/text()", "/x",
+			"/r/p/n", "/*" };
 
 	private static Model generate(boolean simple) {
 		boolean before = ITER_XPath.simplePaths;
@@ -56,6 +60,32 @@ public class XPathSimplePathTest {
 					.execGenerate(ContextUtils.build().build());
 		} finally {
 			ITER_XPath.simplePaths = before;
+		}
+	}
+
+	private static Model main(String path, boolean simple) {
+		boolean before = ITER_XPath.simplePaths;
+		ITER_XPath.simplePaths = simple;
+		try {
+			return PlanFactory.create("PREFIX iter: <http://w3id.org/sparql-generate/iter/> "
+					+ "GENERATE { <http://ex/s{?i}> <http://ex/v> ?v ; <http://ex/last> ?last } "
+					+ "ITERATOR iter:XPath(\"\"\"" + XML + "\"\"\", \"" + path + "\") AS ?v ?i ?last")
+					.execGenerate(ContextUtils.build().build());
+		} finally {
+			ITER_XPath.simplePaths = before;
+		}
+	}
+
+	@Test
+	public void mainQueryAsTheXPathEngine() {
+		for (String path : MAIN) {
+			Model engine = main(path, false);
+			Model simple = main(path, true);
+			StringWriter a = new StringWriter();
+			RDFDataMgr.write(a, engine, Lang.NT);
+			StringWriter b = new StringWriter();
+			RDFDataMgr.write(b, simple, Lang.NT);
+			assertTrue(path + "\nXPath engine:\n" + a + "\nsimple paths:\n" + b, simple.isIsomorphicWith(engine));
 		}
 	}
 

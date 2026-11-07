@@ -188,13 +188,20 @@ public class ITER_XPath extends IteratorFunctionBase {
             Document document = parse(builder, xmlString);
             XPath xPath = XPathFactory.newInstance().newXPath();
             xPath.setNamespaceContext(new FUN_XPath.UniversalNamespaceResolver(document));
-            NodeList nodeList = (NodeList) xPath
-                    .compile(xPathNode.getString())
-                    .evaluate(document, XPathConstants.NODESET);
-            int size = nodeList.getLength();
+            List<org.w3c.dom.Node> nodes = simpleSelectAll(document, xPathNode.getString());
+            if (nodes == null) {
+                NodeList nodeList = (NodeList) xPath
+                        .compile(xPathNode.getString())
+                        .evaluate(document, XPathConstants.NODESET);
+                nodes = new ArrayList<>(nodeList.getLength());
+                for (int i = 0; i < nodeList.getLength(); i++) {
+                    nodes.add(nodeList.item(i));
+                }
+            }
+            int size = nodes.size();
             final List<List<NodeValue>> listNodeValues = new ArrayList<>(size);
             for (int i = 0; i < size; i++) {
-                org.w3c.dom.Node value = nodeList.item(i);
+                org.w3c.dom.Node value = nodes.get(i);
                 List<NodeValue> nodeValues = new ArrayList<>(args.size() + 1);
                 NodeValue nodeValue = function.nodeForNode(value);
                 nodeValues.add(nodeValue);
@@ -243,7 +250,77 @@ public class ITER_XPath extends IteratorFunctionBase {
      * text(), as "/person/@id" or "/person/name/text()".
      */
     private static final Pattern SIMPLE_PATH = Pattern
-            .compile("(/[A-Za-z_][A-Za-z0-9_.-]*)+(/@[A-Za-z_][A-Za-z0-9_.-]*|/text\\(\\))");
+            .compile("(/([A-Za-z_][A-Za-z0-9_.-]*|\\*))+(/@[A-Za-z_][A-Za-z0-9_.-]*|/text\\(\\))");
+
+    /**
+     * Same, the last step may also be an element.
+     */
+    private static final Pattern SIMPLE_NODES_PATH = Pattern
+            .compile("(/([A-Za-z_][A-Za-z0-9_.-]*|\\*))+(/@[A-Za-z_][A-Za-z0-9_.-]*|/text\\(\\))?");
+
+    /**
+     * Evaluates the main query on the document without the XPath engine, when
+     * it is a path of element names (or *), possibly ending with an attribute
+     * or text(): all the nodes of the path, in document order.
+     *
+     * @return the nodes, or null if the path is not simple.
+     */
+    static List<org.w3c.dom.Node> simpleSelectAll(final Document document, final String path) {
+        final Element root = document.getDocumentElement();
+        if (!simplePaths || path == null || root == null || !SIMPLE_NODES_PATH.matcher(path).matches()) {
+            return null;
+        }
+        final String[] steps = path.substring(1).split("/");
+        final String last = steps[steps.length - 1];
+        final boolean element = !last.startsWith("@") && !last.equals("text()");
+        final List<org.w3c.dom.Node> nodes = new ArrayList<>();
+        if (matches(root, steps[0])) {
+            if (steps.length == 1) {
+                nodes.add(root);
+            } else {
+                collect(root, steps, 1, element, nodes);
+            }
+        }
+        return nodes;
+    }
+
+    /**
+     * The name test of XPath: * is any element, a name an element of that name
+     * in no namespace.
+     */
+    private static boolean matches(final org.w3c.dom.Node node, final String step) {
+        return step.equals("*") || (node.getNamespaceURI() == null && step.equals(node.getNodeName()));
+    }
+
+    private static void collect(final Element element, final String[] steps, final int k, final boolean lastIsElement,
+            final List<org.w3c.dom.Node> nodes) {
+        final String step = steps[k];
+        if (k == steps.length - 1 && !lastIsElement) {
+            if (step.startsWith("@")) {
+                final org.w3c.dom.Node attribute = element.getAttributeNode(step.substring(1));
+                if (attribute != null) {
+                    nodes.add(attribute);
+                }
+            } else {
+                for (org.w3c.dom.Node c = element.getFirstChild(); c != null; c = c.getNextSibling()) {
+                    if (c.getNodeType() == org.w3c.dom.Node.TEXT_NODE
+                            || c.getNodeType() == org.w3c.dom.Node.CDATA_SECTION_NODE) {
+                        nodes.add(c);
+                    }
+                }
+            }
+            return;
+        }
+        for (org.w3c.dom.Node c = element.getFirstChild(); c != null; c = c.getNextSibling()) {
+            if (c.getNodeType() == org.w3c.dom.Node.ELEMENT_NODE && matches(c, step)) {
+                if (k == steps.length - 1) {
+                    nodes.add(c);
+                } else {
+                    collect((Element) c, steps, k + 1, lastIsElement, nodes);
+                }
+            }
+        }
+    }
 
     /**
      * Evaluates a sub-query on a matched element without the XPath engine,
@@ -260,7 +337,7 @@ public class ITER_XPath extends IteratorFunctionBase {
         }
         final String[] steps = path.substring(1).split("/");
         final String last = steps[steps.length - 1];
-        if (!steps[0].equals(root.getNodeName())) {
+        if (!matches(root, steps[0])) {
             return null;
         }
         return find((Element) root, steps, 1, last);
@@ -280,7 +357,7 @@ public class ITER_XPath extends IteratorFunctionBase {
             return null;
         }
         for (org.w3c.dom.Node c = element.getFirstChild(); c != null; c = c.getNextSibling()) {
-            if (c.getNodeType() == org.w3c.dom.Node.ELEMENT_NODE && steps[k].equals(c.getNodeName())) {
+            if (c.getNodeType() == org.w3c.dom.Node.ELEMENT_NODE && matches(c, steps[k])) {
                 final org.w3c.dom.Node found = find((Element) c, steps, k + 1, last);
                 if (found != null) {
                     return found;
