@@ -67,3 +67,5 @@ A `FROM` clause can contain a `GENERATE` query, whose output is added to the dat
 ## Streaming
 
 With the option `--stream` of the [command line](../cli.md), or *return stream* in the playground, the engine writes each triple as soon as it is generated, instead of building the graph first. Combined with the batched iterators (`iter:CSV` with a batch size, `iter:JSONSurfer`) and the stream iterators (`iter:HTTPGet`, `iter:MQTTSubscribe`, `iter:WebSocket`), it transforms documents that do not fit in memory and endless streams.
+
+A batched or stream iterator delivers its solutions batch by batch, and the rest of the query is evaluated once per batch: `DISTINCT`, `GROUP BY` and the aggregates, `ORDER BY`, `LIMIT` and `OFFSET`, and `LIST(...)`, apply to each batch, not to the whole document. Their result then depends on the batch size; a query without them gives the same triples whatever the batch size.
