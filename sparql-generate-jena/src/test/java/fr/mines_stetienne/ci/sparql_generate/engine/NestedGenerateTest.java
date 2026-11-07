@@ -150,4 +150,24 @@ public class NestedGenerateTest {
 		assertEquals("121212", result);
 	}
 
+	/**
+	 * Consecutive BIND clauses read the values of the previous ones; an error
+	 * leaves a variable unbound.
+	 */
+	@Test
+	public void consecutiveBindClauses() {
+		assertGenerates("<http://ex/s> <http://ex/p> 2, 3, 30, 4, 5, 50 .",
+				"PREFIX iter: <http://w3id.org/sparql-generate/iter/> "
+						+ "GENERATE { <http://ex/s> <http://ex/p> ?a, ?b, ?c, ?d } ITERATOR iter:for(1, 1, 3) AS ?i "
+						+ "BIND(?i * 2 AS ?a) BIND(?a + 1 AS ?b) BIND(1/0 AS ?c) BIND(COALESCE(?c, ?b * 10) AS ?d)");
+	}
+
+	@Test
+	public void consecutiveBindClausesRebindingAVariable() {
+		assertGenerates("<http://ex/s> <http://ex/p> 2, 3 . <http://ex/t> <http://ex/p> 12, 13 .",
+				"PREFIX iter: <http://w3id.org/sparql-generate/iter/> "
+						+ "GENERATE { <http://ex/s> <http://ex/p> ?a . <http://ex/t> <http://ex/p> ?b } "
+						+ "ITERATOR iter:for(1, 1, 3) AS ?i BIND(?i AS ?a) BIND(?a + 10 AS ?b) BIND(?a + 1 AS ?a) BIND(?b + 1 AS ?b)");
+	}
+
 }

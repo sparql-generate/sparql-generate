@@ -421,14 +421,23 @@ public class RootPlan {
 			final Context context, final int i) {
 		if (i < iteratorAndSourcePlans.size()) {
 			final BindingsClausePlan plan = iteratorAndSourcePlans.get(i);
-			if (plan instanceof BindOrSourcePlan) {
+			final List<BindPlan> binds = consecutiveBinds(variables, i);
+			if (binds != null) {
+				for (BindPlan bind : binds) {
+					variables.add(bind.getVar());
+				}
+				final List<Binding> newValues = BindPlan.execAll(binds, values, context);
+				execIteratorAndSourcePlans(variables, newValues, context, i + binds.size());
+			} else if (plan instanceof BindOrSourcePlan) {
 				final BindOrSourcePlan bindOrSourcePlan = (BindOrSourcePlan) plan;
 				if (!variables.contains(bindOrSourcePlan.getVar())) {
 					variables.add(bindOrSourcePlan.getVar());
 				}
 				final List<Binding> newValues = bindOrSourcePlan.exec(values, context);
 				execIteratorAndSourcePlans(variables, newValues, context, i + 1);
-				LOG.debug("Finished plan " + bindOrSourcePlan);
+				if (LOG.isDebugEnabled()) {
+					LOG.debug("Finished plan " + bindOrSourcePlan);
+				}
 			} else {
 				IteratorPlan iteratorPlan = (IteratorPlan) plan;
 				iteratorPlan.exec(variables, values, context, (newValues) -> {
@@ -446,6 +455,25 @@ public class RootPlan {
 		} else {
 			execSelectPlan(variables, values, context);
 		}
+	}
+
+	/**
+	 * @return the BIND clauses that start at index i, if there are at least
+	 *         two and none of their variables is bound by the input or by
+	 *         another of them, so that they can be executed in one pass; or
+	 *         null.
+	 */
+	private List<BindPlan> consecutiveBinds(final List<Var> variables, final int i) {
+		final List<BindPlan> binds = new ArrayList<>();
+		final Set<Var> vars = new HashSet<>();
+		for (int j = i; j < iteratorAndSourcePlans.size() && iteratorAndSourcePlans.get(j) instanceof BindPlan; j++) {
+			final BindPlan bind = (BindPlan) iteratorAndSourcePlans.get(j);
+			if (variables.contains(bind.getVar()) || !vars.add(bind.getVar())) {
+				break;
+			}
+			binds.add(bind);
+		}
+		return binds.size() >= 2 ? binds : null;
 	}
 
 	private void execSelectPlan(final List<Var> variables, final List<Binding> values, final Context context) {

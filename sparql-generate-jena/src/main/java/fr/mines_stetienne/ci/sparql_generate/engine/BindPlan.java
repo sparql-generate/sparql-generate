@@ -16,7 +16,10 @@
 package fr.mines_stetienne.ci.sparql_generate.engine;
 
 import fr.mines_stetienne.ci.sparql_generate.utils.LogUtils;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
+import org.apache.jena.graph.Node;
 import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.expr.Expr;
 import org.apache.jena.sparql.expr.NodeValue;
@@ -24,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 import org.apache.jena.sparql.ARQConstants;
 import org.apache.jena.sparql.engine.binding.Binding;
+import org.apache.jena.sparql.engine.binding.BindingBuilder;
 import org.apache.jena.sparql.engine.binding.BindingFactory;
 import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.function.FunctionEnv;
@@ -92,6 +96,48 @@ public class BindPlan extends BindOrSourcePlan {
     }
 
     
+    /**
+     * Executes consecutive BIND clauses in one pass over the bindings, when
+     * none of their variables is bound by the input and they are distinct:
+     * each binding is extended once, by a flat binding, instead of once per
+     * clause. The value is that of executing them one after the other.
+     *
+     * @param plans the BIND clauses, in order
+     * @param values the input bindings
+     * @param context the execution context
+     * @return the bindings, extended by the clauses
+     */
+    static List<Binding> execAll(final List<BindPlan> plans, final List<Binding> values, final Context context) {
+        // NOW() is the same for the bindings of a batch
+        context.set(ARQConstants.sysCurrentTime, NodeFactoryExtra.nowAsDateTime());
+        final FunctionEnv env = new FunctionEnvBase(context);
+        final int n = plans.size();
+        final Node[] nodes = new Node[n];
+        final List<Binding> result = new ArrayList<>(values.size());
+        for (Binding binding : values) {
+            Binding current = binding;
+            for (int k = 0; k < n; k++) {
+                final BindPlan plan = plans.get(k);
+                nodes[k] = null;
+                try {
+                    final Node node = plan.expr.eval(current, env).asNode();
+                    nodes[k] = node;
+                    current = BindingFactory.binding(current, plan.var, node);
+                } catch (ExprEvalException ex) {
+                    // the variable is unbound
+                }
+            }
+            final BindingBuilder builder = Binding.builder(binding);
+            for (int k = 0; k < n; k++) {
+                if (nodes[k] != null) {
+                    builder.add(plans.get(k).var, nodes[k]);
+                }
+            }
+            result.add(builder.build());
+        }
+        return result;
+    }
+
     @Override
     public String toString() {
         return "BIND( " + expr + " AS " + var + ")";
