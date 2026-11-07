@@ -8,7 +8,7 @@ java -jar sparql-generate-2.2.0.jar [options]
 
 ## Working directory
 
-The command line works on a directory (option `--dir`, by default the current directory) that holds the query, its documents, and an optional configuration file `sparql-generate-conf.json`. The paths given in the options and in the configuration file are relative to this directory.
+The command line works on a directory (option `--dir`, by default the current directory) that holds the query, its documents, and an optional configuration file `sparql-generate-conf.json`. The query file (`--query-file`) and the paths of the configuration file are relative to this directory; the paths given to `--output` and `--log-file` are relative to the current directory, or absolute.
 
 The engine looks a document, a named query or a graph up in this order:
 
@@ -32,16 +32,16 @@ The engine looks a document, a named query or a graph up in this order:
 | `-hdt`, `--hdt` | | write a `GENERATE` output as HDT; requires `--output` |
 | `-dt`, `--debug-template` | | in `TEMPLATE` output, insert identifiers that refer to the warnings of the log |
 | `-x`, `--syntax` | | check the syntax of the query and exit |
-| `-l`, `--log-level` | level | `TRACE`, `DEBUG`, `INFO`, `WARN` (default), `ERROR` or `OFF` |
+| `-l`, `--log-level` | level | `TRACE`, `DEBUG`, `INFO`, `WARN` (default), `ERROR` or `OFF`; an unrecognised value gives `WARN` |
 | `-f`, `--log-file` | file | also write the log to this file |
-| `-B` | `name=term` | bind the parameter `?name` to an RDF term in Turtle syntax: `-Bn=12`, `-Bs='"a string"@en'`, `-Biri='<http://example.org/>'` |
+| `-B` | `name=term` | bind the parameter `?name` to an RDF term, written as in the query, with its prefixes: `-Bn=12`, `-Bs='"a string"@en'`, `-Biri='<http://example.org/>'`, `-Bp=ex:o`; a value that is not an RDF term is an error |
 | `--source` | `iri=iri` | deprecated: replace the IRI of a `SOURCE` clause |
 
-The log goes to the standard error. The exit status is 0 when the query was executed, and 1 when the query is invalid or its execution failed. A document that cannot be found or parsed is a warning, not a failure: the variables it would bind stay unbound.
+The log goes to the standard error. The exit status is 0 when the query was executed, and 1 when the query is invalid, when its execution or the writing of the output fails, or when the options do not fit the query (such as `--hdt` with a `SELECT` query). A document that cannot be found or parsed is a warning, not a failure: the variables it would bind stay unbound.
 
 Levels `DEBUG` and `TRACE` log each solution and each triple: use them to understand a query, not to measure performance.
 
-`PERFORM` queries are parsed but not executed: the command line answers that they are not supported.
+`PERFORM` queries are parsed but not executed: the command line answers that they are not supported and exits with status 1.
 
 ## Configuration file
 
@@ -65,7 +65,7 @@ Levels `DEBUG` and `TRACE` log each solution and each triple: use them to unders
   "output": "output.ttl",
   "outputFormat": "TTL",
   "stream": false,
-  "loglevel": 2
+  "log": 2
 }
 ```
 
@@ -77,14 +77,14 @@ Levels `DEBUG` and `TRACE` log each solution and each triple: use them to unders
 | `graph` | path | `dataset/default.ttl` | the default graph of the input dataset, in Turtle, if the file exists |
 | `namedgraphs` | array | `[]` | named graphs of the input dataset, in Turtle: `uri`, `path` |
 | `documentset` | array | `[]` | documents: `uri`, `path`, optional `mediatype` |
-| `output` | path | standard output | as `--output` |
+| `output` | path | standard output | as `--output`, relative to the working directory |
 | `outputAppend` | boolean | `false` | as `--append-output` |
 | `outputFormat` | string | `TTL` or `TEXT` | as `--format-output` |
 | `stream` | boolean | `false` | as `--stream` |
 | `hdt` | boolean | `false` | as `--hdt` |
 | `debugTemplate` | boolean | `false` | as `--debug-template` |
-| `loglevel` | integer | `2` | 0 `OFF`, 1 `ERROR`, 2 `WARN`, 3 `INFO`, 4 `DEBUG`, 5 `TRACE` |
-| `logFile` | path | none | as `--log-file` |
+| `log` | integer | `2` | 0 `OFF`, 1 `ERROR`, 2 `WARN`, 3 `INFO`, 4 `DEBUG`, 5 `TRACE`; the former key `loglevel` is also read |
+| `logFile` | path | none | as `--log-file`, relative to the working directory |
 
 A document of the `documentset` can be declared several times with different media types: a `SOURCE ... ACCEPT` clause selects one of them (see [content negotiation](language/sources-and-iterators.md#content-negotiation-with-accept)). The examples of this documentation and of the playground use this layout: each one is a working directory that the command line can run.
 

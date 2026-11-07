@@ -33,8 +33,9 @@ Not released yet. Group `fr.mines-stetienne.ci.sparql-generate`, published on Ma
 - The log goes to the standard error, at level `WARN` by default; the standard output carries only the result.
 - The exit status is 1 when the query is invalid or its execution fails.
 - `-x` is `--syntax` and `-f` is `--log-file` (both had the long name `log-file`).
-- `-B` binds parameters to any RDF term, IRIs included; `-o` accepts absolute paths.
-- `PERFORM` queries are reported as not supported.
+- `-B` binds parameters to any RDF term, IRIs and prefixed names included; `-o` and `-f` are relative to the current directory, or absolute.
+- The field `log` of `sparql-generate-conf.json` sets the log level as documented; `loglevel` is still read.
+- `PERFORM` queries are reported as not supported, with exit status 1.
 
 **Playground and documentation**
 

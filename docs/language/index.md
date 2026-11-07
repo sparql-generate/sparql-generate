@@ -66,7 +66,7 @@ The engine looks the named query up by its IRI with the media type `application/
 
 ## PERFORM
 
-The grammar has a fourth form, `PERFORM`, for queries that perform actions, such as calls to Web APIs, instead of producing an output. The engine 2.2 parses `PERFORM` queries but does not execute them: the command line answers "unsupported query type".
+The grammar has a fourth form, `PERFORM`, for queries that perform actions, such as calls to Web APIs, instead of producing an output. The engine 2.2 parses `PERFORM` queries but does not execute them: the command line answers that `PERFORM` queries are not supported, and exits with status 1.
 
 ## Differences with SPARQL 1.1
 

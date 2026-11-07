@@ -1,0 +1,10 @@
+BASE <http://example.org/>
+
+GENERATE {
+  GENERATE {
+    <s/{?g}> <p> LIST(?x) .
+  }
+  WHERE { VALUES (?h ?x) { (1 "a") (1 "b") (2 "c") } FILTER(?h = ?g) }
+  GROUP BY ?g .
+}
+WHERE { VALUES ?g { 1 2 } }

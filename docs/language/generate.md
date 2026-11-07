@@ -16,7 +16,7 @@ Expressions between braces inside IRIs and literals are evaluated for each solut
 
 ## Nested GENERATE
 
-A template can contain other `GENERATE` queries, each terminated by a dot. A nested query is evaluated once per solution of the query that contains it, and sees its variables: here the outer query iterates over the people, and the nested query over the skills of each person. Nesting avoids repeating the outer clauses in several queries, and reduces the number of solutions.
+A template can contain other `GENERATE` queries, each terminated by a dot. A nested query is evaluated on the solutions of the query that contains it: its binding clauses and its `WHERE` clause extend each of these solutions, so it sees their variables. Here the outer query iterates over the people, and the nested query over the skills of each person. Nesting avoids repeating the outer clauses in several queries, and reduces the number of solutions.
 
 !example nested-generate
 
@@ -36,8 +36,9 @@ With `GROUP BY`, `LIST` is an aggregate: the template is instantiated once per g
 
 !example lists-group
 
-!!! warning "Known limitation"
-    Inside a nested `GENERATE` without `GROUP BY`, the engine 2.2 builds one list with the values of all the executions of the nested query, instead of one list per execution. Use `GROUP BY` in the outer query, as above.
+Without `GROUP BY`, `LIST` and the other aggregates span all the solutions of their query. A nested `GENERATE` is evaluated on all the solutions of its parent at once, so a `LIST` in a nested query collects the values for all the parent solutions. To get one list per parent solution, group the nested query by the variables of the parent:
+
+!example lists-nested
 
 ## Aggregates
 
