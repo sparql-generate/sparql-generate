@@ -4,11 +4,11 @@ This page summarises the changes of the engine since version 2.0. The full histo
 
 ## 2.2.4
 
-Not yet released.
+Released on 2026-11-07. Faster evaluation of the queries translated from RML and of nested queries, and fixes; two changes of behaviour, marked **Changed**.
 
 **Performance**
 
-- A `WHERE` clause made of `BIND` and `FILTER`, without solution modifier, is evaluated without Jena's query engine; a nested `GENERATE` receives the variables of its parent instead of computing them again; a `BIND` clause no longer builds a log message for each binding. The bookkeeping of the batches of an iterator in a sub-query, run once per solution of the parent, is linear; it was quadratic. The query translated from RML for the KGCW 2024 task records-1M (20 M triples): 219 s to 30 s; the flat CSV mapping translated from RML at 8 M triples: 61 s to 16 s; a CSV of 1 M rows with a nested `GENERATE` over `iter:Split`: 54 s to 11 s.
+- A `WHERE` clause made of `BIND` and `FILTER`, without solution modifier, is evaluated without Jena's query engine; a nested `GENERATE` receives the variables of its parent instead of computing them again; a `BIND` clause no longer builds a log message for each binding. The bookkeeping of the batches of an iterator in a sub-query, run once per solution of the parent, is linear; it was quadratic. The query translated from RML for the KGCW 2024 task records-1M (20 M triples): 219 s to 30 s; the flat CSV mapping translated from RML at 8 M triples: 61 s to 16 s; a CSV of 1 M rows with a nested `GENERATE` over `iter:Split`: 54 s to 11 s; the same in JSON: 58 s to 14 s.
 
 **Language and engine**
 
