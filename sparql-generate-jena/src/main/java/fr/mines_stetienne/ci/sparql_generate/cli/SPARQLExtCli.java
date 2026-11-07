@@ -64,7 +64,9 @@ import org.apache.jena.query.ResultSetFormatter;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFLanguages;
-import org.apache.jena.riot.lang.extra.javacc.TurtleJavacc;
+import org.apache.jena.riot.RiotException;
+import org.apache.jena.riot.system.PrefixMapFactory;
+import org.apache.jena.sparql.util.NodeFactoryExtra;
 import org.apache.jena.shared.PrefixMapping;
 import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.engine.binding.Binding;
@@ -199,6 +201,10 @@ public class SPARQLExtCli {
 			return;
 		}
 
+		if (q.isPerformType()) {
+			throw new SPARQLExtException("PERFORM queries are not supported: the engine parses them but cannot execute them.");
+		}
+
 		if (cl != null) {
 			replaceSourcesIfRequested(cl, q);
 		}
@@ -224,7 +230,7 @@ public class SPARQLExtCli {
 				.setInputDataset(ds).setStreamManager(sm).setDebugTemplate(rq.debugTemplate);
 
 		// prepare initial binding
-		List<Binding> bindings = getBinding(cl);
+		List<Binding> bindings = getBinding(cl, q.getPrefixMapping());
 
 		if (q.isTemplateType()) {
 			if (rq.output == null) {
@@ -261,9 +267,9 @@ public class SPARQLExtCli {
 		}
 	}
 
-	private static List<Binding> getBinding(CommandLine cl) {
+	private static List<Binding> getBinding(CommandLine cl, PrefixMapping pm) {
 		final BindingBuilder bindingBuilder = Binding.builder();
-		if(!cl.hasOption(CMDConfigurations.ARG_BIND_LONG)) {
+		if(cl == null || !cl.hasOption(CMDConfigurations.ARG_BIND_LONG)) {
 			ArrayList<Binding> bindings = new ArrayList<Binding>();
 			bindings.add(bindingBuilder.build());
 			return bindings;
@@ -277,17 +283,15 @@ public class SPARQLExtCli {
 		for(Object param : properties.keySet()) {
 			Var var = Var.alloc((String) param);
 			String value = properties.getProperty((String) param);
-			StringReader valueReader = new StringReader(value);
-			TurtleJavacc valueParser = new TurtleJavacc(valueReader);
 			if(LOG.isTraceEnabled()) {
 				LOG.trace(String.format("With binding %s -> %s", param, value));
 			}
 			try {
-				Node node = valueParser.Literal();
+				// an RDF term: IRI, prefixed name of the query, literal, number
+				Node node = NodeFactoryExtra.parseNode(value, PrefixMapFactory.create(pm));
 				bindingBuilder.add(var, node);
-			} catch (org.apache.jena.riot.lang.extra.javacc.ParseException ex) {
-				LOG.error(String.format("Error while parsing value for parameter %s", param), ex);
-				throw new SPARQLExtException(ex);
+			} catch (RiotException ex) {
+				throw new SPARQLExtException(String.format("Invalid RDF term for parameter %s: %s", param, value), ex);
 			}
 		}
 		return Lists.newArrayList(bindingBuilder.build());
@@ -310,7 +314,12 @@ public class SPARQLExtCli {
 			throw new SPARQLExtException("Output needs to be set with the option HDT.");
 		}
 		final String baseURI = plan.getQuery().getBaseURI();
-		HDTStreamRDF hdtStreamRDF = new HDTStreamRDF(baseURI);
+		HDTStreamRDF hdtStreamRDF;
+		try {
+			hdtStreamRDF = new HDTStreamRDF(baseURI);
+		} catch (IOException ex) {
+			throw new SPARQLExtException("Error while opening the HDT stream.", ex);
+		}
 		HDT hdt = hdtStreamRDF.getHDT();
 		Context context = builder.setGenerateOutput(hdtStreamRDF).build();
 		plan.execGenerateStream(bindings, context);
@@ -525,25 +534,36 @@ public class SPARQLExtCli {
 		}
 		request.query = new File(dirFile, cl.getOptionValue(ARG_QUERY, request.query)).getAbsolutePath();
 		request.base = cl.getOptionValue(ARG_BASE, request.base);
-		request.output = cl.getOptionValue(ARG_OUTPUT, request.output);
-		if (request.output != null) {
-			request.output = new File(dirFile, cl.getOptionValue(ARG_OUTPUT, request.output)).getAbsolutePath();
-		}
+		// -o and -f are relative to the current directory; output and logFile of
+		// sparql-generate-conf.json are relative to the directory of the queryset
+		request.output = resolve(dirFile, cl.getOptionValue(ARG_OUTPUT), request.output);
 		request.outputAppend = cl.hasOption(ARG_OUTPUT_APPEND);
 		request.outputFormat = cl.getOptionValue(ARG_OUTPUT_FORMAT, request.outputFormat);
 		request.stream = cl.hasOption(ARG_STREAM) || request.stream;
 		request.hdt = cl.hasOption(ARG_HDT) || request.hdt;
 		request.debugTemplate = cl.hasOption(ARG_DEBUG_TEMPLATE) || request.debugTemplate;
-		String logFile = cl.getOptionValue(ARG_LOG_FILE, request.logFile);
-		if (logFile != null) {
-			request.logFile = new File(dirFile, logFile).getAbsolutePath();
-		}
+		request.logFile = resolve(dirFile, cl.getOptionValue(ARG_LOG_FILE), request.logFile);
 		try {
 			request.logLevelObject = Level.toLevel(cl.getOptionValue(ARG_LOG_LEVEL), LOG_LEVELS[request.loglevel]);
 		} catch (Exception ex) {
 			request.logLevelObject = Level.DEBUG;
 		}
 		return request;
+	}
+
+	/**
+	 * Resolves a path given on the command line against the current directory,
+	 * or else a path of the configuration file against the directory.
+	 */
+	private static String resolve(File dirFile, String commandLinePath, String configurationPath) {
+		if (commandLinePath != null) {
+			return new File(commandLinePath).getAbsolutePath();
+		}
+		if (configurationPath == null) {
+			return null;
+		}
+		File file = new File(configurationPath);
+		return (file.isAbsolute() ? file : new File(dirFile, configurationPath)).getAbsolutePath();
 	}
 
 	private static SPARQLExtQuery getQueryOrDie(CliRequest request, CommandLine cl, SPARQLExtStreamManager sm) {

@@ -74,4 +74,32 @@ public class JSONPathTest {
 	public void arrayValueIsSerialized() {
 		assertJSONPath("\"[1,2]\"", "{\"a\": [1, 2]}", "$.a");
 	}
+
+	/**
+	 * A definite path that selects a one-element array gives the array.
+	 */
+	@Test
+	public void definitePathToOneElementArray() {
+		assertJSONPath("\"[\\\"a\\\"]\"", "{\"tags\": [\"a\"]}", "$.tags");
+	}
+
+	@Test
+	public void definitePathToOneElementArrayOfNumbers() {
+		assertJSONPath("\"[5]\"", "{\"one\": [5], \"two\": [1, 2]}", "$.one");
+	}
+
+	/**
+	 * iter:JSONPath gives each element as it is, even a one-element array.
+	 */
+	@Test
+	public void iteratorKeepsOneElementArrays() {
+		Model expected = ModelFactory.createDefaultModel();
+		RDFDataMgr.read(expected, new StringReader("<http://ex/s> <http://ex/p> \"[\\\"x\\\"]\", \"y\" ."), null, Lang.TTL);
+		String query = "PREFIX ite: <http://w3id.org/sparql-generate/iter/> GENERATE { <http://ex/s> <http://ex/p> ?o } "
+				+ "ITERATOR ite:JSONPath(\"\\{\\\"items\\\": [[\\\"x\\\"], \\\"y\\\"]\\}\", \"$.items[*]\") AS ?o";
+		Model actual = PlanFactory.create(query).execGenerate(ContextUtils.build().build());
+		StringWriter sw = new StringWriter();
+		RDFDataMgr.write(sw, actual, Lang.NT);
+		assertTrue("got:\n" + sw, actual.isIsomorphicWith(expected));
+	}
 }

@@ -16,11 +16,14 @@
 package fr.mines_stetienne.ci.sparql_generate.engine;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
 import org.apache.jena.graph.Node;
+import org.apache.jena.graph.Triple;
 import org.apache.jena.query.QueryFactory;
 import org.apache.jena.query.QueryParseException;
 import org.apache.jena.sparql.core.BasicPattern;
@@ -35,6 +38,8 @@ import org.apache.jena.sparql.expr.ExprVar;
 import org.apache.jena.sparql.expr.aggregate.AggGroupConcat;
 import org.apache.jena.sparql.expr.aggregate.AggGroupConcatDistinct;
 import org.apache.jena.sparql.expr.aggregate.Aggregator;
+import org.apache.jena.sparql.expr.aggregate.AggregatorFactory;
+import fr.mines_stetienne.ci.sparql_generate.graph.Node_List;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueString;
 import org.apache.jena.sparql.syntax.Element;
 import org.apache.jena.sparql.syntax.ElementBind;
@@ -201,6 +206,10 @@ public class PlanFactory {
             // GROUP is an aggregate, computed by the SELECT
             query.setTemplateClause(aggregateGroups(query, query.getTemplateClause()));
         }
+        if (query.isGenerateType() && query.hasGenerateClause() && query.hasGroupBy()) {
+            // with GROUP BY, LIST is an aggregate, computed by the SELECT
+            aggregateLists(query);
+        }
 
         /*
         * TEMPLATE queries are translated into a SELECT with project 
@@ -365,6 +374,38 @@ public class PlanFactory {
         return new SelectPlan(newQuery, query.isSelectType(), query.getSignature());
     }
     
+    /**
+     * Replaces each LIST( expr ) object of the templates by a variable that the
+     * SELECT binds to the list aggregate of expr, so that there is one list per
+     * group.
+     */
+    private static void aggregateLists(final SPARQLExtQuery query) {
+        ListAggregate.register();
+        final Map<Node, Var> listVars = new HashMap<>();
+        final List<Element> clause = query.getGenerateClause();
+        for (int i = 0; i < clause.size(); i++) {
+            if (!(clause.get(i) instanceof ElementGenerateTriplesBlock)) {
+                continue;
+            }
+            final BasicPattern bgp = new BasicPattern();
+            for (Triple t : ((ElementGenerateTriplesBlock) clause.get(i)).getPattern()) {
+                if (!(t.getObject() instanceof Node_List)) {
+                    bgp.add(t);
+                    continue;
+                }
+                final Node_List list = (Node_List) t.getObject();
+                final Var var = listVars.computeIfAbsent(list, (l) -> {
+                    final Var v = Var.alloc(UUID.randomUUID().toString().substring(0, 8));
+                    query.addPostSelect(v, query.allocAggregate(
+                            AggregatorFactory.createCustom(ListAggregate.URI, false, new ExprList(list.getExpr()))));
+                    return v;
+                });
+                bgp.add(Triple.create(t.getSubject(), t.getPredicate(), var));
+            }
+            clause.set(i, new ElementGenerateTriplesBlock(bgp));
+        }
+    }
+
     /**
      * Replaces each GROUP of a template by a variable that the SELECT binds to
      * the GROUP_CONCAT of its expressions, as for the other aggregates of the

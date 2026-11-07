@@ -67,6 +67,25 @@ public class TemplateTest {
 						+ "WHERE { VALUES (?k ?v) { (\"a\" \"a1\") (\"a\" \"a2\") (\"b\" \"b1\") } } GROUP BY ?k ORDER BY ?k"));
 	}
 
+	@Test
+	public void aggregate() {
+		assertEquals("avg=1.5", template("TEMPLATE { \"avg=\" str(avg(?x)) } WHERE { VALUES ?x { 1 2 } }"));
+	}
+
+	/**
+	 * An aggregate inside BOX, as in the example template/05-Box of the website.
+	 */
+	@Test
+	public void aggregateInBox() {
+		assertEquals("avg=1.5", template("TEMPLATE { \"avg=\" BOX { str(avg(?x)) } } WHERE { VALUES ?x { 1 2 } }"));
+	}
+
+	@Test
+	public void aggregateInFormat() {
+		assertEquals("avg=1.5", template(
+				"TEMPLATE { FORMAT { \"avg=%s\" str(avg(?x)) } } WHERE { VALUES ?x { 1 2 } }"));
+	}
+
 	private static String templateWith(String query, String namedIri, String named) {
 		LocatorStringMap locator = new LocatorStringMap();
 		locator.put(namedIri, named, SPARQLExt.MEDIA_TYPE);

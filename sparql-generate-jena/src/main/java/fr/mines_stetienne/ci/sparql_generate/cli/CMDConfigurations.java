@@ -70,7 +70,7 @@ public class CMDConfigurations {
 	 * Location where the output is to be stored. By default the output is stored in
 	 * a file with the same name as the query and the extension '.out'.
 	 */
-	public static final String ARG_OUTPUT_MAN = "Location where the output is to be stored. By default the output is stored in a file with the same name as the query and the extension '.out'.";
+	public static final String ARG_OUTPUT_MAN = "Location where the output is to be stored, relative to the current directory. By default the output goes to the standard output.";
 //	/** oa */
 //	public static final String ARG_OUTPUT_APPEND = "oa";
 	/** oa */
@@ -130,7 +130,7 @@ public class CMDConfigurations {
 	/** log-file */
 	public static final String ARG_LOG_FILE_LONG = "log-file";
 	/** Location where the log is to be stored. Log also goes to the console. */
-	public static final String ARG_LOG_FILE_MAN = "Location where the log is to be stored. Log also goes to the console.";
+	public static final String ARG_LOG_FILE_MAN = "Location where the log is to be stored, relative to the current directory. Log also goes to the console.";
 	/** dt */
 	public static final String ARG_DEBUG_TEMPLATE = "dt";
 	/** debug-template */
