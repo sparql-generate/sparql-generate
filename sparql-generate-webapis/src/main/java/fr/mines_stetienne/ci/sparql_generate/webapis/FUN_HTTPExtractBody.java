@@ -50,10 +50,7 @@ public class FUN_HTTPExtractBody extends FunctionBase1 {
 			throw new ExprEvalException("Argument must be a Literal");
 		}
 		String res = response.asNode().getLiteralLexicalForm();
-		if (!res.startsWith("HTTP/1.1 ")) {
-			LOG.debug("Argument must start with string HTTP/1.1 ");
-			throw new ExprEvalException("Argument must start with string HTTP/1.1 ");
-		}
+		HttpResponseText.codeIndex(res);
 		int firstTwoNewLinesCharacter = res.indexOf("\n\n");
 		if (firstTwoNewLinesCharacter == -1) {
 			throw new ExprEvalException("Argument does not contain a body");

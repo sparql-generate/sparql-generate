@@ -50,10 +50,7 @@ public class FUN_HTTPExtractHeader extends FunctionBase1 {
 			throw new ExprEvalException("Argument must be a Literal");
 		}
 		String res = response.asNode().getLiteralLexicalForm();
-		if (!res.startsWith("HTTP/1.1 ")) {
-			LOG.debug("Argument must start with string HTTP/1.1 ");
-			throw new ExprEvalException("Argument must start with string HTTP/1.1 ");
-		}
+		HttpResponseText.codeIndex(res);
 		int firstNewLineCharacter = res.indexOf("\n");
 		if (firstNewLineCharacter == -1) {
 			throw new ExprEvalException("Argument does not contain headers");

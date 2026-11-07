@@ -50,19 +50,19 @@ public class FUN_HTTPExtractResponseCode extends FunctionBase1 {
 			throw new ExprEvalException("Argument must be a Literal");
 		}
 		String res = response.asNode().getLiteralLexicalForm();
-		if (!res.startsWith("HTTP/1.1 ")) {
-			LOG.debug("Argument must start with string HTTP/1.1 ");
-			throw new ExprEvalException("Argument must start with string HTTP/1.1 ");
+		final int index = HttpResponseText.codeIndex(res);
+		if (res.length() < index + 3) {
+			throw new ExprEvalException("Argument must start with a status line, then a three digit response code");
 		}
-		String codeString = res.substring(9, 12);
+		String codeString = res.substring(index, index + 3);
 		try {
 			int code = Integer.parseInt(codeString);
 			return new NodeValueInteger(code);
 		} catch (NumberFormatException ex) {
-			LOG.debug(String.format("Argument must start with HTTP/1.1 , then a three digit response code. Got %s",
+			LOG.debug(String.format("Argument must start with a status line, then a three digit response code. Got %s",
 					codeString));
 			throw new ExprEvalException(String.format(
-					"Argument must start with HTTP/1.1 , then a three digit response code. Got %s", codeString), ex);
+					"Argument must start with a status line, then a three digit response code. Got %s", codeString), ex);
 		}
 	}
 
