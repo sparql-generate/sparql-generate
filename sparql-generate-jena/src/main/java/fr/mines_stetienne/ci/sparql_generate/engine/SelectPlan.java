@@ -39,6 +39,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import fr.mines_stetienne.ci.sparql_generate.SPARQLExtException;
+import fr.mines_stetienne.ci.sparql_generate.expr.E_IRITemplate;
 import fr.mines_stetienne.ci.sparql_generate.query.SPARQLExtQuery;
 import fr.mines_stetienne.ci.sparql_generate.utils.ContextUtils;
 import fr.mines_stetienne.ci.sparql_generate.utils.LogUtils;
@@ -77,6 +78,8 @@ public class SelectPlan {
 			throw new SPARQLExtException("Should be select query. " + query);
 		}
 		this.select = query;
+		// the expressions of IRI templates, lost when the query was copied
+		E_IRITemplate.optimize(select);
 		this.isSelectType = isSelectType;
 		this.signature = signature;
 	}

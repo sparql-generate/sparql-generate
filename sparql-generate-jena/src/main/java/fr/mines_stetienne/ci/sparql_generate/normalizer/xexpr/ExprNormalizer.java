@@ -37,6 +37,7 @@ import org.apache.jena.sparql.expr.aggregate.Aggregator;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueNode;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueString;
 
+import fr.mines_stetienne.ci.sparql_generate.expr.E_IRITemplate;
 import fr.mines_stetienne.ci.sparql_generate.expr.E_URIParam;
 import fr.mines_stetienne.ci.sparql_generate.graph.Node_Expr;
 import fr.mines_stetienne.ci.sparql_generate.graph.Node_Extended;
@@ -180,8 +181,8 @@ public class ExprNormalizer {
         for (Expr e : components) {
             args.add(normalize(e));
         }
-        Expr str = new E_StrConcat(args);
-        Expr expr = new E_IRI(str);
+        E_StrConcat str = new E_StrConcat(args);
+        Expr expr = new E_IRITemplate(str);
         return expr;
     }
 

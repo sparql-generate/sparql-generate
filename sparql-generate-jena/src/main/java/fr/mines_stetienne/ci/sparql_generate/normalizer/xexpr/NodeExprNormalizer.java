@@ -15,6 +15,7 @@
  */
 package fr.mines_stetienne.ci.sparql_generate.normalizer.xexpr;
 
+import fr.mines_stetienne.ci.sparql_generate.expr.E_IRITemplate;
 import fr.mines_stetienne.ci.sparql_generate.expr.E_URIParam;
 import fr.mines_stetienne.ci.sparql_generate.graph.Node_Expr;
 import fr.mines_stetienne.ci.sparql_generate.graph.Node_ExtendedLiteral;
@@ -232,8 +233,8 @@ public class NodeExprNormalizer implements SPARQLExtNodeVisitor {
                 args.add(nzer.normalize(e));
             }
         }
-        Expr str = new E_StrConcat(args);
-        Expr expr = new E_IRI(str);
+        E_StrConcat str = new E_StrConcat(args);
+        Expr expr = new E_IRITemplate(str);
         bindings.add(new ElementBind(result, expr));
         cache.put(node, result);
         this.result = result;
