@@ -15,6 +15,8 @@
  */
 package fr.mines_stetienne.ci.sparql_generate.normalizer.aggregates;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.jena.sparql.expr.Expr;
 import org.apache.jena.sparql.syntax.Element;
 import org.apache.jena.sparql.syntax.ElementAssign;
@@ -86,19 +88,27 @@ public class OutputClauseNormalizer implements SPARQLExtElementVisitor {
 
     @Override
     public void visit(ElementBox el) {
-        for (Element e : el.getTExpressions()) {
+        result = new ElementBox(normalize(el.getTExpressions()));
+    }
+
+    /**
+     * Normalizes the elements nested in a BOX or a FORMAT: an aggregate is
+     * replaced by a variable of the EXPRESSIONS clause.
+     */
+    private List<Element> normalize(List<Element> elements) {
+        final List<Element> normalized = new ArrayList<>();
+        for (Element e : elements) {
             e.visit(this);
+            normalized.add(result);
         }
-        result = el;
+        return normalized;
     }
 
     @Override
     public void visit(ElementFormat el) {
         visit(el.getExpr());
-        for (Element e : el.getTExpressions()) {
-            e.visit(this);
-        }
-        result = el;
+        final ElementExpr expr = (ElementExpr) result;
+        result = new ElementFormat(expr, normalize(el.getTExpressions()));
     }
 
     @Override
