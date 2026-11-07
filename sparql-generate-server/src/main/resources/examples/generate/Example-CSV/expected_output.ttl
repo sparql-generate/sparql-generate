@@ -1,0 +1,336 @@
+PREFIX ex:   <http://example.com/>
+PREFIX fun:  <http://w3id.org/sparql-generate/fn/>
+PREFIX iter: <http://w3id.org/sparql-generate/iter/>
+PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+
+<http://example.com/store/69>
+        ex:totalAmount  4098.28 .
+
+<http://example.com/store/77>
+        ex:totalAmount  4279.13 .
+
+<http://example.com/store/85>
+        ex:totalAmount  3426.53 .
+
+<http://example.com/store/93>
+        ex:totalAmount  2453.96 .
+
+<http://example.com/store/12>
+        ex:totalAmount  3447.85 .
+
+<http://example.com/store/20>
+        ex:totalAmount  3844.88 .
+
+<http://example.com/store/48>
+        ex:totalAmount  4158.68 .
+
+<http://example.com/store/56>
+        ex:totalAmount  2935.04 .
+
+<http://example.com/store/64>
+        ex:totalAmount  5138.16 .
+
+<http://example.com/store/72>
+        ex:totalAmount  3583.27 .
+
+<http://example.com/store/80>
+        ex:totalAmount  3562.88 .
+
+<http://example.com/store/6>
+        ex:totalAmount  3431.04 .
+
+<http://example.com/store/19>
+        ex:totalAmount  3475.06 .
+
+<http://example.com/store/27>
+        ex:totalAmount  5022.32 .
+
+<http://example.com/store/35>
+        ex:totalAmount  3962.41 .
+
+<http://example.com/store/43>
+        ex:totalAmount  2771.86 .
+
+<http://example.com/store/51>
+        ex:totalAmount  3145.53 .
+
+<http://example.com/store/79>
+        ex:totalAmount  3533.42 .
+
+<http://example.com/store/87>
+        ex:totalAmount  2526.84 .
+
+<http://example.com/store/1>
+        ex:totalAmount  5370.1 .
+
+<http://example.com/store/95>
+        ex:totalAmount  6369.96 .
+
+<http://example.com/store/14>
+        ex:totalAmount  6302.2 .
+
+<http://example.com/store/22>
+        ex:totalAmount  1457.94 .
+
+<http://example.com/store/30>
+        ex:totalAmount  3949.07 .
+
+<http://example.com/store/58>
+        ex:totalAmount  1421.99 .
+
+<http://example.com/store/66>
+        ex:totalAmount  2076.52 .
+
+<http://example.com/store/74>
+        ex:totalAmount  4037.58 .
+
+<http://example.com/store/82>
+        ex:totalAmount  1411.16 .
+
+<http://example.com/store/90>
+        ex:totalAmount  5270.32 .
+
+<http://example.com/store/8>
+        ex:totalAmount  3914.5 .
+
+ex:statistics  ex:perDay  ( [ ex:averageAmount  353.64;
+                              ex:date           "2019-05-01"^^xsd:date
+                            ]
+                            [ ex:averageAmount  358.67;
+                              ex:date           "2019-05-02"^^xsd:date
+                            ]
+                            [ ex:averageAmount  351.856666666666666666666667;
+                              ex:date           "2019-05-03"^^xsd:date
+                            ]
+                            [ ex:averageAmount  343.4;
+                              ex:date           "2019-05-04"^^xsd:date
+                            ]
+                            [ ex:averageAmount  320.19;
+                              ex:date           "2019-05-05"^^xsd:date
+                            ]
+                            [ ex:averageAmount  364.035;
+                              ex:date           "2019-05-06"^^xsd:date
+                            ]
+                            [ ex:averageAmount  358.33;
+                              ex:date           "2019-05-07"^^xsd:date
+                            ]
+                            [ ex:averageAmount  336.25;
+                              ex:date           "2019-05-08"^^xsd:date
+                            ]
+                            [ ex:averageAmount  350.75;
+                              ex:date           "2019-05-09"^^xsd:date
+                            ]
+                            [ ex:averageAmount  316.875;
+                              ex:date           "2019-05-10"^^xsd:date
+                            ]
+                          ) .
+
+<http://example.com/store/29>
+        ex:totalAmount  3403.31 .
+
+<http://example.com/store/37>
+        ex:totalAmount  3215.35 .
+
+<http://example.com/store/45>
+        ex:totalAmount  2296.37 .
+
+<http://example.com/store/53>
+        ex:totalAmount  2967.13 .
+
+<http://example.com/store/61>
+        ex:totalAmount  2161.85 .
+
+<http://example.com/store/89>
+        ex:totalAmount  1148.09 .
+
+<http://example.com/store/3>
+        ex:totalAmount  5730.97 .
+
+<http://example.com/store/97>
+        ex:totalAmount  2630.87 .
+
+<http://example.com/store/16>
+        ex:totalAmount  4540.59 .
+
+<http://example.com/store/24>
+        ex:totalAmount  3272.36 .
+
+<http://example.com/store/32>
+        ex:totalAmount  2150.13 .
+
+<http://example.com/store/40>
+        ex:totalAmount  1819.05 .
+
+<http://example.com/store/68>
+        ex:totalAmount  3476.82 .
+
+<http://example.com/store/76>
+        ex:totalAmount  2794.14 .
+
+<http://example.com/store/84>
+        ex:totalAmount  2043.63 .
+
+<http://example.com/store/92>
+        ex:totalAmount  2501.19 .
+
+<http://example.com/store/11>
+        ex:totalAmount  3739.48 .
+
+<http://example.com/store/39>
+        ex:totalAmount  3584.8 .
+
+<http://example.com/store/47>
+        ex:totalAmount  2711.23 .
+
+<http://example.com/store/55>
+        ex:totalAmount  3547.62 .
+
+<http://example.com/store/63>
+        ex:totalAmount  2773.02 .
+
+<http://example.com/store/71>
+        ex:totalAmount  2730.35 .
+
+<http://example.com/store/99>
+        ex:totalAmount  3187.16 .
+
+<http://example.com/store/5>
+        ex:totalAmount  4081.97 .
+
+<http://example.com/store/18>
+        ex:totalAmount  4346.13 .
+
+<http://example.com/store/26>
+        ex:totalAmount  3516.81 .
+
+<http://example.com/store/34>
+        ex:totalAmount  2755.33 .
+
+<http://example.com/store/42>
+        ex:totalAmount  2499.94 .
+
+<http://example.com/store/50>
+        ex:totalAmount  2443.03 .
+
+<http://example.com/store/100>
+        ex:totalAmount  2463.39 .
+
+<http://example.com/store/78>
+        ex:totalAmount  4682.83 .
+
+<http://example.com/store/86>
+        ex:totalAmount  4551.83 .
+
+<http://example.com/store/94>
+        ex:totalAmount  4236.94 .
+
+<http://example.com/store/13>
+        ex:totalAmount  1679.15 .
+
+<http://example.com/store/21>
+        ex:totalAmount  3865.59 .
+
+<http://example.com/store/49>
+        ex:totalAmount  3094.0 .
+
+<http://example.com/store/57>
+        ex:totalAmount  4468.71 .
+
+<http://example.com/store/65>
+        ex:totalAmount  4649.31 .
+
+<http://example.com/store/73>
+        ex:totalAmount  3048.67 .
+
+<http://example.com/store/81>
+        ex:totalAmount  3387.01 .
+
+<http://example.com/store/7>
+        ex:totalAmount  4155.94 .
+
+<http://example.com/store/28>
+        ex:totalAmount  5169.51 .
+
+<http://example.com/store/36>
+        ex:totalAmount  2787.55 .
+
+<http://example.com/store/44>
+        ex:totalAmount  4524.08 .
+
+<http://example.com/store/52>
+        ex:totalAmount  4818.21 .
+
+<http://example.com/store/60>
+        ex:totalAmount  3147.56 .
+
+<http://example.com/store/88>
+        ex:totalAmount  3944.89 .
+
+<http://example.com/store/2>
+        ex:totalAmount  2130.7 .
+
+<http://example.com/store/96>
+        ex:totalAmount  3509.59 .
+
+<http://example.com/store/15>
+        ex:totalAmount  2365.45 .
+
+<http://example.com/store/23>
+        ex:totalAmount  4419.52 .
+
+<http://example.com/store/31>
+        ex:totalAmount  2532.7 .
+
+<http://example.com/store/59>
+        ex:totalAmount  6372.68 .
+
+<http://example.com/store/67>
+        ex:totalAmount  3403.57 .
+
+<http://example.com/store/75>
+        ex:totalAmount  3683.4 .
+
+<http://example.com/store/83>
+        ex:totalAmount  3932.19 .
+
+<http://example.com/store/91>
+        ex:totalAmount  3239.36 .
+
+<http://example.com/store/10>
+        ex:totalAmount  3460.88 .
+
+<http://example.com/store/9>
+        ex:totalAmount  3964.31 .
+
+<http://example.com/store/38>
+        ex:totalAmount  4143.48 .
+
+<http://example.com/store/46>
+        ex:totalAmount  2888.26 .
+
+<http://example.com/store/54>
+        ex:totalAmount  2427.89 .
+
+<http://example.com/store/62>
+        ex:totalAmount  3542.99 .
+
+<http://example.com/store/70>
+        ex:totalAmount  5135.9 .
+
+<http://example.com/store/98>
+        ex:totalAmount  4126.5 .
+
+<http://example.com/store/4>
+        ex:totalAmount  1716.04 .
+
+<http://example.com/store/17>
+        ex:totalAmount  3521.68 .
+
+<http://example.com/store/25>
+        ex:totalAmount  3178.82 .
+
+<http://example.com/store/33>
+        ex:totalAmount  5334.62 .
+
+<http://example.com/store/41>
+        ex:totalAmount  4040.32 .

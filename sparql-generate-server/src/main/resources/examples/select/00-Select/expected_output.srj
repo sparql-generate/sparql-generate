@@ -1,0 +1,38 @@
+{ "head": {
+    "vars": [ "id" , "name" , "resultTime" , "aqi" ]
+  } ,
+  "results": {
+    "bindings": [
+      { 
+        "id": { "type": "uri" , "value": "https://ci.mines-stetienne.fr/aqi/data/loc/0" } ,
+        "name": { "type": "literal" , "value": "Barrie, Ontario" } ,
+        "resultTime": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#dateTime" , "value": "2018-05-24T10:00:00-05:00" } ,
+        "aqi": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "53" }
+      } ,
+      { 
+        "id": { "type": "uri" , "value": "https://ci.mines-stetienne.fr/aqi/data/loc/11" } ,
+        "name": { "type": "literal" , "value": "Hamilton Mountain, Ontario" } ,
+        "resultTime": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#dateTime" , "value": "2018-05-24T10:00:00-05:00" } ,
+        "aqi": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "29" }
+      } ,
+      { 
+        "id": { "type": "uri" , "value": "https://ci.mines-stetienne.fr/aqi/data/loc/25" } ,
+        "name": { "type": "literal" , "value": "Petawawa, Ontario" } ,
+        "resultTime": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#dateTime" , "value": "2018-05-24T10:00:00-05:00" } ,
+        "aqi": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "28" }
+      } ,
+      { 
+        "id": { "type": "uri" , "value": "https://ci.mines-stetienne.fr/aqi/data/loc/7" } ,
+        "name": { "type": "literal" , "value": "Dorset, Ontario" } ,
+        "resultTime": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#dateTime" , "value": "2018-05-24T10:00:00-05:00" } ,
+        "aqi": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "27" }
+      } ,
+      { 
+        "id": { "type": "uri" , "value": "https://ci.mines-stetienne.fr/aqi/data/loc/6" } ,
+        "name": { "type": "literal" , "value": "Cornwall, Ontario" } ,
+        "resultTime": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#dateTime" , "value": "2018-05-24T10:00:00-05:00" } ,
+        "aqi": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "27" }
+      }
+    ]
+  }
+}

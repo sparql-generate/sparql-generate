@@ -27,4 +27,4 @@ WHERE {
   BIND(xsd:integer(fun:JSONPath(?source,"$.data.aqi")) AS ?aqi)
   BIND( BNODE() AS ?observation )
   FILTER( BOUND( ?aqi ) )
-} ORDER BY DESC (?aqi)
+} ORDER BY DESC(?aqi) ?idx

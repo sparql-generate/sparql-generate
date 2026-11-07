@@ -1,0 +1,70 @@
+PREFIX aqio: <https://ci.mines-stetienne.fr/aqi/ontology#>
+PREFIX ex:   <http://example.org/>
+PREFIX fun:  <http://w3id.org/sparql-generate/fn/>
+PREFIX iter: <http://w3id.org/sparql-generate/iter/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX sosa: <http://www.w3.org/ns/sosa/>
+PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+
+<https://ci.mines-stetienne.fr/aqi/data/loc/6>
+        a           sosa:FeatureOfInterest;
+        rdfs:label  "Cornwall, Ontario" .
+
+<https://ci.mines-stetienne.fr/aqi/data/loc/22>
+        a           sosa:FeatureOfInterest;
+        rdfs:label  "Ottawa Central, Ontario" .
+
+<https://ci.mines-stetienne.fr/aqi/data/loc/25>
+        a           sosa:FeatureOfInterest;
+        rdfs:label  "Petawawa, Ontario" .
+
+<https://ci.mines-stetienne.fr/aqi/data/loc/7>
+        a           sosa:FeatureOfInterest;
+        rdfs:label  "Dorset, Ontario" .
+
+<https://ci.mines-stetienne.fr/aqi/data/loc/world>
+        ex:observationList  ( [ a                          aqio:AirQualityIndexObservation;
+                                sosa:hasFeatureOfInterest  <https://ci.mines-stetienne.fr/aqi/data/loc/0>;
+                                sosa:hasSimpleResult       53
+                              ]
+                              [ a                          aqio:AirQualityIndexObservation;
+                                sosa:hasFeatureOfInterest  <https://ci.mines-stetienne.fr/aqi/data/loc/11>;
+                                sosa:hasSimpleResult       29
+                              ]
+                              [ a                          aqio:AirQualityIndexObservation;
+                                sosa:hasFeatureOfInterest  <https://ci.mines-stetienne.fr/aqi/data/loc/25>;
+                                sosa:hasSimpleResult       28
+                              ]
+                              [ a                          aqio:AirQualityIndexObservation;
+                                sosa:hasFeatureOfInterest  <https://ci.mines-stetienne.fr/aqi/data/loc/6>;
+                                sosa:hasSimpleResult       27
+                              ]
+                              [ a                          aqio:AirQualityIndexObservation;
+                                sosa:hasFeatureOfInterest  <https://ci.mines-stetienne.fr/aqi/data/loc/7>;
+                                sosa:hasSimpleResult       27
+                              ]
+                              [ a                          aqio:AirQualityIndexObservation;
+                                sosa:hasFeatureOfInterest  <https://ci.mines-stetienne.fr/aqi/data/loc/7>;
+                                sosa:hasSimpleResult       27
+                              ]
+                              [ a                          aqio:AirQualityIndexObservation;
+                                sosa:hasFeatureOfInterest  <https://ci.mines-stetienne.fr/aqi/data/loc/22>;
+                                sosa:hasSimpleResult       25
+                              ]
+                              [ a                          aqio:AirQualityIndexObservation;
+                                sosa:hasFeatureOfInterest  <https://ci.mines-stetienne.fr/aqi/data/loc/23>;
+                                sosa:hasSimpleResult       25
+                              ]
+                            ) .
+
+<https://ci.mines-stetienne.fr/aqi/data/loc/23>
+        a           sosa:FeatureOfInterest;
+        rdfs:label  "Ottawa Downtown, Ontario" .
+
+<https://ci.mines-stetienne.fr/aqi/data/loc/11>
+        a           sosa:FeatureOfInterest;
+        rdfs:label  "Hamilton Mountain, Ontario" .
+
+<https://ci.mines-stetienne.fr/aqi/data/loc/0>
+        a           sosa:FeatureOfInterest;
+        rdfs:label  "Barrie, Ontario" .

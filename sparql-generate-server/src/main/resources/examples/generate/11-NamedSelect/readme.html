@@ -1,0 +1,3 @@
+<p>A <tt>SELECT</tt> query can have a name and a signature. Another query then uses it as an iterator: <tt>ITERATOR &lt;select_iri&gt;( arguments ) AS ?var1 ?var2 ...</tt> binds the variables to the columns of each solution of the named <tt>SELECT</tt> query, in order.</p>
+<p>The named query <tt>tuto:stations</tt> of this example reads the station reports <tt>0</tt> to <tt>?max</tt> and selects their index, name and air quality index. The main query calls it with <tt>?max = 10</tt>, keeps the stations whose index is above 25, and sorts them.</p>
+<p>Named <tt>SELECT</tt> queries let a query reuse the extraction logic of another, in the same way as named <tt>GENERATE</tt> and <tt>TEMPLATE</tt> queries reuse output templates.</p>

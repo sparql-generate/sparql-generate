@@ -54,6 +54,16 @@
       "uri": "https://ci.mines-stetienne.fr/aqi/static/station/10",
       "mediatype": "application/json",
       "path": "documentset/station10.txt"
+    },
+    {
+      "uri": "https://example.org/events/search?location=44.382361,-79.702306&within=20",
+      "mediatype": "application/xml",
+      "path": "documentset/events-barrie.xml"
+    },
+    {
+      "uri": "https://example.org/events/search?location=-79.862778,43.229417&within=20",
+      "mediatype": "application/xml",
+      "path": "documentset/events-hamilton.xml"
     }
   ],
   "query": "query.rqg",

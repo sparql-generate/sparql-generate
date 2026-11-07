@@ -1,0 +1,32 @@
+PREFIX aqio: <https://ci.mines-stetienne.fr/aqi/ontology#>
+PREFIX fun:  <http://w3id.org/sparql-generate/fn/>
+PREFIX geo:  <http://www.w3.org/2003/01/geo/wgs84_pos#>
+PREFIX iter: <http://w3id.org/sparql-generate/iter/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX seas: <https://w3id.org/seas/>
+PREFIX sosa: <http://www.w3.org/ns/sosa/>
+PREFIX ssn:  <http://purl.oclc.org/NET/ssnx/ssn#>
+PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+
+<https://ci.mines-stetienne.fr/aqi/data/pollution/observations#aqi-max>
+        a                    seas:MaximumEvaluation;
+        seas:evaluationOf    <https://ci.mines-stetienne.fr/aqi/data/pollution#aqi>;
+        seas:hasSimpleValue  53.0 .
+
+<https://ci.mines-stetienne.fr/aqi/data/pollution/observations#aqi-min>
+        a                    seas:MinimumEvaluation;
+        seas:evaluationOf    <https://ci.mines-stetienne.fr/aqi/data/pollution#aqi>;
+        seas:hasSimpleValue  25.0 .
+
+<https://ci.mines-stetienne.fr/aqi/data/pollution#aqi>
+        a                 aqio:AirQualityIndexProperty;
+        ssn:isPropertyOf  <https://ci.mines-stetienne.fr/aqi/data/pollution> .
+
+<https://ci.mines-stetienne.fr/aqi/data/pollution>
+        a           sosa:FeatureOfInterest;
+        rdfs:label  "global atmospheric pollution" .
+
+<https://ci.mines-stetienne.fr/aqi/data/pollution/observations#aqi-avg>
+        a                    seas:AverageEvaluation;
+        seas:evaluationOf    <https://ci.mines-stetienne.fr/aqi/data/pollution#aqi>;
+        seas:hasSimpleValue  30.125 .

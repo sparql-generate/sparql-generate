@@ -1,0 +1,48 @@
+PREFIX aqio:  <https://ci.mines-stetienne.fr/aqi/ontology#>
+PREFIX dc:    <http://purl.org/dc/elements/1.1/>
+PREFIX event: <http://purl.org/NET/c4dm/event.owl#>
+PREFIX ex:    <http://example.org/>
+PREFIX foaf:  <http://xmlns.com/foaf/0.1/>
+PREFIX fun:   <http://w3id.org/sparql-generate/fn/>
+PREFIX geo:   <http://www.w3.org/2003/01/geo/wgs84_pos#>
+PREFIX iter:  <http://w3id.org/sparql-generate/iter/>
+PREFIX rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs:  <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX sosa:  <http://www.w3.org/ns/sosa/>
+PREFIX ssn:   <http://purl.oclc.org/NET/ssnx/ssn#>
+PREFIX xsd:   <http://www.w3.org/2001/XMLSchema#>
+
+<https://ci.mines-stetienne.fr/aqi/data/event/E0-001-101>
+        rdf:type        event:Event;
+        rdfs:comment    "<p>Local growers and bakers, every Saturday morning.</p>"^^rdf:HTML;
+        rdfs:label      "Barrie Farmers' Market";
+        dc:date         "2018-05-26T08:00:00"^^xsd:dateTime;
+        foaf:basedNear  <https://ci.mines-stetienne.fr/aqi/data/loc/0> .
+
+<https://ci.mines-stetienne.fr/aqi/data/event/E0-001-103>
+        rdf:type        event:Event;
+        rdfs:comment    "<p>What the Air Quality Health Index measures, and how to read it.</p>"^^rdf:HTML;
+        rdfs:label      "Air Quality and Health Public Lecture";
+        dc:date         "2018-05-25T19:00:00"^^xsd:dateTime;
+        foaf:basedNear  <https://ci.mines-stetienne.fr/aqi/data/loc/0> .
+
+<https://ci.mines-stetienne.fr/aqi/data/loc/0>
+        rdf:type      sosa:FeatureOfInterest;
+        rdfs:label    "Barrie, Ontario";
+        ex:pollution  53;
+        geo:lat       44.382361;
+        geo:long      -79.702306 .
+
+<https://ci.mines-stetienne.fr/aqi/data/loc/11>
+        rdf:type      sosa:FeatureOfInterest;
+        rdfs:label    "Hamilton Mountain, Ontario";
+        ex:pollution  29;
+        geo:lat       -79.862778;
+        geo:long      43.229417 .
+
+<https://ci.mines-stetienne.fr/aqi/data/event/E0-001-201>
+        rdf:type        event:Event;
+        rdfs:comment    "<p>A guided walk on the Bruce Trail.</p>"^^rdf:HTML;
+        rdfs:label      "Escarpment Trail Hike";
+        dc:date         "2018-05-26T10:00:00"^^xsd:dateTime;
+        foaf:basedNear  <https://ci.mines-stetienne.fr/aqi/data/loc/11> .

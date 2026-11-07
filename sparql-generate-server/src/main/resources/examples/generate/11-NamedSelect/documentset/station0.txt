@@ -1,0 +1,38 @@
+{
+    "status": "ok",
+    "data": {
+        "aqi": 53.0,
+        "idx": 0.0,
+        "attributions": [
+            {
+                "url": "http://www.airqualityontario.com/",
+                "name": "Air Quality Ontario - the Ontario Ministry of the Environment and Climate Change"
+            }
+        ],
+        "city": {
+            "geo": [
+                44.382361,
+                -79.702306
+            ],
+            "name": "Barrie, Ontario",
+            "url": "http://aqicn.org/city/canada/ontario/barrie/"
+        },
+        "dominentpol": "pm25",
+        "iaqi": {
+            "no2": {
+                "v": 10.2
+            },
+            "o3": {
+                "v": 20.8
+            },
+            "pm25": {
+                "v": 53.0
+            }
+        },
+        "time": {
+            "s": "2018-05-24 10:00:00",
+            "tz": "-05:00",
+            "v": 1.527156E9
+        }
+    }
+}

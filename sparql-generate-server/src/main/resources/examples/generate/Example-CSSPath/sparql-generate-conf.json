@@ -3,6 +3,12 @@
   "namedqueries": [],
   "graph": "dataset/default.ttl",
   "namedgraphs": [],
-  "documentset": [],
+  "documentset": [
+    {
+      "uri": "https://example.org/wiki/SPARQL",
+      "mediatype": "text/html",
+      "path": "documentset/sparql.html"
+    }
+  ],
   "loglevel": 5
 }

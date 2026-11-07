@@ -1,0 +1,13 @@
+PREFIX fun: <http://w3id.org/sparql-generate/fn/>
+PREFIX iter: <http://w3id.org/sparql-generate/iter/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT <https://ci.mines-stetienne.fr/sparql-generate/tutorial/stations> ( ?max ) ?idx ?name ?aqi
+ITERATOR iter:for(0, 1, ?max) AS ?index
+SOURCE <https://ci.mines-stetienne.fr/aqi/static/station/{STR(?index)}> AS ?source
+WHERE {
+  BIND(STR(xsd:integer(fun:JSONPath(?source,"$.data.idx"))) AS ?idx)
+  BIND(fun:JSONPath(?source,"$.data.city.name") AS ?name)
+  BIND(xsd:integer(fun:JSONPath(?source,"$.data.aqi")) AS ?aqi)
+  FILTER(BOUND(?aqi))
+}

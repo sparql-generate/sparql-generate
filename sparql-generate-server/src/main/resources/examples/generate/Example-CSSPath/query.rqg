@@ -11,4 +11,4 @@ GENERATE {
     ex:url ?{ fun:CSSPath(?source, "link[rel=canonical]@href") };
     ex:infobox "{ fun:CSSPath(?source, "table[class*=infobox]/text()") }"^^rdf:HTML.
 }
-SOURCE <https://web.archive.org/web/20170718195443/https://en.wikipedia.org/wiki/SPARQL> AS ?source
+SOURCE <https://example.org/wiki/SPARQL> AS ?source
