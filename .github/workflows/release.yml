@@ -76,9 +76,9 @@ jobs:
       - name: Upload the API docs to ci.mines-stetienne.fr
         uses: appleboy/scp-action@v0.1.7
         with:
-          source: "sparql-generate-all/target/apidocs"
+          source: "sparql-generate-all/target/reports/apidocs"
           target: "~/website"
-          strip_components: 2
+          strip_components: 3
           host: ci.mines-stetienne.fr
           username: ${{ secrets.CI_USER }}
           key: ${{ secrets.CI_KEY }}
