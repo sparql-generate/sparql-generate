@@ -214,7 +214,23 @@ public class CliTest {
 		File out = new File(folder.newFolder("elsewhere"), "result.ttl");
 		Result result = run(QUERY, "-o", out.getAbsolutePath());
 		assertEquals(result.err, 0, result.exitCode);
-		assertTrue(out.exists());
+		assertEquals(2, RDFDataMgr.loadModel(out.getAbsolutePath(), Lang.TTL).size());
+	}
+
+	@Test
+	public void streamedOutputFile() throws Exception {
+		File out = new File(folder.getRoot(), "result.ttl");
+		Result result = run(QUERY, "-s", "-o", out.getAbsolutePath());
+		assertEquals(result.err, 0, result.exitCode);
+		assertEquals(2, RDFDataMgr.loadModel(out.getAbsolutePath(), Lang.TTL).size());
+	}
+
+	@Test
+	public void selectOutputFile() throws Exception {
+		File out = new File(folder.getRoot(), "result.csv");
+		Result result = run("SELECT ?x WHERE { VALUES ?x { 1 2 } }", "-fo", "CSV", "-o", out.getAbsolutePath());
+		assertEquals(result.err, 0, result.exitCode);
+		assertEquals(3, Files.readAllLines(out.toPath()).size());
 	}
 
 	@Test
@@ -222,7 +238,7 @@ public class CliTest {
 		File cwd = folder.newFolder("cwd");
 		Result result = runIn(cwd, QUERY, "-o", "result.ttl");
 		assertEquals(result.err, 0, result.exitCode);
-		assertTrue(new File(cwd, "result.ttl").exists());
+		assertEquals(2, RDFDataMgr.loadModel(new File(cwd, "result.ttl").getAbsolutePath(), Lang.TTL).size());
 	}
 
 	/**
