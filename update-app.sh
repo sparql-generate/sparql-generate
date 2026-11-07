@@ -1,3 +1,13 @@
+#!/bin/bash
+# Deploys the playground server (WAR), the static website and the API docs to
+# ci.mines-stetienne.fr. This is the ONLY deployment path: GitHub Actions has no access
+# to that server. Run it from the maintainer's machine, from the repository root,
+# on a released tag, with the key ~/.ssh/sparql-generate:
+#
+#     git checkout vX.Y.Z && ./update-app.sh clean build push
+#
+# The servlet container on the server must provide JSR-356 WebSockets.
+
 function clean {
   mvn -B clean --file sparql-generate-parent/pom.xml
   rm -rf sparql-generate-website/public
@@ -34,7 +44,7 @@ function push {
   scp -i ~/.ssh/sparql-generate sparql-generate-server/target/sparql-generate.war sparql-generate@ci.mines-stetienne.fr:~/sparql-generate.war
   scp -r -i ~/.ssh/sparql-generate sparql-generate-website/public/* sparql-generate@ci.mines-stetienne.fr:~/website
   scp -r -i ~/.ssh/sparql-generate sparql-generate-website/public/.htaccess sparql-generate@ci.mines-stetienne.fr:~/website/.htaccess
-  scp -r -i ~/.ssh/sparql-generate sparql-generate-all/target/apidocs sparql-generate@ci.mines-stetienne.fr:~/website
+  scp -r -i ~/.ssh/sparql-generate sparql-generate-all/target/reports/apidocs sparql-generate@ci.mines-stetienne.fr:~/website
   ssh -i ~/.ssh/sparql-generate sparql-generate@ci.mines-stetienne.fr "sudo ./update-app"
 }
 

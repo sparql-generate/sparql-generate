@@ -1,14 +1,20 @@
-name: Website
+name: Website build
 
 on:
   push:
     paths:
       - sparql-generate-website/**
     branches:
-      - master
+      - '**'
+  pull_request:
+    paths:
+      - sparql-generate-website/**
+
+# Builds and tests the static website. It is deployed from the maintainer's machine
+# with ./update-app.sh build push, not from CI.
 
 jobs:
-  update-website:
+  build-website:
     runs-on: ubuntu-latest
     steps:
       - name: Check out Git repository
@@ -25,14 +31,3 @@ jobs:
           npm test
           npm run build
         working-directory: sparql-generate-website
-
-      - name: copy public
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          source: "sparql-generate-website/public"
-          target: "~/website"
-          strip_components: 2
-          host: ci.mines-stetienne.fr
-          username: ${{ secrets.CI_USER }}
-          key: ${{ secrets.CI_KEY }}
-
