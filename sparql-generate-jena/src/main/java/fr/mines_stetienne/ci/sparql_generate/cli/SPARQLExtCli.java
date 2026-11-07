@@ -172,7 +172,9 @@ public class SPARQLExtCli {
 			LOG.info("Program finished in " + String.format("%d min, %d.%d sec", min, sec, milli));
 
 		} catch (Exception ex) {
-			throw new RuntimeException(ex);
+			// a non-zero exit status, for scripts and continuous integration
+			LOG.error(ex.getMessage(), ex);
+			System.exit(1);
 		}
 	}
 
@@ -205,19 +207,16 @@ public class SPARQLExtCli {
 		try {
 			plan = PlanFactory.create(q);
 		} catch (Exception ex) {
-			LOG.error("Error while creating the plan for the query.", ex);
-			return;
+			throw new SPARQLExtException("Error while creating the plan for the query.", ex);
 		}
 
 		final Dataset ds = getDataset(workingDir, rq);
 
 		if (!q.isGenerateType() && rq.hdt) {
-			LOG.error("Option HDT is only for queries of type GENERATE");
-			return;
+			throw new SPARQLExtException("Option HDT is only for queries of type GENERATE");
 		}
 		if (q.isTemplateType() && rq.outputFormat != null) {
-			LOG.error("Option outputFormat is only for queries of type GENERATE or SELECT");
-			return;
+			throw new SPARQLExtException("Option outputFormat is only for queries of type GENERATE or SELECT");
 		}
 
 		// prepare context
@@ -234,7 +233,7 @@ public class SPARQLExtCli {
 					plan.execTemplateStream(bindings, context);
 					output.flush();
 				} catch (Exception ex) {
-					LOG.error("Error while executing the plan.", ex);
+					throw new SPARQLExtException("Error while executing the plan.", ex);
 				}
 			} else {
 				try (IndentedWriter output = new IndentedWriter(new FileOutputStream(rq.output, rq.outputAppend));) {
@@ -242,7 +241,7 @@ public class SPARQLExtCli {
 					plan.execTemplateStream(bindings, context);
 					output.flush();
 				} catch (Exception ex) {
-					LOG.error("Error while executing the plan.", ex);
+					throw new SPARQLExtException("Error while executing the plan.", ex);
 				}
 			}
 		} else if (q.isGenerateType() && !rq.stream && !rq.hdt) {
@@ -258,7 +257,7 @@ public class SPARQLExtCli {
 		} else if (q.isSelectType()) {
 			execSelectStream(bindings, plan, contextBuilder, rq);
 		} else {
-			LOG.error("Error: unsupported query type");
+			throw new SPARQLExtException("Error: unsupported query type");
 		}
 	}
 
@@ -308,7 +307,7 @@ public class SPARQLExtCli {
 
 	private static void execGenerateHDT(List<Binding> bindings, RootPlan plan, ContextUtils.Builder builder, CliRequest request) {
 		if (request.output == null) {
-			LOG.error("Output needs to be set with the option HDT.");
+			throw new SPARQLExtException("Output needs to be set with the option HDT.");
 		}
 		final String baseURI = plan.getQuery().getBaseURI();
 		HDTStreamRDF hdtStreamRDF = new HDTStreamRDF(baseURI);
@@ -319,12 +318,12 @@ public class SPARQLExtCli {
 			// Save generated HDT to a file
 			hdt.saveToHDT(out, null);
 		} catch (IOException ex) {
-			LOG.error("Error while opening the output file.", ex);
+			throw new SPARQLExtException("Error while opening the output file.", ex);
 		}
 		try {
 			hdt.close();
 		} catch (IOException ex) {
-			LOG.error("Error while closing the HDT.", ex);
+			throw new SPARQLExtException("Error while closing the HDT.", ex);
 		}
 	}
 
@@ -338,8 +337,7 @@ public class SPARQLExtCli {
 				consoleStreamRDF = new ConsoleStreamRDF(
 						new PrintStream(new FileOutputStream(request.output, request.outputAppend)), pm);
 			} catch (IOException ex) {
-				LOG.error("Error while opening the output file.", ex);
-				return;
+				throw new SPARQLExtException("Error while opening the output file.", ex);
 			}
 		}
 		Context context = builder.setGenerateOutput(consoleStreamRDF).build();
@@ -359,11 +357,11 @@ public class SPARQLExtCli {
 				try {
 					model.write(new FileOutputStream(request.output, request.outputAppend), lang.getLabel());
 				} catch (IOException ex) {
-					LOG.error("Error while opening the output file.", ex);
+					throw new SPARQLExtException("Error while opening the output file.", ex);
 				}
 			}
 		} catch (Exception ex) {
-			LOG.error("Error while executing the plan.", ex);
+			throw new SPARQLExtException("Error while executing the plan.", ex);
 		}
 	}
 
@@ -384,10 +382,10 @@ public class SPARQLExtCli {
 					ResultSetFormatter.output(out, result, format);
 				}
 			} catch (IOException ex) {
-				LOG.error("Error while opening the output file.", ex);
+				throw new SPARQLExtException("Error while opening the output file.", ex);
 			}
 		} catch (Exception ex) {
-			LOG.error("Error while executing the plan.", ex);
+			throw new SPARQLExtException("Error while executing the plan.", ex);
 		}
 	}
 
@@ -411,7 +409,7 @@ public class SPARQLExtCli {
 			}).build();
 			plan.execSelectStream(bindings, context);
 		} catch (IOException ex) {
-			LOG.error("Error while opening the output file.", ex);
+			throw new SPARQLExtException("Error while opening the output file.", ex);
 		}
 	}
 

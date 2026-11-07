@@ -129,4 +129,21 @@ public class CliTest {
 		Result result = run(null);
 		assertTrue(result.exitCode != 0);
 	}
+
+	/**
+	 * An error during the execution gives a non-zero exit status, so that
+	 * scripts and continuous integration see it.
+	 */
+	@Test
+	public void executionErrorFails() throws Exception {
+		Result result = run("GENERATE { <http://ex/s> <http://ex/p> ?d } "
+				+ "SOURCE <http://example.invalid/x> ACCEPT <http://example.org/not-a-media-type> AS ?d");
+		assertTrue(result.err, result.exitCode != 0);
+	}
+
+	@Test
+	public void invalidOptionCombinationFails() throws Exception {
+		Result result = run("SELECT * WHERE { BIND(1 AS ?x) }", "--hdt", "-o", "out.hdt");
+		assertTrue(result.err, result.exitCode != 0);
+	}
 }
