@@ -211,15 +211,22 @@ public class ITER_CSV extends IteratorStreamFunctionBase {
                 }
             }
 
+            private int batches = 0;
+
             @Override
             public void processEnded(ParsingContext context) {
                 LOG.trace("Last batch of " + rowsInThisBatch + " rows, " + total + " total.");
-                send();
+                // no empty last batch when the number of rows is a multiple of the
+                // size of a batch; an empty document gives one empty batch
+                if (rowsInThisBatch > 0 || batches == 0) {
+                    send();
+                }
             }
 
             private void send() {
                 collectionListNodeValue.accept(nodeValues);
                 nodeValues = new ArrayList<>();
+                batches++;
             }
 
         };
