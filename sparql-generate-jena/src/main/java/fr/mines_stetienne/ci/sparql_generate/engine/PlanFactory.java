@@ -31,6 +31,7 @@ import org.apache.jena.sparql.expr.Expr;
 import org.apache.jena.sparql.expr.ExprAggregator;
 import org.apache.jena.sparql.expr.ExprFunction;
 import org.apache.jena.sparql.expr.ExprList;
+import org.apache.jena.sparql.expr.ExprVar;
 import org.apache.jena.sparql.expr.aggregate.AggGroupConcat;
 import org.apache.jena.sparql.expr.aggregate.AggGroupConcatDistinct;
 import org.apache.jena.sparql.expr.aggregate.Aggregator;
@@ -196,6 +197,11 @@ public class PlanFactory {
             }
         }
 
+        if (query.isTemplateType() && query.hasTemplateClause()) {
+            // GROUP is an aggregate, computed by the SELECT
+            query.setTemplateClause(aggregateGroups(query, query.getTemplateClause()));
+        }
+
         /*
         * TEMPLATE queries are translated into a SELECT with project 
         * variable ?out.
@@ -359,6 +365,41 @@ public class PlanFactory {
         return new SelectPlan(newQuery, query.isSelectType(), query.getSignature());
     }
     
+    /**
+     * Replaces each GROUP of a template by a variable that the SELECT binds to
+     * the GROUP_CONCAT of its expressions, as for the other aggregates of the
+     * template.
+     */
+    private static List<Element> aggregateGroups(final SPARQLExtQuery query, final List<Element> elements) {
+        final List<Element> result = new ArrayList<>();
+        for (Element el : elements) {
+            if (el instanceof ElementTGroup) {
+                final ElementTGroup group = (ElementTGroup) el;
+                final TProc tproc = new TProc();
+                final List<Expr> texprs = new ArrayList<>();
+                for (Element e : group.getTExpressions()) {
+                    e.visit(tproc);
+                    texprs.add(tproc.result);
+                }
+                final Expr concat = new E_Function(ST.concat, new ExprList(texprs));
+                final Aggregator groupConcat = group.isDistinct()
+                        ? new AggGroupConcatDistinct(concat, group.getSeparator())
+                        : new AggGroupConcat(concat, group.getSeparator());
+                final Var var = Var.alloc(UUID.randomUUID().toString().substring(0, 8));
+                query.addPostSelect(var, query.allocAggregate(groupConcat));
+                result.add(new ElementExpr(new ExprVar(var)));
+            } else if (el instanceof ElementBox) {
+                result.add(new ElementBox(aggregateGroups(query, ((ElementBox) el).getTExpressions())));
+            } else if (el instanceof ElementFormat) {
+                final ElementFormat format = (ElementFormat) el;
+                result.add(new ElementFormat(format.getExpr(), aggregateGroups(query, format.getTExpressions())));
+            } else {
+                result.add(el);
+            }
+        }
+        return result;
+    }
+
     private static TemplatePlan makeTemplatePlan(final SPARQLExtQuery query) {
         Objects.requireNonNull(query, "The query must not be null");
 		Expr before = query.getTemplateClauseBefore();

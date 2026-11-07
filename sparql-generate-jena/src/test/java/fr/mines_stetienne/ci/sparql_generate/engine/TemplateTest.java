@@ -35,4 +35,30 @@ public class TemplateTest {
 		assertEquals("[1,2,3]", template(
 				"TEMPLATE { BEFORE = \"[\" ; ?x ; SEPARATOR = \",\" ; AFTER = \"]\" } WHERE { VALUES ?x { 1 2 3 } }"));
 	}
+
+	/**
+	 * GROUP aggregates the solutions, as GROUP_CONCAT.
+	 */
+	@Test
+	public void group() {
+		assertEquals("<1,2,3>",
+				template("TEMPLATE { \"<\" GROUP { ?x ; SEPARATOR = \",\" } \">\" } WHERE { VALUES ?x { 1 2 3 } }"));
+	}
+
+	@Test
+	public void groupDistinct() {
+		assertEquals("<1,2>", template(
+				"TEMPLATE { \"<\" GROUP DISTINCT { ?x ; SEPARATOR = \",\" } \">\" } WHERE { VALUES ?x { 1 2 1 } }"));
+	}
+
+	/**
+	 * As in the example template/04-Group of the website: GROUP with GROUP BY
+	 * and other aggregates.
+	 */
+	@Test
+	public void groupWithGroupByAndAggregates() {
+		assertEquals("a (2): a1;a2.\nb (1): b1", template(
+				"TEMPLATE { ?k \" (\" count(?v) \"): \" GROUP { ?v ; separator = \";\" } ; separator = \".\\n\" } "
+						+ "WHERE { VALUES (?k ?v) { (\"a\" \"a1\") (\"a\" \"a2\") (\"b\" \"b1\") } } GROUP BY ?k ORDER BY ?k"));
+	}
 }
