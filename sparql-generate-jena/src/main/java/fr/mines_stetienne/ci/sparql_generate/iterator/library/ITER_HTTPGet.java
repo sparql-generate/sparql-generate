@@ -117,10 +117,10 @@ public class ITER_HTTPGet extends IteratorStreamFunctionBase {
             String message;
             final TypedInputStream tin = sm.open(req);
             if(tin != null) {
-                tin.getMediaType().toHeaderString();
                 try (InputStream in = tin.getInputStream()) {
                     message = IOUtils.toString(in, StandardCharsets.UTF_8);
-                    String datatypeUri = "https://www.iana.org/assignments/media-types/application" + tin.getMediaType().toHeaderString();
+                    // the media type, without its parameters such as charset
+                    String datatypeUri = "https://www.iana.org/assignments/media-types/" + tin.getMediaType().getContentTypeStr();
                     RDFDatatype dt = TypeMapper.getInstance().getSafeTypeByName(datatypeUri);
                     NodeValue outNode = new NodeValueNode(NodeFactory.createLiteral(message, dt));
 
@@ -134,6 +134,10 @@ public class ITER_HTTPGet extends IteratorStreamFunctionBase {
                 } catch (IOException ex) {
                     throw new ExprEvalException("An IOException occurred", ex);
                 }
+            }
+            if (i == times - 1) {
+                // no wait after the last call
+                break;
             }
             long end = System.nanoTime();
             try {
