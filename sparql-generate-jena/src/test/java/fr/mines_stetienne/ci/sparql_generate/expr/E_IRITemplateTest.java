@@ -73,4 +73,24 @@ public class E_IRITemplateTest {
 		}
 		assertEquals(BASES.length * PREFIXES.length * RESTS.length, n);
 	}
+
+	private static final String[] ABSOLUTE = { "http://ex.org", "http://ex.org/", "https://ex.org/a/b?c=d&e=f#g",
+			"http://ex.org:8080/a", "http://ex.org:80/a", "http://EX.org/a", "http://ex.org/A%2fb%2F", "http://ex.org/%zz",
+			"http://ex.org/a/./b", "http://ex.org/a/../b", "http://ex.org/a/.", "http://ex.org/a/..", "http://ex.org/a/.b",
+			"http://ex.org/a?x/../y", "http://ex.org/a#x/./y", "http://ex.org/a b", "http://ex.org/é",
+			"http://ex.org/a'b(c)*d!$&+,;=:@~", "http://ex.org/a#b#c", "http://ex.org/a?b?c", "http://a..b/",
+			"http://-a.org/", "http://a-.org/", "http:/ex.org/a", "http://", "http:///a", "http://ex.org:/a",
+			"http://ex.org:123456/a", "http://user@ex.org/", "http://1.2.3.4/a", "http://ex.org/a%20b%C3%A9",
+			"ftp://ex.org/a", "urn:x:y", "relative/path", "_:b0", "" };
+
+	@Test
+	public void plainAbsoluteIrisAsIRI() {
+		for (String base : BASES) {
+			for (String iri : ABSOLUTE) {
+				String expected = eval(new E_IRI(base, NodeValue.makeString(iri)), base);
+				assertEquals("base " + base + ", " + iri, expected,
+						eval(new E_IRITemplate(base, (Expr) NodeValue.makeString(iri)), base));
+			}
+		}
+	}
 }

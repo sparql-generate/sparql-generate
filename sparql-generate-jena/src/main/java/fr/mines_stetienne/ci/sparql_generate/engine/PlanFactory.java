@@ -48,6 +48,7 @@ import org.slf4j.LoggerFactory;
 
 import fr.mines_stetienne.ci.sparql_generate.SPARQLExt;
 import fr.mines_stetienne.ci.sparql_generate.SPARQLExtException;
+import fr.mines_stetienne.ci.sparql_generate.expr.E_IRITemplate;
 import fr.mines_stetienne.ci.sparql_generate.lang.ParserSPARQLExt;
 import fr.mines_stetienne.ci.sparql_generate.normalizer.xexpr.TemplateUtils;
 import fr.mines_stetienne.ci.sparql_generate.query.SPARQLExtQuery;
@@ -303,7 +304,8 @@ public class PlanFactory {
         Objects.requireNonNull(var, "The source must not be null");
         Objects.requireNonNull(expr, "The expression must not be null.");
 
-        return new BindPlan(expr, var);
+        // IRI(...) without parsing each plain IRI again
+        return new BindPlan(E_IRITemplate.optimize(expr), var);
     }
 
     /**

@@ -90,6 +90,15 @@ public class E_IRITemplate extends E_IRI {
     }
 
     /**
+     * IRI(expr) for any expression: only the check of plain absolute IRIs
+     * applies (see {@link #isPlainAbsolute(String)}).
+     */
+    public E_IRITemplate(final String parserBase, final Expr expr) {
+        super(parserBase, expr);
+        this.prefix = expr instanceof E_StrConcat ? firstConstant((E_StrConcat) expr) : null;
+    }
+
+    /**
      * Replaces IRI(CONCAT(...)) by an {@link E_IRITemplate} in the BIND
      * clauses of a group (and of the groups it contains) and in the projected
      * expressions of a query: they are lost when the query is copied by
@@ -108,6 +117,13 @@ public class E_IRITemplate extends E_IRI {
                 project.update(var, ExprTransformer.transform(TRANSFORM, expr));
             }
         }
+    }
+
+    /**
+     * Replaces IRI(...) by an {@link E_IRITemplate} in an expression.
+     */
+    public static Expr optimize(final Expr expr) {
+        return ExprTransformer.transform(TRANSFORM, expr);
     }
 
     private static void optimize(final ElementGroup group) {
@@ -129,8 +145,8 @@ public class E_IRITemplate extends E_IRI {
     private static final ExprTransform TRANSFORM = new ExprTransformCopy(false) {
         @Override
         public Expr transform(final ExprFunction1 func, final Expr arg) {
-            if (func.getClass() == E_IRI.class && arg instanceof E_StrConcat) {
-                return new E_IRITemplate(((E_IRI) func).getParserBase(), (E_StrConcat) arg);
+            if (func.getClass() == E_IRI.class) {
+                return new E_IRITemplate(((E_IRI) func).getParserBase(), arg);
             }
             return super.transform(func, arg);
         }
@@ -161,7 +177,10 @@ public class E_IRITemplate extends E_IRI {
 
     @Override
     public NodeValue eval(final NodeValue v, final FunctionEnv env) {
-        final String iri = shortcut(v, env);
+        String iri = shortcut(v, env);
+        if (iri == null && v.isString() && isPlainAbsolute(v.getString())) {
+            iri = v.getString();
+        }
         if (iri != null) {
             return NodeValue.makeNode(NodeFactory.createURI(iri));
         }
@@ -173,7 +192,42 @@ public class E_IRITemplate extends E_IRI {
         if (expr instanceof E_StrConcat) {
             return new E_IRITemplate(getParserBase(), (E_StrConcat) expr);
         }
-        return new E_IRI(getParserBase(), expr);
+        return new E_IRITemplate(getParserBase(), expr);
+    }
+
+    private static final Pattern PLAIN_ABSOLUTE = Pattern.compile("^https?://"
+            + "[a-z0-9](?:[a-z0-9-]*[a-z0-9])?(?:\\.[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)*(?::[0-9]{1,5})?"
+            + "(?:/[A-Za-z0-9._~!$&'()*+,;=:@%-]*)*"
+            + "(?:\\?[A-Za-z0-9._~!$&'()*+,;=:@%/?-]*)?"
+            + "(?:#[A-Za-z0-9._~!$&'()*+,;=:@%/?-]*)?$");
+
+    /**
+     * True for an absolute http or https IRI that IRI() gives as it is: a
+     * lower-case host, then characters of a path, a query and a fragment, with
+     * valid percent-encodings and no dot segment. Jena parses and checks every
+     * IRI with jena-iri; these need not be.
+     */
+    static boolean isPlainAbsolute(final String s) {
+        if (s.length() > 2000 || !PLAIN_ABSOLUTE.matcher(s).matches()) {
+            return false;
+        }
+        for (int i = s.indexOf('%'); i >= 0; i = s.indexOf('%', i + 1)) {
+            if (i + 2 >= s.length() || !isHex(s.charAt(i + 1)) || !isHex(s.charAt(i + 2))) {
+                return false;
+            }
+        }
+        // dot segments, in the path only
+        int end = s.length();
+        final int q = s.indexOf('?');
+        final int f = s.indexOf('#');
+        if (q >= 0) {
+            end = q;
+        }
+        if (f >= 0 && f < end) {
+            end = f;
+        }
+        final String path = s.substring(0, end);
+        return !(path.contains("/./") || path.contains("/../") || path.endsWith("/.") || path.endsWith("/.."));
     }
 
     /**
