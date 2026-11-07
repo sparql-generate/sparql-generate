@@ -51,6 +51,30 @@ MODULES = [
     ("sparql-generate-binary", "Binary data (sparql-generate-binary)"),
 ]
 
+# Descriptions that replace a missing or wrong Javadoc in the engine 2.2.0
+# (to be fixed in the sources in 2.2.1, then removed from here).
+OVERRIDES = {
+    "http://ns.inria.fr/sparql-template/concat": (
+        "Concatenates the string values of its arguments. The engine compiles the "
+        "expressions of a `TEMPLATE` clause to a call of `st:concat`."),
+    "http://ns.inria.fr/sparql-template/incr": (
+        "Increases the indentation of the lines output after it. The engine compiles "
+        "the start of a `BOX` to a call of `st:incr`."),
+    "http://ns.inria.fr/sparql-template/decr": (
+        "Decreases the indentation of the lines output after it. The engine compiles "
+        "the end of a `BOX` to a call of `st:decr`."),
+    "http://ns.inria.fr/sparql-template/format": (
+        "Formats its arguments with the format string given as first argument, as "
+        "Java `String.format` does (`%s`). The first argument can also be the IRI of "
+        "a document that contains the format. The engine compiles `FORMAT { ... }` to "
+        "a call of `st:format`."),
+}
+
+OVERRIDES_HTML = {
+    uri: "<p>" + re.sub(r"`([^`]*)`", r"<code>\1</code>", html.escape(text, quote=False)) + "</p>"
+    for uri, text in OVERRIDES.items()
+}
+
 PUT = re.compile(r"\b(\w+)\.put\(\s*(\w+)\.URI\s*,\s*(\w+)\.class\s*\)")
 URI_DECL = re.compile(r"static\s+(?:final\s+)?String\s+URI\s*=\s*([^;]+);")
 ST_CONST = re.compile(r"static\s+final\s+String\s+(\w+)\s*=\s*NS\s*\+\s*\"([^\"]*)\"\s*;")
@@ -148,7 +172,9 @@ def collect() -> list[Entry]:
             if uri is None:
                 raise SystemExit(f"{source}: cannot resolve the URI constant")
             kind = "iterator" if "iter" in registry.lower() else "function"
-            entries.append(Entry(kind, uri, cls, module, source, class_javadoc(source, cls)))
+            doc = class_javadoc(source, cls)
+            doc = OVERRIDES_HTML.get(uri, doc)
+            entries.append(Entry(kind, uri, cls, module, source, doc))
     return entries
 
 

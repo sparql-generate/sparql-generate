@@ -45,4 +45,4 @@ The examples run in the [playground](https://ci.mines-stetienne.fr/sparql-genera
 
 ## More examples
 
-The playground also has one example per format and stream: CSV, JSON, XML, HTML (`CSSPath`), GeoJSON, regular expressions, dates, HTTP polling, MQTT and WebSocket. The examples whose source is on the network (HTTP polling, MQTT, WebSocket) depend on the availability of these services.
+The playground also has one example per format and stream: CSV, JSON, XML, HTML (`CSSPath`), GeoJSON, regular expressions, dates, HTTP polling, MQTT and WebSocket. The examples whose source is on the network depend on the availability of these services: HTTP polling reads a report on the server of MINES Saint-Étienne, and WebSocket a public market data feed; the MQTT example does not run against the public broker `test.mosquitto.org`, which closes the connection.
