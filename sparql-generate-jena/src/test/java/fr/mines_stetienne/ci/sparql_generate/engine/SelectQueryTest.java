@@ -26,6 +26,8 @@ import org.apache.jena.sparql.engine.binding.Binding;
 import org.junit.Test;
 
 import fr.mines_stetienne.ci.sparql_generate.SPARQLExt;
+import fr.mines_stetienne.ci.sparql_generate.stream.LocatorStringMap;
+import fr.mines_stetienne.ci.sparql_generate.stream.SPARQLExtStreamManager;
 import fr.mines_stetienne.ci.sparql_generate.utils.ContextUtils;
 
 public class SelectQueryTest {
@@ -53,5 +55,41 @@ public class SelectQueryTest {
 		ResultSet rs = PlanFactory.create("SELECT * BIND(1 AS ?x) BIND(2 AS ?y) WHERE { }")
 				.execSelect(ContextUtils.build().build());
 		assertEquals(2, rs.getResultVars().size());
+	}
+
+	private static int count(String query) {
+		LocatorStringMap locator = new LocatorStringMap();
+		locator.put("http://ex.org/g.rqg",
+				"GENERATE <http://ex.org/g.rqg>() { <http://ex.org/s> <http://ex.org/p> <http://ex.org/o> . } WHERE {}",
+				SPARQLExt.MEDIA_TYPE);
+		ResultSet rs = PlanFactory.create(query).execSelect(
+				ContextUtils.build().setStreamManager(SPARQLExtStreamManager.makeStreamManager(locator)).build());
+		return Integer.parseInt(rs.nextBinding().get(Var.alloc("n")).getLiteralLexicalForm());
+	}
+
+	@Test
+	public void fromGenerate() {
+		assertEquals(1, count("SELECT (COUNT(*) AS ?n) FROM GENERATE <http://ex.org/g.rqg>() . WHERE { ?s ?p ?o }"));
+	}
+
+	/**
+	 * FROM GENERATE ... NAMED fills the named graph.
+	 */
+	@Test
+	public void fromGenerateNamed() {
+		assertEquals(1, count("SELECT (COUNT(*) AS ?n) FROM GENERATE <http://ex.org/g.rqg>() NAMED <urn:g> . "
+				+ "WHERE { GRAPH <urn:g> { ?s ?p ?o } }"));
+	}
+
+	/**
+	 * FROM <g> takes the named graph <g> of the input dataset as default graph.
+	 */
+	@Test
+	public void fromNamedGraphOfTheInputDataset() {
+		org.apache.jena.query.Dataset dataset = org.apache.jena.query.DatasetFactory.create();
+		dataset.addNamedModel("http://ex.org/data", EngineTestUtils.turtle("<http://ex.org/s> <http://ex.org/p> 1 ."));
+		ResultSet rs = PlanFactory.create("BASE <http://ex.org/base/> SELECT (COUNT(*) AS ?n) FROM <http://ex.org/data> WHERE { ?s ?p ?o }")
+				.execSelect(ContextUtils.build().setInputDataset(dataset).build());
+		assertEquals("1", rs.nextBinding().get(Var.alloc("n")).getLiteralLexicalForm());
 	}
 }

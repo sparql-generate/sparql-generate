@@ -115,14 +115,10 @@ public class SelectQueryPartialCopyVisitor implements SPARQLExtQueryVisitor {
 
     @Override
     public void visitDatasetDecl(final Query q) {
-        SPARQLExtQuery query = asSPARQLExtQuery(q);
-        query.getFromClauses().forEach(fc->{
-        	if(fc.isNamed()) {
-        		String graphURI = evalSourceURI(binding, context, fc.getName());
-        		output.addNamedGraphURI(graphURI);
-        	} 
-        });
-        
+        // nothing: DatasetDeclarationPlan has already built the dataset of the
+        // FROM and FROM NAMED clauses, and the SELECT is executed on it. Declaring
+        // FROM NAMED again made Jena look the named graphs up elsewhere, and
+        // GRAPH <g> found nothing.
     }
     
 	private String evalSourceURI(Binding binding, Context context, Expr sourceExpr) {
