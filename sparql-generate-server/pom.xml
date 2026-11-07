@@ -19,7 +19,7 @@
     <properties>
         <endorsed.dir>${project.build.directory}/endorsed</endorsed.dir>
         <jetty.version>9.4.14.v20181114</jetty.version>
-        <jersey.version>2.28</jersey.version>
+        <jersey.version>2.48</jersey.version>
         <skip>false</skip>
         <websiteName>sparql-generate</websiteName>
     </properties>
@@ -114,6 +114,14 @@
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-servlets</artifactId>
             <version>9.4.58.v20250814</version>
+        </dependency>
+
+        <!-- ServerSmokeTest starts the API and the WebSocket endpoint in an embedded Jetty -->
+        <dependency>
+            <groupId>org.eclipse.jetty.websocket</groupId>
+            <artifactId>javax-websocket-server-impl</artifactId>
+            <version>9.4.58.v20250814</version>
+            <scope>test</scope>
         </dependency>
 
     </dependencies>
