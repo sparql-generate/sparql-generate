@@ -17,8 +17,10 @@ package fr.mines_stetienne.ci.sparql_generate.utils;
 
 import static fr.mines_stetienne.ci.sparql_generate.SPARQLExt.NS;
 
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -174,9 +176,14 @@ public class ContextUtils {
 		return context.get(DATASET);
 	}
 
+	/**
+	 * The executor of the stream iterators (MQTT, WebSocket). By default, a
+	 * single daemon thread, created when first needed and shut down when the
+	 * context is closed.
+	 */
 	public static ExecutorService getExecutor(Context context) {
 		Commons commons = context.get(COMMONS);
-		return commons.executor;
+		return commons.getExecutor();
 	}
 
 	public static QueryExecutor getQueryExecutor(Context context) {
@@ -210,17 +217,31 @@ public class ContextUtils {
 
 	public static void addTaskOnClose(Context context, final Runnable task) {
 		Commons commons = context.get(COMMONS);
-		commons.closingTasks.add(task);
+		synchronized (commons.closingTasks) {
+			commons.closingTasks.add(task);
+		}
 	}
 
+	/**
+	 * Runs the closing tasks of the execution (each one once, even if another
+	 * one fails), and shuts the default executor down.
+	 */
 	public static void close(Context context) {
 		Commons commons = context.get(COMMONS);
-		try {
-			LOG.trace("Closing context");
-			commons.closingTasks.forEach(Runnable::run);
-		} catch (Exception ex) {
-			LOG.warn("Exception while closing context:", ex);
+		LOG.trace("Closing context");
+		final List<Runnable> tasks;
+		synchronized (commons.closingTasks) {
+			tasks = new ArrayList<>(commons.closingTasks);
+			commons.closingTasks.clear();
 		}
+		for (Runnable task : tasks) {
+			try {
+				task.run();
+			} catch (Exception ex) {
+				LOG.warn("Exception while closing context:", ex);
+			}
+		}
+		commons.shutdownDefaultExecutor();
 	}
 
 	public static IndentedWriter getTemplateOutput(Context context) {
@@ -484,8 +505,14 @@ public class ContextUtils {
 			return this;
 		}
 
+		/**
+		 * @param executor the executor of the stream iterators; it is not shut
+		 *                 down when the context is closed.
+		 * @return this builder
+		 */
 		public Builder setExecutor(ExecutorService executor) {
 			commons.executor = executor;
+			commons.defaultExecutor = false;
 			return this;
 		}
 
@@ -508,13 +535,33 @@ public class ContextUtils {
 	private static class Commons {
 
 		private boolean debugTemplate = false;
-		private ExecutorService executor = Executors.newSingleThreadExecutor();
+		private ExecutorService executor = null;
+		private boolean defaultExecutor = true;
 		private QueryExecutor queryExecutor = new QueryExecutor();
-		private final Set<Runnable> closingTasks = new HashSet<>();
+		private final Set<Runnable> closingTasks = new LinkedHashSet<>();
 		private final Map<String, Node> blankNodes = new ConcurrentHashMap<>();
 		private final Cache<Object, NodeValue> memoised = CacheBuilder.newBuilder().maximumSize(1000).build();
 
 		private Commons() {
+		}
+
+		private synchronized ExecutorService getExecutor() {
+			if (executor == null) {
+				// daemon: a stream that is still open does not keep the JVM alive
+				executor = Executors.newSingleThreadExecutor((runnable) -> {
+					Thread thread = new Thread(runnable, "sparql-generate-stream");
+					thread.setDaemon(true);
+					return thread;
+				});
+			}
+			return executor;
+		}
+
+		private synchronized void shutdownDefaultExecutor() {
+			if (defaultExecutor && executor != null) {
+				executor.shutdown();
+				executor = null;
+			}
 		}
 
 	}

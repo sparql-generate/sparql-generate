@@ -376,24 +376,29 @@ public class RootPlan {
 			LOG.trace("Starting sub-execution");
 		}
 
-		// a query called on several rows is evaluated once per dataset
-		final List<List<Binding>> groups = datasetDeclarationPlan.groupByDataset(values, context);
-		for (List<Binding> group : groups) {
-			final Binding binding = group.size() > 0 ? group.get(0) : null;
-			final Context newContext = datasetDeclarationPlan.prepareDataset(binding, context);
-			final List<Var> groupVariables = groups.size() == 1 ? variables : new ArrayList<>(variables);
-			execIteratorAndSourcePlans(groupVariables, group, newContext, 0);
-		}
-
-		if (ContextUtils.isRootContext(context)) {
-			StreamRDF outputGenerate = ContextUtils.getGenerateOutput(context);
-			if (outputGenerate != null) {
-				outputGenerate.finish();
+		try {
+			// a query called on several rows is evaluated once per dataset
+			final List<List<Binding>> groups = datasetDeclarationPlan.groupByDataset(values, context);
+			for (List<Binding> group : groups) {
+				final Binding binding = group.size() > 0 ? group.get(0) : null;
+				final Context newContext = datasetDeclarationPlan.prepareDataset(binding, context);
+				final List<Var> groupVariables = groups.size() == 1 ? variables : new ArrayList<>(variables);
+				execIteratorAndSourcePlans(groupVariables, group, newContext, 0);
 			}
-			ContextUtils.close(context);
-			LOG.info("End of execution");
-		} else {
-			LOG.trace("End of sub-execution");
+			if (ContextUtils.isRootContext(context)) {
+				StreamRDF outputGenerate = ContextUtils.getGenerateOutput(context);
+				if (outputGenerate != null) {
+					outputGenerate.finish();
+				}
+				LOG.info("End of execution");
+			} else {
+				LOG.trace("End of sub-execution");
+			}
+		} finally {
+			if (ContextUtils.isRootContext(context)) {
+				// streams are closed, even when the execution fails
+				ContextUtils.close(context);
+			}
 		}
 	}
 
