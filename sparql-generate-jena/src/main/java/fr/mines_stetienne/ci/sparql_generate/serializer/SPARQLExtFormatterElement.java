@@ -211,7 +211,8 @@ public class SPARQLExtFormatterElement extends SPARQLExtFormatterBase implements
         out.print("SOURCE ");
         SPARQLExtFmtUtils.printNode(out, el.getSource(), context);
         if (el.getAccept() != null) {
-            out.print(" ACCEPT <" + el.getAccept() + ">");
+            out.print(" ACCEPT ");
+            SPARQLExtFmtUtils.printNode(out, el.getAccept(), context);
         }
         out.print(" AS " + el.getVar());
     }
