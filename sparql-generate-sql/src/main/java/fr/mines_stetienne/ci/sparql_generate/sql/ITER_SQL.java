@@ -55,9 +55,15 @@ import fr.mines_stetienne.ci.sparql_generate.iterator.IteratorStreamFunctionBase
  * issues a SQL query to a database.
  *
  * <ul>
- * <li>Param 1: (database): the JDBC URI of the database</li>
+ * <li>Param 1: (database): the JDBC URL of the database, with its user and
+ * password if it needs them, such as
+ * {@code <jdbc:mysql://localhost/db?user=me&password=secret>},
+ * {@code <jdbc:postgresql://localhost/db?user=me&password=secret>} or
+ * {@code <jdbc:sqlite:data.db>}. Any JDBC driver of the classpath is used;
+ * the MySQL driver is included.</li>
  * <li>Param 2: (sql) the SQL query;</li>
  * </ul>
+ * The rows of the result are one batch.
  *
  * The following variables may be bound:
  *
@@ -81,15 +87,16 @@ public class ITER_SQL extends IteratorStreamFunctionBase2 {
 	 * The SPARQL function URI.
 	 */
 	public static final String URI = SPARQLExt.ITER + "SQL";
-	public static final Properties properties = new Properties();
 
-	static {
-		properties.setProperty("user", "root"); // username
-		properties.setProperty("password", "password"); // password
-		properties.setProperty("serverTimezone", "UTC"); // serverTimezone
-	}
-
-	public static Properties getProperties() {
+	/**
+	 * The connection properties: none, the user and password are those of the
+	 * JDBC URL; a MySQL connection is in UTC.
+	 */
+	public static Properties getProperties(String url) {
+		final Properties properties = new Properties();
+		if (url.startsWith("jdbc:mysql:") && !url.contains("serverTimezone=")) {
+			properties.setProperty("serverTimezone", "UTC");
+		}
 		return properties;
 	}
 
@@ -119,8 +126,8 @@ public class ITER_SQL extends IteratorStreamFunctionBase2 {
 		if (sql.isIRI()) {
 			String sqlPath = sql.asNode().getURI();
 			try {
-				Class.forName("com.mysql.cj.jdbc.Driver");
-				Connection conn = DriverManager.getConnection(sqlPath, properties);
+				// JDBC 4 drivers of the classpath register themselves
+				Connection conn = DriverManager.getConnection(sqlPath, getProperties(sqlPath));
 				return conn;
 			} catch (Exception e) {
 				LOG.warn("Can not connect to the data base", e);
@@ -143,6 +150,8 @@ public class ITER_SQL extends IteratorStreamFunctionBase2 {
 			try (PreparedStatement ps = conn.prepareStatement(querySQL.asString()); ResultSet rs = ps.executeQuery()) {
 				ResultSetMetaData rsmd = rs.getMetaData();
 				int columnCount = rsmd.getColumnCount();
+				// one batch, as the other iterators without a batch size
+				final List<List<NodeValue>> rows = new ArrayList<>();
 				while (rs.next()) {
 					List<NodeValue> listRow = new ArrayList<>();
 					int i = 1;
@@ -150,8 +159,9 @@ public class ITER_SQL extends IteratorStreamFunctionBase2 {
 						NodeValue nv = getNodeValueForCell(rs, rsmd, i++);
 						listRow.add(nv);
 					}
-					consumer.accept(List.of(listRow));
+					rows.add(listRow);
 				}
+				consumer.accept(rows);
 			} catch (SQLException e) {
 				LOG.warn(e.getMessage());
 				throw new ExprEvalException(e);
