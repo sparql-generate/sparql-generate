@@ -33,6 +33,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.jena.datatypes.RDFDatatype;
@@ -121,9 +122,14 @@ public class FUN_XPath extends FunctionBase2 {
             xPath.setNamespaceContext(new UniversalNamespaceResolver(document));
             //Node node = (Node) xPath.compile(xpath.getString()).evaluate(document, XPathConstants.NODE);
 
-            org.w3c.dom.Node xmlNode = (org.w3c.dom.Node) xPath
-                    .compile(xpath.getString())
-                    .evaluate(document, XPathConstants.NODE);
+            final XPathExpression expression = xPath.compile(xpath.getString());
+            org.w3c.dom.Node xmlNode;
+            try {
+                xmlNode = (org.w3c.dom.Node) expression.evaluate(document, XPathConstants.NODE);
+            } catch (XPathExpressionException ex) {
+                // the expression gives a string, a number or a boolean, as string(.) or count(.)
+                return new NodeValueString(expression.evaluate(document, XPathConstants.STRING).toString());
+            }
             if (xmlNode == null) {
                 LOG.debug("No evaluation of " + xpath);
                 throw new ExprEvalException("No evaluation of " + xpath);

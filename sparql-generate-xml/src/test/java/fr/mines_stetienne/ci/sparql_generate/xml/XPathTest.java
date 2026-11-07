@@ -88,4 +88,23 @@ public class XPathTest {
 		assertGenerates("ex:doc ex:item \"one\", \"two\" .",
 				"GENERATE { ex:doc ex:item ?item } ITERATOR ite:XPath(\"<ul><li>one<li>two</ul>\", \"//li/text()\") AS ?item");
 	}
+
+	/**
+	 * An XPath expression that gives a string, a number or a boolean, such as
+	 * string(.), which concatenates the text of all the descendants (issue #140).
+	 */
+	@Test
+	public void functionWithStringExpression() {
+		assertGenerates("ex:doc ex:text \"this part has been annotated with nested annotations\" .",
+				"GENERATE { ex:doc ex:text ?text } WHERE { BIND(fun:XPath(" + literal(
+						"<A1><A2>this part has been</A2> annotated with <A3>nested annotations</A3></A1>")
+						+ ", \"string(/A1)\") AS ?text) }");
+	}
+
+	@Test
+	public void functionWithCount() {
+		assertGenerates("ex:doc ex:count \"2\" .",
+				"GENERATE { ex:doc ex:count ?n } WHERE { BIND(fun:XPath(" + literal("<a><b/><b/></a>")
+						+ ", \"count(/a/b)\") AS ?n) }");
+	}
 }
