@@ -9,7 +9,7 @@ PREFIX aqio:  <https://ci.mines-stetienne.fr/aqi/ontology#>
 
 TEMPLATE <https://ci.mines-stetienne.fr/sparql-generate/tutorial/observations> ( ?name , ?value ) {
 
-  """\{ "name" : "{ ?name }" ; "value" : { ?value } \}""" 
+  """\{ "name" : "{ ?name }" , "value" : { ?value } \}""" 
 
 }
 WHERE { }

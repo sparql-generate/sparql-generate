@@ -1,0 +1,64 @@
+30th Ave, Longview, Washington is at latitude 46.139443 and longitude -122.961944.
+The Air Quality Index was 8 at 2018-05-24T05:00:00-07:00.
+	you can access its Real-time Air Quality Index report at the following URL:
+	http://aqicn.org/city/usa/washington/longview/30th-ave/
+
+Barrie, Ontario is at latitude 44.382361 and longitude -79.702306.
+The Air Quality Index was 53 at 2018-05-24T10:00:00-05:00.
+	you can access its Real-time Air Quality Index report at the following URL:
+	http://aqicn.org/city/canada/ontario/barrie/
+
+Beaverton, Oregon is at latitude 45.4702 and longitude -122.8159.
+The Air Quality Index was 18 at 2018-05-24T04:00:00-07:00.
+	you can access its Real-time Air Quality Index report at the following URL:
+	http://aqicn.org/city/usa/oregon/beaverton/
+
+Bellevue Way, Bellevue, Washington is at latitude 47.61311 and longitude -122.20161.
+The Air Quality Index was 29 at 2017-05-13T14:00:00-07:00.
+	you can access its Real-time Air Quality Index report at the following URL:
+	http://aqicn.org/city/usa/washington/bellevue/bellevue-way/
+
+Chehalis Tribe, Oakville, Washington is at latitude 46.818292 and longitude -123.197083.
+The Air Quality Index was 15 at 2016-12-05T17:00:00-07:00.
+	you can access its Real-time Air Quality Index report at the following URL:
+	http://aqicn.org/city/usa/washington/oakville/chehalis-tribe/
+
+Intermediate School 74, New York is at latitude 40.815517 and longitude -73.885552.
+The Air Quality Index was  at .
+	you can access its Real-time Air Quality Index report at the following URL:
+	http://aqicn.org/city/usa/newyork/is-74/
+
+Inuvik, NorthWestTerritories is at latitude 68.356994 and longitude -133.714063.
+The Air Quality Index was 14 at 2018-05-24T07:00:00-05:00.
+	you can access its Real-time Air Quality Index report at the following URL:
+	http://aqicn.org/city/canada/northwestterritories/inuvik/
+
+Klamath Falls, Oregon is at latitude 42.190296 and longitude -121.731369.
+The Air Quality Index was 28 at 2018-05-24T05:00:00-07:00.
+	you can access its Real-time Air Quality Index report at the following URL:
+	http://aqicn.org/city/usa/oregon/klamath-falls/
+
+Oakville, Ontario is at latitude 43.486917 and longitude -79.702278.
+The Air Quality Index was 50 at 2018-05-24T10:00:00-05:00.
+	you can access its Real-time Air Quality Index report at the following URL:
+	http://aqicn.org/city/canada/ontario/oakville/
+
+San Pablo is at latitude 37.9604 and longitude -122.3568.
+The Air Quality Index was 25 at 2018-05-24T05:00:00-08:00.
+	you can access its Real-time Air Quality Index report at the following URL:
+	http://aqicn.org/city/california/coast-and-central-bay/san-pablo/
+
+Shady Cove, Oregon is at latitude 42.623225 and longitude -122.810158.
+The Air Quality Index was 13 at 2018-05-24T06:00:00-07:00.
+	you can access its Real-time Air Quality Index report at the following URL:
+	http://aqicn.org/city/usa/oregon/shady-cove/
+
+St. Catharines, Ontario is at latitude 43.160056 and longitude -79.23475.
+The Air Quality Index was 34 at 2018-05-24T10:00:00-05:00.
+	you can access its Real-time Air Quality Index report at the following URL:
+	http://aqicn.org/city/canada/ontario/st.-catharines/
+
+W Main St, Dayton, Washington is at latitude 46.318 and longitude -117.985.
+The Air Quality Index was 24 at 2018-05-24T05:00:00-07:00.
+	you can access its Real-time Air Quality Index report at the following URL:
+	http://aqicn.org/city/usa/washington/dayton/w-main-st/

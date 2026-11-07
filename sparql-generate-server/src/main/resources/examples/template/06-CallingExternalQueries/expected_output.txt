@@ -1,0 +1,14 @@
+[ 
+  { "name" : "W Main St, Dayton, Washington" , "value" : 24 },
+  { "name" : "San Pablo" , "value" : 25 },
+  { "name" : "Bellevue Way, Bellevue, Washington" , "value" : 29 },
+  { "name" : "Inuvik, NorthWestTerritories" , "value" : 14 },
+  { "name" : "Shady Cove, Oregon" , "value" : 13 },
+  { "name" : "St. Catharines, Ontario" , "value" : 34 },
+  { "name" : "Barrie, Ontario" , "value" : 53 },
+  { "name" : "Klamath Falls, Oregon" , "value" : 28 },
+  { "name" : "Chehalis Tribe, Oakville, Washington" , "value" : 15 },
+  { "name" : "Oakville, Ontario" , "value" : 50 },
+  { "name" : "Beaverton, Oregon" , "value" : 18 },
+  { "name" : "30th Ave, Longview, Washington" , "value" : 8 }
+]

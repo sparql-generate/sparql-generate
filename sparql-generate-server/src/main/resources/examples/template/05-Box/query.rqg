@@ -12,7 +12,7 @@ TEMPLATE {
   BOX { 
     "\nindividual values are: "
     BOX {
-      GROUP { "\n" str( ?aqi ) " at " ?label }
+      GROUP { "\n" str( ?aqi ) " at " ?label ; separator = "" }
     }
     "\nthe average is " str(avg(?aqi))
   }

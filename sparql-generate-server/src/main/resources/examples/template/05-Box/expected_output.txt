@@ -1,0 +1,31 @@
+Air Quality Index report for San Pablo:
+  individual values are: 
+    25 at San Pablo
+  the average is 25.0.
+
+Air Quality Index report for Ontario:
+  individual values are: 
+    34 at St. Catharines, Ontario
+    53 at Barrie, Ontario
+    50 at Oakville, Ontario
+  the average is 45.666666666666666666666667.
+
+Air Quality Index report for Oregon:
+  individual values are: 
+    13 at Shady Cove, Oregon
+    28 at Klamath Falls, Oregon
+    18 at Beaverton, Oregon
+  the average is 19.666666666666666666666667.
+
+Air Quality Index report for NorthWestTerritories:
+  individual values are: 
+    14 at Inuvik, NorthWestTerritories
+  the average is 14.0.
+
+Air Quality Index report for Washington:
+  individual values are: 
+    24 at W Main St, Dayton, Washington
+    29 at Bellevue Way, Bellevue, Washington
+    15 at Chehalis Tribe, Oakville, Washington
+    8 at 30th Ave, Longview, Washington
+  the average is 19.0
