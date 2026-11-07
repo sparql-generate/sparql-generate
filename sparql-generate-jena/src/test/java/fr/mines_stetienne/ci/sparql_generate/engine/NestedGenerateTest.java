@@ -139,4 +139,15 @@ public class NestedGenerateTest {
 		assertTrue(EngineTestUtils.write(model), model.isIsomorphicWith(expected));
 	}
 
+	/**
+	 * An iterator of a sub-query runs once per solution of the parent, equal
+	 * solutions included, and the rows of all the runs form one batch.
+	 */
+	@Test
+	public void iteratorOfSubQueryRunsOncePerParentSolution() {
+		String result = EngineTestUtils.template("PREFIX iter: <http://w3id.org/sparql-generate/iter/> "
+				+ "TEMPLATE { TEMPLATE { ?x } ITERATOR iter:for(1, 1, 3) AS ?x . } WHERE { VALUES ?a { 1 1 2 } }");
+		assertEquals("121212", result);
+	}
+
 }

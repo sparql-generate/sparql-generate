@@ -25,6 +25,7 @@ import fr.mines_stetienne.ci.sparql_generate.iterator.IteratorFunctionRegistry;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -193,13 +194,21 @@ public class IteratorPlan implements BindingsClausePlan {
     protected class Batches {
 
         final Consumer<List<Binding>> listBindingStream;
-        final List<Binding> uncompleteExecutions = Collections.synchronizedList(new ArrayList<>());
+        /**
+         * The number of executions, one per input binding: a batch is complete
+         * when each execution gave it its rows.
+         */
+        final int executions;
         final List<Batch> uncompleteBatches = Collections.synchronizedList(new ArrayList<>());
-        final Map<Binding, Batch> lastBatch = Collections.synchronizedMap(new HashMap<>());
+        /**
+         * The last batch of each execution, identified by its input binding
+         * (by identity: hashing a binding visits all its variables).
+         */
+        final Map<Binding, Batch> lastBatch = Collections.synchronizedMap(new IdentityHashMap<>());
 
         Batches(final List<Binding> executions,
                 final Consumer<List<Binding>> listBindingStream) {
-            uncompleteExecutions.addAll(executions);
+            this.executions = executions.size();
             this.listBindingStream = listBindingStream;
         }
 
@@ -255,7 +264,7 @@ public class IteratorPlan implements BindingsClausePlan {
             Batch last = lastBatch.get(execution);
             if (last == null) {
                 if (uncompleteBatches.isEmpty()) {
-                    final Batch batch = new Batch(uncompleteExecutions);
+                    final Batch batch = new Batch(executions);
                     uncompleteBatches.add(batch);
                     return batch;
                 } else {
@@ -264,7 +273,7 @@ public class IteratorPlan implements BindingsClausePlan {
             } else {
                 int index = uncompleteBatches.indexOf(last);
                 if (index == uncompleteBatches.size() - 1) {
-                    final Batch batch = new Batch(uncompleteExecutions);
+                    final Batch batch = new Batch(executions);
                     uncompleteBatches.add(batch);
                     return batch;
                 } else {
@@ -278,11 +287,12 @@ public class IteratorPlan implements BindingsClausePlan {
                 LOG.info("Forcing completion of remaining batches");
             }
             for (Batch batch : uncompleteBatches) {
-                batch.expectedExecutions.clear();
-                LOG.trace("A batch is complete " + batch);
+                batch.expected = 0;
+                if (LOG.isTraceEnabled()) {
+                    LOG.trace("A batch is complete " + batch);
+                }
                 listBindingStream.accept(batch.bindings);
             }
-            uncompleteExecutions.clear();
             uncompleteBatches.clear();
             lastBatch.clear();
         }
@@ -304,30 +314,34 @@ public class IteratorPlan implements BindingsClausePlan {
 
     private class Batch {
 
-        final List<Binding> expectedExecutions = new ArrayList<>();
+        /**
+         * The number of executions that have not given their rows yet; each
+         * execution gives its rows to a batch once.
+         */
+        int expected;
         final List<Binding> bindings = new ArrayList<>();
 
-        Batch(final List<Binding> uncompleteExecutions) {
-            expectedExecutions.addAll(uncompleteExecutions);
+        Batch(final int executions) {
+            expected = executions;
         }
 
         synchronized boolean addAndCheckIfEmpty(
                 final Binding iterator,
                 final List<Binding> bindings) {
-            expectedExecutions.remove(iterator);
+            expected--;
             this.bindings.addAll(bindings);
-            return expectedExecutions.isEmpty();
+            return expected <= 0;
         }
 
         @Override
         public String toString() {
             StringBuilder sb = new StringBuilder("Batch ");
             sb.append(System.identityHashCode(this));
-            if (expectedExecutions.isEmpty()) {
+            if (expected <= 0) {
                 sb.append(" complete with ");
             } else {
                 sb.append(" still waiting for ");
-                sb.append(expectedExecutions.size());
+                sb.append(expected);
                 sb.append(" and has ");
             }
             sb.append(LogUtils.log(bindings));
