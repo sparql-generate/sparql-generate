@@ -37,6 +37,14 @@ public class LocatorURLAccept extends LocatorAcceptBase {
 
 	static Logger log = LoggerFactory.getLogger(LocatorURLAccept.class);
 
+	/**
+	 * The JDK waits for a connection without limit by default: a host that
+	 * does not answer, off line or behind a firewall, would block the
+	 * execution. The JDK property, if set, takes precedence.
+	 */
+	private static final String CONNECT_TIMEOUT_PROPERTY = "sun.net.client.defaultConnectTimeout";
+	private static final int CONNECT_TIMEOUT = 15_000;
+
 	@Override
 	public boolean equals(Object other) {
 		return other instanceof LocatorURLAccept;
@@ -59,8 +67,6 @@ public class LocatorURLAccept extends LocatorAcceptBase {
 		try {
 			URL url = new URL(source);
 			URLConnection conn = (URLConnection) url.openConnection();
-//            conn.setConnectTimeout(200);
-//            conn.setReadTimeout(500);
 			return openConnectionCheckRedirects(url, acceptHeader, conn);
 		} catch (java.io.FileNotFoundException ex) {
 			log.debug("File not found online: " + source);
@@ -92,6 +98,9 @@ public class LocatorURLAccept extends LocatorAcceptBase {
 		String contentType = null;
 //		String contentEncoding = null;
 		do {
+			if (System.getProperty(CONNECT_TIMEOUT_PROPERTY) == null) {
+				c.setConnectTimeout(CONNECT_TIMEOUT);
+			}
 			if (c instanceof HttpURLConnection) {
 				((HttpURLConnection) c).setInstanceFollowRedirects(false);
 			}

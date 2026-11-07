@@ -38,6 +38,7 @@ import org.apache.jena.sparql.function.Function;
 import org.apache.jena.sparql.function.FunctionFactory;
 import org.apache.jena.sparql.function.FunctionRegistry;
 import org.apache.jena.sparql.util.Context;
+import org.apache.jena.sparql.util.MappedLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -118,6 +119,18 @@ public class SPARQLExtFunctionRegistry extends FunctionRegistry {
         if (attemptedLoads.contains(uri)) {
             return null;
         }
+        // functions of Jena loaded by class name: afn:, java:
+        final Class<?> functionClass = MappedLoader.loadClass(uri, Function.class);
+        if (functionClass != null) {
+            put(uri, functionClass);
+            attemptedLoads.add(uri);
+            return registry.get(uri);
+        }
+        if (isBuiltInNamespace(uri)) {
+            LOG.warn(String.format("Unknown function %s", uri));
+            attemptedLoads.add(uri);
+            return null;
+        }
         LOG.trace("attempting load " + uri);
         final LookUpRequest req = new LookUpRequest(uri, "application/vnd.sparql-generate");
         final SPARQLExtStreamManager sm = (SPARQLExtStreamManager) context.get(SysRIOT.sysStreamManager);
@@ -153,6 +166,32 @@ public class SPARQLExtFunctionRegistry extends FunctionRegistry {
         put(uri, function);
         attemptedLoads.add(uri);
         return function;
+    }
+
+    /**
+     * Namespaces of the functions and iterators of SPARQL, XPath, Jena and
+     * SPARQL-Generate. An unknown IRI in one of them is not looked up as a
+     * FUNCTION or SELECT query: it would be a request on the network.
+     */
+    private static final String[] BUILT_IN_NAMESPACES = {
+            "http://www.w3.org/2001/XMLSchema#",
+            "http://www.w3.org/2005/xpath-functions",
+            "http://www.w3.org/ns/sparql#",
+            "http://jena.apache.org/",
+            "java:",
+            SPARQLExt.NS };
+
+    /**
+     * True if the IRI is in the namespace of the functions and iterators of
+     * SPARQL, XPath, Jena or SPARQL-Generate.
+     */
+    public static boolean isBuiltInNamespace(String uri) {
+        for (String ns : BUILT_IN_NAMESPACES) {
+            if (uri.startsWith(ns)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     class FunctionFactoryAuto implements FunctionFactory {
