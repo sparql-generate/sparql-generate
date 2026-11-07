@@ -2,6 +2,23 @@
 
 This page summarises the changes of the engine since version 2.0. The full history is in the [commits](https://github.com/sparql-generate/sparql-generate/commits/master) and the [releases](https://github.com/sparql-generate/sparql-generate/releases).
 
+## 2.2.3
+
+Not yet released.
+
+**Language and engine**
+
+- An unbound argument in a call to a named `SELECT` query, `ITERATOR <q.rqg>(?u)`, leaves the parameter unbound instead of failing.
+- `"a\\}b"` is read as `a\}b`: the escape `\\` is read before the brace.
+- A blank node at the end of a property path in the `WHERE` clause of a sub-query, `?s <p>|<q> []`, no longer breaks the query.
+- The functions that Jena loads by class name are available: `afn:bnode`, `afn:localname` and the other `afn:` functions, and `java:` IRIs.
+- An unknown function or iterator in the namespace of XSD, XPath, SPARQL, Jena or SPARQL-Generate is reported at once; it is no longer looked up as a query on the Web. Connections to a URL time out after 15 s (`-Dsun.net.client.defaultConnectTimeout` overrides it).
+- A `SOURCE` clause whose document cannot be found logs a warning, as the iterators do.
+
+**Command line**
+
+- `--fail-on-missing` (key `failOnMissing` of `sparql-generate-conf.json`): a document, a graph or a named query that cannot be found stops the execution with status 1. In the Java API: `SPARQLExtStreamManager.setFailOnMissingDocument(true)`.
+
 ## 2.2.2
 
 Released on 2026-11-07. This documentation on Read the Docs, the rewritten playground (CodeMirror 6, tutorial order, shareable links) and its refreshed examples, each run by a test against the engine.
