@@ -15,6 +15,7 @@
  */
 package fr.mines_stetienne.ci.sparql_generate.engine;
 
+import fr.mines_stetienne.ci.sparql_generate.function.Suggestions;
 import fr.mines_stetienne.ci.sparql_generate.stream.DocumentNotFoundException;
 import fr.mines_stetienne.ci.sparql_generate.utils.ContextUtils;
 import fr.mines_stetienne.ci.sparql_generate.utils.LogUtils;
@@ -98,7 +99,8 @@ public class IteratorPlan implements BindingsClausePlan {
         final IteratorFunctionRegistry sr = IteratorFunctionRegistry.get(context);
         IteratorFunctionFactory factory = sr.get(iri);
         if (factory == null) {
-            throw new SPARQLExtException("Unknown Iterator Function: " + iri);
+            throw new SPARQLExtException("Unknown Iterator Function: " + iri + "."
+                    + Suggestions.didYouMean(iri, sr.keys()));
         }
         iterator = factory.create(iri);
         iterator.build(exprList);

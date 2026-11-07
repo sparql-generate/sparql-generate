@@ -125,4 +125,39 @@ public class FunctionRegistryTest {
 				.execGenerate(ContextUtils.build().setStreamManager(sm).build());
 		assertTrue(locator.requests.toString(), locator.requests.contains("urn:x-test:f"));
 	}
+
+	/**
+	 * An unknown iterator of SPARQL-Generate is reported with the closest
+	 * known name, ignoring case.
+	 */
+	@Test
+	public void unknownIteratorSuggestsTheClosestName() {
+		for (String name : new String[] { "split", "Splitt", "SPLIT" }) {
+			try {
+				PlanFactory.create("PREFIX iter: <http://w3id.org/sparql-generate/iter/> "
+						+ "GENERATE { <http://ex/s> <http://ex/p> ?i } ITERATOR iter:" + name + "(\"a,b\", \",\") AS ?i")
+						.execGenerate(ContextUtils.build().build());
+				fail("an unknown iterator is an error");
+			} catch (SPARQLExtException ex) {
+				assertTrue(ex.getMessage(),
+						ex.getMessage().endsWith("Did you mean <http://w3id.org/sparql-generate/iter/Split>?"));
+			}
+		}
+	}
+
+	@Test
+	public void suggestions() {
+		java.util.List<String> known = java.util.Arrays.asList("http://w3id.org/sparql-generate/iter/JSONPath",
+				"http://w3id.org/sparql-generate/iter/JSONListKeys", "http://w3id.org/sparql-generate/fn/JSONPath",
+				"http://w3id.org/sparql-generate/iter/CSV");
+		assertEquals(" Did you mean <http://w3id.org/sparql-generate/iter/JSONPath>?", fr.mines_stetienne.ci.sparql_generate.function.Suggestions
+				.didYouMean("http://w3id.org/sparql-generate/iter/JSONpath", known.iterator()));
+		assertEquals(" Did you mean <http://w3id.org/sparql-generate/fn/JSONPath>?", fr.mines_stetienne.ci.sparql_generate.function.Suggestions
+				.didYouMean("http://w3id.org/sparql-generate/fn/JSONPaath", known.iterator()));
+		// too far: no suggestion
+		assertEquals("", fr.mines_stetienne.ci.sparql_generate.function.Suggestions
+				.didYouMean("http://w3id.org/sparql-generate/iter/JSONElement", known.iterator()));
+		assertEquals("", fr.mines_stetienne.ci.sparql_generate.function.Suggestions
+				.didYouMean("http://w3id.org/sparql-generate/iter/XML", known.iterator()));
+	}
 }

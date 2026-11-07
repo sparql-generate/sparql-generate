@@ -17,6 +17,7 @@ package fr.mines_stetienne.ci.sparql_generate.iterator;
 
 import fr.mines_stetienne.ci.sparql_generate.SPARQLExt;
 import fr.mines_stetienne.ci.sparql_generate.function.SPARQLExtFunctionRegistry;
+import fr.mines_stetienne.ci.sparql_generate.function.Suggestions;
 import fr.mines_stetienne.ci.sparql_generate.query.SPARQLExtQuery;
 import fr.mines_stetienne.ci.sparql_generate.stream.LookUpRequest;
 import fr.mines_stetienne.ci.sparql_generate.stream.SPARQLExtStreamManager;
@@ -160,7 +161,7 @@ public class IteratorFunctionRegistry // extends HashMap<String, Iterator>
 			return null;
 		}
 		if (SPARQLExtFunctionRegistry.isBuiltInNamespace(uri)) {
-			LOG.warn(String.format("Unknown iterator %s", uri));
+			LOG.warn(String.format("Unknown iterator %s.%s", uri, Suggestions.didYouMean(uri, registry.keySet().iterator())));
 			failedAttempts.add(uri);
 			return null;
 		}

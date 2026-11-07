@@ -127,7 +127,7 @@ public class SPARQLExtFunctionRegistry extends FunctionRegistry {
             return registry.get(uri);
         }
         if (isBuiltInNamespace(uri)) {
-            LOG.warn(String.format("Unknown function %s", uri));
+            LOG.warn(String.format("Unknown function %s.%s", uri, Suggestions.didYouMean(uri, registry.keySet().iterator())));
             attemptedLoads.add(uri);
             return null;
         }
