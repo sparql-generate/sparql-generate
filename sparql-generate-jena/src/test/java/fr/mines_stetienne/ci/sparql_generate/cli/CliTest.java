@@ -146,4 +146,14 @@ public class CliTest {
 		Result result = run("SELECT * WHERE { BIND(1 AS ?x) }", "--hdt", "-o", "out.hdt");
 		assertTrue(result.err, result.exitCode != 0);
 	}
+
+	@Test
+	public void hdtOutput() throws Exception {
+		Result result = run(QUERY, "--hdt", "-o", "out.hdt");
+		assertEquals(result.err, 0, result.exitCode);
+		File hdtFile = new File(folder.getRoot(), "out.hdt");
+		try (org.rdfhdt.hdt.hdt.HDT hdt = org.rdfhdt.hdt.hdt.HDTManager.loadHDT(hdtFile.getAbsolutePath(), null)) {
+			assertEquals(2, hdt.getTriples().getNumberOfElements());
+		}
+	}
 }

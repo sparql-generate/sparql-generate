@@ -32,7 +32,7 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-reload4j</artifactId>
-            <version>2.0.17</version>
+            <version>2.0.18</version>
         </dependency>
         <dependency>
             <groupId>ch.qos.reload4j</groupId>
@@ -65,7 +65,7 @@
         <dependency>
             <groupId>org.rdfhdt</groupId>
             <artifactId>hdt-java-core</artifactId>
-            <version>1.1</version>
+            <version>3.0.10</version>
             <exclusions>
                 <exclusion>
                     <groupId>junit</groupId>
@@ -76,6 +76,18 @@
 					<artifactId>commons-compress</artifactId>
 				</exclusion>
             </exclusions>
+        </dependency>
+        <!-- jena-base at the version of Jena, not the one of hdt-java-core -->
+        <dependency>
+            <groupId>org.apache.jena</groupId>
+            <artifactId>jena-base</artifactId>
+            <version>${jena.version}</version>
+        </dependency>
+        <!-- overrides commons-io 2.11.0, which some dependency brings and which has a vulnerability -->
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.22.0</version>
         </dependency>
     </dependencies>
 
