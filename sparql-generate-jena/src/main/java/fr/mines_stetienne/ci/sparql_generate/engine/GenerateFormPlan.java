@@ -109,13 +109,19 @@ public class GenerateFormPlan implements GeneratePlan {
             final StringBuilder sb,
             final StreamRDF outputStream,
             final Triple t) {
-        if (t.isConcrete()) {
+        // as in CONSTRUCT, a triple that is not valid RDF is not output
+        if (t.isConcrete() && isValid(t)) {
             if (LOG.isTraceEnabled()) {
                 Triple t2 = LogUtils.compress(t);
                 sb.append("\n  ").append(t2);
             }
             outputStream.triple(t);
         }
+    }
+
+    private static boolean isValid(final Triple t) {
+        final Node s = t.getSubject();
+        return (s.isURI() || s.isBlank() || s.isTripleTerm()) && t.getPredicate().isURI();
     }
 
     private void substAndOutputForList(
