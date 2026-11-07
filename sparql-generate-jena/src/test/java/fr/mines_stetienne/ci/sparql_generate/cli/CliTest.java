@@ -142,6 +142,27 @@ public class CliTest {
 		assertTrue(result.exitCode != 0);
 	}
 
+	private static final String MISSING_SOURCE = "BASE <http://example.org/> "
+			+ "GENERATE { <http://ex/s> <http://ex/p> 1 . <http://ex/s> <http://ex/doc> ?d } SOURCE <missing.txt> AS ?d";
+
+	/**
+	 * A missing document is a warning by default.
+	 */
+	@Test
+	public void missingDocumentIsAWarning() throws Exception {
+		Result result = run(MISSING_SOURCE, "-b", "http://example.org/");
+		assertEquals(result.err, 0, result.exitCode);
+		assertTrue(result.err, result.err.contains("missing.txt"));
+		assertTrue(result.out, result.out.contains("http://ex/p"));
+	}
+
+	@Test
+	public void missingDocumentFailsWithOption() throws Exception {
+		Result result = run(MISSING_SOURCE, "-b", "http://example.org/", "--fail-on-missing");
+		assertEquals(result.err, 1, result.exitCode);
+		assertTrue(result.err, result.err.contains("Document not found: http://example.org/missing.txt"));
+	}
+
 	/**
 	 * An error during the execution gives a non-zero exit status, so that
 	 * scripts and continuous integration see it.

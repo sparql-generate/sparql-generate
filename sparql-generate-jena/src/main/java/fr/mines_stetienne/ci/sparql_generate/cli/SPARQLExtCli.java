@@ -93,6 +93,7 @@ import fr.mines_stetienne.ci.sparql_generate.SPARQLExtException;
 import fr.mines_stetienne.ci.sparql_generate.engine.PlanFactory;
 import fr.mines_stetienne.ci.sparql_generate.engine.RootPlan;
 import fr.mines_stetienne.ci.sparql_generate.query.SPARQLExtQuery;
+import fr.mines_stetienne.ci.sparql_generate.stream.DocumentNotFoundException;
 import fr.mines_stetienne.ci.sparql_generate.stream.LocationMapperAccept;
 import fr.mines_stetienne.ci.sparql_generate.stream.LocatorFileAccept;
 import fr.mines_stetienne.ci.sparql_generate.stream.LookUpRequest;
@@ -175,7 +176,12 @@ public class SPARQLExtCli {
 
 		} catch (Exception ex) {
 			// a non-zero exit status, for scripts and continuous integration
-			LOG.error(ex.getMessage(), ex);
+			final DocumentNotFoundException notFound = DocumentNotFoundException.findIn(ex);
+			if (notFound != null) {
+				LOG.error(notFound.getMessage());
+			} else {
+				LOG.error(ex.getMessage(), ex);
+			}
 			System.exit(1);
 		}
 	}
@@ -461,6 +467,7 @@ public class SPARQLExtCli {
 		LocationMapperAccept mapper = new LocationMapperAccept();
 		SPARQLExtStreamManager sm = SPARQLExtStreamManager.makeStreamManager(locator);
 		sm.setLocationMapper(mapper);
+		sm.setFailOnMissingDocument(request.failOnMissing);
 
 		if (request.namedqueries != null) {
 			request.namedqueries.forEach((doc) -> {
@@ -542,6 +549,7 @@ public class SPARQLExtCli {
 		request.stream = cl.hasOption(ARG_STREAM) || request.stream;
 		request.hdt = cl.hasOption(ARG_HDT) || request.hdt;
 		request.debugTemplate = cl.hasOption(ARG_DEBUG_TEMPLATE) || request.debugTemplate;
+		request.failOnMissing = cl.hasOption(CMDConfigurations.ARG_FAIL_ON_MISSING_LONG) || request.failOnMissing;
 		request.logFile = resolve(dirFile, cl.getOptionValue(ARG_LOG_FILE), request.logFile);
 		try {
 			request.logLevelObject = Level.toLevel(cl.getOptionValue(ARG_LOG_LEVEL), LOG_LEVELS[request.getLogLevel()]);
@@ -571,7 +579,7 @@ public class SPARQLExtCli {
 		try {
 			query = IOUtils.toString(sm.open(new LookUpRequest(request.query, SPARQLExt.MEDIA_TYPE)),
 					StandardCharsets.UTF_8);
-		} catch (IOException | NullPointerException ex) {
+		} catch (IOException | NullPointerException | DocumentNotFoundException ex) {
 			throw new RuntimeException(
 					String.format("No file named %s was found in the directory that contains the query to be executed.",
 							request.query),

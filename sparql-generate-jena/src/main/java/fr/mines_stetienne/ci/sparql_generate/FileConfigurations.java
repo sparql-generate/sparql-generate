@@ -152,6 +152,14 @@ public class FileConfigurations {
      */
     public boolean debugTemplate;
 
+    /**
+     * when true, a document, a graph or a query that cannot be found stops
+     * the execution with an error; by default the iterator gives no solution,
+     * the variable of the SOURCE clause is unbound, the graph of the FROM
+     * clause is empty
+     */
+    public boolean failOnMissing;
+
     
     public class NamedQuery {
         public String uri;

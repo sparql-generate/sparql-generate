@@ -32,12 +32,13 @@ The engine looks a document, a named query or a graph up in this order:
 | `-hdt`, `--hdt` | | write a `GENERATE` output as HDT; requires `--output` |
 | `-dt`, `--debug-template` | | in `TEMPLATE` output, insert identifiers that refer to the warnings of the log |
 | `-x`, `--syntax` | | check the syntax of the query and exit |
+| `--fail-on-missing` | | fail when a document, a graph or a named query cannot be found (see below) |
 | `-l`, `--log-level` | level | `TRACE`, `DEBUG`, `INFO`, `WARN` (default), `ERROR` or `OFF`; an unrecognised value gives `WARN` |
 | `-f`, `--log-file` | file | also write the log to this file |
 | `-B` | `name=term` | bind the parameter `?name` to an RDF term, written as in the query, with its prefixes: `-Bn=12`, `-Bs='"a string"@en'`, `-Biri='<http://example.org/>'`, `-Bp=ex:o`; a value that is not an RDF term is an error |
 | `--source` | `iri=iri` | deprecated: replace the IRI of a `SOURCE` clause |
 
-The log goes to the standard error. The exit status is 0 when the query was executed, and 1 when the query is invalid, when its execution or the writing of the output fails, or when the options do not fit the query (such as `--hdt` with a `SELECT` query). A document that cannot be found or parsed is a warning, not a failure: the variables it would bind stay unbound.
+The log goes to the standard error. The exit status is 0 when the query was executed, and 1 when the query is invalid, when its execution or the writing of the output fails, or when the options do not fit the query (such as `--hdt` with a `SELECT` query). A document that cannot be found or parsed is a warning, not a failure: an iterator over it gives no solution, the variable of a `SOURCE` clause stays unbound, and the graph of a `FROM` clause is empty. With `--fail-on-missing`, a document, a graph or a named query that cannot be found stops the execution with status 1 and the message `Document not found: <iri>`.
 
 Levels `DEBUG` and `TRACE` log each solution and each triple: use them to understand a query, not to measure performance.
 
@@ -83,6 +84,7 @@ Levels `DEBUG` and `TRACE` log each solution and each triple: use them to unders
 | `stream` | boolean | `false` | as `--stream` |
 | `hdt` | boolean | `false` | as `--hdt` |
 | `debugTemplate` | boolean | `false` | as `--debug-template` |
+| `failOnMissing` | boolean | `false` | as `--fail-on-missing` |
 | `log` | integer | `2` | 0 `OFF`, 1 `ERROR`, 2 `WARN`, 3 `INFO`, 4 `DEBUG`, 5 `TRACE`; the former key `loglevel` is also read |
 | `logFile` | path | none | as `--log-file`, relative to the working directory |
 

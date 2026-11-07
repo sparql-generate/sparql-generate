@@ -110,8 +110,8 @@ public class SourcePlan extends BindOrSourcePlan {
 		Objects.requireNonNull(sm);
 		try (TypedInputStream stream = sm.open(request)) {
 			if (stream == null) {
-				LOG.info(
-						"Exec SOURCE <" + sourceUri + "> ACCEPT " + acceptHeader + " AS " + var + " returned nothing.");
+				LOG.warn("Could not look up the document of SOURCE <" + sourceUri + "> ACCEPT "
+						+ acceptHeader + " AS " + var + ": the variable is unbound");
 				return parentBinding(binding);
 			}
 			try (InputStream in = stream.getInputStream()) {

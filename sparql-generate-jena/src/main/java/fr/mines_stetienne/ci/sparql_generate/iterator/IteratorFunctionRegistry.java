@@ -167,7 +167,7 @@ public class IteratorFunctionRegistry // extends HashMap<String, Iterator>
 		final LookUpRequest req = new LookUpRequest(uri, "application/vnd.sparql-generate");
 		final SPARQLExtStreamManager sm = (SPARQLExtStreamManager) context.get(SysRIOT.sysStreamManager);
 		Objects.requireNonNull(sm);
-		TypedInputStream tin = sm.open(req);
+		TypedInputStream tin = sm.openOrNull(req);
 		if (tin == null) {
 			LOG.warn(String.format("Could not look up iterator %s", uri));
 			failedAttempts.add(uri);

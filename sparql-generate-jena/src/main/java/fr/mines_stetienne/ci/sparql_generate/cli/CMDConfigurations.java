@@ -148,6 +148,9 @@ public class CMDConfigurations {
 	public static final String ARG_BIND_MAN = "Binds a query parameter to a RDF term, e.g., -Bparam1=<http://example.org/> -Bparam2=12 -Bparam3=\"'a string with spaces'@en\"";
 
 	/** x */
+	public static final String ARG_FAIL_ON_MISSING_LONG = "fail-on-missing";
+	public static final String ARG_FAIL_ON_MISSING_MAN = "Fail if a document, a graph or a query cannot be found. By default, an iterator over a missing document gives no solution, the variable of a SOURCE clause is unbound, and the graph of a FROM clause is empty.";
+
 	public static final String ARG_SYNTAX = "x";
 	/** syntax */
 	public static final String ARG_SYNTAX_LONG = "syntax";
@@ -180,6 +183,7 @@ public class CMDConfigurations {
 				.addOption(ARG_BASE, ARG_BASE_LONG, true, ARG_BASE_MAN)
 				.addOption(ARG_DEBUG_TEMPLATE, ARG_DEBUG_TEMPLATE_LONG, false, ARG_DEBUG_TEMPLATE_MAN)
 				.addOption(ARG_SYNTAX, ARG_SYNTAX_LONG, false, ARG_SYNTAX_MAN)
+				.addOption(Option.builder().longOpt(ARG_FAIL_ON_MISSING_LONG).desc(ARG_FAIL_ON_MISSING_MAN).build())
 				.addOption(sourcesOpt)
 				.addOption(bindingsOpt);
 	}

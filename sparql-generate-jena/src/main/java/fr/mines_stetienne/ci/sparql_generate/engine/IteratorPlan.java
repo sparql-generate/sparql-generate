@@ -15,6 +15,7 @@
  */
 package fr.mines_stetienne.ci.sparql_generate.engine;
 
+import fr.mines_stetienne.ci.sparql_generate.stream.DocumentNotFoundException;
 import fr.mines_stetienne.ci.sparql_generate.utils.ContextUtils;
 import fr.mines_stetienne.ci.sparql_generate.utils.LogUtils;
 import fr.mines_stetienne.ci.sparql_generate.SPARQLExtException;
@@ -127,12 +128,23 @@ public class IteratorPlan implements BindingsClausePlan {
         for (Binding binding : values) {
             try {
             	iterator.exec(binding, exprList, env, (nodeValues) -> batches.add(binding, nodeValues));
+            } catch (DocumentNotFoundException ex) {
+                throw ex;
             } catch (ExprEvalException ex) {
+                // an iterator may wrap the exception of the stream manager
+                final DocumentNotFoundException notFound = DocumentNotFoundException.findIn(ex);
+                if (notFound != null) {
+                    throw notFound;
+                }
                 LOG.debug("No evaluation for " + this + ", caused by " + ex.getMessage());
                 if (ContextUtils.isFailOnException(context)) {
                     throw ex;
                 }
             } catch (Exception ex) {
+                final DocumentNotFoundException notFound = DocumentNotFoundException.findIn(ex);
+                if (notFound != null) {
+                    throw notFound;
+                }
                 LOG.warn("Unanticipated exception for " + toString(), ex);
                 if (ContextUtils.isFailOnException(context)) {
                     throw ex;

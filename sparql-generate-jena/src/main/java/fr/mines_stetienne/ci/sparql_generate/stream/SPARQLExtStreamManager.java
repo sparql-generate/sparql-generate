@@ -33,7 +33,29 @@ public class SPARQLExtStreamManager extends StreamManager {
 
     private static final Logger LOG = LoggerFactory.getLogger(SPARQLExtStreamManager.class);
 
+    private boolean failOnMissingDocument = false;
+
     private SPARQLExtStreamManager() {
+    }
+
+    /**
+     * By default, {@link #open(LookUpRequest)} returns null when no locator
+     * finds the document: the iterator gives no solution, the variable of the
+     * SOURCE clause is unbound, the graph of the FROM clause is empty. If set,
+     * it throws a {@link DocumentNotFoundException} instead, which stops the
+     * execution.
+     *
+     * @param failOnMissingDocument true to fail on a missing document.
+     */
+    public void setFailOnMissingDocument(boolean failOnMissingDocument) {
+        this.failOnMissingDocument = failOnMissingDocument;
+    }
+
+    /**
+     * @return true if a missing document stops the execution.
+     */
+    public boolean isFailOnMissingDocument() {
+        return failOnMissingDocument;
     }
 
     public static SPARQLExtStreamManager makeStreamManager() {
@@ -74,11 +96,25 @@ public class SPARQLExtStreamManager extends StreamManager {
 
     /**
      * Open a file using the locators of this StreamManager. Returns null if not
-     * found.
+     * found, or throws a {@link DocumentNotFoundException} if
+     * {@link #setFailOnMissingDocument(boolean)} is set.
      */
     public TypedInputStream open(LookUpRequest _request) {
         LookUpRequest request = mapRequest(_request);
-        return openNoMapOrNull(request);
+        TypedInputStream in = openNoMapOrNull(request);
+        if (in == null && failOnMissingDocument) {
+            throw new DocumentNotFoundException(_request.getFilenameOrURI());
+        }
+        return in;
+    }
+
+    /**
+     * Open a file using the locators of this StreamManager. Returns null if not
+     * found, whatever {@link #setFailOnMissingDocument(boolean)}: for the
+     * look-ups that may fail, such as that of a function IRI.
+     */
+    public TypedInputStream openOrNull(LookUpRequest _request) {
+        return openNoMapOrNull(mapRequest(_request));
     }
 
     @Deprecated

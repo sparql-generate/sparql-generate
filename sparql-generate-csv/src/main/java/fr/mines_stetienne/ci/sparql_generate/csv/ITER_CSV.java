@@ -17,6 +17,7 @@ package fr.mines_stetienne.ci.sparql_generate.csv;
 
 import fr.mines_stetienne.ci.sparql_generate.SPARQLExt;
 import fr.mines_stetienne.ci.sparql_generate.iterator.IteratorStreamFunctionBase;
+import fr.mines_stetienne.ci.sparql_generate.stream.DocumentNotFoundException;
 import fr.mines_stetienne.ci.sparql_generate.stream.LookUpRequest;
 import fr.mines_stetienne.ci.sparql_generate.stream.SPARQLExtStreamManager;
 import com.univocity.parsers.common.ParsingContext;
@@ -141,7 +142,12 @@ public class ITER_CSV extends IteratorStreamFunctionBase {
             setSelectedColumns(args, parserSettings);
             CsvParser parser = new CsvParser(parserSettings);
             parser.parse(in, StandardCharsets.UTF_8);
-        } catch (ExprEvalException | IOException ex) {
+        } catch (ExprEvalException ex) {
+            // already reported
+            throw ex;
+        } catch (DocumentNotFoundException ex) {
+            throw ex;
+        } catch (IOException ex) {
             LOG.warn("Exception while fetching or parsing CSV document", ex);
             throw new ExprEvalException("No evaluation", ex);
         } catch (Exception ex) {
@@ -251,6 +257,7 @@ public class ITER_CSV extends IteratorStreamFunctionBase {
                     || !args.get(0).isString()
                     || !args.get(1).isString()
                     || !args.get(2).isString()) {
+                LOG.warn("Block of CSV configuration parameters does not conform to the specification. Check out the documentation.");
                 throw new ExprEvalException("Block of CSV configuration parameters does not conform to the specification. Check out the documentation.");
             }
             char quote = args.remove(0).getString().charAt(0);
@@ -272,6 +279,7 @@ public class ITER_CSV extends IteratorStreamFunctionBase {
         if (!args.isEmpty()) {
             if (args.stream().anyMatch(col -> col == null || !col.isString())) {
                 LOG.debug("Columns names must strings, got: " + args);
+                LOG.warn("Columns names must be strings, got: " + args);
                 throw new ExprEvalException("Columns names must be strings, got: " + args);
             }
             parserSettings.selectFields(args.stream().map(NodeValue::asString).toArray(String[]::new));
