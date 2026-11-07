@@ -44,7 +44,9 @@ import org.apache.jena.sparql.syntax.ElementGroup;
  * as {@link E_IRI}. Jena parses and resolves the whole IRI for each solution;
  * this expression resolves the constant first part c0 once, and appends the
  * rest when it can only extend the path of that IRI: characters of a path
- * segment (unreserved, percent-encoded) and slashes, and no dot segment.
+ * segment (unreserved, percent-encoded) and slashes, and no dot segment;
+ * or, after a first part that ends in the query or the fragment, the same
+ * characters.
  * Otherwise it evaluates as {@link E_IRI}. It is written as {@code IRI(...)}.
  */
 public class E_IRITemplate extends E_IRI {
@@ -53,6 +55,12 @@ public class E_IRITemplate extends E_IRI {
      * An absolute IRI with an authority and a path, without query or fragment.
      */
     private static final Pattern WITH_PATH = Pattern.compile("^[A-Za-z][A-Za-z0-9+.-]*://[^/?#]*/[^?#]*$");
+
+    /**
+     * An absolute IRI whose query or fragment has begun: what follows is in it,
+     * where there is no dot segment.
+     */
+    private static final Pattern IN_QUERY_OR_FRAGMENT = Pattern.compile("^[A-Za-z][A-Za-z0-9+.-]*:[^?#]*[?#].*$");
 
     /**
      * The constant first part of the template, or null.
@@ -139,7 +147,7 @@ public class E_IRITemplate extends E_IRI {
         final String s = first.getConstant().getString();
         // a relative part that ends with a dot may be a dot segment, as in "..",
         // and a query or a fragment ends the path
-        if (s.isEmpty() || s.endsWith(".") || s.indexOf('?') >= 0 || s.indexOf('#') >= 0 || s.startsWith("_:")) {
+        if (s.isEmpty() || s.endsWith(".") || s.startsWith("_:")) {
             return null;
         }
         return s;
@@ -184,10 +192,12 @@ public class E_IRITemplate extends E_IRI {
             return null;
         }
         final String rest = s.substring(prefix.length());
+        // in the query or the fragment, there is no dot segment
+        final boolean inPath = resolved.indexOf('?') < 0 && resolved.indexOf('#') < 0;
         char previous = prefix.charAt(prefix.length() - 1);
         for (int i = 0; i < rest.length(); i++) {
             final char c = rest.charAt(i);
-            if (c == '.' && previous == '/') {
+            if (inPath && c == '.' && previous == '/') {
                 // may start a dot segment
                 return null;
             }
@@ -222,7 +232,8 @@ public class E_IRITemplate extends E_IRI {
         try {
             // as E_IRI does, with the base of the query
             resolved = NodeFunctions.iri(NodeValue.makeString(prefix), base).asNode().getURI();
-            if (resolved == null || !WITH_PATH.matcher(resolved).matches()) {
+            final boolean prefixInPath = prefix.indexOf('?') < 0 && prefix.indexOf('#') < 0;
+            if (resolved == null || !(prefixInPath ? WITH_PATH : IN_QUERY_OR_FRAGMENT).matcher(resolved).matches()) {
                 resolved = null;
             }
         } catch (RuntimeException ex) {

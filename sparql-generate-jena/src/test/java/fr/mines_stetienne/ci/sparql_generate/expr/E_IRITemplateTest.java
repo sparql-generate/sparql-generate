@@ -36,9 +36,10 @@ public class E_IRITemplateTest {
 
 	private static final String[] PREFIXES = { "http://ex.org/stop/", "http://ex.org/stop", "stop/", "stop", "../x/",
 			"/root/", "..", "a/.", "http://ex.org", "http://ex.org/q?x=", "http://ex.org/f#", "urn:x:", "_:b",
-			"HTTP://EX.ORG/A/", "http://ex.org/a b/" };
+			"HTTP://EX.ORG/A/", "http://ex.org/a b/", "http://www.w3.org/1999/02/22-rdf-syntax-ns#_", "#_", "?q=",
+			"http://ex.org/a/../b?x=", "http://ex.org/p#a#", "urn:x:y#", "http://ex.org/x?y#z/", "a/../b#" };
 
-	private static final String[] RESTS = { "", "12", "a%20b", "a/b", "..", ".", "./x", "/../x", "x/..", ".hidden",
+	private static final String[] RESTS = { "", "12", "a%20b", "a/b", "..", ".", "./x", "/../x", "x/..", ".hidden", "/./",
 			"12.5", "%zz", "%2", "a b", "é", "?q", "#f", "//x", "~-_" };
 
 	private static String eval(Expr expr, String base) {
