@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<search>
+  <total_items>2</total_items>
+  <events>
+    <event id="E0-001-201">
+      <title>Escarpment Trail Hike</title>
+      <description>&lt;p&gt;A guided walk on the Bruce Trail.&lt;/p&gt;</description>
+      <start_time>2018-05-26 10:00:00</start_time>
+    </event>
+    <event id="E0-001-202">
+      <title>Hamilton Open Streets</title>
+      <description>&lt;p&gt;The main street is closed to cars for the day.&lt;/p&gt;</description>
+      <start_time>2018-05-27 11:00:00</start_time>
+    </event>
+  </events>
+</search>

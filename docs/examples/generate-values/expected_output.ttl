@@ -1,0 +1,9 @@
+PREFIX schema: <http://schema.org/>
+
+<http://example.org/person/1>
+        a            schema:Person;
+        schema:name  "Ada Lovelace" .
+
+<http://example.org/person/2>
+        a            schema:Person;
+        schema:name  "Alan Turing" .

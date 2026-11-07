@@ -22,7 +22,7 @@ GENERATE {
   ex:pollution ?aqi . 
 
   GENERATE <https://ci.mines-stetienne.fr/sparql-generate/tutorial/events>( ?loc, ?lat, ?long ) 
-  BIND(<http://example.org/loc/{?idx}> AS ?loc ).
+  BIND(<loc/{?idx}> AS ?loc ).
   
 }
 ITERATOR iter:for(0,1,8) AS ?index

@@ -1,0 +1,11 @@
+PREFIX iter:   <http://w3id.org/sparql-generate/iter/>
+PREFIX schema: <http://schema.org/>
+PREFIX xsd:    <http://www.w3.org/2001/XMLSchema#>
+
+<http://example.org/country/GB>
+        schema:earliestBirthDate  "1815-12-10"^^xsd:date;
+        schema:numberOfPeople     2 .
+
+<http://example.org/country/US>
+        schema:earliestBirthDate  "1906-12-09"^^xsd:date;
+        schema:numberOfPeople     1 .

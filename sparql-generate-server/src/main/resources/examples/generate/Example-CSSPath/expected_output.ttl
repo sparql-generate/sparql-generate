@@ -1,0 +1,11 @@
+PREFIX ex:   <http://example.com/>
+PREFIX fun:  <http://w3id.org/sparql-generate/fn/>
+PREFIX ite:  <http://w3id.org/sparql-generate/iter/>
+PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+[ rdf:type    ex:HTMLPage;
+  ex:infobox  "Paradigm Query language Developer W3C First appeared 2008 Stable release 1.1 (2013)"^^rdf:HTML;
+  ex:title    "SPARQL";
+  ex:url      "https://example.org/wiki/SPARQL"
+] .

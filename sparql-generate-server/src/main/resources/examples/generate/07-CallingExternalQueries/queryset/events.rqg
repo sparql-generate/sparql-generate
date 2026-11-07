@@ -21,7 +21,7 @@ GENERATE <events>(?near, ?lat, ?long) {
     rdfs:label ?title;
     rdfs:comment "{?desc}"^^rdf:HTML .
 }
-ITERATOR iter:XPath(<http://api.eventful.com/rest/events/search?app_key=9p3bTRHL2NTzVgxG&location={STR(?lat)},{STR(?long)}&within=20>,"/search/events/event", "/event/@id", "/event/title/text()", "/event/description/text()", "/event/start_time/text()") AS ?event ?eid ?title ?desc ?eventDate 
+ITERATOR iter:XPath(<https://example.org/events/search?location={STR(?lat)},{STR(?long)}&within=20>,"/search/events/event", "/event/@id", "/event/title/text()", "/event/description/text()", "/event/start_time/text()") AS ?event ?eid ?title ?desc ?eventDate 
 BIND("{ REPLACE( ?eventDate, " ", "T") }"^^xsd:dateTime AS  ?date)
 ORDER BY ?eventDate
 LIMIT 3

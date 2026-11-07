@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pygments-sparql-generate"
+version = "0.1.0"
+description = "Pygments lexer for SPARQL-Generate (.rqg): SPARQL 1.1 plus templates, iterators and sources."
+license = { text = "Apache-2.0" }
+authors = [{ name = "Maxime Lefrançois" }]
+requires-python = ">=3.8"
+dependencies = ["Pygments>=2.12"]
+keywords = ["pygments", "lexer", "sparql", "sparql-generate", "rdf", "minted", "syntax-highlighting"]
+classifiers = [
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Topic :: Text Processing :: Filters",
+]
+
+[project.urls]
+Homepage = "https://github.com/sparql-generate/highlight-sparql-generate"
+Language = "https://ci.mines-stetienne.fr/sparql-generate/"
+
+# `pygmentize -l sparql-generate`, minted's \begin{minted}{sparql-generate},
+# MkDocs (pymdownx.highlight) and Sphinx all find the lexer through this.
+[project.entry-points."pygments.lexers"]
+sparql-generate = "pygments_sparql_generate.lexer:SparqlGenerateLexer"
+
+[project.optional-dependencies]
+test = ["pytest"]
+
+[tool.setuptools]
+packages = ["pygments_sparql_generate"]

@@ -1,0 +1,6 @@
+<p>A <tt>FUNCTION</tt> query defines a SPARQL function in SPARQL-Generate. Its IRI is the name of the function, its signature lists the parameters, and its body is one expression:</p>
+<div class="source">
+<pre>FUNCTION &lt;function_iri&gt; ( ?param1, ?param2 ) { expression }</pre>
+</div>
+<p>The named query <tt>tuto:aqiLevel</tt> of this example maps an air quality index to a level. The main query calls it like any SPARQL function: when the engine meets an unknown function IRI, it looks up a <tt>FUNCTION</tt> query at that IRI, here in the queryset of the playground.</p>
+<p>An error in the body of the function, for example an unbound argument (station <tt>3</tt> reports no index), leaves the variable of the <tt>BIND</tt> unbound, as for any SPARQL function.</p>

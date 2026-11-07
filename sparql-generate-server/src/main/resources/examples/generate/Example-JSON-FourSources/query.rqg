@@ -20,7 +20,7 @@ ITERATOR iter:JSONListKeys( ?countryNames ) AS ?countryCode
 WHERE {
     BIND( fun:JSONPath( ?countryNames, "$.{?countryCode}" ) AS ?countryName )
     BIND( fun:JSONPath( ?continents, "$.{?countryCode}" ) AS ?continentCode)
-    BIND( fun:JSONPath( ?continentNames, "$.{?countryCode}" ) AS ?continentName)
+    BIND( fun:JSONPath( ?continentNames, "$.{?continentCode}" ) AS ?continentName)
     BIND( xsd:decimal(fun:JSONPath( ?countriesPopulation, "$[?(@.country=='{?countryName}')].population" )) AS ?countryPopulation )
 } 
 ORDER BY DESC(?countryPopulation) 

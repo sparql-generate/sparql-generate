@@ -1,0 +1,16 @@
+{
+  "documentset": [
+    {
+      "uri": "http://example.org/people.csv",
+      "mediatype": "text/csv",
+      "path": "documentset/people.csv"
+    }
+  ],
+  "namedqueries": [
+    {
+      "uri": "http://example.org/query/people-from",
+      "mediatype": "application/vnd.sparql-generate",
+      "path": "queryset/people-from.rqg"
+    }
+  ]
+}

@@ -1,0 +1,5 @@
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+FUNCTION <https://ci.mines-stetienne.fr/sparql-generate/tutorial/aqiLevel> ( ?aqi ) {
+  IF( ?aqi <= 50 , "good" , IF( ?aqi <= 100 , "moderate" , "unhealthy" ) )
+}

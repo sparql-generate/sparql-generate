@@ -1,0 +1,10 @@
+PREFIX iter: <http://w3id.org/sparql-generate/iter/>
+PREFIX schema: <http://schema.org/>
+BASE <http://example.org/>
+
+GENERATE {
+  <book/{?isbn}> a schema:Book ;
+    schema:name ?title ;
+    schema:author ?author .
+}
+ITERATOR iter:XPath(<http://example.org/books.xml>, "/library/book", "/book/@isbn", "/book/title/text()", "/book/author/text()") AS ?book ?isbn ?title ?author

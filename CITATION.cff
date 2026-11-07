@@ -1,0 +1,45 @@
+cff-version: 1.2.0
+message: "If you use SPARQL-Generate, please cite the ESWC 2017 paper below."
+title: "SPARQL-Generate"
+abstract: "An extension of SPARQL 1.1 to generate RDF or text from RDF datasets and from documents in heterogeneous formats, and its implementation on Apache Jena."
+type: software
+license: Apache-2.0
+repository-code: "https://github.com/sparql-generate/sparql-generate"
+url: "https://sparql-generate.readthedocs.io/"
+authors:
+  - family-names: "Lefrançois"
+    given-names: "Maxime"
+    affiliation: "Mines Saint-Étienne"
+  - family-names: "Zimmermann"
+    given-names: "Antoine"
+    affiliation: "Mines Saint-Étienne"
+  - family-names: "Bakerally"
+    given-names: "Noorani"
+keywords:
+  - SPARQL
+  - RDF
+  - knowledge graph construction
+  - Apache Jena
+preferred-citation:
+  type: conference-paper
+  title: "A SPARQL Extension for Generating RDF from Heterogeneous Formats"
+  authors:
+    - family-names: "Lefrançois"
+      given-names: "Maxime"
+    - family-names: "Zimmermann"
+      given-names: "Antoine"
+    - family-names: "Bakerally"
+      given-names: "Noorani"
+  collection-title: "The Semantic Web. ESWC 2017"
+  collection-type: proceedings
+  conference:
+    name: "Extended Semantic Web Conference (ESWC 2017)"
+    city: "Portorož"
+    country: "SI"
+  publisher:
+    name: "Springer"
+  volume: 10249
+  start: 35
+  end: 50
+  year: 2017
+  doi: "10.1007/978-3-319-58068-5_3"

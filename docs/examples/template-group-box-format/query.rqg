@@ -1,0 +1,13 @@
+PREFIX iter: <http://w3id.org/sparql-generate/iter/>
+
+TEMPLATE {
+  "# " ?country
+  BOX {
+    GROUP { "\n" FORMAT { "- %s, born %s" ?name ?born } ; separator = "" }
+  }
+  ; separator = "\n\n"
+}
+ITERATOR iter:CSV(<http://example.org/people.csv>, "name", "born", "country") AS ?name ?born ?country
+WHERE { }
+GROUP BY ?country
+ORDER BY ?country

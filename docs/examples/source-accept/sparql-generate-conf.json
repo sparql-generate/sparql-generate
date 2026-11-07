@@ -1,0 +1,14 @@
+{
+  "documentset": [
+    {
+      "uri": "http://example.org/people",
+      "mediatype": "application/json",
+      "path": "documentset/people.json"
+    },
+    {
+      "uri": "http://example.org/people",
+      "mediatype": "text/csv",
+      "path": "documentset/people.csv"
+    }
+  ]
+}

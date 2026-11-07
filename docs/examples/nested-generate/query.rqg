@@ -1,0 +1,16 @@
+PREFIX iter: <http://w3id.org/sparql-generate/iter/>
+PREFIX schema: <http://schema.org/>
+BASE <http://example.org/>
+
+GENERATE {
+  <person/{?id}> a schema:Person ;
+    schema:name ?name .
+
+  GENERATE {
+    <person/{?id}> schema:knowsAbout <skill/{ ENCODE_FOR_URI(?skill) }> .
+    <skill/{ ENCODE_FOR_URI(?skill) }> schema:name ?skill .
+  }
+  ITERATOR iter:JSONPath(?person, "$.skills[*]") AS ?skill .
+}
+SOURCE <http://example.org/people.json> AS ?people
+ITERATOR iter:JSONPath(?people, "$.people[*]", "$.id", "$.name") AS ?person ?id ?name

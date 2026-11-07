@@ -42,3 +42,8 @@ make.sh
 *.out
 
 bin
+# MkDocs build output
+/site/
+
+# Python bytecode
+__pycache__/

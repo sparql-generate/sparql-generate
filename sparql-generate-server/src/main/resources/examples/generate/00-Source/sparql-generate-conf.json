@@ -1,3 +1,10 @@
 {
+  "documentset": [
+    {
+      "uri": "https://ci.mines-stetienne.fr/aqi/static/station/1",
+      "mediatype": "application/json",
+      "path": "documentset/station1.txt"
+    }
+  ],
   "loglevel": 5
 }

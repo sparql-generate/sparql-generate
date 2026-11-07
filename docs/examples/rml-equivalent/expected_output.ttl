@@ -1,0 +1,13 @@
+PREFIX ex:   <http://example.com/>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+PREFIX iter: <http://w3id.org/sparql-generate/iter/>
+
+<http://example.com/student/10>
+        a             foaf:Person;
+        ex:practises  <http://example.com/sport/Tennis>;
+        foaf:name     "Venus Williams" .
+
+<http://example.com/student/20>
+        a             foaf:Person;
+        ex:practises  <http://example.com/sport/Football>;
+        foaf:name     "Demi Moore" .

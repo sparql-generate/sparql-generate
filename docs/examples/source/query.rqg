@@ -1,0 +1,13 @@
+PREFIX fun: <http://w3id.org/sparql-generate/fn/>
+PREFIX schema: <http://schema.org/>
+BASE <http://example.org/>
+
+GENERATE {
+  <dataset> schema:name ?title ;
+    schema:size ?size .
+}
+SOURCE <http://example.org/people.json> AS ?people
+WHERE {
+  BIND("People of computing" AS ?title)
+  BIND(fun:JSONPath(?people, "$.people.length()") AS ?size)
+}

@@ -1,0 +1,10 @@
+PREFIX iter:   <http://w3id.org/sparql-generate/iter/>
+PREFIX schema: <http://schema.org/>
+
+<http://example.org/country/GB>
+        schema:description     "Born in GB: 2";
+        schema:numberOfPeople  2 .
+
+<http://example.org/country/US>
+        schema:description     "Born in US: 1";
+        schema:numberOfPeople  1 .

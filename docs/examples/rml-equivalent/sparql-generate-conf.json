@@ -1,0 +1,9 @@
+{
+  "documentset": [
+    {
+      "uri": "http://example.com/student.csv",
+      "mediatype": "text/csv",
+      "path": "documentset/student.csv"
+    }
+  ]
+}

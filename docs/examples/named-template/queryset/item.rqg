@@ -1,0 +1,4 @@
+TEMPLATE <http://example.org/query/item> (?label, ?code) {
+  "\n  <li>{ ?label } ({ ?code })</li>"
+}
+WHERE { }

@@ -1,0 +1,8 @@
+PREFIX iter:   <http://w3id.org/sparql-generate/iter/>
+PREFIX schema: <http://schema.org/>
+
+<http://example.org/person/1>
+        schema:colleague  <http://example.org/person/2> .
+
+<http://example.org/person/2>
+        schema:colleague  <http://example.org/person/1> .

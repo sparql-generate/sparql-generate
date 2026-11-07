@@ -1,0 +1,25 @@
+PREFIX aqio: <https://ci.mines-stetienne.fr/aqi/ontology#>
+PREFIX fun:  <http://w3id.org/sparql-generate/fn/>
+PREFIX geo:  <http://www.w3.org/2003/01/geo/wgs84_pos#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX sosa: <http://www.w3.org/ns/sosa/>
+PREFIX ssn:  <http://purl.oclc.org/NET/ssnx/ssn#>
+PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+
+<https://ci.mines-stetienne.fr/aqi/data/0/observations/1527156000#aqi>
+        a                          aqio:AirQualityIndexObservation;
+        sosa:hasFeatureOfInterest  <https://ci.mines-stetienne.fr/aqi/data/loc/0>;
+        sosa:hasSimpleResult       53;
+        sosa:observedProperty      <https://ci.mines-stetienne.fr/aqi/data/loc/0#aqi>;
+        sosa:resultTime            "2018-05-24T10:00:00-05:00"^^xsd:dateTime .
+
+<https://ci.mines-stetienne.fr/aqi/data/loc/0>
+        a             sosa:FeatureOfInterest;
+        rdfs:label    "Barrie, Ontario";
+        rdfs:seeAlso  <http://aqicn.org/city/canada/ontario/barrie/>;
+        geo:lat       44.382361;
+        geo:long      -79.702306 .
+
+<https://ci.mines-stetienne.fr/aqi/data/loc/0#aqi>
+        a                 aqio:AirQualityIndexProperty;
+        ssn:isPropertyOf  <https://ci.mines-stetienne.fr/aqi/data/loc/0> .

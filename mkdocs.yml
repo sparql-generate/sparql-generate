@@ -1,0 +1,104 @@
+site_name: SPARQL-Generate
+site_description: SPARQL-Generate extends SPARQL 1.1 to generate RDF or text from RDF datasets and from documents in heterogeneous formats.
+site_url: https://sparql-generate.readthedocs.io/
+repo_url: https://github.com/sparql-generate/sparql-generate
+repo_name: sparql-generate/sparql-generate
+edit_uri: edit/master/docs/
+copyright: Copyright &copy; 2016-2026 MINES Saint-Étienne. Apache License 2.0.
+
+docs_dir: docs
+exclude_docs: |
+  _ext/
+  examples/
+  hooks/
+  scripts/
+  requirements.txt
+
+theme:
+  name: material
+  logo: assets/logo.png
+  favicon: assets/logo.png
+  features:
+    - content.code.copy
+    - content.tabs.link
+    - navigation.footer
+    - navigation.indexes
+    - navigation.sections
+    - navigation.top
+    - search.highlight
+    - toc.follow
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: deep purple
+      accent: deep purple
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: deep purple
+      accent: deep purple
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+hooks:
+  - docs/hooks/reference.py
+  - docs/hooks/examples.py
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.highlight
+  - pymdownx.inlinehilite
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+
+validation:
+  omitted_files: warn
+  absolute_links: warn
+  unrecognized_links: warn
+  anchors: warn
+
+nav:
+  - Home: index.md
+  - Getting started: getting-started.md
+  - Tutorial: tutorial.md
+  - Language guide:
+      - language/index.md
+      - GENERATE: language/generate.md
+      - Sources and iterators: language/sources-and-iterators.md
+      - SELECT: language/select.md
+      - TEMPLATE: language/template.md
+      - FUNCTION: language/function.md
+  - Reference:
+      - reference/index.md
+      - Functions: reference/functions.md
+      - Iterators: reference/iterators.md
+      - Grammar: reference/grammar.md
+      - Media type: reference/media-type.md
+  - Tools:
+      - Command line: cli.md
+      - Java API: java-api.md
+      - Python API: python-api.md
+      - Web API: web-api.md
+      - VS Code extension: vscode.md
+  - Comparisons:
+      - From RML: rml.md
+      - Compared to SPARQL Anything: sparql-anything.md
+  - Changelog: changelog.md
+  - Publications: publications.md
+  - Archive:
+      - archive/index.md
+      - Java API 1.x: archive/get-started-1-x.md
+      - Evaluation of 2017: archive/evaluation-2017.md
+      - Sublime Text package: archive/sublime.md

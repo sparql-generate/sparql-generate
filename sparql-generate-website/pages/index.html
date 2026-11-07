@@ -1,0 +1,67 @@
+<!-- {"title": "SPARQL-Generate", "active": "index", "description": "SPARQL-Generate extends SPARQL 1.1 to generate RDF or text from RDF datasets and from documents in heterogeneous formats."} -->
+    <main class="page">
+      <h1>SPARQL-Generate</h1>
+      <p class="lead">An extension of SPARQL 1.1 to generate RDF or text from RDF datasets and from documents in heterogeneous formats: JSON, CSV, XML, HTML, GeoJSON, CBOR, SQL databases, plain text, and streams from MQTT, WebSocket or repeated HTTP requests.</p>
+
+      <div class="actions">
+        <a class="button primary" href="playground.html">Open the playground</a>
+        <a class="button" href="{{docs}}">Read the documentation</a>
+        <a class="button" href="https://github.com/sparql-generate/sparql-generate/releases">Download the engine</a>
+      </div>
+
+<pre><code>PREFIX iter: &lt;http://w3id.org/sparql-generate/iter/&gt;
+PREFIX schema: &lt;http://schema.org/&gt;
+BASE &lt;http://example.org/&gt;
+
+GENERATE {
+  &lt;person/{?id}&gt; a schema:Person ;
+    schema:name ?name .
+}
+ITERATOR iter:CSV(&lt;people.csv&gt;, "id", "name") AS ?id ?name</code></pre>
+
+      <div class="grid">
+        <section>
+          <h2>The language</h2>
+          <ul>
+            <li>SPARQL 1.1 queries are SPARQL-Generate queries.</li>
+            <li><code>GENERATE</code> outputs RDF, <code>TEMPLATE</code> outputs text, <code>SELECT</code> outputs solutions, <code>FUNCTION</code> defines functions.</li>
+            <li><code>SOURCE</code> and <code>ITERATOR</code> bind variables to documents and to their parts.</li>
+            <li>Expressions in IRIs and literals: <code>&lt;person/{?id}&gt;</code>.</li>
+            <li>Named queries with parameters, called from other queries.</li>
+          </ul>
+        </section>
+        <section>
+          <h2>Use it</h2>
+          <ul>
+            <li>in the <a href="playground.html">playground</a>, with a step-by-step <a href="{{docs}}tutorial/">tutorial</a>;</li>
+            <li>with the <a href="{{docs}}cli/">executable JAR</a> (Java 17);</li>
+            <li>as a <a href="{{docs}}java-api/">Java library</a> on Apache Jena, from Maven Central;</li>
+            <li>in <a href="{{docs}}vscode/">Visual Studio Code</a>.</li>
+          </ul>
+        </section>
+      </div>
+
+      <h2>Publications</h2>
+      <ul>
+        <li>Maxime Lefrançois, Antoine Zimmermann, Noorani Bakerally. <em>A SPARQL Extension for Generating RDF from Heterogeneous Formats</em>. ESWC 2017, LNCS 10249, pp. 35-50. <a href="https://doi.org/10.1007/978-3-319-58068-5_3">doi:10.1007/978-3-319-58068-5_3</a>, <a href="http://www.maxime-lefrancois.info/docs/LefrancoisZimmermannBakerally-ESWC2017-Generate.pdf">PDF</a>, <a href="LefrancoisZimmermannBakerally-ESWC2017-SPARQL.bib">BibTeX</a>.</li>
+        <li>Maxime Lefrançois, Antoine Zimmermann, Noorani Bakerally. <em>Flexible RDF Generation from RDF and Heterogeneous Data Sources with SPARQL-Generate</em>. EKAW 2016 Satellite Events, LNCS 10180, pp. 131-135. <a href="https://doi.org/10.1007/978-3-319-58694-6_16">doi:10.1007/978-3-319-58694-6_16</a>, <a href="http://www.maxime-lefrancois.info/docs/LefrancoisZimmermannBakerally-EKAW2016-Flexible.pdf">PDF</a>, <a href="LefrancoisZimmermannBakerally-EKAW2016-Flexible.bib">BibTeX</a>.</li>
+        <li>Maxime Lefrançois, Antoine Zimmermann, Noorani Bakerally. <em>Génération de RDF à partir de sources de données aux formats hétérogènes</em>. EGC 2017. <a href="http://www.maxime-lefrancois.info/docs/LefrancoisZimmermannBakerally-EGC2017-Generation.pdf">PDF</a>, <a href="LefrancoisZimmermannBakerally-EGC2017-Generation.bib">BibTeX</a>.</li>
+      </ul>
+
+      <div class="grid">
+        <section>
+          <h2>Team</h2>
+          <ul>
+            <li><a href="https://maxime-lefrancois.info/">Maxime Lefrançois</a> (lead), MINES Saint-Étienne</li>
+            <li><a href="https://www.emse.fr/~zimmermann/">Antoine Zimmermann</a>, MINES Saint-Étienne</li>
+            <li>Mohammad-Noorani Bakerally</li>
+            <li>El Mehdi Khalfi</li>
+            <li>Omar Qawasmeh</li>
+          </ul>
+        </section>
+        <section>
+          <h2>Acknowledgments</h2>
+          <p>This work has been partly funded by the ITEA2 12004 SEAS project, the ANR 14-CE24-0029 OpenSensingCity project, ETSI STF 578, bilateral research contracts with ENGIE R&amp;D CRIGEN, the ANR 19-CE23-0012 CoSWoT project, and the ANR HyperAgents project.</p>
+        </section>
+      </div>
+    </main>

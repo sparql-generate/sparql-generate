@@ -1,0 +1,15 @@
+PREFIX iter: <http://w3id.org/sparql-generate/iter/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX schema: <http://schema.org/>
+BASE <http://example.org/>
+
+GENERATE {
+  <person/{?id}> a schema:Person ;
+    schema:name ?name ;
+    schema:birthDate ?birthDate .
+}
+SOURCE <http://example.org/people.json> AS ?people
+ITERATOR iter:JSONPath(?people, "$.people[*]", "$.id", "$.name", "$.born") AS ?person ?id ?name ?born
+WHERE {
+  BIND(xsd:date(?born) AS ?birthDate)
+}

@@ -1,0 +1,12 @@
+PREFIX iter:   <http://w3id.org/sparql-generate/iter/>
+PREFIX schema: <http://schema.org/>
+
+<http://example.org/book/9780201896831>
+        a              schema:Book;
+        schema:author  "Donald Knuth";
+        schema:name    "The Art of Computer Programming" .
+
+<http://example.org/book/9780262510875>
+        a              schema:Book;
+        schema:author  "Harold Abelson";
+        schema:name    "Structure and Interpretation of Computer Programs" .

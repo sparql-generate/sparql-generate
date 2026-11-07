@@ -1,0 +1,11 @@
+PREFIX iter: <http://w3id.org/sparql-generate/iter/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX schema: <http://schema.org/>
+BASE <http://example.org/>
+
+GENERATE {
+  <country/{?country}> schema:numberOfPeople ?{ COUNT(?id) } ;
+    schema:earliestBirthDate ?{ MIN(xsd:date(?born)) } .
+}
+ITERATOR iter:CSV(<http://example.org/people.csv>, "id", "born", "country") AS ?id ?born ?country
+GROUP BY ?country

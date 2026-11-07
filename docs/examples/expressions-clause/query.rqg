@@ -1,0 +1,11 @@
+PREFIX iter: <http://w3id.org/sparql-generate/iter/>
+PREFIX schema: <http://schema.org/>
+BASE <http://example.org/>
+
+GENERATE {
+  <country/{?country}> schema:numberOfPeople ?n ;
+    schema:description "Born in { ?country }: { ?n }" .
+}
+ITERATOR iter:CSV(<http://example.org/people.csv>, "id", "country") AS ?id ?country
+GROUP BY ?country
+EXPRESSIONS ( COUNT(?id) AS ?n )

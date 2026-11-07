@@ -1,0 +1,13 @@
+{ "head": {
+    "vars": [ "min" , "max" , "avg" ]
+  } ,
+  "results": {
+    "bindings": [
+      { 
+        "min": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#decimal" , "value": "25.0" } ,
+        "max": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#decimal" , "value": "53.0" } ,
+        "avg": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#decimal" , "value": "30.125" }
+      }
+    ]
+  }
+}

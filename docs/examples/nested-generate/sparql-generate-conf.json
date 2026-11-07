@@ -1,0 +1,9 @@
+{
+  "documentset": [
+    {
+      "uri": "http://example.org/people.json",
+      "mediatype": "application/json",
+      "path": "documentset/people.json"
+    }
+  ]
+}

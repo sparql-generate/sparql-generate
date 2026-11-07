@@ -1,0 +1,61 @@
+{ "head": {
+    "vars": [ "sum" , "start" , "end" ]
+  } ,
+  "results": {
+    "bindings": [
+      { 
+        "sum": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#decimal" , "value": "35258.11" } ,
+        "start": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#date" , "value": "2019-05-01" } ,
+        "end": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#date" , "value": "2019-06-06" }
+      } ,
+      { 
+        "sum": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#decimal" , "value": "35094.16" } ,
+        "start": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#date" , "value": "2019-06-06" } ,
+        "end": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#date" , "value": "2019-07-23" }
+      } ,
+      { 
+        "sum": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#decimal" , "value": "34656.74" } ,
+        "start": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#date" , "value": "2019-07-23" } ,
+        "end": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#date" , "value": "2019-09-03" }
+      } ,
+      { 
+        "sum": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#decimal" , "value": "34509.5" } ,
+        "start": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#date" , "value": "2019-09-04" } ,
+        "end": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#date" , "value": "2019-10-12" }
+      } ,
+      { 
+        "sum": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#decimal" , "value": "35012.21" } ,
+        "start": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#date" , "value": "2019-10-13" } ,
+        "end": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#date" , "value": "2019-11-21" }
+      } ,
+      { 
+        "sum": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#decimal" , "value": "35368.87" } ,
+        "start": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#date" , "value": "2019-11-22" } ,
+        "end": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#date" , "value": "2020-01-03" }
+      } ,
+      { 
+        "sum": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#decimal" , "value": "34888.76" } ,
+        "start": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#date" , "value": "2020-01-03" } ,
+        "end": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#date" , "value": "2020-02-11" }
+      } ,
+      { 
+        "sum": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#decimal" , "value": "34753.6" } ,
+        "start": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#date" , "value": "2020-02-11" } ,
+        "end": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#date" , "value": "2020-03-14" }
+      } ,
+      { 
+        "sum": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#decimal" , "value": "35284.58" } ,
+        "start": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#date" , "value": "2020-03-14" } ,
+        "end": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#date" , "value": "2020-04-21" }
+      } ,
+      { 
+        "sum": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#decimal" , "value": "35366.69" } ,
+        "start": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#date" , "value": "2020-04-22" } ,
+        "end": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#date" , "value": "2020-05-31" }
+      } ,
+      { 
+        "sum": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "0" }
+      }
+    ]
+  }
+}

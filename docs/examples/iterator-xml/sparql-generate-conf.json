@@ -1,0 +1,9 @@
+{
+  "documentset": [
+    {
+      "uri": "http://example.org/books.xml",
+      "mediatype": "application/xml",
+      "path": "documentset/books.xml"
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+Air Quality Index of San Pablo was 25.0, averaged on 1 stations:
+	San Pablo reported 25.
+
+Air Quality Index of Ontario was 45.666666666666666666666667, averaged on 3 stations:
+	St. Catharines, Ontario reported 34;
+	Barrie, Ontario reported 53;
+	Oakville, Ontario reported 50.
+
+Air Quality Index of Oregon was 19.666666666666666666666667, averaged on 3 stations:
+	Shady Cove, Oregon reported 13;
+	Klamath Falls, Oregon reported 28;
+	Beaverton, Oregon reported 18.
+
+Air Quality Index of NorthWestTerritories was 14.0, averaged on 1 stations:
+	Inuvik, NorthWestTerritories reported 14.
+
+Air Quality Index of Washington was 19.0, averaged on 4 stations:
+	W Main St, Dayton, Washington reported 24;
+	Bellevue Way, Bellevue, Washington reported 29;
+	Chehalis Tribe, Oakville, Washington reported 15;
+	30th Ave, Longview, Washington reported 8

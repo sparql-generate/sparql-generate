@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<search>
+  <total_items>4</total_items>
+  <events>
+    <event id="E0-001-101">
+      <title>Barrie Farmers' Market</title>
+      <description>&lt;p&gt;Local growers and bakers, every Saturday morning.&lt;/p&gt;</description>
+      <start_time>2018-05-26 08:00:00</start_time>
+    </event>
+    <event id="E0-001-102">
+      <title>Lakeshore Cycling Tour</title>
+      <description>&lt;p&gt;A 40 km ride along Kempenfelt Bay.&lt;/p&gt;</description>
+      <start_time>2018-05-27 09:30:00</start_time>
+    </event>
+    <event id="E0-001-103">
+      <title>Air Quality and Health Public Lecture</title>
+      <description>&lt;p&gt;What the Air Quality Health Index measures, and how to read it.&lt;/p&gt;</description>
+      <start_time>2018-05-25 19:00:00</start_time>
+    </event>
+    <event id="E0-001-104">
+      <title>Spring Concert</title>
+      <description>&lt;p&gt;The city orchestra plays in the park.&lt;/p&gt;</description>
+      <start_time>2018-06-02 20:00:00</start_time>
+    </event>
+  </events>
+</search>

@@ -8,9 +8,9 @@ PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#>
 PREFIX aqio:  <https://ci.mines-stetienne.fr/aqi/ontology#>
 
 TEMPLATE {
-  ?label  " is at latitude " ?long " and longitude " ?lat ".\n"
+  ?label  " is at latitude " ?lat " and longitude " ?long ".\n"
   "The Air Quality Index was " ?aqi " at " ?time ".\n"
-  "\tyou can access its Real-time Air Quality Index report at the folowing URL:\n"
+  "\tyou can access its Real-time Air Quality Index report at the following URL:\n"
   "\t" ?url
   ; separator =  "\n\n"
 }

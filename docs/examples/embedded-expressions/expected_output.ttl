@@ -1,0 +1,21 @@
+PREFIX iter:   <http://w3id.org/sparql-generate/iter/>
+PREFIX schema: <http://schema.org/>
+PREFIX xsd:    <http://www.w3.org/2001/XMLSchema#>
+
+<http://example.org/person/1>
+        schema:age          211;
+        schema:birthDate    "1815-12-10"^^xsd:date;
+        schema:description  "Ada Lovelace was born in 1815."@en;
+        schema:name         "ADA LOVELACE" .
+
+<http://example.org/person/2>
+        schema:age          114;
+        schema:birthDate    "1912-06-23"^^xsd:date;
+        schema:description  "Alan Turing was born in 1912."@en;
+        schema:name         "ALAN TURING" .
+
+<http://example.org/person/3>
+        schema:age          120;
+        schema:birthDate    "1906-12-09"^^xsd:date;
+        schema:description  "Grace Hopper was born in 1906."@en;
+        schema:name         "GRACE HOPPER" .

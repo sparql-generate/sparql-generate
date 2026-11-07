@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{title}}</title>
+    <meta name="description" content="{{description}}">
+    <link rel="icon" href="logo.png">
+    <link rel="stylesheet" href="css/site.css">
+    {{head}}
+  </head>
+  <body class="{{bodyClass}}">
+    <header class="site-header">
+      <a class="brand" href="index.html"><img src="logo.png" alt="" width="28" height="28"> SPARQL-Generate</a>
+      <nav aria-label="Main">
+        {{nav}}
+      </nav>
+    </header>
+{{body}}
+    <footer class="site-footer">
+      <p>SPARQL-Generate extends SPARQL 1.1 to generate RDF or text from RDF datasets and documents in heterogeneous formats.</p>
+      <p>Copyright &copy; 2016-2026 <a href="https://www.mines-stetienne.fr/">MINES Saint-Étienne</a>. Apache License 2.0. Built {{date}}.</p>
+    </footer>
+  </body>
+</html>

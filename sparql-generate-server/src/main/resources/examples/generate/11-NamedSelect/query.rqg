@@ -1,0 +1,14 @@
+BASE <https://ci.mines-stetienne.fr/aqi/data/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX aqio: <https://ci.mines-stetienne.fr/aqi/ontology#>
+PREFIX tuto: <https://ci.mines-stetienne.fr/sparql-generate/tutorial/>
+
+GENERATE {
+  <loc/{?idx}> rdfs:label ?name ;
+    aqio:airQualityIndex ?aqi .
+}
+ITERATOR tuto:stations(10) AS ?idx ?name ?aqi
+WHERE {
+  FILTER(?aqi > 25)
+}
+ORDER BY DESC(?aqi)

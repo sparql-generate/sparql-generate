@@ -1,0 +1,71 @@
+<!-- {"title": "SPARQL-Generate playground", "active": "playground", "bodyClass": "app", "scripts": ["js/playground.js"], "description": "Run SPARQL-Generate queries in the browser, and follow the tutorial."} -->
+    <main class="playground" id="playground">
+      <div class="toolbar">
+        <label for="examples" class="visually-hidden">Example</label>
+        <select id="examples" title="Load an example or a step of the tutorial">
+          <option value="">Load an example…</option>
+        </select>
+        <button type="button" id="previous" title="Previous step">&larr; Previous</button>
+        <button type="button" id="next" title="Next step">Next &rarr;</button>
+        <span class="spacer"></span>
+        <div class="toggles">
+          <label title="Run the query after each change"><input type="checkbox" id="auto"> Run on change</label>
+          <label title="Return the output as it is generated"><input type="checkbox" id="stream"> Stream</label>
+          <label title="Insert warning identifiers in the output of TEMPLATE queries"><input type="checkbox" id="debugTemplate"> Debug template</label>
+        </div>
+        <button type="button" id="share" title="Copy a link to this query, its documents and graphs">Copy link</button>
+        <button type="button" id="reset" title="Clear the query, the documents and the graphs">New</button>
+        <button type="button" id="run" class="primary" title="Run the query (Ctrl+Enter)">Run</button>
+      </div>
+
+      <details class="readme" id="readme" open hidden>
+        <summary id="readme-title">About this example</summary>
+        <div class="content" id="readme-content"></div>
+      </details>
+
+      <div class="columns">
+        <div class="inputs">
+          <section class="panel" aria-labelledby="query-title">
+            <div class="panel-header"><h2 id="query-title">Query</h2><span class="count">Ctrl+Enter to run</span></div>
+            <div class="panel-body editor" id="query-editor"></div>
+          </section>
+
+          <section class="panel" aria-label="Named queries, documents and graphs">
+            <div class="panel-header">
+              <div class="tabs" role="tablist">
+                <button type="button" role="tab" data-collection="documentset" aria-selected="true">Documents <span class="count" data-count="documentset"></span></button>
+                <button type="button" role="tab" data-collection="namedqueries" aria-selected="false">Named queries <span class="count" data-count="namedqueries"></span></button>
+                <button type="button" role="tab" data-collection="graphs" aria-selected="false">Graphs <span class="count" data-count="graphs"></span></button>
+              </div>
+            </div>
+            <div class="panel-body">
+              <div id="items"></div>
+              <div class="drop-zone" id="drop-zone" tabindex="0" role="button">Click to add, or drop files here</div>
+            </div>
+          </section>
+        </div>
+
+        <div class="outputs">
+          <section class="panel" aria-labelledby="result-title">
+            <div class="panel-header"><h2 id="result-title">Result</h2><span class="status" id="status" role="status"></span></div>
+            <div class="panel-body editor" id="result-editor"></div>
+          </section>
+
+          <section class="panel" aria-labelledby="log-title">
+            <div class="panel-header">
+              <h2 id="log-title">Log</h2>
+              <label for="loglevel">Level</label>
+              <select id="loglevel">
+                <option value="1">ERROR</option>
+                <option value="2">WARN</option>
+                <option value="3">INFO</option>
+                <option value="4">DEBUG</option>
+                <option value="5">TRACE</option>
+              </select>
+            </div>
+            <pre class="log" id="log" aria-live="polite"></pre>
+          </section>
+          <p class="count">The playground stops a query after 10 seconds. For larger transformations, use the <a href="https://sparql-generate.readthedocs.io/en/latest/cli/">executable JAR</a> or the <a href="https://sparql-generate.readthedocs.io/en/latest/vscode/">VS Code extension</a>.</p>
+        </div>
+      </div>
+    </main>

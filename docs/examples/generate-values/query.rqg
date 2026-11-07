@@ -1,0 +1,10 @@
+PREFIX schema: <http://schema.org/>
+BASE <http://example.org/>
+
+GENERATE {
+  <person/{?id}> a schema:Person ;
+    schema:name ?name .
+}
+WHERE {
+  VALUES (?id ?name) { (1 "Ada Lovelace") (2 "Alan Turing") }
+}

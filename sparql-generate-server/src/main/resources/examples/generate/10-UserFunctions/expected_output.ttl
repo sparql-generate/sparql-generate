@@ -1,0 +1,49 @@
+PREFIX aqio: <https://ci.mines-stetienne.fr/aqi/ontology#>
+PREFIX fun:  <http://w3id.org/sparql-generate/fn/>
+PREFIX iter: <http://w3id.org/sparql-generate/iter/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX tuto: <https://ci.mines-stetienne.fr/sparql-generate/tutorial/>
+PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+
+<https://ci.mines-stetienne.fr/aqi/data/loc/23>
+        rdfs:label            "Ottawa Downtown, Ontario";
+        aqio:airQualityIndex  25;
+        aqio:airQualityLevel  "good" .
+
+<https://ci.mines-stetienne.fr/aqi/data/loc/7>
+        rdfs:label            "Dorset, Ontario";
+        aqio:airQualityIndex  27;
+        aqio:airQualityLevel  "good" .
+
+<https://ci.mines-stetienne.fr/aqi/data/loc/0>
+        rdfs:label            "Barrie, Ontario";
+        aqio:airQualityIndex  53;
+        aqio:airQualityLevel  "moderate" .
+
+<https://ci.mines-stetienne.fr/aqi/data/loc/25>
+        rdfs:label            "Petawawa, Ontario";
+        aqio:airQualityIndex  28;
+        aqio:airQualityLevel  "good" .
+
+<https://ci.mines-stetienne.fr/aqi/data/loc/11>
+        rdfs:label            "Hamilton Mountain, Ontario";
+        aqio:airQualityIndex  29;
+        aqio:airQualityLevel  "good" .
+
+<https://ci.mines-stetienne.fr/aqi/data/loc/22>
+        rdfs:label            "Ottawa Central, Ontario";
+        aqio:airQualityIndex  25;
+        aqio:airQualityLevel  "good" .
+
+<https://ci.mines-stetienne.fr/aqi/data/loc/6>
+        rdfs:label            "Cornwall, Ontario";
+        aqio:airQualityIndex  27;
+        aqio:airQualityLevel  "good" .
+
+<https://ci.mines-stetienne.fr/aqi/data/loc/17>
+        rdfs:label  "Morrisburg, Ontario" .
+
+<https://ci.mines-stetienne.fr/aqi/data/loc/28>
+        rdfs:label            "Sarnia, Ontario";
+        aqio:airQualityIndex  30;
+        aqio:airQualityLevel  "good" .
