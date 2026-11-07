@@ -28,6 +28,7 @@ import java.io.InputStream;
 import java.io.StringReader;
 import java.net.URL;
 import java.util.List;
+import java.util.regex.Pattern;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPath;
@@ -38,6 +39,7 @@ import org.apache.jena.datatypes.TypeMapper;
 import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.NodeValue;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.InputSource;
@@ -197,6 +199,11 @@ public class ITER_XPath extends IteratorFunctionBase {
                 NodeValue nodeValue = function.nodeForNode(value);
                 nodeValues.add(nodeValue);
                 for (String subquery : subqueries) {
+                    final Object simple = simpleSelect(value, subquery);
+                    if (simple != NOT_SIMPLE) {
+                        nodeValues.add(function.nodeForNode((org.w3c.dom.Node) simple));
+                        continue;
+                    }
                     try {
                         InputStream subis = new ByteArrayInputStream(nodeValue.asString().getBytes("UTF-8"));
                         Document subDocument = builder.parse(subis);
@@ -222,6 +229,65 @@ public class ITER_XPath extends IteratorFunctionBase {
             }
             throw new ExprEvalException("No evaluation for " + xPathNode, ex);
         }
+    }
+
+    /**
+     * False to evaluate every sub-query with the XPath engine (tests).
+     */
+    static volatile boolean simplePaths = true;
+
+    private static final Object NOT_SIMPLE = new Object();
+
+    /**
+     * A path of element names from the root, ending with an attribute or
+     * text(), as "/person/@id" or "/person/name/text()".
+     */
+    private static final Pattern SIMPLE_PATH = Pattern
+            .compile("(/[A-Za-z_][A-Za-z0-9_.-]*)+(/@[A-Za-z_][A-Za-z0-9_.-]*|/text\\(\\))");
+
+    /**
+     * Evaluates a sub-query on a matched element without the XPath engine,
+     * which builds new tables for each evaluation, when the sub-query is a
+     * path of element names ending with an attribute or text(). The value is
+     * that of the XPath engine on a document made of the element: the first
+     * node of the path in document order, or null.
+     *
+     * @return the node, null, or NOT_SIMPLE if the path is not simple.
+     */
+    static Object simpleSelect(final org.w3c.dom.Node root, final String path) {
+        if (!simplePaths || path == null || !(root instanceof Element) || !SIMPLE_PATH.matcher(path).matches()) {
+            return NOT_SIMPLE;
+        }
+        final String[] steps = path.substring(1).split("/");
+        final String last = steps[steps.length - 1];
+        if (!steps[0].equals(root.getNodeName())) {
+            return null;
+        }
+        return find((Element) root, steps, 1, last);
+    }
+
+    private static org.w3c.dom.Node find(final Element element, final String[] steps, final int k, final String last) {
+        if (k == steps.length - 1) {
+            if (last.startsWith("@")) {
+                return element.getAttributeNode(last.substring(1));
+            }
+            for (org.w3c.dom.Node c = element.getFirstChild(); c != null; c = c.getNextSibling()) {
+                if (c.getNodeType() == org.w3c.dom.Node.TEXT_NODE
+                        || c.getNodeType() == org.w3c.dom.Node.CDATA_SECTION_NODE) {
+                    return c;
+                }
+            }
+            return null;
+        }
+        for (org.w3c.dom.Node c = element.getFirstChild(); c != null; c = c.getNextSibling()) {
+            if (c.getNodeType() == org.w3c.dom.Node.ELEMENT_NODE && steps[k].equals(c.getNodeName())) {
+                final org.w3c.dom.Node found = find((Element) c, steps, k + 1, last);
+                if (found != null) {
+                    return found;
+                }
+            }
+        }
+        return null;
     }
 
     /**
