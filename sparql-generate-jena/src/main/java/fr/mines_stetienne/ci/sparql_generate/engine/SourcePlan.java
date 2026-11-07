@@ -102,8 +102,8 @@ public class SourcePlan extends BindOrSourcePlan {
 		final String acceptHeader = getAcceptHeader(binding);
 		LOG.trace("... resolved to SOURCE <" + sourceUri + "> ACCEPT " + acceptHeader + " AS " + var);
 		if (sourceUri == null) {
-			// unbound source: the variable stays unbound
-			return binding;
+			// unbound source: the variable is unbound
+			return parentBinding(binding);
 		}
 		final LookUpRequest request = new LookUpRequest(sourceUri, acceptHeader);
 		final SPARQLExtStreamManager sm = (SPARQLExtStreamManager) context.get(SysRIOT.sysStreamManager);
@@ -112,7 +112,7 @@ public class SourcePlan extends BindOrSourcePlan {
 			if (stream == null) {
 				LOG.info(
 						"Exec SOURCE <" + sourceUri + "> ACCEPT " + acceptHeader + " AS " + var + " returned nothing.");
-				return BindingFactory.binding(binding);
+				return parentBinding(binding);
 			}
 			try (InputStream in = stream.getInputStream()) {
 				final String literal = IOUtils.toString(in, "UTF-8");
@@ -128,7 +128,7 @@ public class SourcePlan extends BindOrSourcePlan {
 				if (LOG.isTraceEnabled()) {
 					LOG.trace("Exec " + this + " returned\n" + LogUtils.compress(n));
 				}
-				return BindingFactory.binding(binding, var, n);
+				return BindingFactory.binding(parentBinding(binding), var, n);
 			}
 		} catch (IOException | DatatypeFormatException ex) {
 			LOG.warn("Exception while looking up " + sourceUri + ":", ex);
