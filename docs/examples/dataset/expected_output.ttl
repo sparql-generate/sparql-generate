@@ -1,0 +1,12 @@
+PREFIX ex:     <http://example.org/ns#>
+PREFIX iter:   <http://w3id.org/sparql-generate/iter/>
+PREFIX schema: <http://schema.org/>
+
+<http://example.org/person/1>
+        schema:nationality  <http://www.wikidata.org/entity/Q145> .
+
+<http://example.org/person/2>
+        schema:nationality  <http://www.wikidata.org/entity/Q145> .
+
+<http://example.org/person/3>
+        schema:nationality  <http://www.wikidata.org/entity/Q30> .

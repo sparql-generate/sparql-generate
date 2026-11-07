@@ -1,0 +1,13 @@
+PREFIX iter: <http://w3id.org/sparql-generate/iter/>
+PREFIX schema: <http://schema.org/>
+PREFIX my: <http://example.org/function/>
+BASE <http://example.org/>
+
+GENERATE {
+  <person/{?id}> schema:name ?name ;
+    schema:alternateName ?initials .
+}
+ITERATOR iter:CSV(<http://example.org/people.csv>, "id", "name") AS ?id ?name
+WHERE {
+  BIND(my:initials(?name) AS ?initials)
+}

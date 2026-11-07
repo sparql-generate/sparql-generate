@@ -1,0 +1,7 @@
+PREFIX schema: <http://schema.org/>
+BASE <http://example.org/>
+
+GENERATE {
+  <person/{?id}> schema:name ?name .
+}
+ITERATOR <http://example.org/query/people-from>("GB") AS ?id ?name

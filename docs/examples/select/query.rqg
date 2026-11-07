@@ -1,0 +1,7 @@
+PREFIX iter: <http://w3id.org/sparql-generate/iter/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+SELECT ?name (YEAR(xsd:date(?born)) AS ?year)
+SOURCE <http://example.org/people.json> AS ?people
+ITERATOR iter:JSONPath(?people, "$.people[*]", "$.name", "$.born") AS ?person ?name ?born
+WHERE { }
+ORDER BY ?year

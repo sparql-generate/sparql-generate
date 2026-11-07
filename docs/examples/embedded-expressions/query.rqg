@@ -1,0 +1,12 @@
+PREFIX iter: <http://w3id.org/sparql-generate/iter/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX schema: <http://schema.org/>
+BASE <http://example.org/>
+
+GENERATE {
+  <person/{ ?id }> schema:name "{ UCASE(?name) }" ;
+    schema:birthDate "{ ?born }"^^xsd:date ;
+    schema:description "{ ?name } was born in { YEAR(xsd:date(?born)) }."@en ;
+    schema:age ?{ 2026 - YEAR(xsd:date(?born)) } .
+}
+ITERATOR iter:CSV(<http://example.org/people.csv>, "id", "name", "born") AS ?id ?name ?born

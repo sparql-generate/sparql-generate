@@ -1,0 +1,3 @@
+@prefix ex: <http://example.org/ns#> .
+<http://www.wikidata.org/entity/Q145> ex:isoCode "GB" .
+<http://www.wikidata.org/entity/Q30> ex:isoCode "US" .

@@ -1,0 +1,7 @@
+PREFIX iter: <http://w3id.org/sparql-generate/iter/>
+
+SELECT <http://example.org/query/people-from> (?country) ?id ?name
+ITERATOR iter:CSV(<http://example.org/people.csv>, "id", "name", "country") AS ?id ?name ?c
+WHERE {
+  FILTER(?c = ?country)
+}

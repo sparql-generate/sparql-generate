@@ -1,0 +1,6 @@
+PREFIX fun:    <http://w3id.org/sparql-generate/fn/>
+PREFIX schema: <http://schema.org/>
+
+<http://example.org/dataset>
+        schema:name  "People of computing";
+        schema:size  3 .

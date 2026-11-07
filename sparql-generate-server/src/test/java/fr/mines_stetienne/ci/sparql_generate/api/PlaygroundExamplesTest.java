@@ -79,7 +79,8 @@ import fr.mines_stetienne.ci.sparql_generate.stream.SPARQLExtStreamManager;
 import fr.mines_stetienne.ci.sparql_generate.utils.ContextUtils;
 
 /**
- * Runs every example of the playground ({@code src/main/resources/examples}) the
+ * Runs every example of the playground ({@code src/main/resources/examples}) and
+ * of the documentation ({@code docs/examples} at the root of the repository) the
  * way the playground runs it: the example is loaded as {@link ListExercises}
  * loads it, and set up by {@link RequestSetup} as {@link TransformStream} sets it
  * up.
@@ -154,18 +155,32 @@ public class PlaygroundExamplesTest {
 		this.dir = dir;
 	}
 
+	/**
+	 * The examples of the documentation, relative to the directory of this
+	 * module.
+	 */
+	static final File DOCS_EXAMPLES = new File("../docs/examples");
+
 	@Parameters(name = "{0}")
 	public static Collection<Object[]> data() throws URISyntaxException {
 		List<Object[]> data = new ArrayList<>();
 		for (String type : TYPES) {
 			File root = new File(PlaygroundExamplesTest.class.getClassLoader().getResource("examples/" + type).toURI());
-			File[] dirs = root.listFiles(File::isDirectory);
-			Arrays.sort(dirs);
-			for (File dir : dirs) {
-				data.add(new Object[] { type + "/" + dir.getName(), dir });
-			}
+			addExamples(data, type, root);
 		}
+		addExamples(data, "docs", DOCS_EXAMPLES);
 		return data;
+	}
+
+	private static void addExamples(List<Object[]> data, String prefix, File root) {
+		File[] dirs = root.listFiles(File::isDirectory);
+		if (dirs == null) {
+			return;
+		}
+		Arrays.sort(dirs);
+		for (File dir : dirs) {
+			data.add(new Object[] { prefix + "/" + dir.getName(), dir });
+		}
 	}
 
 	@Test
@@ -177,7 +192,9 @@ public class PlaygroundExamplesTest {
 				!KNOWN_FAILURES.contains(name) || Boolean.getBoolean("examples.all"));
 		RequestSetup.init();
 
-		assertTrue("readme.html is missing", new File(dir, "readme.html").isFile());
+		if (!name.startsWith("docs/")) {
+			assertTrue("readme.html is missing", new File(dir, "readme.html").isFile());
+		}
 		Request request = load(dir);
 		assertFalse("the query is empty", request.defaultquery.trim().isEmpty());
 
@@ -321,6 +338,9 @@ public class PlaygroundExamplesTest {
 	 * {@code target/classes}, where the examples are read from.
 	 */
 	private static File sourceFile(File file) {
+		if (!file.getAbsolutePath().contains(File.separator + "target" + File.separator + "classes" + File.separator)) {
+			return file;
+		}
 		String path = file.getAbsolutePath().replace(File.separator + "target" + File.separator + "classes"
 				+ File.separator, File.separator + "src" + File.separator + "main" + File.separator + "resources"
 				+ File.separator);

@@ -1,0 +1,3 @@
+FUNCTION <http://example.org/function/initials> ( ?fullName ) {
+  CONCAT( SUBSTR(?fullName, 1, 1), SUBSTR(STRAFTER(?fullName, " "), 1, 1) )
+}

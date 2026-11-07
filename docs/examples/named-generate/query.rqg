@@ -1,0 +1,7 @@
+PREFIX iter: <http://w3id.org/sparql-generate/iter/>
+BASE <http://example.org/>
+
+GENERATE {
+  GENERATE <http://example.org/query/person>(?id, ?name) .
+}
+ITERATOR iter:CSV(<http://example.org/people.csv>, "id", "name") AS ?id ?name

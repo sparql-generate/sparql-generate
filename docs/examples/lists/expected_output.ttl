@@ -1,0 +1,6 @@
+PREFIX iter:   <http://w3id.org/sparql-generate/iter/>
+PREFIX schema: <http://schema.org/>
+
+<http://example.org/people>
+        a                       schema:ItemList;
+        schema:itemListElement  ( <http://example.org/person/1> <http://example.org/person/3> <http://example.org/person/2> ) .

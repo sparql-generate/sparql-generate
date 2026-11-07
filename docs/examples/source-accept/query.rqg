@@ -1,0 +1,9 @@
+PREFIX iter: <http://w3id.org/sparql-generate/iter/>
+PREFIX schema: <http://schema.org/>
+BASE <http://example.org/>
+
+GENERATE {
+  <person/{?id}> schema:name ?name .
+}
+SOURCE <http://example.org/people> ACCEPT <https://www.iana.org/assignments/media-types/text/csv> AS ?csv
+ITERATOR iter:CSV(?csv) AS ?id ?name

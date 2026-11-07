@@ -1,0 +1,17 @@
+PREFIX iter:   <http://w3id.org/sparql-generate/iter/>
+PREFIX schema: <http://schema.org/>
+
+<http://example.org/person/1>
+        a                   schema:Person;
+        schema:name         "Ada Lovelace";
+        schema:nationality  <http://example.org/country/GB> .
+
+<http://example.org/person/2>
+        a                   schema:Person;
+        schema:name         "Alan Turing";
+        schema:nationality  <http://example.org/country/GB> .
+
+<http://example.org/person/3>
+        a                   schema:Person;
+        schema:name         "Grace Hopper";
+        schema:nationality  <http://example.org/country/US> .

@@ -1,0 +1,20 @@
+{ "head": {
+    "vars": [ "name" , "year" ]
+  } ,
+  "results": {
+    "bindings": [
+      { 
+        "name": { "type": "literal" , "value": "Ada Lovelace" } ,
+        "year": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "1815" }
+      } ,
+      { 
+        "name": { "type": "literal" , "value": "Grace Hopper" } ,
+        "year": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "1906" }
+      } ,
+      { 
+        "name": { "type": "literal" , "value": "Alan Turing" } ,
+        "year": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "1912" }
+      }
+    ]
+  }
+}
