@@ -1,75 +1,80 @@
-name: Create github release
+name: Release
+
+# Pushing a tag vX.Y.Z publishes version X.Y.Z:
+#   1. to Maven Central, through the Central Portal (central-publishing-maven-plugin),
+#      unless X.Y.Z ends with -SNAPSHOT (snapshot.sh): then only a GitHub pre-release;
+#   2. as a GitHub release, with the command-line JAR and the javadoc;
+#   3. on ci.mines-stetienne.fr (API docs and the playground server).
+# The version in the POMs must already be X.Y.Z (see release.sh).
 
 on:
   push:
-   tags:
-     - 'v*'
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
 
 jobs:
-  create-release:
+  release:
     runs-on: ubuntu-latest
     steps:
-      - name: Check out Git repository
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
-      - name: Install Java and Maven
-        uses: actions/setup-java@v1
+      - name: Set up JDK 17, Central Portal credentials and GPG key
+        uses: actions/setup-java@v4
         with:
-          java-version: 11
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+          server-id: central
+          server-username: CENTRAL_USERNAME
+          server-password: CENTRAL_PASSWORD
+          gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
+          gpg-passphrase: MAVEN_GPG_PASSPHRASE
 
-      - name: Cache Maven packages
-        uses: actions/cache@v4
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2
-
-      - name: Run the Maven package phase
-        run: mvn -B package -P docs --file sparql-generate-parent/pom.xml
-
-      - name: Get tag name
+      - name: Check that the tag matches the POM version
         id: vars
         run: |
-          echo ::set-output name=tag::${GITHUB_REF#refs/*/v}
-          echo ::set-output name=version::$(mvn -q -Dexec.executable="echo" -Dexec.args='${project.version}' --non-recursive exec:exec --file 'sparql-generate-parent/pom.xml')
-          echo ::set-output name=prerelease::$( [[ -z ${GITHUB_REF#refs/*/v*-SNAPSHOT} ]] && echo "true" || echo "false" )
+          version=$(mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec --file sparql-generate-parent/pom.xml)
+          tag=${GITHUB_REF_NAME#v}
+          if [ "$version" != "$tag" ]; then
+            echo "::error::tag $GITHUB_REF_NAME does not match POM version $version"
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          case "$version" in
+            *-SNAPSHOT) echo "prerelease=true" >> "$GITHUB_OUTPUT" ;;
+            *)          echo "prerelease=false" >> "$GITHUB_OUTPUT" ;;
+          esac
 
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
+      - name: Build, sign and publish to Maven Central
+        if: steps.vars.outputs.prerelease == 'false'
+        run: mvn -B deploy -P deploy --file sparql-generate-parent/pom.xml
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ steps.vars.outputs.version }}
-          release_name: ${{ steps.vars.outputs.version }}
-          draft: false
-          prerelease: ${{ steps.vars.outputs.prerelease }}
+          CENTRAL_USERNAME: ${{ secrets.NEXUS_USERNAME }}
+          CENTRAL_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
+          MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
 
-      - name: Upload Release Asset jar
-        id: upload_jar 
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: sparql-generate-all/target/sparql-generate.jar
-          asset_name: sparql-generate-${{ steps.vars.outputs.version }}.jar
-          asset_content_type: application/java-archive
+      - name: Build a snapshot (not published to Maven Central)
+        if: steps.vars.outputs.prerelease == 'true'
+        run: mvn -B package -P docs --file sparql-generate-parent/pom.xml
 
-      - name: Upload Release Asset javadoc
-        id: upload_javadoc 
-        uses: actions/upload-release-asset@v1
+      - name: Create the GitHub release
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: sparql-generate-all/target/sparql-generate-all-${{ steps.vars.outputs.version }}-javadoc.jar
-          asset_name: sparql-generate-${{ steps.vars.outputs.version }}-javadoc.jar
-          asset_content_type: application/java-archive
-          
-      - name: upload apidocs
-        id: scp_apidocs_javadoc 
-        uses: appleboy/scp-action@master
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.vars.outputs.version }}
+          PRERELEASE: ${{ steps.vars.outputs.prerelease }}
+        run: |
+          cp sparql-generate-all/target/sparql-generate.jar sparql-generate-$VERSION.jar
+          cp sparql-generate-all/target/sparql-generate-all-$VERSION-javadoc.jar sparql-generate-$VERSION-javadoc.jar
+          flags="--verify-tag --generate-notes"
+          [ "$PRERELEASE" = true ] && flags="$flags --prerelease"
+          gh release create "$GITHUB_REF_NAME" --title "$VERSION" $flags \
+            sparql-generate-$VERSION.jar sparql-generate-$VERSION-javadoc.jar
+
+      - name: Upload the API docs to ci.mines-stetienne.fr
+        uses: appleboy/scp-action@v0.1.7
         with:
           source: "sparql-generate-all/target/apidocs"
           target: "~/website"
@@ -77,10 +82,9 @@ jobs:
           host: ci.mines-stetienne.fr
           username: ${{ secrets.CI_USER }}
           key: ${{ secrets.CI_KEY }}
-          
-      - name: upload war
-        id: scp_war 
-        uses: appleboy/scp-action@master
+
+      - name: Upload the server WAR to ci.mines-stetienne.fr
+        uses: appleboy/scp-action@v0.1.7
         with:
           source: "sparql-generate-server/target/sparql-generate.war"
           target: "~"
@@ -89,8 +93,8 @@ jobs:
           username: ${{ secrets.CI_USER }}
           key: ${{ secrets.CI_KEY }}
 
-      - name: update server
-        uses: appleboy/ssh-action@master
+      - name: Restart the playground server
+        uses: appleboy/ssh-action@v1.2.0
         with:
           host: ci.mines-stetienne.fr
           username: ${{ secrets.CI_USER }}
