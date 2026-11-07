@@ -33,7 +33,7 @@ PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
         a          ex:Earthquake;
         ex:place   "4km SW of Volcano, Hawaii";
         ex:time    "2018-06-14T11:02:14.57Z"^^xsd:dateTime;
-        wkt:asWKT  "MULTIPOLYGON(((40.0 40.0, 20.0 45.0, 45.0 30.0, 40.0 40.0), (20.0 35.0, 10.0 30.0, 10.0 10.0, 30.0 5.0, 45.0 20.0, 20.0 35.0), (30.0 20.0, 20.0 15.0, 20.0 25.0, 30.0 20.0)))"^^wkt:wktLiteral .
+        wkt:asWKT  "MULTIPOLYGON(((40.0 40.0, 20.0 45.0, 45.0 30.0, 40.0 40.0)), ((20.0 35.0, 10.0 30.0, 10.0 10.0, 30.0 5.0, 45.0 20.0, 20.0 35.0), (30.0 20.0, 20.0 15.0, 20.0 25.0, 30.0 20.0)))"^^wkt:wktLiteral .
 
 <https://earthquake.usgs.gov/earthquakes/eventpage/hv70265031>
         a          ex:Earthquake;
@@ -69,4 +69,4 @@ PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
         a          ex:Earthquake;
         ex:place   "25km WNW of Coalinga, CA";
         ex:time    "2018-06-14T11:08:20.13Z"^^xsd:dateTime;
-        wkt:asWKT  "MULTIPOLYGON(((30.0 20.0, 45.0 40.0, 10.0 40.0, 30.0 20.0), (15.0 5.0, 40.0 10.0, 10.0 20.0, 5.0 10.0, 15.0 5.0)))"^^wkt:wktLiteral .
+        wkt:asWKT  "MULTIPOLYGON(((30.0 20.0, 45.0 40.0, 10.0 40.0, 30.0 20.0)), ((15.0 5.0, 40.0 10.0, 10.0 20.0, 5.0 10.0, 15.0 5.0)))"^^wkt:wktLiteral .

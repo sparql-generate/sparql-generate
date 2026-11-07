@@ -11,7 +11,7 @@ PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
 
 <http://earthquake.example.com/73030326>
         a          ex:Earthquake;
-        wkt:asWKT  "MULTIPOLYGON(((30.0 20.0, 45.0 40.0, 10.0 40.0, 30.0 20.0), (15.0 5.0, 40.0 10.0, 10.0 20.0, 5.0 10.0, 15.0 5.0)))"^^wkt:wktLiteral .
+        wkt:asWKT  "MULTIPOLYGON(((30.0 20.0, 45.0 40.0, 10.0 40.0, 30.0 20.0)), ((15.0 5.0, 40.0 10.0, 10.0 20.0, 5.0 10.0, 15.0 5.0)))"^^wkt:wktLiteral .
 
 <http://earthquake.example.com/70265016>
         a          ex:Earthquake;
@@ -31,7 +31,7 @@ PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
 
 <http://earthquake.example.com/70264971>
         a          ex:Earthquake;
-        wkt:asWKT  "MULTIPOLYGON(((40.0 40.0, 20.0 45.0, 45.0 30.0, 40.0 40.0), (20.0 35.0, 10.0 30.0, 10.0 10.0, 30.0 5.0, 45.0 20.0, 20.0 35.0), (30.0 20.0, 20.0 15.0, 20.0 25.0, 30.0 20.0)))"^^wkt:wktLiteral .
+        wkt:asWKT  "MULTIPOLYGON(((40.0 40.0, 20.0 45.0, 45.0 30.0, 40.0 40.0)), ((20.0 35.0, 10.0 30.0, 10.0 10.0, 30.0 5.0, 45.0 20.0, 20.0 35.0), (30.0 20.0, 20.0 15.0, 20.0 25.0, 30.0 20.0)))"^^wkt:wktLiteral .
 
 <http://earthquake.example.com/70265031>
         a          ex:Earthquake;

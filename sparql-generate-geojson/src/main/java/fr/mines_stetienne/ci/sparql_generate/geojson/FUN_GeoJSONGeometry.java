@@ -126,6 +126,11 @@ public final class FUN_GeoJSONGeometry extends FunctionBase1 {
             sb.append(gCollection.getGeometries().stream().map(g -> getGeometry(g, false)).collect(Collectors.joining(", ")));
             sb.append(")");
             return sb.toString();
+        } else if (geom instanceof MultiPolygon) {
+            // one parenthesised list of rings per polygon
+            return "MULTIPOLYGON(" + ((MultiPolygon) geom).polygons().stream()
+                    .map(p -> getGeometry(p, true).substring("POLYGON".length()))
+                    .collect(Collectors.joining(", ")) + ")";
         } else {
             if (geom instanceof LineString || geom instanceof MultiPoint) {
                 StringBuilder lineStringBuilder = new StringBuilder();
