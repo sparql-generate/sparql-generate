@@ -25,7 +25,7 @@ Released on 2026-11-07. Fixes of the defects found by the benchmark and by the f
 
 **Performance**
 
-- The results of the `WHERE` clause are passed to `GENERATE` and `TEMPLATE` as they are computed, without copies; an IRI template such as `<stop/{?id}>` resolves its constant part once instead of parsing each IRI. On the synthetic workloads of pysparql-generate, 100,000 rows: CSV with a nested `GENERATE` 10.0 s to 7.2 s and half the memory, nested JSON 10.0 s to 7.2 s; flat CSV at 1,000,000 rows with `-s -fo NT`, 21 s to 9 s (with the buffered output below).
+- The results of the `WHERE` clause are passed to `GENERATE` and `TEMPLATE` as they are computed, without copies; an IRI template such as `<stop/{?id}>` resolves its constant part once instead of parsing each IRI. On synthetic workloads (flat and nested CSV and JSON), 100,000 rows: CSV with a nested `GENERATE` 10.0 s to 7.2 s and half the memory, nested JSON 10.0 s to 7.2 s; flat CSV at 1,000,000 rows with `-s -fo NT`, 21 s to 9 s (with the buffered output below).
 
 **Command line**
 
