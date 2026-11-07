@@ -83,6 +83,18 @@ public class NestedGenerateTest {
 		assertEquals(4, model.listSubjectsWithProperty(ResourceFactory.createProperty("http://ex/q")).toList().size());
 	}
 
+	/**
+	 * A variable of an ITERATOR clause of a sub-query that is already bound by
+	 * the outer query is bound anew by the iterator, as in nested loops.
+	 */
+	@Test
+	public void iteratorOfSubQueryRebindsOuterVariable() {
+		assertGenerates("<http://ex/a> <http://ex/p> 0, 1 . <http://ex/b> <http://ex/p> 0, 1 .",
+				"PREFIX ite: <http://w3id.org/sparql-generate/iter/> "
+						+ "GENERATE { GENERATE { ?s <http://ex/p> ?i } ITERATOR ite:for(0, 1, 2) AS ?i . } "
+						+ "WHERE { VALUES (?s ?i) { (<http://ex/a> 7) (<http://ex/b> 8) } }");
+	}
+
 	@Test
 	public void subQueryValuesWithSeveralVariables() {
 		assertGenerates("<http://ex/1> <http://ex/a> <http://ex/b> .",

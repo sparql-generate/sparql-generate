@@ -51,6 +51,17 @@ public class EmbeddedExpressionTest {
 				"GENERATE { <http://ex/{?x}> <http://ex/p> 1 } WHERE { BIND(\"chat\"@fr AS ?x) }");
 	}
 
+	/**
+	 * As in CONSTRUCT, a triple that is not valid RDF is not generated: the
+	 * subject must be an IRI or a blank node, the predicate an IRI.
+	 */
+	@Test
+	public void invalidTriplesAreNotGenerated() {
+		assertGenerates("<http://ex/s> <http://ex/p> \"lit\" .",
+				"GENERATE { ?x <http://ex/p> <http://ex/o> . <http://ex/s> ?x <http://ex/o> . "
+						+ "<http://ex/s> <http://ex/p> ?x . [] ?b 1 } WHERE { BIND(\"lit\" AS ?x) BIND(BNODE() AS ?b) }");
+	}
+
 	@Test
 	public void numberInIriFunction() {
 		assertGenerates("<http://ex/item/12> <http://ex/p> 1 .",

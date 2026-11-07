@@ -37,6 +37,7 @@ import com.google.gson.JsonParser;
 import fr.mines_stetienne.ci.sparql_generate.SPARQLExt;
 import fr.mines_stetienne.ci.sparql_generate.utils.LogUtils;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import org.apache.jena.datatypes.RDFDatatype;
 import org.apache.jena.datatypes.TypeMapper;
@@ -137,6 +138,9 @@ public final class FUN_JSONPath extends FunctionBase2 {
 			return new NodeValueDouble((Double) value);
 		} else if (value instanceof BigDecimal) {
 			return new NodeValueDecimal((BigDecimal) value);
+		} else if (value instanceof List && ((List<?>) value).size() == 1) {
+			// a path with a filter or a wildcard gives a list, even for one match
+			return nodeForObject(((List<?>) value).get(0));
 		} else if (value instanceof ArrayList) {
 			String jsonString = new Gson().toJson(value);
 			return new NodeValueString(jsonString);

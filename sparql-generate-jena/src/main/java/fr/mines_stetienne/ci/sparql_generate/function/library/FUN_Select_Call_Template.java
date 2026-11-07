@@ -102,7 +102,8 @@ public class FUN_Select_Call_Template implements Function {
 	        RootPlan selectPlan = queryExecutor.getPlanFromString(selectQueryNode.asString(), null);
 	        List<Binding> bindings = new ArrayList<>();
 	        bindings.add(binding);
-	        ResultSet resultSet = selectPlan.execSelect(bindings, context);
+	        // a sub-execution: the root context may already have an output
+	        ResultSet resultSet = selectPlan.execSelect(bindings, ContextUtils.fork(context).fork());
 
 	        for(;resultSet.hasNext();) {
 	            Binding newBinding = resultSet.nextBinding();

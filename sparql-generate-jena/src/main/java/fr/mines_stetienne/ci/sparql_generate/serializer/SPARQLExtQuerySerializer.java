@@ -55,6 +55,16 @@ public class SPARQLExtQuerySerializer implements SPARQLExtQueryVisitor {
 
     private static Logger LOG = LoggerFactory.getLogger(SPARQLExtQuerySerializer.class);
 
+    private boolean printPrologue = true;
+
+    /**
+     * Whether to print the prologue (BASE and PREFIX). A sub-SELECT must not:
+     * the grammar does not allow it, and the prologue of the query applies.
+     */
+    public void setPrintPrologue(boolean printPrologue) {
+        this.printPrologue = printPrologue;
+    }
+
     public SPARQLExtQuerySerializer(IndentedWriter out, SerializationContext context) {
         this.out = out;
         this.context = context;
@@ -174,6 +184,9 @@ public class SPARQLExtQuerySerializer implements SPARQLExtQueryVisitor {
 
     @Override
     public void visitPrologue(Prologue prologue) {
+        if (!printPrologue) {
+            return;
+        }
         int row1 = out.getRow();
         PrologueSerializer.output(out, prologue);
         int row2 = out.getRow();

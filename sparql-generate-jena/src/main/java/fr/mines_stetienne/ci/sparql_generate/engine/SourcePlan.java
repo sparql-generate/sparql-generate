@@ -102,7 +102,8 @@ public class SourcePlan extends BindOrSourcePlan {
 		final String acceptHeader = getAcceptHeader(binding);
 		LOG.trace("... resolved to SOURCE <" + sourceUri + "> ACCEPT " + acceptHeader + " AS " + var);
 		if (sourceUri == null) {
-			return BindingFactory.binding(binding, var, null);
+			// unbound source: the variable stays unbound
+			return binding;
 		}
 		final LookUpRequest request = new LookUpRequest(sourceUri, acceptHeader);
 		final SPARQLExtStreamManager sm = (SPARQLExtStreamManager) context.get(SysRIOT.sysStreamManager);
@@ -175,7 +176,7 @@ public class SourcePlan extends BindOrSourcePlan {
 		}
 		if (accept.isVariable()) {
 			actualAccept = binding.get((Var) accept);
-			if (accept == null) {
+			if (actualAccept == null) {
 				return "*/*";
 			}
 		}

@@ -34,6 +34,7 @@ import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.engine.ResultSetStream;
 import org.apache.jena.sparql.engine.binding.Binding;
 import org.apache.jena.sparql.engine.binding.BindingFactory;
+import org.apache.jena.sparql.engine.binding.BindingProject;
 import org.apache.jena.sparql.util.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -405,7 +406,11 @@ public class RootPlan {
 				IteratorPlan iteratorPlan = (IteratorPlan) plan;
 				iteratorPlan.exec(variables, values, context, (newValues) -> {
 					final List<Var> newVariables = new ArrayList<>(variables);
-					newVariables.addAll(iteratorPlan.getVars());
+					for (Var var : iteratorPlan.getVars()) {
+						if (!newVariables.contains(var)) {
+							newVariables.add(var);
+						}
+					}
 					execIteratorAndSourcePlans(newVariables, newValues, context, i + 1);
 					LOG.debug("Finished batch for " + iteratorPlan);
 				});
@@ -419,9 +424,14 @@ public class RootPlan {
 	private void execSelectPlan(final List<Var> variables, final List<Binding> values, final Context context) {
 		if (selectPlan == null) {
 			if (query.isSelectType()) {
-				final List<String> listVar = variables.stream().map(Var::getVarName).collect(Collectors.toList());
+				// no WHERE clause: project the solutions of the binding clauses
+				final List<Var> projected = query.isQueryResultStar() ? variables : query.getProjectVars();
+				final List<String> listVar = projected.stream().map(Var::getVarName).collect(Collectors.toList());
+				final List<Binding> projectedValues = query.isQueryResultStar() ? values
+						: values.stream().map((b) -> (Binding) new BindingProject(projected, b))
+								.collect(Collectors.toList());
 				final Model model = ContextUtils.getDataset(context).getDefaultModel();
-				final ResultSet resultSet = ResultSetStream.create(listVar, model, values.iterator());
+				final ResultSet resultSet = ResultSetStream.create(listVar, model, projectedValues.iterator());
 				ContextUtils.getSelectOutput(context).accept(resultSet);
 			} else if(query.isGenerateType()) {
 				generatePlan.exec(variables, values, context);

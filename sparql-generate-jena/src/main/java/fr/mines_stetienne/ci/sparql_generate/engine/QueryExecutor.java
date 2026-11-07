@@ -20,9 +20,13 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.jena.atlas.web.TypedInputStream;
@@ -35,13 +39,13 @@ import org.apache.jena.query.ResultSetRewindable;
 import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.engine.binding.Binding;
 import org.apache.jena.sparql.engine.binding.BindingBuilder;
+import org.apache.jena.sparql.resultset.ResultSetMem;
 import org.apache.jena.sparql.util.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheStats;
 
 import fr.mines_stetienne.ci.sparql_generate.SPARQLExt;
 import fr.mines_stetienne.ci.sparql_generate.SPARQLExtException;
@@ -63,9 +67,24 @@ public class QueryExecutor {
 
     private final Cache<String, SPARQLExtQuery> loadedQueries = CacheBuilder.newBuilder().expireAfterAccess(1, TimeUnit.MINUTES).maximumSize(200_000).build();
     private final Cache<SPARQLExtQuery, RootPlan> loadedPlans = CacheBuilder.newBuilder().expireAfterAccess(1, TimeUnit.MINUTES).maximumSize(200_000).build();
-    private final Cache<ExecutionKey, String> templateExecutions = CacheBuilder.newBuilder().expireAfterAccess(10, TimeUnit.SECONDS).maximumSize(200_000).recordStats().build();
-    private final Cache<ExecutionKey, ResultSetRewindable> selectExecutions = CacheBuilder.newBuilder().expireAfterAccess(10, TimeUnit.SECONDS).maximumSize(200_000).recordStats().build();
-    static int nbselect = 0, nbtemplate = 0, nbgenerate = 0;
+
+    /*
+     * Tabling of the calls to named queries, for the duration of the execution
+     * (one QueryExecutor per execution context). A call is identified by the
+     * plan and the binding of the signature. A call identical to a call in
+     * progress is a cycle: it adds nothing, so that recursion terminates. A
+     * call identical to a completed call is reused if the query is
+     * deterministic.
+     */
+    private final Set<ExecutionKey> callsInProgress = ConcurrentHashMap.newKeySet();
+    private final Set<ExecutionKey> completedGenerateCalls = ConcurrentHashMap.newKeySet();
+    private final Cache<ExecutionKey, ResultSetRewindable> completedSelectCalls = CacheBuilder.newBuilder().maximumSize(200_000).build();
+    private final Map<RootPlan, Boolean> deterministicPlans = new ConcurrentHashMap<>();
+
+    /**
+     * Functions whose value may change from one call to the next.
+     */
+    private static final Pattern UNSTABLE = Pattern.compile("(?i)\\b(bnode|rand|uuid|struuid|now)\\s*\\(");
 
     /**
      *
@@ -218,10 +237,44 @@ public class QueryExecutor {
             final List<Binding> values,
             final Context context) {
         Objects.nonNull(ContextUtils.getGenerateOutput(context));
-        if (++nbgenerate % 2000 == 00) {
-            LOG.info(String.format("Called generates %s times.", nbgenerate));
+        final boolean deterministic = isDeterministic(plan);
+        final List<Binding> toExecute = new ArrayList<>();
+        final List<ExecutionKey> keys = new ArrayList<>();
+        for (Binding binding : values) {
+            final ExecutionKey key = new ExecutionKey(plan, binding);
+            if (callsInProgress.contains(key)) {
+                LOG.debug("Cycle of calls to " + plan.getQuery().getName() + " cut");
+                continue;
+            }
+            if (deterministic && completedGenerateCalls.contains(key)) {
+                continue;
+            }
+            toExecute.add(binding);
+            keys.add(key);
         }
-        plan.execGenerateStream(values, context);
+        if (toExecute.isEmpty()) {
+            return;
+        }
+        callsInProgress.addAll(keys);
+        try {
+            plan.execGenerateStream(toExecute, context);
+        } finally {
+            callsInProgress.removeAll(keys);
+        }
+        if (deterministic) {
+            completedGenerateCalls.addAll(keys);
+        }
+    }
+
+    /**
+     * A query is deterministic if its text has no blank node and no BNODE,
+     * RAND, UUID, STRUUID or NOW. The queries it calls are not inspected.
+     */
+    private boolean isDeterministic(final RootPlan plan) {
+        return deterministicPlans.computeIfAbsent(plan, (p) -> {
+            final String text = p.getQuery().toString();
+            return !text.contains("_:") && !text.contains("[]") && !UNSTABLE.matcher(text).find();
+        });
     }
     /**
      *
@@ -279,18 +332,26 @@ public class QueryExecutor {
             final Context context) {
         Objects.nonNull(ContextUtils.getSelectOutput(context));
         final ExecutionKey key = new ExecutionKey(plan, newValues);
-        if (++nbselect % 2000 == 00) {
-            CacheStats stats = selectExecutions.stats();
-
-            LOG.info("call select " + nbselect + " count " + stats.loadCount() + " - hit count " + stats.hitCount() + " - rate " + stats.hitRate());
+        if (callsInProgress.contains(key)) {
+            LOG.debug("Cycle of calls to " + plan.getQuery().getName() + " cut");
+            ContextUtils.getSelectOutput(context).accept(ResultSetFactory.copyResults(new ResultSetMem()));
+            return;
         }
-        ResultSetRewindable resultSet = selectExecutions.getIfPresent(key);
+        final boolean deterministic = isDeterministic(plan);
+        ResultSetRewindable resultSet = deterministic ? completedSelectCalls.getIfPresent(key) : null;
         if (resultSet != null) {
             resultSet.reset();
         } else {
-            ResultSet memResultSet = plan.execSelect(newValues, context);
-            resultSet = ResultSetFactory.copyResults(memResultSet);
-            selectExecutions.put(key, resultSet);
+            callsInProgress.add(key);
+            try {
+                ResultSet memResultSet = plan.execSelect(newValues, context);
+                resultSet = ResultSetFactory.copyResults(memResultSet);
+            } finally {
+                callsInProgress.remove(key);
+            }
+            if (deterministic) {
+                completedSelectCalls.put(key, resultSet);
+            }
         }
         ContextUtils.getSelectOutput(context).accept(resultSet);
     }
@@ -358,10 +419,26 @@ public class QueryExecutor {
             final List<Binding> newValues,
             final Context context) {
         Objects.nonNull(ContextUtils.getTemplateOutput(context));
-        if (++nbtemplate % 2000 == 00) {
-            LOG.info(String.format("Called templates %s times.", nbtemplate));
+        final List<Binding> toExecute = new ArrayList<>();
+        final List<ExecutionKey> keys = new ArrayList<>();
+        for (Binding binding : newValues) {
+            final ExecutionKey key = new ExecutionKey(plan, binding);
+            if (callsInProgress.contains(key)) {
+                LOG.debug("Cycle of calls to " + plan.getQuery().getName() + " cut");
+                continue;
+            }
+            toExecute.add(binding);
+            keys.add(key);
         }
-        plan.execTemplateStream(newValues, context);
+        if (toExecute.isEmpty()) {
+            return;
+        }
+        callsInProgress.addAll(keys);
+        try {
+            plan.execTemplateStream(toExecute, context);
+        } finally {
+            callsInProgress.removeAll(keys);
+        }
     }
 
     private List<Var> getSignature(SPARQLExtQuery query) {
@@ -393,9 +470,9 @@ public class QueryExecutor {
     private class ExecutionKey {
 
         RootPlan plan;
-        List<Binding> binding;
+        Object binding;
 
-        public ExecutionKey(RootPlan plan, List<Binding> binding) {
+        public ExecutionKey(RootPlan plan, Object binding) {
             this.plan = plan;
             this.binding = binding;
         }

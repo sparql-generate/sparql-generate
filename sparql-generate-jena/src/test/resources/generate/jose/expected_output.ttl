@@ -1,0 +1,365 @@
+PREFIX area:                <http://crossforest.eu/mfe/data/area/>
+PREFIX axis:                <http://epsg.w3id.org/data/axis/>
+PREFIX bound:               <http://crossforest.eu/mfe/data/bound/>
+PREFIX canopyCover:         <http://crossforest.eu/mfe/data/canopyCover/>
+PREFIX crs:                 <http://crossforest.eu/epsg/data/crs/>
+PREFIX epsg:                <http://epsg.w3id.org/ontology/>
+PREFIX esadm:               <http://vocab.linkeddata.es/datosabiertos/def/sector-publico/territorio#>
+PREFIX fun:                 <http://w3id.org/sparql-generate/fn/>
+PREFIX ifn:                 <http://crossforest.eu/ifn/ontology/>
+PREFIX infoPatch:           <http://crossforest.eu/mfe/data/infoPatch/>
+PREFIX infoSpecies:         <http://crossforest.eu/mfe/data/infoSpecies/>
+PREFIX infoUse:             <http://crossforest.eu/mfe/data/infoUse/>
+PREFIX iter:                <http://w3id.org/sparql-generate/iter/>
+PREFIX layer:               <http://crossforest.eu/mfe/data/layer/>
+PREFIX mfe:                 <http://crossforest.eu/mfe/ontology/>
+PREFIX occupationOfSpecies: <http://crossforest.eu/mfe/data/occupationOfSpecies/>
+PREFIX patch:               <http://crossforest.eu/mfe/data/patch/>
+PREFIX polygon:             <http://crossforest.eu/mfe/data/polygon/>
+PREFIX province:            <http://crossforest.eu/ifn/data/province/>
+PREFIX rateOfPatch:         <http://crossforest.eu/mfe/data/rateOfPatch/>
+PREFIX rateOfUse:           <http://crossforest.eu/mfe/data/rateOfUse/>
+PREFIX smo:                 <http://crossforest.eu/measures/ontology/>
+PREFIX spo:                 <http://crossforest.eu/position/ontology/>
+PREFIX unit:                <http://crossforest.eu/measures/data/unit/>
+PREFIX wkt:                 <http://www.opengis.net/ont/geosparql#>
+PREFIX xsd:                 <http://www.w3.org/2001/XMLSchema#>
+
+infoUse:112-73.202  a      mfe:UseInPatch;
+        mfe:hasPercentage  73.202;
+        mfe:hasRateOfUse   rateOfUse:73.202-100;
+        mfe:hasUse         ifn:Use112 .
+
+bound:106-41.133037  a  epsg:LowerBound;
+        smo:hasUnit   unit:Degrees;
+        smo:hasValue  41.133037;
+        epsg:hasAxis  axis:106 .
+
+rateOfUse:73.202-100  a  mfe:RateofUse;
+        smo:hasUnit   unit:Percentage;
+        smo:hasValue  73.202 .
+
+occupationOfSpecies:43.921-100
+        a             mfe:OccupationOfSpecies;
+        smo:hasUnit   unit:Percentage;
+        smo:hasValue  43.921 .
+
+bound:107--5.101632  a  epsg:RightBound;
+        smo:hasUnit   unit:Degrees;
+        smo:hasValue  -5.101632;
+        epsg:hasAxis  axis:107 .
+
+bound:107--5.060739  a  epsg:LeftBound;
+        smo:hasUnit   unit:Degrees;
+        smo:hasValue  -5.060739;
+        epsg:hasAxis  axis:107 .
+
+rateOfUse:58.031-100  a  mfe:RateofUse;
+        smo:hasUnit   unit:Percentage;
+        smo:hasValue  58.031 .
+
+patch:PR47_U11_P0  a                    mfe:Patch , ifn:Use112;
+        mfe:containsPatch               infoPatch:322461-29.336 , infoPatch:281020-58.666;
+        mfe:containsSpecies             infoSpecies:23-76.268 , infoSpecies:26-5.867 , infoSpecies:45-2.934;
+        mfe:containsUses                infoUse:111-29.336 , infoUse:112-58.666;
+        mfe:hasCanopyCoverTotal         canopyCover:59;
+        mfe:hasCanopyCoverTotalPercent  59;
+        mfe:hasCanopyCoverTrees         canopyCover:53;
+        mfe:hasCanopyCoverTreesPercent  53;
+        spo:hasPolygon                  polygon:PR47_U11_P0-4326;
+        spo:inLayer                     layer:c_s5_u2_s5_fixed;
+        esadm:provincia                 province:47 .
+
+bound:107--5.023507  a  epsg:RightBound;
+        smo:hasUnit   unit:Degrees;
+        smo:hasValue  -5.023507;
+        epsg:hasAxis  axis:107 .
+
+infoSpecies:45-61.97  a             mfe:SpeciesInPatch;
+        mfe:hasOccupationOfSpecies  occupationOfSpecies:61.97-100;
+        mfe:hasPercentage           61.97;
+        mfe:hasSpecies              ifn:Species45 .
+
+infoPatch:PR47_U11_P0-281020
+        a                   mfe:PatchInPatch;
+        mfe:hasPatch        patch:281020;
+        mfe:hasPercentage   58.666;
+        mfe:hasRateOfPatch  rateOfPatch:58.666-100 .
+
+infoUse:113-58.031  a      mfe:UseInPatch;
+        mfe:hasPercentage  58.031;
+        mfe:hasRateOfUse   rateOfUse:58.031-100;
+        mfe:hasUse         ifn:Use113 .
+
+rateOfUse:58.666-100  a  mfe:RateofUse;
+        smo:hasUnit   unit:Percentage;
+        smo:hasValue  58.666 .
+
+infoPatch:PR47_U11_P2-281129
+        a                   mfe:PatchInPatch;
+        mfe:hasPatch        patch:281129;
+        mfe:hasPercentage   21.535;
+        mfe:hasRateOfPatch  rateOfPatch:21.535-100 .
+
+polygon:PR47_U11_P2-4326
+        a                          spo:Polygon;
+        mfe:hasAreaInSquareMeters  "2838633"^^xsd:decimal;
+        spo:hasLeftBound           bound:107--5.060739;
+        epsg:hasCoordinateReferenceSystem
+                crs:4326;
+        epsg:hasLeftBound107       -5.060739;
+        epsg:hasLowerBound         bound:106-41.142285;
+        epsg:hasLowerBound106      41.142285;
+        epsg:hasRightBound         bound:107--5.023507;
+        epsg:hasRightBound107      -5.023507;
+        epsg:hasUpperBound         bound:106-41.156894;
+        epsg:hasUpperBound106      41.156894;
+        wkt:asWKT                  "POLYGON((-5.027504 41.151373, -5.03766 41.147358, -5.049724 41.142285, -5.057042 41.146665, -5.057443 41.146998, -5.060739 41.15308, -5.040805 41.156467, -5.032744 41.156894, -5.032215 41.156734, -5.023507 41.156172, -5.027504 41.151373))"^^wkt:wktLiteral .
+
+bound:107--5.129973  a  epsg:LeftBound;
+        smo:hasUnit   unit:Degrees;
+        smo:hasValue  -5.129973;
+        epsg:hasAxis  axis:107 .
+
+infoUse:111-29.336  a      mfe:UseInPatch;
+        mfe:hasPercentage  29.336;
+        mfe:hasRateOfUse   rateOfUse:29.336-100;
+        mfe:hasUse         ifn:Use111 .
+
+patch:PR47_U11_P2  a                    mfe:Patch , ifn:Use113;
+        mfe:containsPatch               infoPatch:281208-4.708 , infoPatch:281129-21.535 , infoPatch:423929-58.031;
+        mfe:containsSpecies             infoSpecies:26-7.603 , infoSpecies:23-0.471 , infoSpecies:45-61.97;
+        mfe:containsUses                infoUse:111-26.243 , infoUse:113-58.031;
+        mfe:hasCanopyCoverTotal         canopyCover:41;
+        mfe:hasCanopyCoverTotalPercent  41;
+        mfe:hasCanopyCoverTrees         canopyCover:36;
+        mfe:hasCanopyCoverTreesPercent  36;
+        spo:hasPolygon                  polygon:PR47_U11_P2-4326;
+        spo:inLayer                     layer:c_s5_u2_s5_fixed;
+        esadm:provincia                 province:47 .
+
+bound:106-41.139548  a  epsg:UpperBound;
+        smo:hasUnit   unit:Degrees;
+        smo:hasValue  41.139548;
+        epsg:hasAxis  axis:106 .
+
+bound:106-41.156894  a  epsg:UpperBound;
+        smo:hasUnit   unit:Degrees;
+        smo:hasValue  41.156894;
+        epsg:hasAxis  axis:106 .
+
+polygon:PR47_U11_P1-4326
+        a                          spo:Polygon;
+        mfe:hasAreaInSquareMeters  "552465"^^xsd:decimal;
+        spo:hasLeftBound           bound:107--5.129973;
+        epsg:hasCoordinateReferenceSystem
+                crs:4326;
+        epsg:hasLeftBound107       -5.129973;
+        epsg:hasLowerBound         bound:106-41.133037;
+        epsg:hasLowerBound106      41.133037;
+        epsg:hasRightBound         bound:107--5.113395;
+        epsg:hasRightBound107      -5.113395;
+        epsg:hasUpperBound         bound:106-41.139548;
+        epsg:hasUpperBound106      41.139548;
+        wkt:asWKT                  "POLYGON((-5.113626 41.139548, -5.113395 41.136381, -5.124682 41.133037, -5.128323 41.133494, -5.129973 41.134668, -5.121592 41.138369, -5.119442 41.139474, -5.113626 41.139548))"^^wkt:wktLiteral .
+
+infoPatch:PR47_U11_P2-423929
+        a                   mfe:PatchInPatch;
+        mfe:hasPatch        patch:423929;
+        mfe:hasPercentage   58.031;
+        mfe:hasRateOfPatch  rateOfPatch:58.031-100 .
+
+infoSpecies:23-0.471  a             mfe:SpeciesInPatch;
+        mfe:hasOccupationOfSpecies  occupationOfSpecies:0.471-100;
+        mfe:hasPercentage           0.471;
+        mfe:hasSpecies              ifn:Species23 .
+
+occupationOfSpecies:0.471-100
+        a             mfe:OccupationOfSpecies;
+        smo:hasUnit   unit:Percentage;
+        smo:hasValue  0.471 .
+
+rateOfUse:26.243-100  a  mfe:RateofUse;
+        smo:hasUnit   unit:Percentage;
+        smo:hasValue  26.243 .
+
+polygon:PR47_U11_P0-4326
+        a                          spo:Polygon;
+        mfe:hasAreaInSquareMeters  "334241"^^xsd:decimal;
+        spo:hasLeftBound           bound:107--5.110326;
+        epsg:hasCoordinateReferenceSystem
+                crs:4326;
+        epsg:hasLeftBound107       -5.110326;
+        epsg:hasLowerBound         bound:106-41.13691;
+        epsg:hasLowerBound106      41.13691;
+        epsg:hasRightBound         bound:107--5.101632;
+        epsg:hasRightBound107      -5.101632;
+        epsg:hasUpperBound         bound:106-41.147804;
+        epsg:hasUpperBound106      41.147804;
+        wkt:asWKT                  "POLYGON((-5.101632 41.145074, -5.110146 41.13691, -5.110326 41.147804, -5.104031 41.143229, -5.101632 41.145074))"^^wkt:wktLiteral .
+
+infoSpecies:45-14.64  a             mfe:SpeciesInPatch;
+        mfe:hasOccupationOfSpecies  occupationOfSpecies:14.64-100;
+        mfe:hasPercentage           14.64;
+        mfe:hasSpecies              ifn:Species45 .
+
+occupationOfSpecies:5.867-100
+        a             mfe:OccupationOfSpecies;
+        smo:hasUnit   unit:Percentage;
+        smo:hasValue  5.867 .
+
+occupationOfSpecies:76.268-100
+        a             mfe:OccupationOfSpecies;
+        smo:hasUnit   unit:Percentage;
+        smo:hasValue  76.268 .
+
+rateOfPatch:21.535-100
+        a             mfe:RateofPatch;
+        smo:hasUnit   unit:Percentage;
+        smo:hasValue  21.535 .
+
+infoSpecies:23-14.64  a             mfe:SpeciesInPatch;
+        mfe:hasOccupationOfSpecies  occupationOfSpecies:14.64-100;
+        mfe:hasPercentage           14.64;
+        mfe:hasSpecies              ifn:Species23 .
+
+infoPatch:PR47_U11_P0-322461
+        a                   mfe:PatchInPatch;
+        mfe:hasPatch        patch:322461;
+        mfe:hasPercentage   29.336;
+        mfe:hasRateOfPatch  rateOfPatch:29.336-100 .
+
+infoSpecies:26-7.603  a             mfe:SpeciesInPatch;
+        mfe:hasOccupationOfSpecies  occupationOfSpecies:7.603-100;
+        mfe:hasPercentage           7.603;
+        mfe:hasSpecies              ifn:Species26 .
+
+infoSpecies:26-43.921
+        a                           mfe:SpeciesInPatch;
+        mfe:hasOccupationOfSpecies  occupationOfSpecies:43.921-100;
+        mfe:hasPercentage           43.921;
+        mfe:hasSpecies              ifn:Species26 .
+
+bound:106-41.147804  a  epsg:UpperBound;
+        smo:hasUnit   unit:Degrees;
+        smo:hasValue  41.147804;
+        epsg:hasAxis  axis:106 .
+
+infoSpecies:23-76.268
+        a                           mfe:SpeciesInPatch;
+        mfe:hasOccupationOfSpecies  occupationOfSpecies:76.268-100;
+        mfe:hasPercentage           76.268;
+        mfe:hasSpecies              ifn:Species23 .
+
+bound:106-41.13691  a  epsg:LowerBound;
+        smo:hasUnit   unit:Degrees;
+        smo:hasValue  41.13691;
+        epsg:hasAxis  axis:106 .
+
+infoSpecies:26-5.867  a             mfe:SpeciesInPatch;
+        mfe:hasOccupationOfSpecies  occupationOfSpecies:5.867-100;
+        mfe:hasPercentage           5.867;
+        mfe:hasSpecies              ifn:Species26 .
+
+infoUse:112-58.666  a      mfe:UseInPatch;
+        mfe:hasPercentage  58.666;
+        mfe:hasRateOfUse   rateOfUse:58.666-100;
+        mfe:hasUse         ifn:Use112 .
+
+occupationOfSpecies:7.603-100
+        a             mfe:OccupationOfSpecies;
+        smo:hasUnit   unit:Percentage;
+        smo:hasValue  7.603 .
+
+patch:PR47_U11_P1  a                    ifn:Use112 , mfe:Patch;
+        mfe:containsPatch               infoPatch:281056-73.202;
+        mfe:containsSpecies             infoSpecies:23-14.64 , infoSpecies:45-14.64 , infoSpecies:26-43.921;
+        mfe:containsUses                infoUse:112-73.202;
+        mfe:hasCanopyCoverTotal         canopyCover:55;
+        mfe:hasCanopyCoverTotalPercent  55;
+        mfe:hasCanopyCoverTrees         canopyCover:51;
+        mfe:hasCanopyCoverTreesPercent  51;
+        spo:hasPolygon                  polygon:PR47_U11_P1-4326;
+        spo:inLayer                     layer:c_s5_u2_s5_fixed;
+        esadm:provincia                 province:47 .
+
+occupationOfSpecies:14.64-100
+        a             mfe:OccupationOfSpecies;
+        smo:hasUnit   unit:Percentage;
+        smo:hasValue  14.64 .
+
+infoPatch:PR47_U11_P2-281208
+        a                   mfe:PatchInPatch;
+        mfe:hasPatch        patch:281208;
+        mfe:hasPercentage   4.708;
+        mfe:hasRateOfPatch  rateOfPatch:4.708-100 .
+
+bound:107--5.113395  a  epsg:RightBound;
+        smo:hasUnit   unit:Degrees;
+        smo:hasValue  -5.113395;
+        epsg:hasAxis  axis:107 .
+
+bound:106-41.142285  a  epsg:LowerBound;
+        smo:hasUnit   unit:Degrees;
+        smo:hasValue  41.142285;
+        epsg:hasAxis  axis:106 .
+
+occupationOfSpecies:61.97-100
+        a             mfe:OccupationOfSpecies;
+        smo:hasUnit   unit:Percentage;
+        smo:hasValue  61.97 .
+
+rateOfPatch:29.336-100
+        a             mfe:RateofPatch;
+        smo:hasUnit   unit:Percentage;
+        smo:hasValue  29.336 .
+
+infoSpecies:45-2.934  a             mfe:SpeciesInPatch;
+        mfe:hasOccupationOfSpecies  occupationOfSpecies:2.934-100;
+        mfe:hasPercentage           2.934;
+        mfe:hasSpecies              ifn:Species45 .
+
+occupationOfSpecies:2.934-100
+        a             mfe:OccupationOfSpecies;
+        smo:hasUnit   unit:Percentage;
+        smo:hasValue  2.934 .
+
+rateOfPatch:4.708-100
+        a             mfe:RateofPatch;
+        smo:hasUnit   unit:Percentage;
+        smo:hasValue  4.708 .
+
+infoPatch:PR47_U11_P1-281056
+        a                   mfe:PatchInPatch;
+        mfe:hasPatch        patch:281056;
+        mfe:hasPercentage   73.202;
+        mfe:hasRateOfPatch  rateOfPatch:73.202-100 .
+
+infoUse:111-26.243  a      mfe:UseInPatch;
+        mfe:hasPercentage  26.243;
+        mfe:hasRateOfUse   rateOfUse:26.243-100;
+        mfe:hasUse         ifn:Use111 .
+
+rateOfPatch:73.202-100
+        a             mfe:RateofPatch;
+        smo:hasUnit   unit:Percentage;
+        smo:hasValue  73.202 .
+
+rateOfPatch:58.031-100
+        a             mfe:RateofPatch;
+        smo:hasUnit   unit:Percentage;
+        smo:hasValue  58.031 .
+
+rateOfUse:29.336-100  a  mfe:RateofUse;
+        smo:hasUnit   unit:Percentage;
+        smo:hasValue  29.336 .
+
+bound:107--5.110326  a  epsg:LeftBound;
+        smo:hasUnit   unit:Degrees;
+        smo:hasValue  -5.110326;
+        epsg:hasAxis  axis:107 .
+
+rateOfPatch:58.666-100
+        a             mfe:RateofPatch;
+        smo:hasUnit   unit:Percentage;
+        smo:hasValue  58.666 .

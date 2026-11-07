@@ -18,6 +18,7 @@ package fr.mines_stetienne.ci.sparql_generate.lang;
 import fr.mines_stetienne.ci.sparql_generate.query.SPARQLExtQuery;
 import fr.mines_stetienne.ci.sparql_generate.syntax.FromClause;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.apache.jena.query.QueryParseException;
@@ -87,7 +88,8 @@ public class SPARQLExtSyntaxVarScope {
     }
 
     private static void checkVarsInExpr(Expr expr, List<Var> signature, String message) {
-        Set<Var> vars = ExprVars.getVarsMentioned(expr);
+        // Jena 5 returns an immutable set
+        Set<Var> vars = new HashSet<>(ExprVars.getVarsMentioned(expr));
         vars.removeAll(signature);
         if (!vars.isEmpty()) {
             throw new QueryParseException(message, -1, -1);

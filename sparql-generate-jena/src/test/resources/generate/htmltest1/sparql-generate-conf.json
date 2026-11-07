@@ -1,3 +1,10 @@
 {
-    "query": "query.rqg"
+    "query": "query.rqg",
+    "documentset": [
+        {
+            "uri": "https://web.archive.org/web/20170718195443/https://en.wikipedia.org/wiki/SPARQL",
+            "mediatype": "text/html",
+            "path": "documentset/SPARQL.html"
+        }
+    ]
 }

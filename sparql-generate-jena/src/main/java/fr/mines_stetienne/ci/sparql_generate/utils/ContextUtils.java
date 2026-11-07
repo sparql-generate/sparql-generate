@@ -26,6 +26,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
+
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 
 import org.apache.jena.atlas.io.IndentedWriter;
 import org.apache.jena.atlas.web.TypedInputStream;
@@ -46,6 +50,7 @@ import org.apache.jena.riot.system.StreamRDF;
 import org.apache.jena.riot.system.StreamRDFOps;
 import org.apache.jena.shared.PrefixMapping;
 import org.apache.jena.sparql.ARQConstants;
+import org.apache.jena.sparql.expr.NodeValue;
 import org.apache.jena.sparql.SystemARQ;
 import org.apache.jena.sparql.function.FunctionRegistry;
 import org.apache.jena.sparql.util.Context;
@@ -145,6 +150,24 @@ public class ContextUtils {
 			return NodeFactory.createBlankNode();
 		}
 		return commons.blankNodes.computeIfAbsent(label, (l) -> NodeFactory.createBlankNode());
+	}
+
+	/**
+	 * Gets the value memoised for a key during the execution, or computes it.
+	 * Outside of a SPARQL-Generate execution, always computes it.
+	 */
+	public static NodeValue memoise(final Context context, final Object key, final Supplier<NodeValue> compute) {
+		Commons commons = context == null ? null : context.get(COMMONS);
+		if (commons == null) {
+			return compute.get();
+		}
+		NodeValue value = commons.memoised.getIfPresent(key);
+		if (value == null) {
+			// not computeIfAbsent: an evaluation error must not be memoised
+			value = compute.get();
+			commons.memoised.put(key, value);
+		}
+		return value;
 	}
 
 	public static Dataset getDataset(Context context) {
@@ -489,6 +512,7 @@ public class ContextUtils {
 		private QueryExecutor queryExecutor = new QueryExecutor();
 		private final Set<Runnable> closingTasks = new HashSet<>();
 		private final Map<String, Node> blankNodes = new ConcurrentHashMap<>();
+		private final Cache<Object, NodeValue> memoised = CacheBuilder.newBuilder().maximumSize(1000).build();
 
 		private Commons() {
 		}

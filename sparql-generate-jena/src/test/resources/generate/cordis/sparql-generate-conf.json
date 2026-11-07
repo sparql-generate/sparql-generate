@@ -1,3 +1,10 @@
 {
-    "query": "query.rqg"
+    "query": "query.rqg",
+    "documentset": [
+        {
+            "uri": "http://www.emse.fr/~zimmermann/Data/cordis-h2020projects.10lines.csv",
+            "mediatype": "text/csv",
+            "path": "documentset/cordis-h2020projects.10lines.csv"
+        }
+    ]
 }

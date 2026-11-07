@@ -31,4 +31,12 @@ public class CliRequest extends FileConfigurations {
 	 * The log level as an object
 	 */
     public Level logLevelObject;
+
+    /**
+     * Same defaults as {@link FileConfigurations}, but log level WARN.
+     */
+    public CliRequest() {
+        super();
+        loglevel = 2;
+    }
 }
