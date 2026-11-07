@@ -264,8 +264,7 @@ public class SPARQLExtCli {
 				}
 			}
 		} else if (q.isGenerateType() && !rq.stream && !rq.hdt) {
-			Context context = contextBuilder.build();
-			execGenerate(bindings, plan, context, rq);
+			execGenerate(bindings, plan, contextBuilder, rq);
 		} else if (q.isGenerateType() && rq.hdt) {
 			execGenerateHDT(bindings, plan, contextBuilder, rq);
 		} else if (q.isGenerateType()) {
@@ -394,11 +393,23 @@ public class SPARQLExtCli {
 		}
 	}
 
-	private static void execGenerate(List<Binding> bindings, RootPlan plan, Context context, CliRequest request) {
+	private static void execGenerate(List<Binding> bindings, RootPlan plan, ContextUtils.Builder builder, CliRequest request) {
 		if (request.outputFormat == null) {
 			request.outputFormat = RDFLanguages.strLangTurtle;
 		}
 		Lang lang = RDFLanguages.nameToLang(request.outputFormat);
+		if (Lang.NTRIPLES.equals(lang) || Lang.NQUADS.equals(lang)) {
+			// the set of triples, written as they are generated: the graph is
+			// not built in memory
+			try (OutputStream out = openOutput(request)) {
+				Context context = builder.setGenerateOutput(new DistinctNTriplesStreamRDF(out)).build();
+				plan.execGenerateStream(bindings, context);
+			} catch (IOException ex) {
+				throw new SPARQLExtException("Error while writing the output file.", ex);
+			}
+			return;
+		}
+		final Context context = builder.build();
 		final Model model;
 		try {
 			model = plan.execGenerate(bindings, context);
