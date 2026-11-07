@@ -127,7 +127,8 @@ public class EvalUtils {
         Objects.requireNonNull(nodeValues);
         List<Node> nodes = new ArrayList<>();
         nodeValues.forEach((node) -> {
-            if(node.asNode().isConcrete()) {
+            // null: an argument that is unbound or in error
+            if(node != null && node.asNode().isConcrete()) {
                 nodes.add(node.asNode());
             } else {
                 nodes.add(null);
