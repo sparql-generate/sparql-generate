@@ -4,7 +4,9 @@ name: Release
 #   1. to Maven Central, through the Central Portal (central-publishing-maven-plugin),
 #      unless X.Y.Z ends with -SNAPSHOT (snapshot.sh): then only a GitHub pre-release;
 #   2. as a GitHub release, with the command-line JAR and the javadoc;
-#   3. on ci.mines-stetienne.fr (API docs and the playground server).
+#   3. on ci.mines-stetienne.fr (API docs and the playground server). These last steps may
+#      fail without failing the release: the server's SSH port is not reachable from
+#      GitHub-hosted runners (i/o timeout since 2026-11); deploy by hand then.
 # The version in the POMs must already be X.Y.Z (see release.sh).
 
 on:
@@ -74,6 +76,7 @@ jobs:
             sparql-generate-$VERSION.jar sparql-generate-$VERSION-javadoc.jar
 
       - name: Upload the API docs to ci.mines-stetienne.fr
+        continue-on-error: true
         uses: appleboy/scp-action@v0.1.7
         with:
           source: "sparql-generate-all/target/reports/apidocs"
@@ -84,6 +87,7 @@ jobs:
           key: ${{ secrets.CI_KEY }}
 
       - name: Upload the server WAR to ci.mines-stetienne.fr
+        continue-on-error: true
         uses: appleboy/scp-action@v0.1.7
         with:
           source: "sparql-generate-server/target/sparql-generate.war"
@@ -94,6 +98,7 @@ jobs:
           key: ${{ secrets.CI_KEY }}
 
       - name: Restart the playground server
+        continue-on-error: true
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ci.mines-stetienne.fr
