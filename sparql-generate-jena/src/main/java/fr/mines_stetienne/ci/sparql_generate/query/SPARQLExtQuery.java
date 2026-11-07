@@ -58,6 +58,27 @@ public class SPARQLExtQuery extends Query {
 	}
 
 	/**
+	 * GENERATE, TEMPLATE and SELECT queries of SPARQL-Generate may have no WHERE
+	 * clause: Jena would warn "No query pattern in non-DESCRIBE query" for each
+	 * of them.
+	 */
+	@Override
+	public void ensureResultVars() {
+		if (getQueryPattern() == null) {
+			return;
+		}
+		super.ensureResultVars();
+	}
+
+	@Override
+	public void resetResultVars() {
+		if (getQueryPattern() == null) {
+			return;
+		}
+		super.resetResultVars();
+	}
+
+	/**
 	 * Creates a new empty query with the given prologue.
 	 */
 	public SPARQLExtQuery(Prologue prologue) {

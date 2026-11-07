@@ -101,6 +101,17 @@ public class CliTest {
 		assertEquals(2, model.size());
 	}
 
+	/**
+	 * A GENERATE query without WHERE clause is valid: no warning.
+	 */
+	@Test
+	public void noWarningWithoutWhereClause() throws Exception {
+		Result result = run("GENERATE { <http://ex/s> <http://ex/p> 1 }");
+		assertEquals(result.err, 0, result.exitCode);
+		assertTrue(result.err, result.err.trim().isEmpty());
+		assertTrue(result.out, result.out.contains("http://ex/p"));
+	}
+
 	@Test
 	public void logsGoToStandardError() throws Exception {
 		Result result = run(QUERY, "-l", "DEBUG");
