@@ -12,4 +12,15 @@ curl --get https://ci.mines-stetienne.fr/sparql-generate/api/transform \
   --data-urlencode 'query=GENERATE { <http://example.org/s> <http://example.org/p> 42 } WHERE {}'
 ```
 
-The API runs on the server of MINES Saint-Étienne with a time limit of 10 seconds per query, and without the documents and named queries of a playground session: the query can only use documents and queries available on the Web. For other uses, run the [command line](cli.md) or the [Java API](java-api.md).
+The API runs on the server of MINES Saint-Étienne with a time limit of 10 seconds and a limit of 1,000,000 triples per query, and without the documents and named queries of a playground session: the query can only use documents and queries available on the Web. For other uses, run the [command line](cli.md) or the [Java API](java-api.md).
+
+## Limits of a server
+
+A server of the playground (the `sparql-generate-server` web application) limits each execution, of the Web API and of the playground alike, by two environment variables:
+
+| Variable | Default | Meaning |
+|:--|:--|:--|
+| `SPARQL_GENERATE_MAX_TIME` | `10` | the time limit of an execution, in seconds |
+| `SPARQL_GENERATE_MAX_TRIPLES` | `1000000` | the largest number of triples that a `GENERATE` execution may generate |
+
+An execution that reaches a limit stops. In the playground, the output already sent stays, followed by the message `Time limit of 10 s reached, output truncated.` (or `Limit of 1000000 triples reached, output truncated.`): this is how a query over an endless stream, such as `iter:MQTTSubscribe` or `iter:WebSocket`, ends. The Web API answers `408 Request Timeout` with the same message.

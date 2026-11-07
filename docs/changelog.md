@@ -4,10 +4,11 @@ This page summarises the changes of the engine since version 2.0. The full histo
 
 ## 2.3.1
 
-Not yet released.
+Released on 2026-11-07.
 
+- **Limits of an execution.** An execution can be given a time limit and a limit of triples: `ContextUtils.Builder.setTimeLimit` and `setMaxTriples` in Java, `--time-limit` and `--max-triples` on the command line. A limit reached stops the execution with the message `Time limit of 10 s reached, output truncated.` (or `Limit of n triples reached, output truncated.`), and exit status 1 on the command line. The stream iterators (`iter:HTTPGet`, `iter:MQTTSubscribe`, `iter:WebSocket`) stop at the time limit.
+- **The playground server** is configured by the environment variables `SPARQL_GENERATE_MAX_TIME` (10 s by default) and `SPARQL_GENERATE_MAX_TRIPLES` (1,000,000 by default), see [Web API](web-api.md#limits-of-a-server). An execution that reaches a limit stops, and the playground says that the output is truncated; an execution went on running after its request had timed out.
 - The message about an unknown function or iterator suggests the closest known one: `Unknown iterator <.../iter/JSONpath>. Did you mean <.../iter/JSONPath>?`.
-- An execution can be given a time limit and a limit of triples (`ContextUtils.Builder.setTimeLimit`, `setMaxTriples`). The playground server sets them (`SPARQL_GENERATE_MAX_TIME`, 10 s, and `SPARQL_GENERATE_MAX_TRIPLES`, 1,000,000 by default) and stops an execution that exceeds them; it went on running after the request had timed out.
 
 ## 2.3.0
 

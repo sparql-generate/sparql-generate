@@ -33,12 +33,14 @@ The engine looks a document, a named query or a graph up in this order:
 | `-dt`, `--debug-template` | | in `TEMPLATE` output, insert identifiers that refer to the warnings of the log |
 | `-x`, `--syntax` | | check the syntax of the query and exit |
 | `--fail-on-missing` | | fail when a document, a graph or a named query cannot be found (see below) |
+| `--time-limit` | seconds | stop the execution after this time |
+| `--max-triples` | n | stop a `GENERATE` execution beyond this number of triples |
 | `-l`, `--log-level` | level | `TRACE`, `DEBUG`, `INFO`, `WARN` (default), `ERROR` or `OFF`; an unrecognised value gives `WARN` |
 | `-f`, `--log-file` | file | also write the log to this file |
 | `-B` | `name=term` | bind the parameter `?name` to an RDF term, written as in the query, with its prefixes: `-Bn=12`, `-Bs='"a string"@en'`, `-Biri='<http://example.org/>'`, `-Bp=ex:o`; a value that is not an RDF term is an error |
 | `--source` | `iri=iri` | deprecated: replace the IRI of a `SOURCE` clause |
 
-The log goes to the standard error. The exit status is 0 when the query was executed, and 1 when the query is invalid, when its execution or the writing of the output fails, or when the options do not fit the query (such as `--hdt` with a `SELECT` query). A document that cannot be found or parsed is a warning, not a failure: an iterator over it gives no solution, the variable of a `SOURCE` clause stays unbound, and the graph of a `FROM` clause is empty. With `--fail-on-missing`, a document, a graph or a named query that cannot be found stops the execution with status 1 and the message `Document not found: <iri>`.
+The log goes to the standard error. The exit status is 0 when the query was executed, and 1 when the query is invalid, when its execution or the writing of the output fails, or when the options do not fit the query (such as `--hdt` with a `SELECT` query). A document that cannot be found or parsed is a warning, not a failure: an iterator over it gives no solution, the variable of a `SOURCE` clause stays unbound, and the graph of a `FROM` clause is empty. With `--fail-on-missing`, a document, a graph or a named query that cannot be found stops the execution with status 1 and the message `Document not found: <iri>`. A limit set by `--time-limit` or `--max-triples` that is reached stops the execution with status 1 and the message `Time limit of 600 s reached, output truncated.` (or `Limit of n triples reached, output truncated.`); with `--stream`, the output written so far stays in the output file. So does an `OutOfMemoryError`, with status 1.
 
 Levels `DEBUG` and `TRACE` log each solution and each triple: use them to understand a query, not to measure performance.
 
@@ -85,6 +87,8 @@ Levels `DEBUG` and `TRACE` log each solution and each triple: use them to unders
 | `hdt` | boolean | `false` | as `--hdt` |
 | `debugTemplate` | boolean | `false` | as `--debug-template` |
 | `failOnMissing` | boolean | `false` | as `--fail-on-missing` |
+| `timeLimit` | integer | `0` (none) | as `--time-limit` |
+| `maxTriples` | integer | `0` (none) | as `--max-triples` |
 | `log` | integer | `2` | 0 `OFF`, 1 `ERROR`, 2 `WARN`, 3 `INFO`, 4 `DEBUG`, 5 `TRACE`; the former key `loglevel` is also read |
 | `logFile` | path | none | as `--log-file`, relative to the working directory |
 
