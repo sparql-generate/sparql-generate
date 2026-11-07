@@ -46,10 +46,31 @@ public class SPARQLExtParserBase extends SPARQLParserBase {
         return NodeFactory.createLiteralString(lexicalForm);
     }
 
+    /**
+     * Unescapes a string literal: \{ and \} are braces, the other escapes are
+     * those of SPARQL. The string is read once from left to right, so that
+     * in "a\\}b" the escape is \\ and not \}.
+     */
     public static String unescapeStr(String s, int line, int column) {
-        s = s.replace("\\{", "{");
-        s = s.replace("\\}", "}");
-        return unescape(s, '\\', false, line, column);
+        if (s.indexOf('\\') < 0) {
+            return s;
+        }
+        final StringBuilder sb = new StringBuilder(s.length());
+        for (int i = 0; i < s.length(); i++) {
+            final char c = s.charAt(i);
+            if (c == '\\' && i + 1 < s.length()) {
+                final char next = s.charAt(i + 1);
+                if (next != '{' && next != '}') {
+                    // left for the SPARQL unescape
+                    sb.append(c);
+                }
+                sb.append(next);
+                i++;
+            } else {
+                sb.append(c);
+            }
+        }
+        return unescape(sb.toString(), '\\', false, line, column);
     }
 
     /**

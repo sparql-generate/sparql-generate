@@ -67,4 +67,30 @@ public class EmbeddedExpressionTest {
 		assertGenerates("<http://ex/item/12> <http://ex/p> 1 .",
 				"GENERATE { ?s <http://ex/p> 1 } WHERE { VALUES ?i { 12 } BIND(<http://ex/item/{?i}> AS ?s) }");
 	}
+
+	/**
+	 * In "a\\}b", the escape is \\ (a backslash), followed by a brace that
+	 * opens no expression.
+	 */
+	@Test
+	public void escapedBackslashBeforeBrace() {
+		assertGenerates("<http://ex/s> <http://ex/p> \"a\\\\}b\" .",
+				"GENERATE { <http://ex/s> <http://ex/p> \"a\\\\}b\" } WHERE { }");
+	}
+
+	@Test
+	public void escapedBraces() {
+		assertGenerates("<http://ex/s> <http://ex/p> \"{x}\\\\\" .",
+				"GENERATE { <http://ex/s> <http://ex/p> \"\\{x\\}\\\\\" } WHERE { }");
+	}
+
+	/**
+	 * A query with an embedded expression is copied by serializing it: the
+	 * escaped backslash and the braces must survive the copy.
+	 */
+	@Test
+	public void escapesSurviveTheCopyOfTheQuery() {
+		assertGenerates("<http://ex/1> <http://ex/p> \"a\\\\}b{c}\" .",
+				"GENERATE { <http://ex/{?i}> <http://ex/p> \"a\\\\}b\\{c\\}\" } WHERE { VALUES ?i { 1 } }");
+	}
 }
