@@ -120,7 +120,14 @@ public final class FUN_JSONPath extends FunctionBase2 {
 					&& !JsonPath.compile(jsonpath.getString()).isDefinite()) {
 				value = ((List<?>) value).get(0);
 			}
-			return nodeForObject(value);
+			final NodeValue node = nodeForObject(value);
+			if (node == null) {
+				// JSON null: the variable is unbound
+				throw new ExprEvalException("JSON null for " + jsonpath);
+			}
+			return node;
+		} catch (ExprEvalException ex) {
+			throw ex;
 		} catch (Exception ex) {
 			if (LOG.isDebugEnabled()) {
 				Node compressed = LogUtils.compress(json.asNode());
