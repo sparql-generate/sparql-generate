@@ -27,6 +27,7 @@ import org.apache.jena.sparql.expr.E_NotOneOf;
 import org.apache.jena.sparql.expr.E_OneOf;
 import org.apache.jena.sparql.expr.Expr;
 import org.apache.jena.sparql.expr.ExprAggregator;
+import org.apache.jena.sparql.expr.aggregate.AggCustom;
 import org.apache.jena.sparql.expr.ExprFunction;
 import org.apache.jena.sparql.expr.ExprFunction0;
 import org.apache.jena.sparql.expr.ExprFunction1;
@@ -236,6 +237,11 @@ public class SPARQLExtFmtExprSPARQL extends FmtExprSPARQL {
 			}
 			if (agg instanceof AggCountDistinct) {
 				out.print("COUNT(DISTINCT *)");
+				return;
+			}
+			if (agg instanceof AggCustom) {
+				// <iri>(args), not the name AGG
+				out.print(agg.asSparqlExpr(context));
 				return;
 			}
 			out.print(agg.getName());

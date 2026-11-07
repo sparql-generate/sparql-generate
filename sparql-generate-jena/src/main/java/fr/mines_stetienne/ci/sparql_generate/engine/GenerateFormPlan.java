@@ -90,7 +90,11 @@ public class GenerateFormPlan implements GeneratePlan {
                     substAndOutputForList(t.getSubject(), t.getPredicate(), (Node_List) t.getObject(), sb, binding, outputStream, newContext, i, bNodeMap);
                 } else {
                     Triple t2 = TemplateLib.subst(t, binding, bNodeMap);
-                    outputIfConcrete(sb, outputStream, t2);
+                    if (ListAggregate.isList(t2.getObject())) {
+                        outputList(sb, outputStream, t2);
+                    } else {
+                        outputIfConcrete(sb, outputStream, t2);
+                    }
                 }
             }
 
@@ -116,6 +120,21 @@ public class GenerateFormPlan implements GeneratePlan {
                 sb.append("\n  ").append(t2);
             }
             outputStream.triple(t);
+        }
+    }
+
+    /**
+     * Writes the value of a list aggregate as a fresh RDF list.
+     */
+    private void outputList(final StringBuilder sb, final StreamRDF outputStream, final Triple t) {
+        final List<Node> nodes = ListAggregate.nodes(t.getObject());
+        Node current = nodes.isEmpty() ? RDF.nil.asNode() : NodeFactory.createBlankNode();
+        outputIfConcrete(sb, outputStream, Triple.create(t.getSubject(), t.getPredicate(), current));
+        for (int i = 0; i < nodes.size(); i++) {
+            final Node next = i == nodes.size() - 1 ? RDF.nil.asNode() : NodeFactory.createBlankNode();
+            outputIfConcrete(sb, outputStream, Triple.create(current, FIRST, nodes.get(i)));
+            outputIfConcrete(sb, outputStream, Triple.create(current, REST, next));
+            current = next;
         }
     }
 
