@@ -96,4 +96,37 @@ public class CliTest {
 		assertTrue(result.err.contains("DEBUG"));
 		assertTrue(!result.out.contains("DEBUG"));
 	}
+
+	@Test
+	public void logFileOption() throws Exception {
+		Result result = run(QUERY, "--log-file", "log.txt", "-l", "INFO");
+		assertEquals(result.err, 0, result.exitCode);
+		assertTrue(new File(folder.getRoot(), "log.txt").exists());
+		assertTrue(result.out.contains("http://ex/p"));
+	}
+
+	@Test
+	public void syntaxOptionOnValidQuery() throws Exception {
+		Result result = run(QUERY, "--syntax");
+		assertEquals(result.err, 0, result.exitCode);
+		assertTrue(!result.out.contains("http://ex/p"));
+	}
+
+	@Test
+	public void syntaxOptionOnInvalidQueryFails() throws Exception {
+		Result result = run("GENERATE { <http://ex/s> <http://ex/p> }", "-x");
+		assertTrue(result.exitCode != 0);
+	}
+
+	@Test
+	public void invalidQueryFails() throws Exception {
+		Result result = run("GENERATE { <http://ex/s> <http://ex/p> }");
+		assertTrue(result.exitCode != 0);
+	}
+
+	@Test
+	public void missingQueryFails() throws Exception {
+		Result result = run(null);
+		assertTrue(result.exitCode != 0);
+	}
 }

@@ -150,7 +150,7 @@ public class CMDConfigurations {
 	/** x */
 	public static final String ARG_SYNTAX = "x";
 	/** syntax */
-	public static final String ARG_SYNTAX_LONG = "log-file";
+	public static final String ARG_SYNTAX_LONG = "syntax";
 	/** Just validate the query, do nothing else */
 	public static final String ARG_SYNTAX_MAN = "Just validate the query, do nothing else.";
 

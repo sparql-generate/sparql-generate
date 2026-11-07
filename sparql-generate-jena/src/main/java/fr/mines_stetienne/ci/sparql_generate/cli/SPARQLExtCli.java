@@ -536,8 +536,9 @@ public class SPARQLExtCli {
 		request.stream = cl.hasOption(ARG_STREAM) || request.stream;
 		request.hdt = cl.hasOption(ARG_HDT) || request.hdt;
 		request.debugTemplate = cl.hasOption(ARG_DEBUG_TEMPLATE) || request.debugTemplate;
-		if (request.logFile != null) {
-			request.logFile = new File(dirFile, cl.getOptionValue(ARG_LOG_FILE, request.logFile)).getAbsolutePath();
+		String logFile = cl.getOptionValue(ARG_LOG_FILE, request.logFile);
+		if (logFile != null) {
+			request.logFile = new File(dirFile, logFile).getAbsolutePath();
 		}
 		try {
 			request.logLevelObject = Level.toLevel(cl.getOptionValue(ARG_LOG_LEVEL), LOG_LEVELS[request.loglevel]);
@@ -568,7 +569,7 @@ public class SPARQLExtCli {
 		} catch (Exception ex) {
 			if(cl != null && cl.hasOption(CMDConfigurations.ARG_SYNTAX_LONG)) {
 				System.out.println(ex.getMessage());
-				System.exit(0);
+				System.exit(1);
 				return null;
 			} else {
 				throw new RuntimeException("Error while parsing the query to be executed.", ex);
