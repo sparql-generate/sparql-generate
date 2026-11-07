@@ -2,6 +2,23 @@
 
 This page summarises the changes of the engine since version 2.0. The full history is in the [commits](https://github.com/sparql-generate/sparql-generate/commits/master) and the [releases](https://github.com/sparql-generate/sparql-generate/releases).
 
+## 2.3.0
+
+Not yet released.
+
+**Language and engine**
+
+- **Changed**: a JSON number written with a decimal point and without exponent (`0.1`, `-65.814436`) is an `xsd:decimal`, with its exact value; a number with an exponent (`1.5e3`) is an `xsd:double`, an integer an `xsd:integer`. It was an `xsd:double`. This holds for `fun:JSONPath`, `iter:JSONPath`, `iter:JSONSurfer`, `fun:CBOR` and `iter:CBOR`, whatever the default configuration of JSONPath.
+- An `OutOfMemoryError` in an iterator stops the execution with status 1 and a message; the CSV parser reported it as a parsing error, and the execution went on with part of the rows.
+
+**Performance**
+
+- Consecutive `BIND` clauses after an `ITERATOR` run in one pass, each row extended by one flat binding: as fast as the same `BIND` in the `WHERE` clause.
+
+**Command line**
+
+- The N-Triples (and N-Quads) output without `--stream` is written as the triples are generated, each one once, without building the graph in memory: the flat CSV workload of 1 M rows (5 M triples) now runs with a heap of 2 GB. The other formats still build the graph.
+
 ## 2.2.4
 
 Released on 2026-11-07. Faster evaluation of the queries translated from RML and of nested queries, and fixes; two changes of behaviour, marked **Changed**.
