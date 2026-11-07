@@ -20,6 +20,11 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
+import fr.mines_stetienne.ci.sparql_generate.SPARQLExt;
+import fr.mines_stetienne.ci.sparql_generate.stream.LocatorStringMap;
+import fr.mines_stetienne.ci.sparql_generate.stream.SPARQLExtStreamManager;
+import fr.mines_stetienne.ci.sparql_generate.utils.ContextUtils;
+
 /**
  * TEMPLATE queries.
  */
@@ -60,5 +65,28 @@ public class TemplateTest {
 		assertEquals("a (2): a1;a2.\nb (1): b1", template(
 				"TEMPLATE { ?k \" (\" count(?v) \"): \" GROUP { ?v ; separator = \";\" } ; separator = \".\\n\" } "
 						+ "WHERE { VALUES (?k ?v) { (\"a\" \"a1\") (\"a\" \"a2\") (\"b\" \"b1\") } } GROUP BY ?k ORDER BY ?k"));
+	}
+
+	private static String templateWith(String query, String namedIri, String named) {
+		LocatorStringMap locator = new LocatorStringMap();
+		locator.put(namedIri, named, SPARQLExt.MEDIA_TYPE);
+		SPARQLExtStreamManager sm = SPARQLExtStreamManager.makeStreamManager(locator);
+		return PlanFactory.create(query).execTemplate(ContextUtils.build().setStreamManager(sm).build());
+	}
+
+	@Test
+	public void callNamedTemplate() {
+		assertEquals("[1][2]", templateWith("TEMPLATE { TEMPLATE <http://ex.org/t>(?x) . } WHERE { VALUES ?x { 1 2 } }",
+				"http://ex.org/t", "TEMPLATE <http://ex.org/t>(?y) { \"[\" ?y \"]\" }"));
+	}
+
+	/**
+	 * A call to a named template with a WHERE clause at the call site, from a
+	 * root TEMPLATE query.
+	 */
+	@Test
+	public void callNamedTemplateWithWhereClause() {
+		assertEquals("[1]", templateWith("TEMPLATE { TEMPLATE <http://ex.org/t>(?x) WHERE { BIND(1 AS ?x) } . } WHERE { }",
+				"http://ex.org/t", "TEMPLATE <http://ex.org/t>(?y) { \"[\" ?y \"]\" }"));
 	}
 }
