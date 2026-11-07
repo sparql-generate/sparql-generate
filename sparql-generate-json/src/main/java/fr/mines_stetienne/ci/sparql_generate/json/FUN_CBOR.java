@@ -85,7 +85,7 @@ public final class FUN_CBOR extends FunctionBase2 {
             );
         }
 
-        String json = new String(Base64.getDecoder().decode(cbor.asNode().getLiteralLexicalForm().getBytes()));
+        String json = CBORDocuments.toJson(cbor.asNode().getLiteralLexicalForm());
         try {
             Object value = JsonPath.parse(json)
                     .limit(1).read(jsonpath.getString());

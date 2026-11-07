@@ -112,7 +112,7 @@ public class ITER_CBOR extends IteratorFunctionBase2 {
         Configuration conf = Configuration.builder()
                 .options(Option.ALWAYS_RETURN_LIST).build();
 
-        String json = new String(Base64.getDecoder().decode(cbor.asNode().getLiteralLexicalForm().getBytes()));
+        String json = CBORDocuments.toJson(cbor.asNode().getLiteralLexicalForm());
 
         Gson gson = new Gson();
         RDFDatatype dt = TypeMapper.getInstance().getSafeTypeByName(datatypeUri);

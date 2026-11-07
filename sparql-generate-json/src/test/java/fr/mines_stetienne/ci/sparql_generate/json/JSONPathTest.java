@@ -117,4 +117,38 @@ public class JSONPathTest {
 		RDFDataMgr.write(sw, actual, Lang.NT);
 		assertTrue("got:\n" + sw, actual.isIsomorphicWith(expected));
 	}
+
+	/**
+	 * A JSON null leaves the variable unbound, and the query goes on.
+	 */
+	@Test
+	public void nullValueIsUnbound() {
+		Model expected = ModelFactory.createDefaultModel();
+		RDFDataMgr.read(expected, new StringReader("<http://ex/s> <http://ex/p> 1 ."), null, Lang.TTL);
+		String query = "PREFIX fun: <http://w3id.org/sparql-generate/fn/> "
+				+ "GENERATE { <http://ex/s> <http://ex/p> 1 . <http://ex/s> <http://ex/q> ?o } "
+				+ "WHERE { BIND(fun:JSONPath(\"\\{\\\"n\\\": null\\}\", \"$['n']\") AS ?o) }";
+		Model actual = PlanFactory.create(query).execGenerate(ContextUtils.build().build());
+		StringWriter sw = new StringWriter();
+		RDFDataMgr.write(sw, actual, Lang.NT);
+		assertTrue("got:\n" + sw, actual.isIsomorphicWith(expected));
+	}
+
+	/**
+	 * iter:CBOR and fun:CBOR read the base64 encoding of a CBOR document, here
+	 * {"name":"kgc","n":3}.
+	 */
+	@Test
+	public void cbor() {
+		Model expected = ModelFactory.createDefaultModel();
+		RDFDataMgr.read(expected, new StringReader("<http://ex/s> <http://ex/p> \"\\\"kgc\\\"\"^^<https://www.iana.org/assignments/media-types/application/cbor> ; <http://ex/n> 3 ."), null, Lang.TTL);
+		String query = "PREFIX fun: <http://w3id.org/sparql-generate/fn/> PREFIX ite: <http://w3id.org/sparql-generate/iter/> "
+				+ "GENERATE { <http://ex/s> <http://ex/p> ?name ; <http://ex/n> ?n } "
+				+ "ITERATOR ite:CBOR(\"omRuYW1lY2tnY2FuAw==\", \"$.name\") AS ?name "
+				+ "WHERE { BIND(fun:CBOR(\"omRuYW1lY2tnY2FuAw==\", \"$.n\") AS ?n) }";
+		Model actual = PlanFactory.create(query).execGenerate(ContextUtils.build().build());
+		StringWriter sw = new StringWriter();
+		RDFDataMgr.write(sw, actual, Lang.NT);
+		assertTrue("got:\n" + sw, actual.isIsomorphicWith(expected));
+	}
 }
