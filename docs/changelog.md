@@ -2,9 +2,17 @@
 
 This page summarises the changes of the engine since version 2.0. The full history is in the [commits](https://github.com/sparql-generate/sparql-generate/commits/master) and the [releases](https://github.com/sparql-generate/sparql-generate/releases).
 
+## 2.2.2
+
+Released on 2026-11-07. This documentation on Read the Docs, the rewritten playground (CodeMirror 6, tutorial order, shareable links) and its refreshed examples, each run by a test against the engine.
+
+## 2.2.1
+
+Released on 2026-11-07. The playground server starts on Java 17 again (Jersey 2.48); Javadoc of the `st:` functions.
+
 ## 2.2.0
 
-Not released yet. Group `fr.mines-stetienne.ci.sparql-generate`, published on Maven Central through the Central Portal.
+Released on 2026-11-07. Group `fr.mines-stetienne.ci.sparql-generate`, published on Maven Central through the Central Portal.
 
 **Platform**
 
