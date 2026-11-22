@@ -91,7 +91,7 @@ Released on 2026-11-07. Faster evaluation of the queries translated from RML and
 
 ## 2.2.3
 
-Released on 2026-11-07. Fixes of the defects found by the benchmark and by the formal semantics, a few changes of behaviour (marked **Changed**), and a faster evaluation.
+Released on 2026-11-07. Fixes of the defects found by the benchmark and by minimal test queries against the documented behaviour, a few changes of behaviour (marked **Changed**), and a faster evaluation.
 
 **Language and engine**
 
