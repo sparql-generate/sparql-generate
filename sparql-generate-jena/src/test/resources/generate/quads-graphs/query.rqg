@@ -1,0 +1,16 @@
+BASE <http://example.com/>
+PREFIX ex: <http://example.com/>
+
+# A GRAPH block with a constant IRI, a variable, an IRI template and an
+# embedded expression; the triples outside GRAPH blocks are in the default
+# graph. A graph variable that is unbound, or bound to a literal, generates
+# nothing.
+GENERATE {
+  ex:s ex:p ?o .
+  GRAPH ex:constant { ex:s ex:p ?o }
+  GRAPH ?g { ex:s ex:q ?o }
+  GRAPH <graph/{?o}> { ex:s ex:r ?o }
+  GRAPH ?{ IRI(CONCAT("http://example.com/expr/", STR(?o))) } { ex:s ex:t ?o }
+} WHERE {
+  VALUES (?o ?g) { (1 ex:g1) (2 ex:g2) (3 UNDEF) (4 "literal") }
+}

@@ -1,0 +1,18 @@
+BASE <http://example.com/>
+PREFIX ex: <http://example.com/>
+PREFIX ite: <http://w3id.org/sparql-generate/iter/>
+
+# A sub-GENERATE in a GRAPH block generates in that graph, unless it has its
+# own GRAPH block. The graphs are computed from the variables of iterators.
+GENERATE {
+  GRAPH ?g {
+    ?person a ex:Person .
+    GENERATE {
+      ?person ex:skill ?skill .
+      GRAPH <skill/{?skill}> { ?person ex:has ?skill }
+    } ITERATOR ite:Split(?skills, ";") AS ?skill .
+  }
+} ITERATOR ite:Split("alice,bob", ",") AS ?name
+  BIND(IRI(CONCAT("http://example.com/person/", ?name)) AS ?person)
+  BIND(IRI(CONCAT("http://example.com/graph/", ?name)) AS ?g)
+  BIND(IF(?name = "alice", "java;rdf", "rdf") AS ?skills)

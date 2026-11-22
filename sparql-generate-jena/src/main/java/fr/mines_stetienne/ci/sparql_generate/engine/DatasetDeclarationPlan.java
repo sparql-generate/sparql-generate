@@ -18,6 +18,7 @@ import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.irix.IRIs;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetFactory;
+import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.riot.system.StreamRDF;
 import org.apache.jena.riot.system.StreamRDFLib;
 import org.apache.jena.sparql.core.DatasetGraph;
@@ -278,7 +279,9 @@ public class DatasetDeclarationPlan {
 
 	private void loadGraph(Binding binding, Context context, SPARQLExtQuery generate, Graph graph) {
 		QueryExecutor queryExecutor = ContextUtils.getQueryExecutor(context);
-		StreamRDF dest = StreamRDFLib.graph(graph);
+		// a FROM GENERATE gives one graph: the quads of its GRAPH blocks are
+		// ignored, with a warning
+		StreamRDF dest = new StreamRDFModel(ModelFactory.createModelForGraph(graph));
 		Context newContext = ContextUtils.fork(context).setGenerateOutput(dest).fork();
 		queryExecutor.execGenerateFromQuery(generate, binding, newContext);
 	}

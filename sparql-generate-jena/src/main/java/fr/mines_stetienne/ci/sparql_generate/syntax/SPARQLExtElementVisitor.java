@@ -27,6 +27,14 @@ public interface SPARQLExtElementVisitor extends ElementVisitor {
     public void visit(ElementGenerateTriplesBlock el) ;
     
     public void visit(ElementSubExtQuery el) ;
+
+    /**
+     * A {@code GRAPH} block of a {@code GENERATE} template. The default
+     * implementation does nothing, so that the visitors written before quad
+     * patterns compile and behave as before on the queries without them.
+     */
+    public default void visit(ElementGenerateGraph el) {
+    }
     
     public void visit(ElementIterator el) ;
     

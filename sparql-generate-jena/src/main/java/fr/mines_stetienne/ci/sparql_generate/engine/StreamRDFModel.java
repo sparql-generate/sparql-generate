@@ -21,6 +21,8 @@ import org.apache.jena.graph.Triple;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.riot.system.StreamRDF;
 import org.apache.jena.sparql.core.Quad;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Utility class to generate a Model from a stream of triples.
@@ -29,7 +31,11 @@ import org.apache.jena.sparql.core.Quad;
  */
 class StreamRDFModel implements StreamRDF {
 
+    private static final Logger LOG = LoggerFactory.getLogger(StreamRDFModel.class);
+
     private final Model model;
+
+    private boolean warned = false;
 
     public StreamRDFModel(final Model model) {
         Objects.requireNonNull(model);
@@ -45,9 +51,21 @@ class StreamRDFModel implements StreamRDF {
         model.add(model.asStatement(triple));
     }
 
+    /**
+     * A quad of the default graph is added to the model; a quad of a named
+     * graph is ignored, with a warning for the first one.
+     */
     @Override
-    public void quad(Quad quad) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public synchronized void quad(Quad quad) {
+        if (quad.isDefaultGraph()) {
+            triple(quad.asTriple());
+            return;
+        }
+        if (!warned) {
+            warned = true;
+            LOG.warn("The query generates quads in named graphs, such as graph " + quad.getGraph()
+                    + ": they are ignored, only the default graph is kept. Execute it with execGenerateDataset to keep them.");
+        }
     }
 
     @Override

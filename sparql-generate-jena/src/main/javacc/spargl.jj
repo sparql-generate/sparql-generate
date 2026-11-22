@@ -40,6 +40,9 @@ public class SPARQLExtParser extends SPARQLExtParserBase
 
 boolean allowAggregatesInExpressions = false ; 
 
+// true inside a GRAPH block of a GENERATE template, where GRAPH cannot be nested
+boolean inGenerateGraph = false ;
+
 // JavaCC hack for doing lexical state transitions syntactically
 
 private void SetState(int state) {
@@ -489,7 +492,7 @@ void GenerateClause() : { }
   { allowAggregatesInExpressions = false ; }
   <RBRACE>
 }
-List<Element> GenerateClauseSub() : {  List<Element> generateClause = new ArrayList<Element> ();}
+List<Element> GenerateClauseSub() : {  List<Element> generateClause = new ArrayList<Element> (); Element el; }
 {
   (
     { TripleCollectorBGP acc = new TripleCollectorBGP(); }
@@ -499,11 +502,19 @@ List<Element> GenerateClauseSub() : {  List<Element> generateClause = new ArrayL
     { generateClause.add(new ElementGenerateTriplesBlock(acc.getBGP())); }
   )?
   ( 
-    { startSubQueryExt() ; Token t = null;}
-    t = SubGenerateQuery() <DOT>
-      { int beginLine = t.beginLine; int beginColumn = t.beginColumn; t = null; }
-      { SPARQLExtQuery q = endSubQueryExt(beginLine, beginColumn) ; } 
-      { generateClause.add( new ElementSubExtQuery(q) ) ; }
+    (
+      { startSubQueryExt() ; Token t = null;}
+      // a sub-query may have GRAPH blocks of its own, even inside a GRAPH block
+      { boolean outerInGenerateGraph = inGenerateGraph ; inGenerateGraph = false ; }
+      t = SubGenerateQuery() <DOT>
+        { inGenerateGraph = outerInGenerateGraph ; }
+        { int beginLine = t.beginLine; int beginColumn = t.beginColumn; t = null; }
+        { SPARQLExtQuery q = endSubQueryExt(beginLine, beginColumn) ; } 
+        { generateClause.add( new ElementSubExtQuery(q) ) ; }
+    |
+      el = GenerateGraphBlock() ( <DOT> )?
+        { generateClause.add( el ) ; }
+    )
     ( 
       { TripleCollectorBGP acc = new TripleCollectorBGP(); }
       { setInConstructTemplate(true); }
@@ -513,6 +524,21 @@ List<Element> GenerateClauseSub() : {  List<Element> generateClause = new ArrayL
     )? 
   )*
   { return generateClause ; }
+}
+// GRAPH VarOrXIri { ... } in a GENERATE template, as the QuadsNotTriples of
+// SPARQL 1.1 Update, with sub-queries
+Element GenerateGraphBlock() : { Token t ; Node n ; List<Element> elements ; }
+{
+  t = <GRAPH>
+  { if ( inGenerateGraph ) 
+      throwParseException("GRAPH blocks of a GENERATE template cannot be nested", t.beginLine, t.beginColumn) ; }
+  n = VarOrXIri()
+  <LBRACE>
+  { inGenerateGraph = true ; }
+  elements = GenerateClauseSub()
+  { inGenerateGraph = false ; }
+  <RBRACE>
+  { return new ElementGenerateGraph(n, elements) ; }
 }
 Element BindingClauses( ) : {Element elem;}
 {

@@ -1,0 +1,10 @@
+{
+    "query": "query.rqg",
+    "namedqueries": [
+        {
+            "uri": "http://example.com/describe.rqg",
+            "path": "describe.rqg",
+            "mediatype": "application/vnd.sparql-generate"
+        }
+    ]
+}

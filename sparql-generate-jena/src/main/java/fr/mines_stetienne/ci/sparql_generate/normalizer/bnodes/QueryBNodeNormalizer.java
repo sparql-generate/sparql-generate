@@ -15,9 +15,11 @@
  */
 package fr.mines_stetienne.ci.sparql_generate.normalizer.bnodes;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -34,6 +36,7 @@ import com.google.common.collect.Sets;
 
 import fr.mines_stetienne.ci.sparql_generate.SPARQLExtException;
 import fr.mines_stetienne.ci.sparql_generate.query.SPARQLExtQuery;
+import fr.mines_stetienne.ci.sparql_generate.syntax.ElementGenerateGraph;
 import fr.mines_stetienne.ci.sparql_generate.syntax.ElementGenerateTriplesBlock;
 import fr.mines_stetienne.ci.sparql_generate.syntax.ElementSubExtQuery;
 import fr.mines_stetienne.ci.sparql_generate.utils.VarUtils;
@@ -83,50 +86,28 @@ public class QueryBNodeNormalizer {
         // if already present in a superquery (assignSuper), then the assignment is needed.
         // else, check an assignment has been created
         Map<String, Var> assign = new HashMap<>();
-        for (Element elem : query.getGenerateClause()) {
-            if (elem instanceof ElementGenerateTriplesBlock) {
-                ElementGenerateTriplesBlock sub
-                        = (ElementGenerateTriplesBlock) elem;
-                for (Triple t : sub.getPattern().getList()) {
-                    processBNode(t.getSubject(), assignNeeded, assignSuper, assign);
-                    processBNode(t.getPredicate(), assignNeeded, assignSuper, assign);
-                    processBNode(t.getObject(), assignNeeded, assignSuper, assign);
-
-                }
+        for (ElementGenerateTriplesBlock sub : triplesBlocks(query.getGenerateClause(), new ArrayList<>())) {
+            for (Triple t : sub.getPattern().getList()) {
+                processBNode(t.getSubject(), assignNeeded, assignSuper, assign);
+                processBNode(t.getPredicate(), assignNeeded, assignSuper, assign);
+                processBNode(t.getObject(), assignNeeded, assignSuper, assign);
             }
         }
 
         // this gives a new assignSuper to pass to the subqueries
         Map<String, Var> newAssignSuper = new HashMap<>(assignSuper);
         newAssignSuper.putAll(assign);
-        for (Element elem : query.getGenerateClause()) {
-            if (elem instanceof ElementSubExtQuery) {
-                SPARQLExtQuery sub = ((ElementSubExtQuery) elem).getQuery();
-                Set<String> normalized = normalizeBNodes(sub, newAssignSuper);
-                if(normalized != null) {
-                    assignNeeded.addAll(normalized);
-                }
+        for (SPARQLExtQuery sub : subQueries(query.getGenerateClause(), new ArrayList<>())) {
+            Set<String> normalized = normalizeBNodes(sub, newAssignSuper);
+            if(normalized != null) {
+                assignNeeded.addAll(normalized);
             }
         }
 
         // check the bnodes present in the BGPs of this query.
         // if already present in a superquery (assignSuper), then the assignment is needed.
         // else, check an assignment has been created
-        for (int i = 0; i < query.getGenerateClause().size(); i++) {
-            Element elem = query.getGenerateClause().get(i);
-            if (elem instanceof ElementGenerateTriplesBlock) {
-                BasicPattern bgp = new BasicPattern();
-                for (Iterator<Triple> it = ((ElementGenerateTriplesBlock) elem).patternElts(); it.hasNext();) {
-                    Triple t = it.next();
-                    Node s = replace(t.getSubject(), assignNeeded, assignSuper, assign);
-                    Node p = replace(t.getPredicate(), assignNeeded, assignSuper, assign);
-                    Node o = replace(t.getObject(), assignNeeded, assignSuper, assign);
-                    bgp.add(Triple.create(s, p, o));
-                }
-                Element newElem = new ElementGenerateTriplesBlock(bgp);
-                query.getGenerateClause().set(i, newElem);
-            }
-        }
+        replaceInTriplesBlocks(query.getGenerateClause(), assignNeeded, assignSuper, assign);
 
         // the labels in assignNeeded that are also keys of assign need to be
         // replaced by a varible assigned to bnode() in this query
@@ -138,6 +119,55 @@ public class QueryBNodeNormalizer {
         // the labels in assignNeeded that are also keys of assignSuper need to be
         // replaced by a varible assigned to bnode() in a superquery.
         return Sets.intersection(assignNeeded, assignSuper.keySet());
+    }
+
+    /**
+     * The triple blocks of a GENERATE clause, those of its GRAPH blocks
+     * included.
+     */
+    private static List<ElementGenerateTriplesBlock> triplesBlocks(List<Element> elements, List<ElementGenerateTriplesBlock> acc) {
+        for (Element elem : elements) {
+            if (elem instanceof ElementGenerateTriplesBlock) {
+                acc.add((ElementGenerateTriplesBlock) elem);
+            } else if (elem instanceof ElementGenerateGraph) {
+                triplesBlocks(((ElementGenerateGraph) elem).getElements(), acc);
+            }
+        }
+        return acc;
+    }
+
+    /**
+     * The sub-queries of a GENERATE clause, those of its GRAPH blocks
+     * included.
+     */
+    private static List<SPARQLExtQuery> subQueries(List<Element> elements, List<SPARQLExtQuery> acc) {
+        for (Element elem : elements) {
+            if (elem instanceof ElementSubExtQuery) {
+                acc.add(((ElementSubExtQuery) elem).getQuery());
+            } else if (elem instanceof ElementGenerateGraph) {
+                subQueries(((ElementGenerateGraph) elem).getElements(), acc);
+            }
+        }
+        return acc;
+    }
+
+    private static void replaceInTriplesBlocks(List<Element> elements, Set<String> assignNeeded, Map<String, Var> assignSuper, Map<String, Var> assign) {
+        for (int i = 0; i < elements.size(); i++) {
+            Element elem = elements.get(i);
+            if (elem instanceof ElementGenerateTriplesBlock) {
+                BasicPattern bgp = new BasicPattern();
+                for (Iterator<Triple> it = ((ElementGenerateTriplesBlock) elem).patternElts(); it.hasNext();) {
+                    Triple t = it.next();
+                    Node s = replace(t.getSubject(), assignNeeded, assignSuper, assign);
+                    Node p = replace(t.getPredicate(), assignNeeded, assignSuper, assign);
+                    Node o = replace(t.getObject(), assignNeeded, assignSuper, assign);
+                    bgp.add(Triple.create(s, p, o));
+                }
+                elements.set(i, new ElementGenerateTriplesBlock(bgp));
+            } else if (elem instanceof ElementGenerateGraph) {
+                replaceInTriplesBlocks(((ElementGenerateGraph) elem).getElements(), assignNeeded, assignSuper, assign);
+            }
+        }
     }
 
     private static void processBNode(Node node, Set<String> assignNeeded, Map<String, Var> assignSuper, Map<String, Var> assign) {

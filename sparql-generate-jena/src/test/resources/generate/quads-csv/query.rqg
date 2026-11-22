@@ -1,0 +1,13 @@
+BASE <http://example.com/>
+PREFIX ex: <http://example.com/>
+PREFIX ite: <http://w3id.org/sparql-generate/iter/>
+
+# The graph of each row is computed from a column, as with a graph map of
+# RML; an empty cell leaves the variable unbound, and its quad is not
+# generated.
+GENERATE {
+  <person/{?name}> a ex:Person .
+  GRAPH <department/{?department}> { <person/{?name}> ex:name ?name }
+  GRAPH ?cityGraph { <person/{?name}> ex:city ?city }
+} ITERATOR ite:CSV(<people.csv>) AS ?name ?department ?city
+  BIND(IF(?city != "", IRI(CONCAT("http://example.com/city/", ?city)), ?unbound) AS ?cityGraph)

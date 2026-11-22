@@ -28,6 +28,8 @@ import java.util.stream.Collectors;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.jena.atlas.io.IndentedWriter;
 import org.apache.jena.query.ResultSet;
+import org.apache.jena.query.Dataset;
+import org.apache.jena.query.DatasetFactory;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.riot.system.StreamRDF;
@@ -150,7 +152,10 @@ public class RootPlan {
 	}
 
 	/**
-	 * Executes a GENERATE query and returns the generated RDF Graph.
+	 * Executes a GENERATE query and returns the generated RDF Graph. For a
+	 * query with {@code GRAPH} blocks, this is the default graph: the triples
+	 * generated in named graphs are ignored, with a warning in the log; use
+	 * {@link #execGenerateDataset(Context)} to get them.
 	 *
 	 * @param context
 	 *            the execution context, created using {@link ContextUtils}
@@ -180,6 +185,41 @@ public class RootPlan {
 	}
 
 	/**
+	 * Executes a GENERATE query and returns the generated RDF dataset: the
+	 * triples of the template outside {@code GRAPH} blocks in its default
+	 * graph, those of each {@code GRAPH} block in a named graph. For a query
+	 * without {@code GRAPH} block, its default graph is the graph that
+	 * {@link #execGenerate(Context)} returns, and it has no named graph.
+	 *
+	 * @param context
+	 *            the execution context, created using {@link ContextUtils}
+	 * @return the RDF dataset.
+	 */
+	public Dataset execGenerateDataset(final Context context) {
+		return execGenerateDataset(null, context);
+	}
+
+	/**
+	 * Executes a GENERATE query and returns the generated RDF dataset.
+	 *
+	 * @param values
+	 *            the values for the query signature, or null.
+	 * @param context
+	 *            the execution context, created using {@link ContextUtils}
+	 * @return the RDF dataset.
+	 * @see #execGenerateDataset(Context)
+	 */
+	public Dataset execGenerateDataset(final List<Binding> values, final Context context) {
+		final Dataset dataset = DatasetFactory.create(ModelFactory.createDefaultModel());
+		final StreamRDF output = new StreamRDFDataset(dataset);
+		checkContextHasNoOutput(context);
+		boolean isRoot = ContextUtils.isRootContext(context);
+		final Context newContext = ContextUtils.fork(context, isRoot).setGenerateOutput(output).fork();
+		execGenerateStream(values, newContext);
+		return dataset;
+	}
+
+	/**
 	 * Executes a GENERATE query.
 	 *
 	 * @param context
@@ -190,7 +230,10 @@ public class RootPlan {
 	}
 
 	/**
-	 * Executes a GENERATE query and emits generated triples to the stream.
+	 * Executes a GENERATE query and emits generated triples to the stream of
+	 * the context: the triples of the default graph with
+	 * {@link StreamRDF#triple}, those of the named graphs of {@code GRAPH}
+	 * blocks with {@link StreamRDF#quad}.
 	 *
 	 * @param values
 	 *            the values for the query signature, or null.

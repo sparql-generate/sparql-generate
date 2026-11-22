@@ -31,6 +31,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.io.IOUtils;
 import org.apache.jena.atlas.web.TypedInputStream;
 import org.apache.jena.graph.Node;
+import org.apache.jena.riot.system.StreamRDF;
 import org.apache.jena.query.QueryFactory;
 import org.apache.jena.query.QueryParseException;
 import org.apache.jena.query.ResultSet;
@@ -240,8 +241,12 @@ public class QueryExecutor {
         final boolean deterministic = isDeterministic(plan);
         final List<Binding> toExecute = new ArrayList<>();
         final List<ExecutionKey> keys = new ArrayList<>();
+        // a call from a GRAPH block generates in that graph: the same call from
+        // another graph is another execution
+        final StreamRDF output = ContextUtils.getGenerateOutput(context);
+        final Node graph = output instanceof GraphRoutingStreamRDF ? ((GraphRoutingStreamRDF) output).getGraph() : null;
         for (Binding binding : values) {
-            final ExecutionKey key = new ExecutionKey(plan, binding);
+            final ExecutionKey key = new ExecutionKey(plan, binding, graph);
             if (callsInProgress.contains(key)) {
                 LOG.debug("Cycle of calls to " + plan.getQuery().getName() + " cut");
                 continue;
@@ -471,10 +476,20 @@ public class QueryExecutor {
 
         RootPlan plan;
         Object binding;
+        /**
+         * The graph in which a GENERATE call generates its default graph, or
+         * null.
+         */
+        Node graph;
 
         public ExecutionKey(RootPlan plan, Object binding) {
+            this(plan, binding, null);
+        }
+
+        public ExecutionKey(RootPlan plan, Object binding, Node graph) {
             this.plan = plan;
             this.binding = binding;
+            this.graph = graph;
         }
 
         @Override
@@ -486,13 +501,13 @@ public class QueryExecutor {
             if (plan != other.plan) {
                 return false;
             }
-            boolean eq = binding.equals(other.binding);
+            boolean eq = binding.equals(other.binding) && Objects.equals(graph, other.graph);
             return eq;
         }
 
         @Override
         public int hashCode() {
-            return 3 * Objects.hashCode(this.plan) + 17 * Objects.hashCode(binding);
+            return 3 * Objects.hashCode(this.plan) + 17 * Objects.hashCode(binding) + 31 * Objects.hashCode(graph);
         }
 
     }

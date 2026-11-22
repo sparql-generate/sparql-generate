@@ -1,0 +1,12 @@
+@prefix ex: <http://example.com/> .
+
+<http://example.com/person/Alice> a ex:Person .
+<http://example.com/person/Bob> a ex:Person .
+<http://example.com/person/Carol> a ex:Person .
+<http://example.com/department/sales> {
+  <http://example.com/person/Alice> ex:name "Alice" .
+  <http://example.com/person/Carol> ex:name "Carol" .
+}
+<http://example.com/department/research> { <http://example.com/person/Bob> ex:name "Bob" . }
+<http://example.com/city/Paris> { <http://example.com/person/Alice> ex:city "Paris" . }
+<http://example.com/city/Lyon> { <http://example.com/person/Bob> ex:city "Lyon" . }

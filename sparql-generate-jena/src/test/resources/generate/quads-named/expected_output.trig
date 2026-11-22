@@ -1,0 +1,12 @@
+@prefix ex: <http://example.com/> .
+
+<http://example.com/item/1> ex:value 1 .
+<http://example.com/item/2> ex:value 2 .
+ex:copy {
+  <http://example.com/item/1> ex:value 1 .
+  <http://example.com/item/2> ex:value 2 .
+}
+ex:provenance {
+  <http://example.com/item/1> ex:source ex:describe .
+  <http://example.com/item/2> ex:source ex:describe .
+}

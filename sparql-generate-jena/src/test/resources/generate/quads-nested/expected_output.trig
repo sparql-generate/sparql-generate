@@ -1,0 +1,13 @@
+<http://example.com/graph/alice> {
+  <http://example.com/person/alice> a <http://example.com/Person> ;
+    <http://example.com/skill> "java", "rdf" .
+}
+<http://example.com/graph/bob> {
+  <http://example.com/person/bob> a <http://example.com/Person> ;
+    <http://example.com/skill> "rdf" .
+}
+<http://example.com/skill/java> { <http://example.com/person/alice> <http://example.com/has> "java" . }
+<http://example.com/skill/rdf> {
+  <http://example.com/person/alice> <http://example.com/has> "rdf" .
+  <http://example.com/person/bob> <http://example.com/has> "rdf" .
+}

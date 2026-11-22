@@ -35,6 +35,8 @@ import fr.mines_stetienne.ci.sparql_generate.SPARQLExt;
 import fr.mines_stetienne.ci.sparql_generate.normalizer.aggregates.QueryAggregatesNormalizer;
 import fr.mines_stetienne.ci.sparql_generate.normalizer.bnodes.QueryBNodeNormalizer;
 import fr.mines_stetienne.ci.sparql_generate.normalizer.xexpr.QueryXExprNormalizer;
+import fr.mines_stetienne.ci.sparql_generate.syntax.ElementGenerateGraph;
+import fr.mines_stetienne.ci.sparql_generate.syntax.ElementSubExtQuery;
 import fr.mines_stetienne.ci.sparql_generate.syntax.FromClause;
 
 /**
@@ -392,6 +394,33 @@ public class SPARQLExtQuery extends Query {
 	 */
 	public final void setGenerateClause(final List<Element> generateClause) {
 		this.generateClause = generateClause;
+	}
+
+	/**
+	 * Gets if the {@code GENERATE} clause of the query, or that of one of the
+	 * sub-queries written in it, has a {@code GRAPH} block: the query then
+	 * generates quads in named graphs. The named queries that it calls are not
+	 * inspected.
+	 *
+	 * @return -
+	 */
+	public final boolean hasQuadPatterns() {
+		return hasQuadPatterns(generateClause);
+	}
+
+	private static boolean hasQuadPatterns(final List<Element> elements) {
+		if (elements == null) {
+			return false;
+		}
+		for (Element el : elements) {
+			if (el instanceof ElementGenerateGraph) {
+				return true;
+			}
+			if (el instanceof ElementSubExtQuery && ((ElementSubExtQuery) el).getQuery().hasQuadPatterns()) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**

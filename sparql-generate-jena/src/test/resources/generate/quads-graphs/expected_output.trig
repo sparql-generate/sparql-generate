@@ -1,0 +1,14 @@
+@prefix ex: <http://example.com/> .
+
+ex:s ex:p 1, 2, 3, 4 .
+ex:constant { ex:s ex:p 1, 2, 3, 4 . }
+ex:g1 { ex:s ex:q 1 . }
+ex:g2 { ex:s ex:q 2 . }
+<http://example.com/graph/1> { ex:s ex:r 1 . }
+<http://example.com/graph/2> { ex:s ex:r 2 . }
+<http://example.com/graph/3> { ex:s ex:r 3 . }
+<http://example.com/graph/4> { ex:s ex:r 4 . }
+<http://example.com/expr/1> { ex:s ex:t 1 . }
+<http://example.com/expr/2> { ex:s ex:t 2 . }
+<http://example.com/expr/3> { ex:s ex:t 3 . }
+<http://example.com/expr/4> { ex:s ex:t 4 . }

@@ -70,6 +70,7 @@ import fr.mines_stetienne.ci.sparql_generate.query.SPARQLExtQueryVisitor;
 import fr.mines_stetienne.ci.sparql_generate.syntax.ElementBox;
 import fr.mines_stetienne.ci.sparql_generate.syntax.ElementExpr;
 import fr.mines_stetienne.ci.sparql_generate.syntax.ElementFormat;
+import fr.mines_stetienne.ci.sparql_generate.syntax.ElementGenerateGraph;
 import fr.mines_stetienne.ci.sparql_generate.syntax.ElementGenerateTriplesBlock;
 import fr.mines_stetienne.ci.sparql_generate.syntax.ElementIterator;
 import fr.mines_stetienne.ci.sparql_generate.syntax.ElementPerform;
@@ -158,6 +159,24 @@ public class SPARQLExtFormatterElement extends SPARQLExtFormatterBase implements
             return;
         }
         formatTriples(el.getPattern());
+    }
+
+    @Override
+    public void visit(ElementGenerateGraph el) {
+        out.print("GRAPH ");
+        out.print(slotToString(el.getGraphNode()));
+        out.print(" {");
+        out.incIndent(BLOCK_INDENT);
+        for (Element e : el.getElements()) {
+            if (e == null) {
+                continue;
+            }
+            out.newline();
+            e.visit(this);
+        }
+        out.decIndent(BLOCK_INDENT);
+        out.newline();
+        out.print("}");
     }
 
     @Override

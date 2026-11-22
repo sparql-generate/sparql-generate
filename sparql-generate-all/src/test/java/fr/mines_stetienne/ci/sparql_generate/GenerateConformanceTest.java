@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.io.StringWriter;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -44,6 +45,7 @@ import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
+import org.apache.jena.sparql.util.IsoMatcher;
 import org.apache.jena.sparql.util.Context;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -65,7 +67,9 @@ import fr.mines_stetienne.ci.sparql_generate.utils.ContextUtils;
  * Runs every test case of {@code sparql-generate-jena/src/test/resources/generate}:
  * each sub-directory holds a {@code sparql-generate-conf.json}, a query, its input
  * documents, and an {@code expected_output.ttl} that the generated graph must be
- * isomorphic to.
+ * isomorphic to, or, for a query with {@code GRAPH} blocks, an
+ * {@code expected_output.trig} that the generated dataset must be isomorphic
+ * to.
  *
  * The test cases live in sparql-generate-jena, but most of them need the
  * iterators and functions of the format modules, so they run here, where all
@@ -122,13 +126,16 @@ public class GenerateConformanceTest {
 
 		ExecutorService executor = Executors.newSingleThreadExecutor();
 		ExecutorService engineExecutor = Executors.newCachedThreadPool();
+		File expectedTrig = new File(dir, "expected_output.trig");
 		Model output;
+		Dataset outputDataset;
 		try {
 			Context context = ContextUtils.build().setPrefixMapping(query).setStreamManager(sm)
 					.setExecutor(engineExecutor).setInputDataset(dataset).build();
-			Future<Model> future = executor.submit(() -> plan.execGenerate(context));
+			Future<Dataset> future = executor.submit(() -> plan.execGenerateDataset(context));
 			try {
-				output = future.get(TIMEOUT_SECONDS, TimeUnit.SECONDS);
+				outputDataset = future.get(TIMEOUT_SECONDS, TimeUnit.SECONDS);
+				output = outputDataset.getDefaultModel();
 			} catch (TimeoutException ex) {
 				future.cancel(true);
 				fail("Execution did not finish within " + TIMEOUT_SECONDS + " seconds");
@@ -139,6 +146,16 @@ public class GenerateConformanceTest {
 			engineExecutor.shutdownNow();
 		}
 
+		if (expectedTrig.exists()) {
+			Dataset expectedDataset = RDFDataMgr.loadDataset(expectedTrig.toURI().toString(), Lang.TRIG);
+			StringWriter sw = new StringWriter();
+			RDFDataMgr.write(sw, outputDataset, Lang.NQUADS);
+			assertTrue("Output is not isomorphic to expected_output.trig:\n" + sw,
+					IsoMatcher.isomorphic(expectedDataset.asDatasetGraph(), outputDataset.asDatasetGraph()));
+			return;
+		}
+		// a query without GRAPH block generates no named graph
+		assertTrue("unexpected named graphs", !outputDataset.asDatasetGraph().listGraphNodes().hasNext());
 		Model expected = RDFDataMgr.loadModel(new File(dir, "expected_output.ttl").toURI().toString(), Lang.TTL);
 		assertTrue(describeDifference(output, expected), output.isIsomorphicWith(expected));
 	}

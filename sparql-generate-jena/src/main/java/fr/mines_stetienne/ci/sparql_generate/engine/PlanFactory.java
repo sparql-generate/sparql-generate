@@ -27,6 +27,7 @@ import org.apache.jena.graph.Triple;
 import org.apache.jena.query.QueryFactory;
 import org.apache.jena.query.QueryParseException;
 import org.apache.jena.sparql.core.BasicPattern;
+import org.apache.jena.sparql.core.Quad;
 import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.expr.E_Function;
 import org.apache.jena.sparql.expr.E_Str;
@@ -55,6 +56,7 @@ import fr.mines_stetienne.ci.sparql_generate.query.SPARQLExtQuery;
 import fr.mines_stetienne.ci.sparql_generate.syntax.ElementBox;
 import fr.mines_stetienne.ci.sparql_generate.syntax.ElementExpr;
 import fr.mines_stetienne.ci.sparql_generate.syntax.ElementFormat;
+import fr.mines_stetienne.ci.sparql_generate.syntax.ElementGenerateGraph;
 import fr.mines_stetienne.ci.sparql_generate.syntax.ElementGenerateTriplesBlock;
 import fr.mines_stetienne.ci.sparql_generate.syntax.ElementIterator;
 import fr.mines_stetienne.ci.sparql_generate.syntax.ElementSource;
@@ -333,22 +335,42 @@ public class PlanFactory {
         Objects.requireNonNull(query, "The query must not be null");
         checkIsTrue(query.hasGenerateClause(), "Query was expected to be of"
                 + " type GENERATE {...} ...");
-        final BasicPattern bgp = new BasicPattern();
+        final List<Quad> template = new ArrayList<>();
         final List<RootPlan> subQueriesPlans = new ArrayList<>();
-        for (Element elem : query.getGenerateClause()) {
+        final List<Node> subQueriesGraphs = new ArrayList<>();
+        addToGenerateFormPlan(query.getGenerateClause(), Quad.defaultGraphNodeGenerated, template, subQueriesPlans,
+                subQueriesGraphs);
+        return new GenerateFormPlan(template, subQueriesPlans, subQueriesGraphs);
+    }
+
+    /**
+     * Adds the patterns and the sub-queries of the elements of a template, in
+     * the graph that a GRAPH block names, or in the default graph.
+     */
+    private static void addToGenerateFormPlan(final List<Element> elements, final Node graph,
+            final List<Quad> template, final List<RootPlan> subQueriesPlans, final List<Node> subQueriesGraphs) {
+        final boolean inDefaultGraph = Quad.isDefaultGraph(graph);
+        for (Element elem : elements) {
             if (elem instanceof ElementGenerateTriplesBlock) {
                 ElementGenerateTriplesBlock sub
                         = (ElementGenerateTriplesBlock) elem;
-                bgp.addAll(sub.getPattern());
+                for (Triple t : sub.getPattern()) {
+                    template.add(Quad.create(graph, t));
+                }
             } else if (elem instanceof ElementSubExtQuery) {
                 ElementSubExtQuery sub = (ElementSubExtQuery) elem;
                 RootPlan rootPlan = make(sub.getQuery());
                 subQueriesPlans.add(rootPlan);
+                subQueriesGraphs.add(inDefaultGraph ? null : graph);
+            } else if (elem instanceof ElementGenerateGraph && inDefaultGraph) {
+                ElementGenerateGraph sub = (ElementGenerateGraph) elem;
+                checkIsTrue(sub.getGraphNode().isVariable() || sub.getGraphNode().isURI(),
+                        "The graph node of a GRAPH block should be a variable or an IRI: " + sub.getGraphNode());
+                addToGenerateFormPlan(sub.getElements(), sub.getGraphNode(), template, subQueriesPlans, subQueriesGraphs);
             } else {
                 throw new SPARQLExtException("should not reach this point");
             }
         }
-        return new GenerateFormPlan(bgp, subQueriesPlans);
     }
 
     /**
@@ -383,9 +405,15 @@ public class PlanFactory {
      */
     private static void aggregateLists(final SPARQLExtQuery query) {
         ListAggregate.register();
-        final Map<Node, Var> listVars = new HashMap<>();
-        final List<Element> clause = query.getGenerateClause();
+        aggregateLists(query, query.getGenerateClause(), new HashMap<>());
+    }
+
+    private static void aggregateLists(final SPARQLExtQuery query, final List<Element> clause, final Map<Node, Var> listVars) {
         for (int i = 0; i < clause.size(); i++) {
+            if (clause.get(i) instanceof ElementGenerateGraph) {
+                aggregateLists(query, ((ElementGenerateGraph) clause.get(i)).getElements(), listVars);
+                continue;
+            }
             if (!(clause.get(i) instanceof ElementGenerateTriplesBlock)) {
                 continue;
             }

@@ -52,6 +52,10 @@ public class SPARQLExtElementVisitorBase implements SPARQLExtElementVisitor {
     }
 
     @Override
+    public void visit(ElementGenerateGraph el) {
+    }
+
+    @Override
     public void visit(ElementIterator el) {
     }
 

@@ -1,0 +1,7 @@
+BASE <http://example.com/>
+PREFIX ex: <http://example.com/>
+
+GENERATE <describe.rqg>(?n) {
+  <item/{?n}> ex:value ?n .
+  GRAPH ex:provenance { <item/{?n}> ex:source ex:describe }
+}

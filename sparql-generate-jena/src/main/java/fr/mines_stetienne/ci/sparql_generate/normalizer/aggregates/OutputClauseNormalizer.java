@@ -45,6 +45,7 @@ import org.slf4j.LoggerFactory;
 import fr.mines_stetienne.ci.sparql_generate.syntax.ElementBox;
 import fr.mines_stetienne.ci.sparql_generate.syntax.ElementExpr;
 import fr.mines_stetienne.ci.sparql_generate.syntax.ElementFormat;
+import fr.mines_stetienne.ci.sparql_generate.syntax.ElementGenerateGraph;
 import fr.mines_stetienne.ci.sparql_generate.syntax.ElementGenerateTriplesBlock;
 import fr.mines_stetienne.ci.sparql_generate.syntax.ElementIterator;
 import fr.mines_stetienne.ci.sparql_generate.syntax.ElementPerform;
@@ -122,6 +123,11 @@ public class OutputClauseNormalizer implements SPARQLExtElementVisitor {
     @Override
     public void visit(ElementPerform el) {
         LOG.warn("Should not reach this point");
+    }
+
+    @Override
+    public void visit(ElementGenerateGraph el) {
+        result = new ElementGenerateGraph(el.getGraphNode(), normalize(el.getElements()));
     }
 
     @Override

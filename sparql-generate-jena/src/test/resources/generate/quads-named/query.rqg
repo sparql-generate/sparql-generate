@@ -1,0 +1,11 @@
+BASE <http://example.com/>
+PREFIX ex: <http://example.com/>
+
+# A named GENERATE query called in a GRAPH block generates its default graph
+# in that graph; its own GRAPH blocks keep their graph.
+GENERATE {
+  GENERATE <describe.rqg>(?n) .
+  GRAPH ex:copy { GENERATE <describe.rqg>(?n) . }
+} WHERE {
+  VALUES ?n { 1 2 }
+}

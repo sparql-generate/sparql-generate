@@ -19,6 +19,7 @@ import fr.mines_stetienne.ci.sparql_generate.query.SPARQLExtQuery;
 import fr.mines_stetienne.ci.sparql_generate.syntax.ElementBox;
 import fr.mines_stetienne.ci.sparql_generate.syntax.ElementExpr;
 import fr.mines_stetienne.ci.sparql_generate.syntax.ElementFormat;
+import fr.mines_stetienne.ci.sparql_generate.syntax.ElementGenerateGraph;
 import fr.mines_stetienne.ci.sparql_generate.syntax.ElementGenerateTriplesBlock;
 import fr.mines_stetienne.ci.sparql_generate.syntax.ElementIterator;
 import fr.mines_stetienne.ci.sparql_generate.syntax.ElementPerform;
@@ -154,6 +155,23 @@ public class OutputClauseNormalizer implements SPARQLExtElementVisitor {
             }
             result = new ElementPerform(newNode, new ExprList(args));
         }
+    }
+
+    /**
+     * The graph node is normalized as the nodes of the triples: an IRI with
+     * embedded expressions, or an embedded expression, becomes a variable of
+     * the EXPRESSIONS clause.
+     */
+    @Override
+    public void visit(ElementGenerateGraph el) {
+        el.getGraphNode().visitWith(nenzer);
+        final Node graphNode = nenzer.getResult();
+        final List<Element> nzed = new ArrayList<>();
+        for (Element e : el.getElements()) {
+            e.visit(this);
+            nzed.add(result);
+        }
+        result = new ElementGenerateGraph(graphNode, nzed);
     }
 
     @Override

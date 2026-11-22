@@ -18,14 +18,19 @@ package fr.mines_stetienne.ci.sparql_generate.engine;
 import fr.mines_stetienne.ci.sparql_generate.utils.LogUtils;
 import fr.mines_stetienne.ci.sparql_generate.graph.Node_List;
 import fr.mines_stetienne.ci.sparql_generate.utils.ContextUtils;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.graph.Triple;
 import org.apache.jena.riot.system.StreamRDF;
 import org.apache.jena.sparql.core.BasicPattern;
+import org.apache.jena.sparql.core.Quad;
 import org.apache.jena.sparql.core.Substitute;
 import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.engine.binding.Binding;
@@ -36,6 +41,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * The plan of a {@code GENERATE { ... }} template: its triple and quad
+ * patterns, instantiated once per solution, then its sub-queries.
+ *
+ * <p>
+ * A pattern of the default graph is emitted with {@link StreamRDF#triple}, as
+ * before quad patterns existed; a pattern of a {@code GRAPH} block with
+ * {@link StreamRDF#quad}, if its graph node is bound to an IRI or a blank node.
+ * A sub-query of a {@code GRAPH} block emits its default graph in that graph.
+ * </p>
  *
  * @author Maxime Lefrançois
  */
@@ -47,14 +61,21 @@ public class GenerateFormPlan implements GeneratePlan {
     private static final Logger LOG = LoggerFactory.getLogger(GenerateFormPlan.class);
 
     /**
-     * The basic pattern.
+     * The patterns, in the order of the template. The graph of a pattern of
+     * the default graph is {@link Quad#defaultGraphNodeGenerated}.
      */
-    private final BasicPattern bgp;
+    private final List<Quad> template;
 
     /**
      * The sub queries.
      */
     private final List<RootPlan> subQueries;
+
+    /**
+     * The graph node of the GRAPH block of each sub-query, or null for a
+     * sub-query outside GRAPH blocks.
+     */
+    private final List<Node> subQueryGraphs;
 
     private static final Node FIRST = RDF.first.asNode();
     private static final Node REST = RDF.rest.asNode();
@@ -66,8 +87,37 @@ public class GenerateFormPlan implements GeneratePlan {
      * @param subQueries the sub queries.
      */
     public GenerateFormPlan(final BasicPattern basicGraphPattern, List<RootPlan> subQueries) {
-        this.bgp = basicGraphPattern;
+        this(toQuads(basicGraphPattern), subQueries, Collections.nCopies(subQueries.size(), (Node) null));
+    }
+
+    /**
+     * Constructor for a template with quad patterns.
+     *
+     * @param template the patterns; the graph of a pattern of the default
+     * graph is {@link Quad#defaultGraphNodeGenerated}, that of a pattern of a
+     * GRAPH block is a variable or an IRI.
+     * @param subQueries the sub queries.
+     * @param subQueryGraphs for each sub-query, the graph node of its GRAPH
+     * block, or null.
+     */
+    public GenerateFormPlan(final List<Quad> template, final List<RootPlan> subQueries, final List<Node> subQueryGraphs) {
+        Objects.requireNonNull(template);
+        Objects.requireNonNull(subQueries);
+        Objects.requireNonNull(subQueryGraphs);
+        if (subQueries.size() != subQueryGraphs.size()) {
+            throw new IllegalArgumentException("One graph node, or null, per sub-query");
+        }
+        this.template = new ArrayList<>(template);
         this.subQueries = subQueries;
+        this.subQueryGraphs = new ArrayList<>(subQueryGraphs);
+    }
+
+    private static List<Quad> toQuads(final BasicPattern bgp) {
+        final List<Quad> quads = new ArrayList<>(bgp.size());
+        for (Triple t : bgp.getList()) {
+            quads.add(Quad.create(Quad.defaultGraphNodeGenerated, t));
+        }
+        return quads;
     }
 
     @Override
@@ -88,15 +138,26 @@ public class GenerateFormPlan implements GeneratePlan {
             }
             final Map<Node, Node> bNodeMap = new HashMap<>();
             final Binding binding = values.get(i);
-            for (Triple t : bgp.getList()) {
+            for (Quad q : template) {
+                // null for the default graph
+                final Node graph;
+                if (Quad.isDefaultGraph(q.getGraph())) {
+                    graph = null;
+                } else {
+                    graph = graphName(q.getGraph(), binding);
+                    if (graph == null) {
+                        continue;
+                    }
+                }
+                final Triple t = q.asTriple();
                 if (t.getObject() instanceof Node_List) {
-                    substAndOutputForList(t.getSubject(), t.getPredicate(), (Node_List) t.getObject(), sb, binding, outputStream, newContext, i, bNodeMap);
+                    substAndOutputForList(graph, t.getSubject(), t.getPredicate(), (Node_List) t.getObject(), sb, binding, outputStream, newContext, i, bNodeMap);
                 } else {
                     Triple t2 = TemplateLib.subst(t, binding, bNodeMap);
                     if (ListAggregate.isList(t2.getObject())) {
-                        outputList(sb, outputStream, newContext, t2);
+                        outputList(graph, sb, outputStream, newContext, t2);
                     } else {
-                        outputIfConcrete(sb, outputStream, context, t2);
+                        outputIfConcrete(graph, sb, outputStream, context, t2);
                     }
                 }
             }
@@ -107,12 +168,56 @@ public class GenerateFormPlan implements GeneratePlan {
         }
 
         for (int i = 0; i < subQueries.size(); i++) {
-            RootPlan subPlan = subQueries.get(i);
-            subPlan.execSubGenerateStream(variables, values, newContext);
+            final RootPlan subPlan = subQueries.get(i);
+            final Node graphNode = subQueryGraphs.get(i);
+            if (graphNode == null) {
+                subPlan.execSubGenerateStream(variables, values, newContext);
+            } else if (graphNode.isVariable()) {
+                // the solutions are split by graph; those whose graph node is
+                // not bound to an IRI or a blank node give nothing
+                final Map<Node, List<Binding>> byGraph = new LinkedHashMap<>();
+                for (Binding binding : values) {
+                    final Node graph = graphName(graphNode, binding);
+                    if (graph != null) {
+                        byGraph.computeIfAbsent(graph, (g) -> new ArrayList<>()).add(binding);
+                    }
+                }
+                for (Map.Entry<Node, List<Binding>> entry : byGraph.entrySet()) {
+                    subPlan.execSubGenerateStream(variables, entry.getValue(),
+                            inGraph(newContext, outputStream, entry.getKey(), entry.getValue().size()));
+                }
+            } else {
+                subPlan.execSubGenerateStream(variables, values, inGraph(newContext, outputStream, graphNode, size));
+            }
         }
     }
 
+    /**
+     * A context whose GENERATE output puts the default graph in a named graph.
+     */
+    private static Context inGraph(final Context context, final StreamRDF outputStream, final Node graph, final int size) {
+        return ContextUtils.fork(context)
+                .setSize(size)
+                .setGenerateOutput(new GraphRoutingStreamRDF(outputStream, graph))
+                .fork();
+    }
+
+    /**
+     * The graph name that a graph node denotes for a solution: an IRI, or a
+     * blank node, which RDF 1.1 datasets and Jena accept as graph names; null
+     * if the variable is unbound or bound to a literal or a triple term, as for
+     * a triple whose term is not valid RDF.
+     */
+    static Node graphName(final Node graphNode, final Binding binding) {
+        final Node graph = graphNode.isVariable() ? binding.get(Var.alloc(graphNode)) : graphNode;
+        if (graph == null || !(graph.isURI() || graph.isBlank())) {
+            return null;
+        }
+        return graph;
+    }
+
     private synchronized void outputIfConcrete(
+            final Node graph,
             final StringBuilder sb,
             final StreamRDF outputStream,
             final Context context,
@@ -123,22 +228,29 @@ public class GenerateFormPlan implements GeneratePlan {
             if (LOG.isTraceEnabled()) {
                 Triple t2 = LogUtils.compress(t);
                 sb.append("\n  ").append(t2);
+                if (graph != null) {
+                    sb.append(" in ").append(graph);
+                }
             }
-            outputStream.triple(t);
+            if (graph == null) {
+                outputStream.triple(t);
+            } else {
+                outputStream.quad(Quad.create(graph, t));
+            }
         }
     }
 
     /**
      * Writes the value of a list aggregate as a fresh RDF list.
      */
-    private void outputList(final StringBuilder sb, final StreamRDF outputStream, final Context context, final Triple t) {
+    private void outputList(final Node graph, final StringBuilder sb, final StreamRDF outputStream, final Context context, final Triple t) {
         final List<Node> nodes = ListAggregate.nodes(t.getObject());
         Node current = nodes.isEmpty() ? RDF.nil.asNode() : NodeFactory.createBlankNode();
-        outputIfConcrete(sb, outputStream, context, Triple.create(t.getSubject(), t.getPredicate(), current));
+        outputIfConcrete(graph, sb, outputStream, context, Triple.create(t.getSubject(), t.getPredicate(), current));
         for (int i = 0; i < nodes.size(); i++) {
             final Node next = i == nodes.size() - 1 ? RDF.nil.asNode() : NodeFactory.createBlankNode();
-            outputIfConcrete(sb, outputStream, context, Triple.create(current, FIRST, nodes.get(i)));
-            outputIfConcrete(sb, outputStream, context, Triple.create(current, REST, next));
+            outputIfConcrete(graph, sb, outputStream, context, Triple.create(current, FIRST, nodes.get(i)));
+            outputIfConcrete(graph, sb, outputStream, context, Triple.create(current, REST, next));
             current = next;
         }
     }
@@ -149,6 +261,7 @@ public class GenerateFormPlan implements GeneratePlan {
     }
 
     private void substAndOutputForList(
+            final Node graph,
             final Node subject,
             final Node predicate,
             final Node_List list,
@@ -168,15 +281,15 @@ public class GenerateFormPlan implements GeneratePlan {
         Node p2 = subst(predicate, bNodeMap);
         Triple t = Triple.create(s2, p2, first);
         Triple t2 = Substitute.substitute(t, binding);
-        outputIfConcrete(sb, outputStream, context, t2);
+        outputIfConcrete(graph, sb, outputStream, context, t2);
         // potentially substitute var
         Node var2 = subst(var, bNodeMap);
         Node var2sub = Substitute.substitute(var2, binding);
         Triple tfirst = Triple.create(current, FIRST, var2sub);
-        outputIfConcrete(sb, outputStream, context, tfirst);
+        outputIfConcrete(graph, sb, outputStream, context, tfirst);
         // nothing to substitute here
         Triple tRest = Triple.create(current, REST, next);
-        outputIfConcrete(sb, outputStream, context, tRest);
+        outputIfConcrete(graph, sb, outputStream, context, tRest);
     }
 
     private Node subst(Node n, Map<Node, Node> bNodeMap) {
