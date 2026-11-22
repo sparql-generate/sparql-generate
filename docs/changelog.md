@@ -4,7 +4,7 @@ This page summarises the changes of the engine since version 2.0. The full histo
 
 ## 2.4.1
 
-Not released yet.
+Released on 2026-11-22.
 
 **Language and engine**
 
