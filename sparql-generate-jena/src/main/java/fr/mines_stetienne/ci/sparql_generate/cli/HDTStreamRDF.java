@@ -83,8 +83,15 @@ public class HDTStreamRDF implements StreamRDF {
 		listener.notifyProgressCond(t);
 	}
 
+	/**
+	 * HDT holds a graph: a quad of a named graph is an error.
+	 */
 	@Override
 	public void quad(Quad quad) {
+		if (!quad.isDefaultGraph()) {
+			throw new QuadsNotSupportedException("HDT");
+		}
+		triple(quad.asTriple());
 	}
 
 	@Override

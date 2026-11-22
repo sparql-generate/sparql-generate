@@ -42,9 +42,25 @@ public class ConsoleStreamRDF implements StreamRDF {
 	private int i = 0;
 	private final int MAX = 10000;
 
+	/**
+	 * The name of the format of the output, if it holds triples only, or null
+	 * if quads are written as TriG.
+	 */
+	private final String triplesOnlyFormat;
+
 	public ConsoleStreamRDF(PrintStream out, PrefixMapping pm) {
+		this(out, pm, null);
+	}
+
+	/**
+	 * @param triplesOnlyFormat the name of the format asked for, if it holds
+	 *            triples only: a quad of a named graph is then an error; or
+	 *            null: such a quad is written as a line of TriG.
+	 */
+	public ConsoleStreamRDF(PrintStream out, PrefixMapping pm, String triplesOnlyFormat) {
 		this.out = out;
 		this.pm = pm;
+		this.triplesOnlyFormat = triplesOnlyFormat;
 		context = new SerializationContext(pm);
 	}
 
@@ -52,7 +68,17 @@ public class ConsoleStreamRDF implements StreamRDF {
 	 * Writes to an output stream through a buffer, in UTF-8.
 	 */
 	public ConsoleStreamRDF(OutputStream out, PrefixMapping pm) {
-		this(new PrintStream(new BufferedOutputStream(out, 1 << 16), false, StandardCharsets.UTF_8), pm);
+		this(out, pm, null);
+	}
+
+	/**
+	 * Writes to an output stream through a buffer, in UTF-8.
+	 *
+	 * @see #ConsoleStreamRDF(PrintStream, PrefixMapping, String)
+	 */
+	public ConsoleStreamRDF(OutputStream out, PrefixMapping pm, String triplesOnlyFormat) {
+		this(new PrintStream(new BufferedOutputStream(out, 1 << 16), false, StandardCharsets.UTF_8), pm,
+				triplesOnlyFormat);
 	}
 
 	@Override
@@ -79,8 +105,27 @@ public class ConsoleStreamRDF implements StreamRDF {
 		}
 	}
 
+	/**
+	 * A quad of a named graph is written as a TriG block of one triple,
+	 * {@code <g> { <s> <p> <o> . }}: the output of a query with quads is TriG,
+	 * that of a query without quads stays Turtle.
+	 */
 	@Override
 	public void quad(Quad quad) {
+		if (quad.isDefaultGraph()) {
+			triple(quad.asTriple());
+			return;
+		}
+		if (triplesOnlyFormat != null) {
+			throw new QuadsNotSupportedException(triplesOnlyFormat);
+		}
+		out.append(FmtUtils.stringForNode(quad.getGraph(), context)).append(" { ")
+				.append(FmtUtils.stringForTriple(quad.asTriple(), context)).append(" . }\n");
+		i++;
+		if (i >= MAX) {
+			i = 0;
+			out.flush();
+		}
 	}
 
 	@Override

@@ -28,10 +28,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.jena.query.Dataset;
+import org.apache.jena.query.DatasetFactory;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
+import org.apache.jena.sparql.util.IsoMatcher;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -372,5 +375,122 @@ public class CliTest {
 	@Test
 	public void logLevelFromConfigurationLoglevel() throws Exception {
 		assertTrue(runWithConf("{ \"loglevel\": 4 }").err.contains(" DEBUG "));
+	}
+
+	/**
+	 * A query with GRAPH blocks; the graph of the second block is computed
+	 * from the variable of an iterator.
+	 */
+	private static final String QUADS = "PREFIX ite: <http://w3id.org/sparql-generate/iter/> "
+			+ "GENERATE { <http://ex/s> <http://ex/p> ?i . GRAPH <http://ex/g> { <http://ex/s> <http://ex/q> ?i } "
+			+ "GRAPH ?g { <http://ex/s> <http://ex/r> ?i } } ITERATOR ite:for(1, 1, 3) AS ?i "
+			+ "BIND(IRI(CONCAT(\"http://ex/h\", STR(?i))) AS ?g)";
+
+	private static final String QUADS_EXPECTED = "<http://ex/s> <http://ex/p> 1, 2 . "
+			+ "<http://ex/g> { <http://ex/s> <http://ex/q> 1, 2 } "
+			+ "<http://ex/h1> { <http://ex/s> <http://ex/r> 1 } <http://ex/h2> { <http://ex/s> <http://ex/r> 2 }";
+
+	private static void assertDataset(String expectedTrig, String actual, Lang lang) {
+		Dataset expected = DatasetFactory.create();
+		RDFDataMgr.read(expected, new StringReader(expectedTrig), null, Lang.TRIG);
+		Dataset dataset = DatasetFactory.create();
+		RDFDataMgr.read(dataset, new StringReader(actual), null, lang);
+		assertTrue(actual, IsoMatcher.isomorphic(expected.asDatasetGraph(), dataset.asDatasetGraph()));
+	}
+
+	/**
+	 * Without format, the output of a query with quads is TriG.
+	 */
+	@Test
+	public void quadsAreWrittenAsTrigByDefault() throws Exception {
+		Result result = run(QUADS);
+		assertEquals(result.err, 0, result.exitCode);
+		assertDataset(QUADS_EXPECTED, result.out, Lang.TRIG);
+	}
+
+	@Test
+	public void quadsAsTrig() throws Exception {
+		Result result = run(QUADS, "-fo", "TRIG");
+		assertEquals(result.err, 0, result.exitCode);
+		assertDataset(QUADS_EXPECTED, result.out, Lang.TRIG);
+	}
+
+	@Test
+	public void quadsAsNQuads() throws Exception {
+		Result result = run(QUADS, "-fo", "NQUADS");
+		assertEquals(result.err, 0, result.exitCode);
+		assertDataset(QUADS_EXPECTED, result.out, Lang.NQUADS);
+		assertEquals(result.out, 6, result.out.trim().split("\n").length);
+	}
+
+	@Test
+	public void quadsAsNQuadsWithStream() throws Exception {
+		Result result = run(QUADS, "-fo", "NQUADS", "-s");
+		assertEquals(result.err, 0, result.exitCode);
+		assertDataset(QUADS_EXPECTED, result.out, Lang.NQUADS);
+	}
+
+	/**
+	 * With --stream and without format, each quad is a line of TriG.
+	 */
+	@Test
+	public void quadsAsTrigWithStream() throws Exception {
+		Result result = run(QUADS, "-s");
+		assertEquals(result.err, 0, result.exitCode);
+		assertDataset(QUADS_EXPECTED, result.out, Lang.TRIG);
+	}
+
+	/**
+	 * A format that holds triples only is refused for a query with quads,
+	 * before the execution.
+	 */
+	@Test
+	public void quadsInTriplesOnlyFormatFail() throws Exception {
+		for (String[] args : new String[][] { { "-fo", "TTL" }, { "-fo", "NT" }, { "-fo", "NT", "-s" },
+				{ "-fo", "TTL", "-s" }, { "-fo", "RDF/XML" } }) {
+			List<String> list = new ArrayList<>(Arrays.asList(args));
+			Result result = run(QUADS, list.toArray(new String[0]));
+			assertEquals(list + result.err, 1, result.exitCode);
+			assertTrue(list + result.err, result.err.contains("cannot hold: use --format-output TRIG or NQUADS"));
+			assertTrue(result.out, result.out.isEmpty());
+		}
+	}
+
+	/**
+	 * The quads of a named query called by the query are only known during
+	 * the execution: a format that holds triples only fails then.
+	 */
+	@Test
+	public void quadsOfNamedQueryInTriplesOnlyFormatFail() throws Exception {
+		Files.write(new File(folder.getRoot(), "q.rqg").toPath(),
+				"GENERATE <http://ex/q>(?x) { GRAPH <http://ex/g> { <http://ex/s> <http://ex/p> ?x } }"
+						.getBytes(StandardCharsets.UTF_8));
+		Files.write(new File(folder.getRoot(), "sparql-generate-conf.json").toPath(),
+				"{ \"namedqueries\": [ { \"uri\": \"http://ex/q\", \"path\": \"q.rqg\", \"mediatype\": \"application/vnd.sparql-generate\" } ] }"
+						.getBytes(StandardCharsets.UTF_8));
+		String query = "GENERATE { GENERATE <http://ex/q>(1) . }";
+		Result result = run(query, "-fo", "NT");
+		assertEquals(result.err, 1, result.exitCode);
+		assertTrue(result.err, result.err.contains("which N-Triples cannot hold"));
+		result = run(query);
+		assertEquals(result.err, 0, result.exitCode);
+		assertDataset("<http://ex/g> { <http://ex/s> <http://ex/p> 1 }", result.out, Lang.TRIG);
+	}
+
+	/**
+	 * Without GRAPH block, the default output stays Turtle, without any
+	 * graph.
+	 */
+	@Test
+	public void queryWithoutQuadsStaysTurtle() throws Exception {
+		Result result = run(QUERY, "-s");
+		assertEquals(result.err, 0, result.exitCode);
+		Model model = ModelFactory.createDefaultModel();
+		RDFDataMgr.read(model, new StringReader(result.out), null, Lang.TTL);
+		assertEquals(2, model.size());
+		result = run(QUERY, "-fo", "NQUADS");
+		assertEquals(result.err, 0, result.exitCode);
+		assertEquals(result.out, 2, result.out.trim().split("\n").length);
+		assertTrue(result.out, !result.out.contains("ex/g"));
 	}
 }

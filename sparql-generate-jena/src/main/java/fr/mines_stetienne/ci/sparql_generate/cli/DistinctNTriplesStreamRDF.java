@@ -28,6 +28,7 @@ import java.security.NoSuchAlgorithmException;
 
 import org.apache.jena.atlas.io.AWriter;
 import org.apache.jena.atlas.io.IO;
+import org.apache.jena.graph.Node;
 import org.apache.jena.graph.Triple;
 import org.apache.jena.riot.out.NodeFormatter;
 import org.apache.jena.riot.out.NodeFormatterNT;
@@ -35,7 +36,8 @@ import org.apache.jena.riot.system.StreamRDF;
 import org.apache.jena.sparql.core.Quad;
 
 /**
- * Writes the triples as N-Triples, each one once, in the order in which they
+ * Writes the triples as N-Triples, and the quads of named graphs as N-Quads if
+ * asked to, each one once, in the order in which they
  * are first generated: the set of triples of the graph, without building the
  * graph in memory. A triple is recognised by the first 128 bits of the
  * SHA-256 digest of its N-Triples line: 16 bytes per distinct triple.
@@ -49,7 +51,22 @@ final class DistinctNTriplesStreamRDF implements StreamRDF {
 	private final MessageDigest sha256;
 	private final DigestSet seen = new DigestSet();
 
+	/**
+	 * True if the quads of named graphs are written as N-Quads; if false,
+	 * they are an error.
+	 */
+	private final boolean quads;
+
 	DistinctNTriplesStreamRDF(OutputStream out) {
+		this(out, false);
+	}
+
+	/**
+	 * @param quads true to write the quads of named graphs as N-Quads, false
+	 *            to fail on them, for N-Triples
+	 */
+	DistinctNTriplesStreamRDF(OutputStream out, boolean quads) {
+		this.quads = quads;
 		this.out = new BufferedWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8), 1 << 16);
 		try {
 			sha256 = MessageDigest.getInstance("SHA-256");
@@ -64,12 +81,23 @@ final class DistinctNTriplesStreamRDF implements StreamRDF {
 
 	@Override
 	public void triple(Triple triple) {
+		write(triple, null);
+	}
+
+	/**
+	 * Writes a triple, or a quad if the graph is not null.
+	 */
+	private void write(Triple triple, Node graph) {
 		line.getBuffer().setLength(0);
 		formatter.format(lineWriter, triple.getSubject());
 		lineWriter.print(' ');
 		formatter.format(lineWriter, triple.getPredicate());
 		lineWriter.print(' ');
 		formatter.format(lineWriter, triple.getObject());
+		if (graph != null) {
+			lineWriter.print(' ');
+			formatter.format(lineWriter, graph);
+		}
 		lineWriter.print(" .\n");
 		lineWriter.flush();
 		final String text = line.toString();
@@ -93,6 +121,13 @@ final class DistinctNTriplesStreamRDF implements StreamRDF {
 
 	@Override
 	public void quad(Quad quad) {
+		if (quad.isDefaultGraph()) {
+			write(quad.asTriple(), null);
+		} else if (quads) {
+			write(quad.asTriple(), quad.getGraph());
+		} else {
+			throw new QuadsNotSupportedException("N-Triples");
+		}
 	}
 
 	@Override

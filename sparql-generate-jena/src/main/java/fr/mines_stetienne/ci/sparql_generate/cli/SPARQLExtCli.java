@@ -62,8 +62,8 @@ import org.apache.jena.query.DatasetFactory;
 import org.apache.jena.query.QueryFactory;
 import org.apache.jena.query.ResultSet;
 import org.apache.jena.query.ResultSetFormatter;
-import org.apache.jena.rdf.model.Model;
 import org.apache.jena.riot.Lang;
+import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RDFLanguages;
 import org.apache.jena.riot.RDFFormat;
 import org.apache.jena.riot.RiotException;
@@ -186,8 +186,11 @@ public class SPARQLExtCli {
 			// a non-zero exit status, for scripts and continuous integration
 			final DocumentNotFoundException notFound = DocumentNotFoundException.findIn(ex);
 			final ExecutionLimitException limit = ExecutionLimitException.findIn(ex);
+			final QuadsNotSupportedException quads = QuadsNotSupportedException.findIn(ex);
 			if (notFound != null) {
 				LOG.error(notFound.getMessage());
+			} else if (quads != null) {
+				LOG.error(quads.getMessage());
 			} else if (limit != null) {
 				// the output written so far is incomplete
 				LOG.error(limit.getMessage());
@@ -241,6 +244,13 @@ public class SPARQLExtCli {
 		}
 		if (q.isTemplateType() && rq.outputFormat != null) {
 			throw new SPARQLExtException("Option outputFormat is only for queries of type GENERATE or SELECT");
+		}
+		if (q.isGenerateType() && q.hasQuadPatterns()) {
+			// before the execution, when the query itself has GRAPH blocks
+			final String triplesOnly = triplesOnlyFormat(rq);
+			if (triplesOnly != null) {
+				throw new QuadsNotSupportedException(triplesOnly);
+			}
 		}
 
 		// prepare context
@@ -369,8 +379,28 @@ public class SPARQLExtCli {
 	}
 
 	/**
-	 * With --stream, a GENERATE query writes N-Triples if asked to, and
-	 * Turtle, one triple per line, otherwise.
+	 * The name of the output format asked for, if it holds triples only (it
+	 * cannot hold the quads of named graphs), or null. Without format, the
+	 * output of a query with quads is TriG.
+	 */
+	private static String triplesOnlyFormat(CliRequest request) {
+		if (request.hdt) {
+			return "HDT";
+		}
+		if (request.outputFormat == null) {
+			return null;
+		}
+		Lang lang = RDFLanguages.nameToLang(request.outputFormat);
+		if (lang == null || RDFLanguages.isQuads(lang)) {
+			return null;
+		}
+		return lang.getLabel();
+	}
+
+	/**
+	 * With --stream, a GENERATE query writes N-Triples (or N-Quads) if asked
+	 * to, and Turtle, one triple per line, otherwise; the quads of named
+	 * graphs make it TriG.
 	 */
 	private static boolean isNTriples(CliRequest request) {
 		if (request.outputFormat == null) {
@@ -380,8 +410,8 @@ public class SPARQLExtCli {
 		if (Lang.NTRIPLES.equals(lang) || Lang.NQUADS.equals(lang)) {
 			return true;
 		}
-		if (!Lang.TURTLE.equals(lang) && !Lang.N3.equals(lang)) {
-			LOG.warn("With --stream, the output of a GENERATE query is Turtle or N-Triples, not " + request.outputFormat);
+		if (!Lang.TURTLE.equals(lang) && !Lang.N3.equals(lang) && !Lang.TRIG.equals(lang)) {
+			LOG.warn("With --stream, the output of a GENERATE query is Turtle, TriG, N-Triples or N-Quads, not " + request.outputFormat);
 		}
 		return false;
 	}
@@ -389,8 +419,19 @@ public class SPARQLExtCli {
 	private static void execGenerateStream(List<Binding> bindings, RootPlan plan, ContextUtils.Builder builder, CliRequest request) {
 		final PrefixMapping pm = plan.getQuery().getPrefixMapping();
 		try (OutputStream out = openOutput(request)) {
-			final StreamRDF stream = isNTriples(request) ? StreamRDFWriter.getWriterStream(out, RDFFormat.NTRIPLES)
-					: new ConsoleStreamRDF(out, pm);
+			final StreamRDF stream;
+			if (!isNTriples(request)) {
+				// Turtle and N3 cannot hold quads; the other formats are written as
+				// Turtle, or TriG with quads
+				final Lang lang = request.outputFormat == null ? null : RDFLanguages.nameToLang(request.outputFormat);
+				final boolean triplesOnly = Lang.TURTLE.equals(lang) || Lang.N3.equals(lang);
+				stream = new ConsoleStreamRDF(out, pm, triplesOnly ? lang.getLabel() : null);
+			} else if (Lang.NQUADS.equals(RDFLanguages.nameToLang(request.outputFormat))) {
+				// a triple of the default graph is a line of N-Triples
+				stream = StreamRDFWriter.getWriterStream(out, RDFFormat.NQUADS);
+			} else {
+				stream = new TriplesOnlyStreamRDF(StreamRDFWriter.getWriterStream(out, RDFFormat.NTRIPLES), "N-Triples");
+			}
 			// the plan calls start() and finish(), which flushes the stream
 			Context context = builder.setGenerateOutput(stream).build();
 			plan.execGenerateStream(bindings, context);
@@ -400,15 +441,18 @@ public class SPARQLExtCli {
 	}
 
 	private static void execGenerate(List<Binding> bindings, RootPlan plan, ContextUtils.Builder builder, CliRequest request) {
-		if (request.outputFormat == null) {
+		// without format, Turtle, or TriG if the query generates quads
+		final boolean formatGiven = request.outputFormat != null;
+		if (!formatGiven) {
 			request.outputFormat = RDFLanguages.strLangTurtle;
 		}
 		Lang lang = RDFLanguages.nameToLang(request.outputFormat);
 		if (Lang.NTRIPLES.equals(lang) || Lang.NQUADS.equals(lang)) {
-			// the set of triples, written as they are generated: the graph is
-			// not built in memory
+			// the set of triples (and quads), written as they are generated: the
+			// graph is not built in memory
 			try (OutputStream out = openOutput(request)) {
-				Context context = builder.setGenerateOutput(new DistinctNTriplesStreamRDF(out)).build();
+				Context context = builder
+						.setGenerateOutput(new DistinctNTriplesStreamRDF(out, Lang.NQUADS.equals(lang))).build();
 				plan.execGenerateStream(bindings, context);
 			} catch (IOException ex) {
 				throw new SPARQLExtException("Error while writing the output file.", ex);
@@ -416,14 +460,23 @@ public class SPARQLExtCli {
 			return;
 		}
 		final Context context = builder.build();
-		final Model model;
+		final Dataset dataset;
 		try {
-			model = plan.execGenerate(bindings, context);
+			dataset = plan.execGenerateDataset(bindings, context);
 		} catch (Exception ex) {
 			throw new SPARQLExtException("Error while executing the plan.", ex);
 		}
+		final boolean hasNamedGraphs = dataset.asDatasetGraph().listGraphNodes().hasNext();
+		if (hasNamedGraphs && formatGiven && !RDFLanguages.isQuads(lang)) {
+			throw new QuadsNotSupportedException(lang.getLabel());
+		}
 		try (OutputStream out = openOutput(request)) {
-			model.write(out, lang.getLabel());
+			if (!hasNamedGraphs) {
+				// the default graph, as before quad patterns existed
+				dataset.getDefaultModel().write(out, lang.getLabel());
+			} else {
+				RDFDataMgr.write(out, dataset, formatGiven ? lang : Lang.TRIG);
+			}
 		} catch (IOException ex) {
 			throw new SPARQLExtException("Error while writing the output file.", ex);
 		}
