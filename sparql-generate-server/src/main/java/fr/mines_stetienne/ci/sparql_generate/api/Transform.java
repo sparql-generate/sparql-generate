@@ -34,6 +34,7 @@ import javax.servlet.http.HttpServlet;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -45,11 +46,13 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
 import org.apache.jena.atlas.web.TypedInputStream;
 import org.apache.jena.graph.NodeFactory;
+import org.apache.jena.query.Dataset;
 import org.apache.jena.query.QueryFactory;
 import org.apache.jena.query.ResultSet;
 import org.apache.jena.query.ResultSetFactory;
 import org.apache.jena.query.ResultSetFormatter;
-import org.apache.jena.rdf.model.Model;
+import org.apache.jena.riot.Lang;
+import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.engine.binding.Binding;
 import org.apache.jena.sparql.engine.binding.BindingBuilder;
@@ -83,21 +86,23 @@ public class Transform extends HttpServlet {
     public Response doGet(
             final @QueryParam("query") String query,
             final @QueryParam("queryurl") String queryurl,
-            final @QueryParam("param") List<String> params) throws ServerErrorException {
-        return doTransform(query, queryurl, params);
+            final @QueryParam("param") List<String> params,
+            final @HeaderParam("Accept") String accept) throws ServerErrorException {
+        return doTransform(query, queryurl, params, accept);
     }
 
     @POST
     public Response doPost(
             final @FormParam("query") String query,
             final @FormParam("queryurl") String queryurl,
-            final @FormParam("param") List<String> params) throws WebApplicationException {
-        return doTransform(query, queryurl, params);
+            final @FormParam("param") List<String> params,
+            final @HeaderParam("Accept") String accept) throws WebApplicationException {
+        return doTransform(query, queryurl, params, accept);
     }
 
     
     private Response doTransform(
-            String query, String queryurl, List<String> params) {
+            String query, String queryurl, List<String> params, String accept) {
     	if(query == null && queryurl == null) {
     		throw new BadRequestException("One of parameters query or queryurl must be set.");
     	}
@@ -149,12 +154,22 @@ public class Transform extends HttpServlet {
         try {
             final Future<Response> f = service.submit(() -> {
         		if(q.isGenerateType()) {
-                    Model model = plan.execGenerate(values, context);
+                    Dataset dataset = plan.execGenerateDataset(values, context);
                     StringWriter sw = new StringWriter();
-                    model.write(sw, "TTL");
-                    return Response.ok(sw.toString(), "text/turtle")
-                    		.header("Content-Disposition", "filename= message.ttl;")
-                			.build();
+                    if (!dataset.asDatasetGraph().listGraphNodes().hasNext()) {
+                        // the graph, in Turtle, as before named graphs existed
+                        dataset.getDefaultModel().write(sw, "TTL");
+                        return Response.ok(sw.toString(), "text/turtle")
+                                .header("Content-Disposition", "filename= message.ttl;")
+                                .build();
+                    }
+                    // named graphs: TriG, or N-Quads if the client asks for it
+                    boolean nquads = accept != null && accept.contains(Lang.NQUADS.getHeaderString());
+                    Lang lang = nquads ? Lang.NQUADS : Lang.TRIG;
+                    RDFDataMgr.write(sw, dataset, lang);
+                    return Response.ok(sw.toString(), lang.getHeaderString())
+                            .header("Content-Disposition", "filename= message." + (nquads ? "nq" : "trig") + ";")
+                            .build();
         		} else if(q.isSelectType()) {
         			ResultSet resultSet = plan.execSelect(values, context);
                     StringWriter sw = new StringWriter();

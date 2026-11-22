@@ -30,28 +30,9 @@ A named query has an IRI and a signature. A template calls it with `GENERATE <na
 
 A `GRAPH` block of the template generates its triples in a named graph, as the quad patterns of a SPARQL 1.1 Update or of a Jena `CONSTRUCT` query: the output is then an RDF dataset. The triples outside `GRAPH` blocks are in the default graph. The graph is a constant IRI, a variable, an IRI with embedded expressions, or an embedded expression `?{ ... }`; a dot after the block is optional.
 
-```sparql-generate
-PREFIX ex:  <http://example.com/>
-PREFIX ite: <http://w3id.org/sparql-generate/iter/>
+Here the names of the people are in the graph of their country, and their birth dates in a graph computed by a `BIND` clause from the variables of the iterator.
 
-GENERATE {
-  <person/{?name}> a ex:Person .
-  GRAPH <department/{?department}> { <person/{?name}> ex:name ?name }
-  GRAPH ?cityGraph { <person/{?name}> ex:city ?city }
-}
-ITERATOR ite:CSV(<people.csv>) AS ?name ?department ?city
-BIND(IRI(CONCAT("http://example.com/city/", ?city)) AS ?cityGraph)
-```
-
-```trig
-<http://example.com/person/Alice> a <http://example.com/Person> .
-<http://example.com/department/sales> {
-  <http://example.com/person/Alice> <http://example.com/name> "Alice" .
-}
-<http://example.com/city/Paris> {
-  <http://example.com/person/Alice> <http://example.com/city> "Paris" .
-}
-```
+!example named-graphs
 
 For each solution:
 
@@ -61,7 +42,7 @@ For each solution:
 
 `GRAPH` blocks cannot be nested. A nested `GENERATE` placed in a `GRAPH` block generates its default graph in that graph; its own `GRAPH` blocks keep their graph. A call to a named `GENERATE` query from a `GRAPH` block follows the same rule: the triples of its default graph go to the graph of the block. A nested query in a `GRAPH ?g` block is evaluated separately for the solutions of each value of `?g`.
 
-A query without `GRAPH` block gives exactly the same graph as before. The output of a query with `GRAPH` blocks is written in TriG by default on the [command line](../cli.md), or in N-Quads with `--format-output NQUADS`; a format that holds triples only (Turtle, N-Triples, RDF/XML, HDT) is refused. In Java, `RootPlan.execGenerateDataset` returns the dataset; `execGenerate`, which returns a model, returns the default graph and logs a warning that the named graphs were ignored. A `FROM GENERATE` clause builds one graph: the named graphs of its query are ignored, with the same warning. The playground shows the default graph only.
+A query without `GRAPH` block gives exactly the same graph as before. The output of a query with `GRAPH` blocks is written in TriG by default on the [command line](../cli.md), or in N-Quads with `--format-output NQUADS`; a format that holds triples only (Turtle, N-Triples, RDF/XML, HDT) is refused. In Java, `RootPlan.execGenerateDataset` returns the dataset; `execGenerate`, which returns a model, returns the default graph and logs a warning that the named graphs were ignored. A `FROM GENERATE` clause builds one graph: the named graphs of its query are ignored, with the same warning. The playground and the web API write the dataset in TriG (the web API in N-Quads if the request accepts `application/n-quads`).
 
 ## Lists
 

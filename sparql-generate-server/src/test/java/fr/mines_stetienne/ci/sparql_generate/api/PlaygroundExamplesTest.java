@@ -61,6 +61,7 @@ import org.apache.jena.riot.ResultSetMgr;
 import org.apache.jena.riot.system.StreamRDFBase;
 import org.apache.jena.sparql.resultset.ResultSetCompare;
 import org.apache.jena.sparql.util.Context;
+import org.apache.jena.sparql.util.IsoMatcher;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -219,7 +220,7 @@ public class PlaygroundExamplesTest {
 			if (ENDLESS.contains(name)) {
 				runEndless(plan, query, builder, executor);
 			} else if (query.isGenerateType()) {
-				checkGenerate(execute(executor, () -> plan.execGenerate(builder.build())));
+				checkGenerate(execute(executor, () -> plan.execGenerateDataset(builder.build())));
 			} else if (query.isSelectType()) {
 				checkSelect(execute(executor, () -> ResultSetFactory.makeRewindable(plan.execSelect(builder.build()))));
 			} else if (query.isTemplateType()) {
@@ -283,7 +284,23 @@ public class PlaygroundExamplesTest {
 		assertTrue("the stream produced no triple within " + TIMEOUT_SECONDS + " seconds", triples.get() > 0);
 	}
 
-	private void checkGenerate(Model output) throws Exception {
+	/**
+	 * The dataset of a query with named graphs is compared with
+	 * {@code expected_output.trig}; the graph of the other queries with
+	 * {@code expected_output.ttl}.
+	 */
+	private void checkGenerate(Dataset dataset) throws Exception {
+		File expectedTrig = new File(dir, "expected_output.trig");
+		if (expectedTrig.exists()) {
+			Dataset expected = RDFDataMgr.loadDataset(expectedTrig.toURI().toString(), Lang.TRIG);
+			StringWriter sw = new StringWriter();
+			RDFDataMgr.write(sw, dataset, Lang.TRIG);
+			assertTrue("Output is not isomorphic to expected_output.trig, got:\n" + sw,
+					IsoMatcher.isomorphic(expected.asDatasetGraph(), dataset.asDatasetGraph()));
+			return;
+		}
+		assertFalse("named graphs without expected_output.trig", dataset.asDatasetGraph().listGraphNodes().hasNext());
+		Model output = dataset.getDefaultModel();
 		assertFalse("the generated graph is empty", output.isEmpty());
 		File expectedFile = new File(dir, "expected_output.ttl");
 		if (!expectedFile.exists()) {

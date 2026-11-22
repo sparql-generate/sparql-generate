@@ -1,0 +1,13 @@
+PREFIX iter: <http://w3id.org/sparql-generate/iter/>
+PREFIX schema: <http://schema.org/>
+BASE <http://example.org/>
+
+# The people are in the default graph; the name of each person is in the
+# graph of their country, and their birth date in a graph computed by BIND.
+GENERATE {
+  <person/{?id}> a schema:Person .
+  GRAPH <country/{?country}> { <person/{?id}> schema:name ?name }
+  GRAPH ?century { <person/{?id}> schema:birthDate ?born }
+}
+ITERATOR iter:CSV(<http://example.org/people.csv>, "id", "name", "born", "country") AS ?id ?name ?born ?country
+BIND(IRI(CONCAT("http://example.org/century/", SUBSTR(?born, 1, 2))) AS ?century)

@@ -39,7 +39,8 @@ import org.apache.jena.graph.Triple;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.ResultSet;
 import org.apache.jena.query.ResultSetFormatter;
-import org.apache.jena.rdf.model.Model;
+import org.apache.jena.riot.Lang;
+import org.apache.jena.riot.RDFWriter;
 import org.apache.jena.riot.system.StreamRDF;
 import org.apache.jena.sparql.core.Quad;
 import org.apache.jena.sparql.serializer.SerializationContext;
@@ -160,9 +161,14 @@ public class TransformStream {
 				if (!request.stream) {
 					Context context = contextBuilder.build();
 					if (q.isGenerateType()) {
-						Model model = plan.execGenerate(context);
+						Dataset output = plan.execGenerateDataset(context);
 						final StringWriter sw = new StringWriter();
-						model.write(sw, "TTL", RequestSetup.BASE);
+						if (!output.asDatasetGraph().listGraphNodes().hasNext()) {
+							output.getDefaultModel().write(sw, "TTL", RequestSetup.BASE);
+						} else {
+							// named graphs: TriG
+							sw.append(RDFWriter.source(output).lang(Lang.TRIG).base(RequestSetup.BASE).asString());
+						}
 						sessionManager.appendGenerate(sw.toString());
 					} else if (q.isSelectType()) {
 						ResultSet resultSet = plan.execSelect(context);
@@ -278,8 +284,17 @@ public class TransformStream {
 			sessionManager.appendGenerate(FmtUtils.stringForTriple(triple, sc) + " .");
 		}
 
+		/**
+		 * A quad of a named graph is a line of TriG.
+		 */
 		@Override
 		public void quad(Quad quad) {
+			if (quad.isDefaultGraph()) {
+				triple(quad.asTriple());
+				return;
+			}
+			sessionManager.appendGenerate(FmtUtils.stringForNode(quad.getGraph(), sc) + " { "
+					+ FmtUtils.stringForTriple(quad.asTriple(), sc) + " . }");
 		}
 
 		@Override

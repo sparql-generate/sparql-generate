@@ -1,0 +1,24 @@
+@prefix schema: <http://schema.org/> .
+@base <http://example.org/> .
+
+<person/1> a schema:Person .
+<person/2> a schema:Person .
+<person/3> a schema:Person .
+
+<country/GB> {
+  <person/1> schema:name "Ada Lovelace" .
+  <person/2> schema:name "Alan Turing" .
+}
+
+<country/US> {
+  <person/3> schema:name "Grace Hopper" .
+}
+
+<century/18> {
+  <person/1> schema:birthDate "1815-12-10" .
+}
+
+<century/19> {
+  <person/2> schema:birthDate "1912-06-23" .
+  <person/3> schema:birthDate "1906-12-09" .
+}

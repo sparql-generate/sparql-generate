@@ -31,6 +31,7 @@ LEXERS = {
     ".xml": "xml",
     ".html": "html",
     ".ttl": "turtle",
+    ".trig": "trig",
     ".csv": "text",
     ".txt": "text",
 }
@@ -127,7 +128,9 @@ def render(name: str) -> str:
         tabs.append(_tab(title, body))
     if example["defaultgraph"].strip():
         tabs.append(_tab("Default graph", _fence(example["defaultgraph"], "turtle")))
-    if (root / "expected_output.ttl").exists():
+    if (root / "expected_output.trig").exists():
+        tabs.append(_tab("Output", _fence(_read(root / "expected_output.trig"), "trig")))
+    elif (root / "expected_output.ttl").exists():
         tabs.append(_tab("Output", _fence(_read(root / "expected_output.ttl"), "turtle")))
     elif (root / "expected_output.txt").exists():
         tabs.append(_tab("Output", _fence(_read(root / "expected_output.txt"), "text")))

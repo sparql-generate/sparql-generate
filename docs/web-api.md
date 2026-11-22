@@ -5,7 +5,7 @@ The server of the playground exposes a Web API that executes a query given in th
 - `query`, the query as a string, or `queryurl`, the URL of the query;
 - `param`, zero or more times: the values of the parameters of the signature of the query, in order, as `xsd:string` literals.
 
-The answer is Turtle for a `GENERATE` query, SPARQL JSON results for a `SELECT` query, and text for a `TEMPLATE` query.
+The answer is Turtle for a `GENERATE` query (TriG if it generates [named graphs](language/generate.md#named-graphs), or N-Quads if the request has `Accept: application/n-quads`), SPARQL JSON results for a `SELECT` query, and text for a `TEMPLATE` query.
 
 ```sh
 curl --get https://ci.mines-stetienne.fr/sparql-generate/api/transform \

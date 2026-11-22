@@ -18,6 +18,7 @@ package fr.mines_stetienne.ci.sparql_generate.api;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.io.StringReader;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.net.http.HttpClient;
@@ -29,6 +30,10 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.jena.query.Dataset;
+import org.apache.jena.query.DatasetFactory;
+import org.apache.jena.riot.Lang;
+import org.apache.jena.riot.RDFDataMgr;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
@@ -38,6 +43,9 @@ import org.glassfish.jersey.servlet.ServletContainer;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import fr.mines_stetienne.ci.sparql_generate.JerseyApp;
 
@@ -99,6 +107,65 @@ public class ServerSmokeTest {
 		HttpResponse<String> response = get("api/transform?query=" + query);
 		assertEquals(200, response.statusCode());
 		assertTrue(response.body(), response.body().contains("42"));
+	}
+
+	private static final String QUADS = "PREFIX ex: <http://ex/> GENERATE { ex:s ex:p 1 . GRAPH <http://ex/g> { ex:s ex:p 2 } }";
+
+	/**
+	 * A query with GRAPH blocks gives TriG, or N-Quads if the client asks for
+	 * it; a query without stays Turtle.
+	 */
+	@Test
+	public void transformsQuadsWithTheWebApi() throws Exception {
+		String query = URLEncoder.encode(QUADS, StandardCharsets.UTF_8);
+		HttpResponse<String> response = get("api/transform?query=" + query);
+		assertEquals(200, response.statusCode());
+		assertTrue(response.headers().firstValue("Content-Type").orElse(""),
+				response.headers().firstValue("Content-Type").orElse("").startsWith("application/trig"));
+		Dataset dataset = DatasetFactory.create();
+		RDFDataMgr.read(dataset, new StringReader(response.body()), null, Lang.TRIG);
+		assertEquals(1, dataset.getDefaultModel().size());
+		assertEquals(1, dataset.getNamedModel("http://ex/g").size());
+
+		response = CLIENT.send(HttpRequest.newBuilder(URI.create(base + "api/transform?query=" + query))
+				.header("Accept", "application/n-quads").build(), HttpResponse.BodyHandlers.ofString());
+		assertEquals(200, response.statusCode());
+		assertTrue(response.body(), response.body().contains("<http://ex/g> ."));
+		assertEquals(response.body(), 2, response.body().trim().split("\n").length);
+
+		response = get("api/transform?query="
+				+ URLEncoder.encode("GENERATE { <http://ex/s> <http://ex/p> 42 } WHERE {}", StandardCharsets.UTF_8));
+		assertTrue(response.headers().firstValue("Content-Type").orElse("").startsWith("text/turtle"));
+	}
+
+	/**
+	 * The playground writes the named graphs in TriG, with or without stream.
+	 */
+	@Test
+	public void runsAQueryWithQuadsOverTheWebSocket() throws Exception {
+		for (boolean stream : new boolean[] { false, true }) {
+			JsonObject request = JsonParser.parseString(get("api/example/template/04-Group").body()).getAsJsonObject();
+			request.addProperty("defaultquery", QUADS);
+			request.addProperty("stream", stream);
+			CompletableFuture<String> result = new CompletableFuture<>();
+			StringBuilder received = new StringBuilder();
+			WebSocket socket = CLIENT.newWebSocketBuilder()
+					.buildAsync(URI.create(base.replace("http:", "ws:") + "transformStream"), new WebSocket.Listener() {
+						@Override
+						public CompletionStage<?> onText(WebSocket webSocket, CharSequence data, boolean last) {
+							received.append(data);
+							if (received.toString().contains("ex:g")) {
+								result.complete(received.toString());
+							}
+							webSocket.request(1);
+							return null;
+						}
+					}).get(10, TimeUnit.SECONDS);
+			socket.sendText(request.toString(), true);
+			String messages = result.get(30, TimeUnit.SECONDS);
+			assertTrue(messages, messages.contains("ex:g"));
+			socket.sendClose(WebSocket.NORMAL_CLOSURE, "done");
+		}
 	}
 
 	@Test
