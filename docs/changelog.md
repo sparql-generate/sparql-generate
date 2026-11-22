@@ -2,9 +2,9 @@
 
 This page summarises the changes of the engine since version 2.0. The full history is in the [commits](https://github.com/sparql-generate/sparql-generate/commits/master) and the [releases](https://github.com/sparql-generate/sparql-generate/releases).
 
-## 2.4.2
+## Unreleased
 
-Not released yet.
+On the branch `rml-modules`, for the translation of the RML modules (rml-to-sparql-generate).
 
 **Documents**
 
