@@ -18,11 +18,9 @@ package fr.mines_stetienne.ci.sparql_generate.stream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import org.apache.commons.io.input.BOMInputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.AccessControlException;
-import org.apache.jena.atlas.io.IO;
 import org.apache.jena.atlas.lib.IRILib;
 import org.apache.jena.atlas.web.ContentType;
 import org.apache.jena.atlas.web.TypedInputStream;
@@ -164,8 +162,8 @@ public class LocatorFileAccept extends LocatorAcceptBase {
         }
 
         try {
-            // a UTF-8 byte order mark is not part of the content
-            InputStream in = new BOMInputStream(IO.openFileEx(fn));
+            // decompressed, in UTF-8, without byte order mark
+            InputStream in = DocumentStreams.open(new java.io.FileInputStream(fn), fn);
             try {
                 String ct = Files.probeContentType(Paths.get(new File(filenameIRI).getName()));
                 return new TypedInputStream(in, ContentType.create(ct), filenameIRI);

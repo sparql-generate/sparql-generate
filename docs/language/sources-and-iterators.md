@@ -27,6 +27,8 @@ The engine looks the document up in the documentset of the [command line](../cli
 ITERATOR iter:function(arguments) AS ?var1 ?var2 ...
 ```
 
+A local file is read decompressed according to its extension: `.gz`, `.bz2` and `.xz` files, and the first file of `.zip`, `.tar`, `.tar.gz` (`.tgz`), `.tar.bz2` and `.tar.xz` archives. Its byte order mark is not part of its content, and a file in UTF-16 or UTF-32 with a byte order mark is read as UTF-8 text.
+
 An iterator function returns a list of rows. `ITERATOR` binds the variables after `AS` to the values of each row: the clause multiplies each solution by the rows of the iterator. Most iterators take the document as their first argument, either a literal (the content) or an IRI (looked up as for `SOURCE`). The [reference](../reference/iterators.md) lists the iterators and their parameters.
 
 ### JSON

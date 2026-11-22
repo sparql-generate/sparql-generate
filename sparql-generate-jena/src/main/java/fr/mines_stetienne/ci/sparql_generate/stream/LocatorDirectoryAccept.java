@@ -23,7 +23,6 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Objects;
-import org.apache.commons.io.input.BOMInputStream;
 import org.apache.jena.atlas.web.ContentType;
 import org.apache.jena.atlas.web.TypedInputStream;
 import org.slf4j.LoggerFactory;
@@ -72,7 +71,8 @@ public class LocatorDirectoryAccept extends LocatorAcceptBase {
 
         File f = new File(dir, relativeIRI);
         try {
-            InputStream is = new BOMInputStream(new FileInputStream(f));
+            // decompressed, in UTF-8, without byte order mark
+            InputStream is = DocumentStreams.open(new FileInputStream(f), f.getName());
             log.info("found " + filenameIRI);
 
             try {

@@ -6,6 +6,10 @@ This page summarises the changes of the engine since version 2.0. The full histo
 
 Not released yet.
 
+**Documents**
+
+- A local file is read decompressed according to its extension: `.gz`, `.bz2`, `.xz`, and the first file of `.zip`, `.tar`, `.tar.gz`, `.tar.bz2`, `.tar.xz` archives (only `.gz` and `.bz2` were, and only for some file locations). A UTF-16 or UTF-32 file with a byte order mark is read as UTF-8 text.
+
 **Iterators**
 
 - `iter:CSV` with named columns gives the position of each row (from 0, the header excluded, across batches) after the last column: `ITERATOR iter:CSV(<people.csv>, "id", "name") AS ?id ?name ?row`. A query that bound one variable more than the columns got no solution, with a warning.
