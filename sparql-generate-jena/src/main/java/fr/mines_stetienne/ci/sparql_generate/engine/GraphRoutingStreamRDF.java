@@ -44,6 +44,13 @@ final class GraphRoutingStreamRDF implements StreamRDF {
     }
 
     /**
+     * The output of the parent query.
+     */
+    StreamRDF getParent() {
+        return parent;
+    }
+
+    /**
      * The graph in which the default graph of the sub-query is generated.
      */
     Node getGraph() {

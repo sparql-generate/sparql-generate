@@ -152,4 +152,53 @@ public class NamedQueryCallTest {
 						+ "WHERE { BIND(COALESCE(?x, \"unbound\") AS ?o) }");
 		assertIsomorphic("<http://ex.org/s> <http://ex.org/p> \"unbound\" .", model);
 	}
+
+	/**
+	 * Two FROM GENERATE clauses with the same text, in two sibling
+	 * sub-queries evaluated on the same binding, each build their own graph:
+	 * the second one is not taken for a call already made.
+	 */
+	@Test
+	public void identicalFromGenerateInSiblingSubQueries() {
+		Model model = generate("GENERATE { "
+				+ "GENERATE { ?s <http://ex.org/a> ?o } FROM GENERATE { <http://ex.org/s> <http://ex.org/p> 1 } . WHERE { ?s ?p ?o } . "
+				+ "GENERATE { ?s <http://ex.org/b> ?o } FROM GENERATE { <http://ex.org/s> <http://ex.org/p> 1 } . WHERE { ?s ?p ?o } . "
+				+ "}");
+		assertIsomorphic("<http://ex.org/s> <http://ex.org/a> 1 ; <http://ex.org/b> 1 .", model);
+	}
+
+	/**
+	 * The same named query called twice on the same binding, to the same
+	 * output, is still executed once.
+	 */
+	@Test
+	public void sameCallToTheSameOutputIsExecutedOnce() {
+		java.util.List<org.apache.jena.graph.Triple> triples = new java.util.ArrayList<>();
+		LocatorStringMap locator = new LocatorStringMap();
+		locator.put("http://ex.org/q", "GENERATE <http://ex.org/q>(?n) { <http://ex.org/s> <http://ex.org/p> ?n }",
+				SPARQLExt.MEDIA_TYPE);
+		SPARQLExtStreamManager sm = SPARQLExtStreamManager.makeStreamManager(locator);
+		PlanFactory.create("GENERATE { GENERATE <http://ex.org/q>(1) . GENERATE <http://ex.org/q>(1) . }")
+				.execGenerateStream(ContextUtils.build().setStreamManager(sm)
+						.setGenerateOutput(new org.apache.jena.riot.system.StreamRDFBase() {
+							@Override
+							public void triple(org.apache.jena.graph.Triple triple) {
+								triples.add(triple);
+							}
+						}).build());
+		assertEquals(1, triples.size());
+	}
+
+	/**
+	 * A named query that calls itself with the same argument stops, also
+	 * inside a FROM GENERATE.
+	 */
+	@Test
+	public void recursionInFromGenerateStops() {
+		Model model = generate("GENERATE { ?s <http://ex.org/in> ?o } "
+				+ "FROM GENERATE <http://ex.org/q>(1) . WHERE { ?s ?p ?o }",
+				"http://ex.org/q", "GENERATE <http://ex.org/q>(?n) { <http://ex.org/s> <http://ex.org/p> ?n . "
+						+ "GENERATE <http://ex.org/q>(?n) . }");
+		assertIsomorphic("<http://ex.org/s> <http://ex.org/in> 1 .", model);
+	}
 }

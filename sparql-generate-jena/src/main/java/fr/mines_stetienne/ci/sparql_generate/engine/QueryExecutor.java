@@ -241,12 +241,16 @@ public class QueryExecutor {
         final boolean deterministic = isDeterministic(plan);
         final List<Binding> toExecute = new ArrayList<>();
         final List<ExecutionKey> keys = new ArrayList<>();
-        // a call from a GRAPH block generates in that graph: the same call from
-        // another graph is another execution
-        final StreamRDF output = ContextUtils.getGenerateOutput(context);
+        // a call is the same execution only if it writes to the same output: the
+        // same call from another GRAPH block, or from another FROM GENERATE
+        // clause, which builds a graph of its own, is another execution
+        StreamRDF output = ContextUtils.getGenerateOutput(context);
         final Node graph = output instanceof GraphRoutingStreamRDF ? ((GraphRoutingStreamRDF) output).getGraph() : null;
+        while (output instanceof GraphRoutingStreamRDF) {
+            output = ((GraphRoutingStreamRDF) output).getParent();
+        }
         for (Binding binding : values) {
-            final ExecutionKey key = new ExecutionKey(plan, binding, graph);
+            final ExecutionKey key = new ExecutionKey(plan, binding, graph, output);
             if (callsInProgress.contains(key)) {
                 LOG.debug("Cycle of calls to " + plan.getQuery().getName() + " cut");
                 continue;
@@ -481,15 +485,21 @@ public class QueryExecutor {
          * null.
          */
         Node graph;
+        /**
+         * The output to which a GENERATE call writes, compared by identity,
+         * or null.
+         */
+        Object output;
 
         public ExecutionKey(RootPlan plan, Object binding) {
-            this(plan, binding, null);
+            this(plan, binding, null, null);
         }
 
-        public ExecutionKey(RootPlan plan, Object binding, Node graph) {
+        public ExecutionKey(RootPlan plan, Object binding, Node graph, Object output) {
             this.plan = plan;
             this.binding = binding;
             this.graph = graph;
+            this.output = output;
         }
 
         @Override
@@ -501,13 +511,14 @@ public class QueryExecutor {
             if (plan != other.plan) {
                 return false;
             }
-            boolean eq = binding.equals(other.binding) && Objects.equals(graph, other.graph);
+            boolean eq = output == other.output && binding.equals(other.binding) && Objects.equals(graph, other.graph);
             return eq;
         }
 
         @Override
         public int hashCode() {
-            return 3 * Objects.hashCode(this.plan) + 17 * Objects.hashCode(binding) + 31 * Objects.hashCode(graph);
+            return 3 * Objects.hashCode(this.plan) + 17 * Objects.hashCode(binding) + 31 * Objects.hashCode(graph)
+                    + 37 * System.identityHashCode(output);
         }
 
     }

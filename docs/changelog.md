@@ -9,6 +9,7 @@ Released on 2026-11-22. Named graphs: `GRAPH` blocks in `GENERATE` templates.
 **Language and engine**
 
 - **Named graphs**: a `GRAPH` block in a `GENERATE` template generates its triples in a named graph, as in SPARQL Update and in the `CONSTRUCT` queries of Jena: `GENERATE { ?s ?p ?o . GRAPH ?g { ?s ?q ?v } }`. The graph is an IRI, a variable, an IRI with embedded expressions (`GRAPH <graph/{?id}>`) or an embedded expression; a graph variable unbound or bound to a literal generates nothing, a blank node names a graph. A nested `GENERATE` in a `GRAPH` block, or a call to a named `GENERATE` query, generates its default graph in that graph. See [Named graphs](language/generate.md#named-graphs). A query without `GRAPH` block gives the same output as before.
+- Two `FROM GENERATE` clauses with the same text, in two sibling nested queries evaluated on the same solution, each build their graph; the second one was empty, taken for a call already made. A query translated from an RML mapping whose two referencing object maps share their sources and join conditions lost the triples of the second one.
 
 **Java API**
 
