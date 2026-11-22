@@ -26,6 +26,43 @@ A named query has an IRI and a signature. A template calls it with `GENERATE <na
 
 !example named-generate
 
+## Named graphs
+
+A `GRAPH` block of the template generates its triples in a named graph, as the quad patterns of a SPARQL 1.1 Update or of a Jena `CONSTRUCT` query: the output is then an RDF dataset. The triples outside `GRAPH` blocks are in the default graph. The graph is a constant IRI, a variable, an IRI with embedded expressions, or an embedded expression `?{ ... }`; a dot after the block is optional.
+
+```sparql-generate
+PREFIX ex:  <http://example.com/>
+PREFIX ite: <http://w3id.org/sparql-generate/iter/>
+
+GENERATE {
+  <person/{?name}> a ex:Person .
+  GRAPH <department/{?department}> { <person/{?name}> ex:name ?name }
+  GRAPH ?cityGraph { <person/{?name}> ex:city ?city }
+}
+ITERATOR ite:CSV(<people.csv>) AS ?name ?department ?city
+BIND(IRI(CONCAT("http://example.com/city/", ?city)) AS ?cityGraph)
+```
+
+```trig
+<http://example.com/person/Alice> a <http://example.com/Person> .
+<http://example.com/department/sales> {
+  <http://example.com/person/Alice> <http://example.com/name> "Alice" .
+}
+<http://example.com/city/Paris> {
+  <http://example.com/person/Alice> <http://example.com/city> "Paris" .
+}
+```
+
+For each solution:
+
+- a graph variable that is unbound, or bound to a literal, generates nothing, as a triple whose term is unbound or not valid RDF;
+- a graph variable bound to a blank node names a graph: RDF 1.1 datasets, TriG, N-Quads and Jena accept blank nodes as graph names. A `GRAPH` block cannot name a blank node itself (`GRAPH _:g` is a syntax error, as in SPARQL);
+- a blank node label denotes the same blank node inside and outside the `GRAPH` blocks of the template.
+
+`GRAPH` blocks cannot be nested. A nested `GENERATE` placed in a `GRAPH` block generates its default graph in that graph; its own `GRAPH` blocks keep their graph. A call to a named `GENERATE` query from a `GRAPH` block follows the same rule: the triples of its default graph go to the graph of the block. A nested query in a `GRAPH ?g` block is evaluated separately for the solutions of each value of `?g`.
+
+A query without `GRAPH` block gives exactly the same graph as before. The output of a query with `GRAPH` blocks is written in TriG by default on the [command line](../cli.md), or in N-Quads with `--format-output NQUADS`; a format that holds triples only (Turtle, N-Triples, RDF/XML, HDT) is refused. In Java, `RootPlan.execGenerateDataset` returns the dataset; `execGenerate`, which returns a model, returns the default graph and logs a warning that the named graphs were ignored. A `FROM GENERATE` clause builds one graph: the named graphs of its query are ignored, with the same warning. The playground shows the default graph only.
+
 ## Lists
 
 `LIST( ?var )` in the object of a triple pattern generates an RDF list of the values of `?var` in the solutions, in the order of the solutions. Here the list orders people by birth date.
@@ -66,6 +103,6 @@ A `FROM` clause can contain a `GENERATE` query, whose output is added to the dat
 
 ## Streaming
 
-With the option `--stream` of the [command line](../cli.md), or *return stream* in the playground, the engine writes each triple as soon as it is generated, instead of building the graph first. Combined with the batched iterators (`iter:CSV` with a batch size, `iter:JSONSurfer`) and the stream iterators (`iter:HTTPGet`, `iter:MQTTSubscribe`, `iter:WebSocket`), it transforms documents that do not fit in memory and endless streams.
+With the option `--stream` of the [command line](../cli.md), or *return stream* in the playground, the engine writes each triple (or quad) as soon as it is generated, instead of building the graph first. Combined with the batched iterators (`iter:CSV` with a batch size, `iter:JSONSurfer`) and the stream iterators (`iter:HTTPGet`, `iter:MQTTSubscribe`, `iter:WebSocket`), it transforms documents that do not fit in memory and endless streams.
 
 A batched or stream iterator delivers its solutions batch by batch, and the rest of the query is evaluated once per batch: `DISTINCT`, `GROUP BY` and the aggregates, `ORDER BY`, `LIMIT` and `OFFSET`, and `LIST(...)`, apply to each batch, not to the whole document. Their result then depends on the batch size; a query without them gives the same triples whatever the batch size.

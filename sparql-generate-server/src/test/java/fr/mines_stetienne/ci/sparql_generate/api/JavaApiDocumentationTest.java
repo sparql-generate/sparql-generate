@@ -29,6 +29,7 @@ import org.apache.jena.query.QueryBuildException;
 import org.apache.jena.query.QueryFactory;
 import org.apache.jena.query.ResultSet;
 import org.apache.jena.query.ResultSetFormatter;
+import org.apache.jena.query.Dataset;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.system.StreamRDFWriter;
@@ -78,6 +79,17 @@ public class JavaApiDocumentationTest {
 		Context context = ContextUtils.build().setStreamManager(streamManager()).setPrefixMapping(query).build();
 		Model graph = plan.execGenerate(context);
 		assertEquals(3, graph.size());
+	}
+
+	@Test
+	public void datasetOfQuads() {
+		RootPlan plan = PlanFactory.create("PREFIX schema: <http://schema.org/> "
+				+ "GENERATE { GRAPH <http://example.org/people> { <http://example.org/person/1> schema:name \"Ada\" } }");
+		Context context = ContextUtils.build().build();
+		Dataset dataset = plan.execGenerateDataset(context); // GENERATE with GRAPH blocks
+		Model people = dataset.getNamedModel("http://example.org/people");
+		assertEquals(1, people.size());
+		assertEquals(0, dataset.getDefaultModel().size());
 	}
 
 	@Test

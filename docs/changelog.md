@@ -2,6 +2,20 @@
 
 This page summarises the changes of the engine since version 2.0. The full history is in the [commits](https://github.com/sparql-generate/sparql-generate/commits/master) and the [releases](https://github.com/sparql-generate/sparql-generate/releases).
 
+## Unreleased
+
+**Language and engine**
+
+- **Named graphs**: a `GRAPH` block in a `GENERATE` template generates its triples in a named graph, as in SPARQL Update and in the `CONSTRUCT` queries of Jena: `GENERATE { ?s ?p ?o . GRAPH ?g { ?s ?q ?v } }`. The graph is an IRI, a variable, an IRI with embedded expressions (`GRAPH <graph/{?id}>`) or an embedded expression; a graph variable unbound or bound to a literal generates nothing, a blank node names a graph. A nested `GENERATE` in a `GRAPH` block, or a call to a named `GENERATE` query, generates its default graph in that graph. See [Named graphs](language/generate.md#named-graphs). A query without `GRAPH` block gives the same output as before.
+
+**Java API**
+
+- `RootPlan.execGenerateDataset` returns the generated dataset; `execGenerate` returns its default graph, with a warning when named graphs are ignored. A `StreamRDF` given to `execGenerateStream` receives the triples of named graphs through `quad`. `SPARQLExtQuery.hasQuadPatterns` tells whether a query has `GRAPH` blocks; `SPARQLExtElementVisitor` has a default method for the new element `ElementGenerateGraph`.
+
+**Command line**
+
+- The output of a query with named graphs is TriG by default, N-Quads with `--format-output NQUADS` (with or without `--stream`); a format that holds triples only (Turtle, N-Triples, RDF/XML, HDT) is refused with status 1. With `--stream` and without format, each quad is written as a line of TriG.
+
 ## 2.3.1
 
 Released on 2026-11-07.

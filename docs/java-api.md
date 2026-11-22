@@ -41,6 +41,13 @@ ResultSet results = plan.execSelect(context); // SELECT
 String text = plan.execTemplate(context);    // TEMPLATE
 ```
 
+A `GENERATE` query with [`GRAPH` blocks](language/generate.md#named-graphs) generates an RDF dataset, which `execGenerateDataset` returns; `execGenerate` returns its default graph, and logs a warning that the named graphs were ignored. For a query without `GRAPH` block, the default graph of the dataset is the graph of `execGenerate`, and there is no named graph.
+
+```java
+Dataset dataset = plan.execGenerateDataset(context); // GENERATE with GRAPH blocks
+Model people = dataset.getNamedModel("http://example.org/people");
+```
+
 Each method also takes a `List<Binding>` as first argument: the initial bindings of the parameters of the query, one execution per binding. For example, to bind `?country` to `"GB"`:
 
 ```java
@@ -59,7 +66,8 @@ Model graph = plan.execGenerate(List.of(binding), context);
 The `...Stream` methods write the output to the context as it is produced, and return nothing. Set the output in the context:
 
 ```java
-// GENERATE: any Jena StreamRDF, here N-Triples on the standard output
+// GENERATE: any Jena StreamRDF, here N-Triples on the standard output; the
+// triples of named graphs are given to its quad method
 Context context = ContextUtils.build()
         .setGenerateOutput(StreamRDFWriter.getWriterStream(System.out, Lang.NTRIPLES))
         .build();

@@ -17,7 +17,9 @@ VarList         ::= NIL | '(' Var ( ',' Var )* ')'
 BindingClauses  ::= IteratorClause | SourceClause | Bind
 IteratorClause  ::= 'ITERATOR' FunctionCall 'AS' Var+
 SourceClause    ::= 'SOURCE' VarOrXIri ( 'ACCEPT' VarOrXIri )? 'AS' Var
-GenerateClause  ::= '{' ConstructTriples? ( SubGenerateQuery '.' ConstructTriples? )* '}'
+GenerateClause  ::= '{' GenerateTemplate '}'
+GenerateTemplate ::= ConstructTriples? ( ( SubGenerateQuery '.' | GenerateGraph '.'? ) ConstructTriples? )*
+GenerateGraph   ::= 'GRAPH' VarOrXIri '{' GenerateTemplate '}'    (not nested, except in a SubGenerateQuery)
 SubGenerateQuery ::= 'GENERATE' ( VarOrXIri ArgList? | GenerateClause ) DatasetClause* BindingClauses*
                     ( 'WHERE' GroupGraphPattern )? SolutionModifier PostSelectClause?
 TemplateClause  ::= '{' ( 'BEFORE' '=' Expression ';' )? TExpression*
