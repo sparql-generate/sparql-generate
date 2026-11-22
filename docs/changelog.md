@@ -2,7 +2,9 @@
 
 This page summarises the changes of the engine since version 2.0. The full history is in the [commits](https://github.com/sparql-generate/sparql-generate/commits/master) and the [releases](https://github.com/sparql-generate/sparql-generate/releases).
 
-## Unreleased
+## 2.4.0
+
+Released on 2026-11-22. Named graphs: `GRAPH` blocks in `GENERATE` templates.
 
 **Language and engine**
 
@@ -15,6 +17,10 @@ This page summarises the changes of the engine since version 2.0. The full histo
 **Command line**
 
 - The output of a query with named graphs is TriG by default, N-Quads with `--format-output NQUADS` (with or without `--stream`); a format that holds triples only (Turtle, N-Triples, RDF/XML, HDT) is refused with status 1. With `--stream` and without format, each quad is written as a line of TriG.
+
+**Playground and web API**
+
+- The playground writes the named graphs in TriG; the web API answers in TriG, or in N-Quads if the request accepts `application/n-quads`. A query without named graphs still gets Turtle.
 
 ## 2.3.1
 
