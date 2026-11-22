@@ -62,4 +62,34 @@ public class CSVBatchTest {
 	public void emptyDocumentGivesOneEmptyBatch() {
 		assertEquals(List.of(0), counts("a\\n", 2));
 	}
+
+	private static List<String> rows(String csv, String batch, String vars) {
+		ResultSet rs = PlanFactory.create("PREFIX iter: <http://w3id.org/sparql-generate/iter/> "
+				+ "SELECT * ITERATOR iter:CSV(\"" + csv + "\"" + batch + ") AS " + vars + " WHERE { }")
+				.execSelect(ContextUtils.build().build());
+		List<String> rows = new ArrayList<>();
+		while (rs.hasNext()) {
+			rows.add(rs.next().toString());
+		}
+		return rows;
+	}
+
+	/**
+	 * With named columns, the output after the last column is the position of
+	 * the row, from 0, across batches.
+	 */
+	@Test
+	public void positionOfTheRow() {
+		List<String> rows = rows("a,b\\n1,x\\n2,y\\n3,z", ", 2, \"b\"", "?b ?row");
+		assertEquals(3, rows.size());
+		for (int i = 0; i < 3; i++) {
+			assertEquals(true, rows.get(i).contains("?row = " + i));
+		}
+	}
+
+	/** Without column names, the cells only: no position. */
+	@Test
+	public void noPositionWithoutColumnNames() {
+		assertEquals(List.of(), rows("a,b\\n1,x", "", "?a ?b ?c"));
+	}
 }

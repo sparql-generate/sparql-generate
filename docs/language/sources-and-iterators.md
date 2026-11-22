@@ -37,7 +37,7 @@ An iterator function returns a list of rows. `ITERATOR` binds the variables afte
 
 ### CSV
 
-`iter:CSV(csv, column1, column2, ...)` binds the variables to the cells of the named columns, row by row. Optional parameters set the dialect (header, quote, delimiter, end of line) and a batch size, so that large documents are read in batches.
+`iter:CSV(csv, column1, column2, ...)` binds the variables to the cells of the named columns, row by row. Optional parameters set the dialect (header, quote, delimiter, end of line) and a batch size, so that large documents are read in batches. With named columns, one more variable gets the position of the row in the document, from 0 (`AS ?id ?name ?row`).
 
 !example iterator-csv
 

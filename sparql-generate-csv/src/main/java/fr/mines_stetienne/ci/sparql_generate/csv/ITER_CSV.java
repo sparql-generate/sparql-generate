@@ -35,6 +35,7 @@ import org.apache.jena.atlas.web.TypedInputStream;
 import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.ExprList;
 import org.apache.jena.sparql.expr.NodeValue;
+import org.apache.jena.sparql.expr.nodevalue.NodeValueInteger;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -102,6 +103,12 @@ import org.apache.jena.riot.SysRIOT;
  * 1000 rows, and binds the cells of the rows named "PersonId" and "Name" to the
  * corresponding variables.
  * </li>
+ * <Li><code>ITERATOR ite:CSV(&lt;path/to/file>, "PersonId", "Name") AS ?PersonId ?Name ?row</code>
+ * also binds ?row to the position of the row in the document (an integer,
+ * from 0, the header row excluded, across batches): when the columns are
+ * named, the output after the last column is the position of the row.
+ * </li>
+ * </ul>
  *
  * @author Maxime Lefrançois
  * @since 2019-03-23
@@ -138,7 +145,11 @@ public class ITER_CSV extends IteratorStreamFunctionBase {
             final CsvParserSettings parserSettings = new CsvParserSettings();
             parserSettings.setHeaderExtractionEnabled(true);
             setFormatInformation(args, parserSettings);
-            setProcessor(args, parserSettings, collectionListNodeValue);
+            // the arguments left after the batch size are the column names:
+            // when there are, each row is followed by its position
+            final boolean[] withPosition = new boolean[1];
+            setProcessor(args, parserSettings, collectionListNodeValue, withPosition);
+            withPosition[0] = !args.isEmpty();
             setSelectedColumns(args, parserSettings);
             CsvParser parser = new CsvParser(parserSettings);
             parser.parse(in, StandardCharsets.UTF_8);
@@ -163,7 +174,8 @@ public class ITER_CSV extends IteratorStreamFunctionBase {
     private void setProcessor(
             final List<NodeValue> args,
             final CsvParserSettings parserSettings,
-            final Consumer<List<List<NodeValue>>> collectionListNodeValue) {
+            final Consumer<List<List<NodeValue>>> collectionListNodeValue,
+            final boolean[] withPosition) {
         
         final int rowsInABatch;
         if (!args.isEmpty() && args.get(0).isInteger()) {
@@ -200,6 +212,9 @@ public class ITER_CSV extends IteratorStreamFunctionBase {
                     } else {
                         list.add(new NodeValueString(cell));
                     }
+                }
+                if (withPosition[0]) {
+                    list.add(new NodeValueInteger(total));
                 }
                 nodeValues.add(list);
                 rowsInThisBatch++;

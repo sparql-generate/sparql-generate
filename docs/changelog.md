@@ -2,6 +2,14 @@
 
 This page summarises the changes of the engine since version 2.0. The full history is in the [commits](https://github.com/sparql-generate/sparql-generate/commits/master) and the [releases](https://github.com/sparql-generate/sparql-generate/releases).
 
+## 2.4.2
+
+Not released yet.
+
+**Iterators**
+
+- `iter:CSV` with named columns gives the position of each row (from 0, the header excluded, across batches) after the last column: `ITERATOR iter:CSV(<people.csv>, "id", "name") AS ?id ?name ?row`. A query that bound one variable more than the columns got no solution, with a warning.
+
 ## 2.4.1
 
 Released on 2026-11-22.
