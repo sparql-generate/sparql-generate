@@ -71,12 +71,29 @@ public class QueryPatternNormalizer implements ElementVisitor {
         return result;
     }
 
+    /**
+     * The group made by the last call to {@link #endVisit}: the BIND clauses
+     * of the embedded expressions of an element, then the element.
+     */
+    private ElementGroup bindingsGroup;
+
+    /**
+     * The BIND clauses of the embedded expressions of an element are put in
+     * the group of the element, not in a group of their own: a group is
+     * evaluated on its own, where the variables bound before it in the
+     * enclosing group, such as those of the VALUES block that gives the
+     * solutions of the parent query or of the binding clauses, are not bound.
+     */
     @Override
     public void visit(ElementGroup el) {
         final ElementGroup res = new ElementGroup();
         for (final Element element : el.getElements()) {
             element.visit(this);
-            res.addElement(result);
+            if (result != null && result == bindingsGroup) {
+                bindingsGroup.getElements().forEach(res::addElement);
+            } else {
+                res.addElement(result);
+            }
         }
         result = res;
     }
@@ -263,6 +280,7 @@ public class QueryPatternNormalizer implements ElementVisitor {
         } else {
             ElementGroup group = nenzer.getBindingsAsGroup();
             group.addElement(nzed);
+            bindingsGroup = group;
             result = group;
         }
     }

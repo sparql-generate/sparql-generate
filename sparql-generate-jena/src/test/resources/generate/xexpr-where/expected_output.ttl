@@ -1,0 +1,6 @@
+@prefix ex: <http://example.com/> .
+
+<http://example.com/person/alice> ex:knows <http://example.com/person/bob> .
+<http://example.com/person/bob> ex:knows <http://example.com/person/carol> .
+<http://example.com/person/bob> ex:knownBy <http://example.com/person/alice> .
+<http://example.com/person/carol> ex:knownBy <http://example.com/person/bob> .

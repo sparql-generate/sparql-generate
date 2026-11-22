@@ -1,0 +1,15 @@
+BASE <http://example.com/>
+PREFIX ex: <http://example.com/>
+PREFIX ite: <http://w3id.org/sparql-generate/iter/>
+
+# An IRI with embedded expressions in a WHERE clause, on a variable of the
+# binding clauses or of the parent query, constrains the pattern as the
+# variable does: each person knows their own friends only.
+GENERATE {
+  <person/{?name}> ex:knows ?friend .
+  GENERATE {
+    ?friend ex:knownBy <person/{?name}>
+  } WHERE { <person/{?name}> ex:friend ?friend } .
+}
+ITERATOR ite:Split("alice,bob", ",") AS ?name
+WHERE { <person/{?name}> ex:friend ?friend }

@@ -9,6 +9,7 @@ Not released yet.
 **Language and engine**
 
 - Two `FROM GENERATE` clauses with the same text, in two sibling nested queries evaluated on the same solution, each build their graph; the second one was empty, taken for a call already made. A query translated from an RML mapping whose two referencing object maps share their sources and join conditions lost the triples of the second one.
+- An IRI with embedded expressions (`<person/{?name}>`, or `?{ ... }`) in a triple pattern of a `WHERE` clause, on a variable of the binding clauses or of the parent query, constrains the pattern as the variable does. The expression was evaluated in a group of its own, where the variable was unbound: the pattern matched every subject, and the solutions were a cross product.
 
 ## 2.4.0
 
