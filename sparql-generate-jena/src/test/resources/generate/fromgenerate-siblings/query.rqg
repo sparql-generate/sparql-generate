@@ -1,0 +1,24 @@
+BASE <http://example.com/>
+PREFIX ex: <http://example.com/>
+PREFIX ite: <http://w3id.org/sparql-generate/iter/>
+
+# Two sibling sub-queries with the same FROM GENERATE clause, as in the
+# translation of an RML mapping whose two referencing object maps share
+# their sources and join conditions: each one has its own dataset. Without
+# embedded expressions, the two FROM GENERATE queries have the same text.
+GENERATE {
+  GENERATE { ?person ex:knows ?other }
+    FROM GENERATE { ?x ex:friend ?y }
+      ITERATOR ite:Split("alice:bob,bob:carol", ",") AS ?pair
+      BIND(IRI(CONCAT("http://example.com/person/", STRBEFORE(?pair, ":"))) AS ?x)
+      BIND(IRI(CONCAT("http://example.com/person/", STRAFTER(?pair, ":"))) AS ?y) .
+    WHERE { ?person ex:friend ?other } .
+  GENERATE { ?other ex:knownBy ?person }
+    FROM GENERATE { ?x ex:friend ?y }
+      ITERATOR ite:Split("alice:bob,bob:carol", ",") AS ?pair
+      BIND(IRI(CONCAT("http://example.com/person/", STRBEFORE(?pair, ":"))) AS ?x)
+      BIND(IRI(CONCAT("http://example.com/person/", STRAFTER(?pair, ":"))) AS ?y) .
+    WHERE { ?person ex:friend ?other } .
+}
+ITERATOR ite:Split("alice,bob", ",") AS ?name
+BIND(IRI(CONCAT("http://example.com/person/", ?name)) AS ?person)

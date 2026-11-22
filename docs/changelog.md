@@ -2,6 +2,14 @@
 
 This page summarises the changes of the engine since version 2.0. The full history is in the [commits](https://github.com/sparql-generate/sparql-generate/commits/master) and the [releases](https://github.com/sparql-generate/sparql-generate/releases).
 
+## 2.4.1
+
+Not released yet.
+
+**Language and engine**
+
+- Two `FROM GENERATE` clauses with the same text, in two sibling nested queries evaluated on the same solution, each build their graph; the second one was empty, taken for a call already made. A query translated from an RML mapping whose two referencing object maps share their sources and join conditions lost the triples of the second one.
+
 ## 2.4.0
 
 Released on 2026-11-22. Named graphs: `GRAPH` blocks in `GENERATE` templates.
