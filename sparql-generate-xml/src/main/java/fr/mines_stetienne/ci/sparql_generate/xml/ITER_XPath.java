@@ -80,7 +80,10 @@ import org.slf4j.Logger;
  * <li>Param 2: (xPath) the XPath query;</li>
  * <li>Param 3 .. N : (auxXPath ... ) other XPath queries, which will be
  * executed over the results of the execution of xPath, and provide one result
- * each.</li>
+ * each. A query that starts with / is evaluated on a document made of the
+ * matched node ("/person/name/text()"); another one, from the matched node in
+ * its document, so that the parent and ancestor axes reach outside it
+ * ("../@id", "name/text()").</li>
  * </ul>
  *
  * The following variables may be bound:
@@ -206,6 +209,19 @@ public class ITER_XPath extends IteratorFunctionBase {
                 NodeValue nodeValue = function.nodeForNode(value);
                 nodeValues.add(nodeValue);
                 for (String subquery : subqueries) {
+                    if (subquery != null && !subquery.startsWith("/")) {
+                        // a relative path: from the node, in its document, so
+                        // that the parent and ancestor axes reach outside it
+                        try {
+                            final org.w3c.dom.Node subvalue = (org.w3c.dom.Node) xPath.compile(subquery)
+                                    .evaluate(value, XPathConstants.NODE);
+                            nodeValues.add(function.nodeForNode(subvalue));
+                        } catch (Exception ex) {
+                            LOG.debug("No evaluation for " + value + ", " + subquery, ex);
+                            nodeValues.add(null);
+                        }
+                        continue;
+                    }
                     final Object simple = simpleSelect(value, subquery);
                     if (simple != NOT_SIMPLE) {
                         nodeValues.add(function.nodeForNode((org.w3c.dom.Node) simple));

@@ -1,0 +1,5 @@
+{
+  "documentset": [
+    { "uri": "http://example.org/friends.nt", "mediatype": "application/n-triples", "path": "documentset/friends.nt" }
+  ]
+}

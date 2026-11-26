@@ -1,0 +1,15 @@
+BASE <http://example.org/>
+PREFIX iter: <http://w3id.org/sparql-generate/iter/>
+PREFIX ex: <http://example.org/ns#>
+
+# iter:SPARQL: the solutions of a SELECT query on an RDF document. An opening
+# brace in a string is written \{, or it would start an embedded expression.
+GENERATE {
+  ?person ex:label "{?name} ({?age})" ; ex:row ?row .
+}
+ITERATOR iter:SPARQL(<friends.nt>, """
+  PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+  SELECT ?person ?name ?age WHERE \{
+    ?person foaf:name ?name .
+    ?person foaf:age ?age .
+  } ORDER BY ?person""", "person", "name", "age") AS ?person ?name ?age ?row

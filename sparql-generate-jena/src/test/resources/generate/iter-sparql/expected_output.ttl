@@ -1,0 +1,3 @@
+@prefix ex: <http://example.org/ns#> .
+<http://example.org/0> ex:label "Monica Geller (33)" ; ex:row 0 .
+<http://example.org/1> ex:label "Rachel Green (34)" ; ex:row 1 .

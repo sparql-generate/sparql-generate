@@ -107,4 +107,30 @@ public class XPathTest {
 				"GENERATE { ex:doc ex:count ?n } WHERE { BIND(fun:XPath(" + literal("<a><b/><b/></a>")
 						+ ", \"count(/a/b)\") AS ?n) }");
 	}
+	/**
+	 * A relative sub-query is evaluated from the matched node in its
+	 * document: the parent and ancestor axes reach outside it.
+	 */
+	@Test
+	public void relativeSubQueryReachesAncestors() {
+		assertGenerates("ex:c25 ex:department \"Engineering\", \"Marketing\" ; ex:in \"Tech\" . ex:c35 ex:department \"Sales\" ; ex:in \"Retail\" .",
+				"GENERATE { ?s ex:department ?name ; ex:in ?company } ITERATOR ite:XPath(" + literal(
+						"<companies><company id='25'><name>Tech</name><departments><department><name>Engineering</name></department>"
+								+ "<department><name>Marketing</name></department></departments></company>"
+								+ "<company id='35'><name>Retail</name><departments><department><name>Sales</name></department></departments></company></companies>")
+						+ ", \"/companies/company/departments/department\", \"../../@id\", \"name/text()\", \"ancestor::company/name/text()\") AS ?d ?id ?name ?company "
+						+ "WHERE { BIND(IRI(CONCAT(\"http://ex/c\", ?id)) AS ?s) }");
+	}
+
+	/**
+	 * A sub-query that starts with / is still evaluated on a document made of
+	 * the matched node.
+	 */
+	@Test
+	public void absoluteSubQueryIsFromTheNode() {
+		assertGenerates("ex:d ex:name \"Engineering\" .",
+				"GENERATE { ex:d ex:name ?name ; ex:parent ?parent } ITERATOR ite:XPath(" + literal(
+						"<companies><company id='25'><department><name>Engineering</name></department></company></companies>")
+						+ ", \"//department\", \"/department/name/text()\", \"/department/../@id\") AS ?d ?name ?parent");
+	}
 }

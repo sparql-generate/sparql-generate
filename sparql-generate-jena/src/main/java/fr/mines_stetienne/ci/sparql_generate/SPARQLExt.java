@@ -61,6 +61,7 @@ import fr.mines_stetienne.ci.sparql_generate.iterator.IteratorFunctionLoader;
 import fr.mines_stetienne.ci.sparql_generate.iterator.IteratorFunctionRegistry;
 import fr.mines_stetienne.ci.sparql_generate.iterator.library.ITER_Call_Select;
 import fr.mines_stetienne.ci.sparql_generate.iterator.library.ITER_DefaultGraphNamespaces;
+import fr.mines_stetienne.ci.sparql_generate.iterator.library.ITER_SPARQL;
 import fr.mines_stetienne.ci.sparql_generate.iterator.library.ITER_HTTPGet;
 import fr.mines_stetienne.ci.sparql_generate.iterator.library.ITER_Split;
 import fr.mines_stetienne.ci.sparql_generate.iterator.library.ITER_for;
@@ -172,6 +173,7 @@ public final class SPARQLExt {
 		itereg.put(ITER_for.URI, ITER_for.class);
 		itereg.put(ITER_HTTPGet.URI, ITER_HTTPGet.class);
 		itereg.put(ITER_DefaultGraphNamespaces.URI, ITER_DefaultGraphNamespaces.class);
+		itereg.put(ITER_SPARQL.URI, ITER_SPARQL.class);
 		itereg.put(ITER_Call_Select.URI, ITER_Call_Select.class);
 
 		final ServiceLoader<IteratorFunctionLoader> iteratorFunctionLoaders = ServiceLoader

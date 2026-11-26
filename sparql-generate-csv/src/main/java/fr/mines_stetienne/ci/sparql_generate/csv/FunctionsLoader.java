@@ -28,6 +28,7 @@ public class FunctionsLoader implements IteratorFunctionLoader {
     public void load(IteratorFunctionRegistry itereg) {
         itereg.put(ITER_CSV.URI, ITER_CSV.class);
         itereg.put(ITER_CSVHeaders.URI, ITER_CSVHeaders.class);
+        itereg.put(ITER_CSVStrict.URI, ITER_CSVStrict.class);
     }
     
 }

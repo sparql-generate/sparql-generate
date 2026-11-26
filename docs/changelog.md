@@ -16,6 +16,9 @@ Not released yet.
 **Iterators**
 
 - A `RAISE` evaluated for a row of `iter:CSV` or of `iter:SQL` stops the execution with its message only: the iterator logged it first as a warning, with a stack trace, as an error of the document ("Exception while fetching or parsing CSV document", "Can not connect to the data base"). The same for any error of the rest of the query; `iter:JSONSurfer` no longer wraps them. The other iterators compute their rows before the rest of the query is evaluated.
+- `iter:CSVStrict(<file>, "col", ...)`: `iter:CSV` with named columns, read as the logical sources of RML-IO: an empty cell is the empty string (`iter:CSV` leaves its variable unbound), a row whose number of fields is not that of the header, and a column that the header does not have, are data errors that stop the execution.
+- `iter:SPARQL(<file>, "SELECT ...", "var", ...)`: the solutions of a SPARQL 1.1 `SELECT` query on an RDF document, one row per solution, then its position (RML-IO SPARQL results sources).
+- `iter:XPath`: a sub-query that does not start with `/` is evaluated from the matched node in its document, so that the parent, ancestor and sibling axes reach outside it (`"../@id"`); a sub-query that starts with `/` is still evaluated on a document made of the matched node.
 
 **Documentation**
 
