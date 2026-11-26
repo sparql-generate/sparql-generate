@@ -92,7 +92,8 @@ public class Node_ExtendedLiteral extends Node_ExprList {
                 }
             } else if (datatype instanceof Node_URI) {
                 String dturi = datatype.getURI();
-                RDFDatatype dt = TypeMapper.getInstance().getTypeByName(dturi);
+                // a datatype that is not registered, outside XSD, is kept
+                RDFDatatype dt = TypeMapper.getInstance().getSafeTypeByName(dturi);
                 if (components.isEmpty()) {
                     return NodeFactory.createLiteral("", dt);
                 } else if (components.size() == 1 && components.get(0) instanceof NodeValueString) {
