@@ -49,6 +49,20 @@ An iterator function returns a list of rows. `ITERATOR` binds the variables afte
 
 !example iterator-xml
 
+### SQL
+
+`iter:SQL(database, query, column1, column2, ...)` sends a SQL query to a relational database and binds the variables to the cells of the named columns, row by row; without names, to the columns of the result in their order. The database is its JDBC URL, an IRI or a string, with the user and the password: `"jdbc:postgresql://host/db?user=me&password=secret"`, `"jdbc:mysql://host/db?user=me&password=secret"`, `"jdbc:sqlserver://host;databaseName=db;user=me;password=\{secret}"` (a `{` of a string is escaped). The drivers of PostgreSQL, MySQL and SQL Server are included, and any other JDBC driver of the classpath is used.
+
+```sparql-generate
+GENERATE { <patient/{?id}> ex:weight ?weight ; ex:birth ?birth . }
+ITERATOR iter:SQL("jdbc:postgresql://localhost/hospital?user=me&password=secret",
+                  "SELECT * FROM patient", "id", "weight", "birth") AS ?id ?weight ?birth
+```
+
+A cell is the natural RDF literal of [R2RML](https://www.w3.org/TR/r2rml/#natural-mapping), in the canonical form of its datatype: the integer types give `xsd:integer` (`"10"^^xsd:integer`), `DECIMAL` and `NUMERIC` give `xsd:decimal`, `REAL`, `FLOAT` and `DOUBLE` give `xsd:double` (`"8.025E1"^^xsd:double`), `BOOLEAN` (and a `BIT` of one bit) gives `xsd:boolean`, `DATE`, `TIME` and `TIMESTAMP` give `xsd:date`, `xsd:time` and `xsd:dateTime` (`"2009-10-10T12:12:22"`), the binary types give `xsd:hexBinary`, and the other types a string; a `CHAR(n)` value is padded with spaces to `n` characters. A `NULL` leaves the variable unbound; an empty string is a value.
+
+A column name is the label of a column of the result, compared exactly, else regardless of case. A name that no column of the result has, or that several have, and a query that the database rejects (a syntax error, an unknown table or column), are errors that stop the execution. A database that cannot be reached gives no row, with a warning, as a missing document; with `--fail-on-missing`, it stops the execution. The rows of the result are one batch.
+
 ### Other iterators
 
 | Source | Iterators |
@@ -58,7 +72,7 @@ An iterator function returns a list of rows. `ITERATOR` binds the variables afte
 | XML, HTML | `iter:XPath`, `iter:CSSPath` |
 | GeoJSON | `iter:GeoJSON` |
 | CBOR | `iter:CBOR` |
-| SQL | `iter:SQL(<jdbc:...>, "SELECT ...")`: the JDBC URL carries the user and the password (`jdbc:postgresql://host/db?user=me&password=secret`); any JDBC driver of the classpath, MySQL included |
+| SQL | `iter:SQL("jdbc:...", "SELECT ...", "column", ...)` (see [SQL](#sql)) |
 | text | `iter:regex`, `iter:Split` |
 | numbers | `iter:for` |
 | streams | `iter:HTTPGet`, `iter:MQTTSubscribe`, `iter:WebSocket` |

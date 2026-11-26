@@ -27,10 +27,24 @@
 	</contributors>
 
 	<dependencies>
+		<!-- the JDBC drivers of PostgreSQL, MySQL and SQL Server: iter:SQL reads
+		     these databases without another JAR on the classpath (versions
+		     without a known vulnerability; mysql-connector-j 8.4.0 pulled
+		     protobuf-java 3.25.1, GHSA-735f-pc8j-v9w8) -->
+		<dependency>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+			<version>42.7.14</version>
+		</dependency>
 		<dependency>
 			<groupId>com.mysql</groupId>
 			<artifactId>mysql-connector-j</artifactId>
-			<version>8.4.0</version>
+			<version>9.7.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.microsoft.sqlserver</groupId>
+			<artifactId>mssql-jdbc</artifactId>
+			<version>13.6.2.jre11</version>
 		</dependency>
 		<dependency>
 			<groupId>fr.mines-stetienne.ci.sparql-generate</groupId>
