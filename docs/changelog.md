@@ -10,6 +10,7 @@ Not released yet.
 
 - An argument with embedded expressions of a call in a `GENERATE` template reaches the called query: `GENERATE <stop>(<line/{?id}>, "zone {?z}") .` called the query with unbound parameters. The calls of `TEMPLATE`, `SELECT` (as an iterator) and `FUNCTION` queries already received them.
 - An IRI or a literal with embedded expressions in a triple pattern of a `WHERE` clause constrains the pattern wherever the variables of its expressions are bound: by another triple of the same basic graph pattern (`?x ex:id ?i . <person/{?i}> ex:name ?n`), by a later element of the group, or, under `OPTIONAL`, by the left side (`?x ex:id ?i OPTIONAL { <person/{?i}> ex:name ?n }`). The node was a wildcard there, and the solutions a cross product. A node whose expression is in error (an unbound variable) matches nothing; it was a wildcard too.
+- `IRI("rel")`, `URI(...)` and the IRIs with embedded expressions resolve a relative IRI against the base of the query (`BASE`, or `--base`), as in SPARQL 1.1, wherever they are evaluated: in the binding clauses (`BIND`, arguments of `ITERATOR` and `SOURCE`), in `TEMPLATE` clauses and in the arguments of calls. They resolved against the base of the system there (the working directory, a `file:` IRI), and against the base of the query only in the `WHERE` clause and in `GENERATE` templates. A named query resolves against its own base; the body of a `FUNCTION` query, against the base of the function.
 
 ## 2.6.0
 

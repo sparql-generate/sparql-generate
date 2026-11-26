@@ -33,6 +33,7 @@ import org.apache.jena.query.DatasetFactory;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.riot.system.StreamRDF;
+import org.apache.jena.sparql.ARQConstants;
 import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.engine.ResultSetStream;
 import org.apache.jena.sparql.engine.binding.Binding;
@@ -432,11 +433,17 @@ public class RootPlan {
 		}
 
 		try {
+			// IRI() and the IRIs with embedded expressions that the plans of
+			// this query evaluate (binding clauses, GENERATE and TEMPLATE
+			// clauses, arguments of calls) resolve against the base of this
+			// query, as in SPARQL, and not against the base of the system
+			final Context queryContext = context.copy();
+			queryContext.set(ARQConstants.sysCurrentQuery, query);
 			// a query called on several rows is evaluated once per dataset
-			final List<List<Binding>> groups = datasetDeclarationPlan.groupByDataset(values, context);
+			final List<List<Binding>> groups = datasetDeclarationPlan.groupByDataset(values, queryContext);
 			for (List<Binding> group : groups) {
 				final Binding binding = group.size() > 0 ? group.get(0) : null;
-				final Context newContext = datasetDeclarationPlan.prepareDataset(binding, context);
+				final Context newContext = datasetDeclarationPlan.prepareDataset(binding, queryContext);
 				final List<Var> groupVariables = groups.size() == 1 ? variables : new ArrayList<>(variables);
 				execIteratorAndSourcePlans(groupVariables, group, newContext, 0);
 			}

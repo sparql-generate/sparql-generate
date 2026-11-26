@@ -15,6 +15,7 @@
  */
 package fr.mines_stetienne.ci.sparql_generate.function;
 
+import fr.mines_stetienne.ci.sparql_generate.expr.E_IRITemplate;
 import fr.mines_stetienne.ci.sparql_generate.query.SPARQLExtQuery;
 import fr.mines_stetienne.ci.sparql_generate.utils.ContextUtils;
 import java.util.Arrays;
@@ -23,7 +24,13 @@ import org.apache.jena.sparql.ARQException;
 import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.engine.binding.Binding;
 import org.apache.jena.sparql.engine.binding.BindingBuilder;
+import org.apache.jena.sparql.expr.E_IRI;
+import org.apache.jena.sparql.expr.E_StrConcat;
+import org.apache.jena.sparql.expr.E_URI;
 import org.apache.jena.sparql.expr.Expr;
+import org.apache.jena.sparql.expr.ExprFunction1;
+import org.apache.jena.sparql.expr.ExprTransformCopy;
+import org.apache.jena.sparql.expr.ExprTransformer;
 import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.ExprException;
 import org.apache.jena.sparql.expr.ExprList;
@@ -58,7 +65,42 @@ public class SPARQLExtFunction implements Function {
         }
         this.function = function;
         function.normalizeXExpr();
+        if (function.getBaseURI() != null) {
+            // the body is evaluated in the environment of the caller: IRI()
+            // resolves against the base of the function
+            function.setFunctionExpression(ExprTransformer.transform(new WithBase(function.getBaseURI()),
+                    function.getFunctionExpression()));
+        }
         this.stable = isStable(function.getFunctionExpression());
+    }
+
+    /**
+     * Gives a base to IRI(), URI() and the IRIs with embedded expressions
+     * that have none.
+     */
+    private static final class WithBase extends ExprTransformCopy {
+
+        private final String base;
+
+        WithBase(final String base) {
+            super(false);
+            this.base = base;
+        }
+
+        @Override
+        public Expr transform(final ExprFunction1 func, final Expr arg) {
+            if (func instanceof E_IRI && ((E_IRI) func).getParserBase() == null) {
+                if (func instanceof E_IRITemplate) {
+                    return arg instanceof E_StrConcat ? new E_IRITemplate(base, (E_StrConcat) arg)
+                            : new E_IRITemplate(base, arg);
+                } else if (func instanceof E_URI) {
+                    return new E_URI(base, arg);
+                } else if (func.getClass() == E_IRI.class) {
+                    return new E_IRI(base, arg);
+                }
+            }
+            return super.transform(func, arg);
+        }
     }
 
     private static boolean isStable(Expr expr) {
