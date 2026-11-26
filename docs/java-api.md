@@ -61,6 +61,8 @@ Binding binding = Binding.builder()
 Model graph = plan.execGenerate(List.of(binding), context);
 ```
 
+An execution that evaluates a [`RAISE`](language/index.md#raising-errors) expression stops with a `RaiseException` (package `fr.mines_stetienne.ci.sparql_generate`): `getMessage()` is the message followed by the values, `getRaisedMessage()` the message alone, and `getValues()` the values as Jena nodes, `null` for a value that could not be evaluated. It is a `QueryCancelledException` of Jena, and is thrown as is by the `exec...` methods.
+
 ## Streaming
 
 The `...Stream` methods write the output to the context as it is produced, and return nothing. Set the output in the context:

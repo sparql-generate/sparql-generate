@@ -32,6 +32,9 @@ DatasetClause   ::= 'FROM' ( Expression | 'NAMED' Expression | SubGenerateQuery 
 PostSelectClause ::= 'EXPRESSIONS' ( '(' Expression 'AS' Var ')' )+
 ListNode        ::= 'LIST' '(' Expression ')'
 XExpr           ::= ( '?{' | '${' ) Expression '}'
+BuiltInCall     ::= ... | 'RAISE' '(' Expression ( ',' Expression )* ')'
 ```
 
 In templates, IRIs and literals can contain expressions between `{` and `}` (`XIri`, `XRDFLiteral` in the JavaCC grammar).
+
+`RAISE` is a built-in call of SPARQL-Generate, an expression that stops the execution with an error: see [Raising errors](../language/index.md#raising-errors).

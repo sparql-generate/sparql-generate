@@ -39,6 +39,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import fr.mines_stetienne.ci.sparql_generate.ExecutionLimitException;
+import fr.mines_stetienne.ci.sparql_generate.RaiseException;
 import fr.mines_stetienne.ci.sparql_generate.SPARQLExtException;
 import fr.mines_stetienne.ci.sparql_generate.expr.E_IRITemplate;
 import fr.mines_stetienne.ci.sparql_generate.query.SPARQLExtQuery;
@@ -171,6 +172,9 @@ public class SelectPlan {
 				// before the execution is closed
 				output.accept(resultSet);
 			}
+		} catch (RaiseException ex) {
+			// RAISE: a QueryCancelledException, not a time limit
+			throw ex;
 		} catch (org.apache.jena.query.QueryCancelledException ex) {
 			throw new ExecutionLimitException("Time limit reached, output truncated.");
 		} catch (ExecutionLimitException ex) {
@@ -179,6 +183,10 @@ public class SelectPlan {
 			final ExecutionLimitException limit = ExecutionLimitException.findIn(ex);
 			if (limit != null) {
 				throw limit;
+			}
+			final RaiseException raised = RaiseException.findIn(ex);
+			if (raised != null) {
+				throw raised;
 			}
 			LOG.error("Error while executing SELECT Query " + q, ex);
 			throw new SPARQLExtException("Error while executing SELECT Query " + q, ex);

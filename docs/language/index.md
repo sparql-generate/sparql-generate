@@ -53,6 +53,29 @@ In a template, a string between `{` and `}` inside an IRI or a literal is a SPAR
 
 In an IRI or a literal of a template, `\{` and `\}` stand for the braces themselves. See [embedded expressions](generate.md#embedded-expressions).
 
+## Raising errors
+
+`RAISE(message, value, ...)` is an expression whose evaluation stops the execution with an error that carries the message and the values. It is meant for the errors that only the data reveal: a missing value, a value that is not an IRI, a column that the document does not have.
+
+```sparql
+BASE <http://example.com/>
+PREFIX ex: <http://example.com/>
+PREFIX iter: <http://w3id.org/sparql-generate/iter/>
+
+GENERATE {
+  <person/{?name}> ex:email ?mbox .
+} ITERATOR iter:CSV(<people.csv>, "name", "email") AS ?name ?email ?row
+  BIND(COALESCE(IRI(CONCAT("mailto:", ?email)), RAISE("No email address for", ?name, ?row)) AS ?mbox)
+```
+
+If the second row of `people.csv` has no email address, the execution stops, and the [command line](../cli.md) writes `No email address for: "Bob", 1` on the standard error and exits with status 1.
+
+- `RAISE` is evaluated where any expression is, for each solution that reaches it, and only when its value is needed: in `IF(c, a, RAISE(...))` when `c` is false, in `COALESCE(e, RAISE(...))` when `e` is an error, in `a || RAISE(...)` when `a` is not true. It can be written in a `BIND` clause or element, a `FILTER`, an expression of a `GENERATE` template (`?{ ... }`) or of a `TEMPLATE`, a `SELECT` expression, an argument of an iterator.
+- Its error is not an evaluation error, which `BIND` turns into an unbound variable and `FILTER` into a false condition: nothing catches it, the execution stops. With `--stream`, the output written before stays written.
+- The message is the lexical form of the first argument, which can embed expressions (`RAISE("row {?row} has no name")`); the values follow it, in the syntax of N-Triples (numbers and booleans abbreviated). An argument that cannot be evaluated, such as an unbound variable, is written `UNDEF`, and the error is raised anyway.
+- In a `FILTER` of the `WHERE` clause, the engine may test the condition as soon as the variables it mentions are bound, before a triple pattern that would remove the solution, as SPARQL lets it do with any filter. To raise an error only for the solutions of a whole group, put `RAISE` in a `BIND` after the patterns, or in a binding clause.
+- With the Java API, the error is a `RaiseException`, whose `getRaisedMessage()` and `getValues()` give the message and the values (`null` for `UNDEF`).
+
 ## Named queries and their signature
 
 A `GENERATE`, `SELECT` or `TEMPLATE` query can have an IRI as a name, followed by a signature: the list of its parameters. Another query calls it by this IRI with arguments:

@@ -2,6 +2,24 @@
 
 This page summarises the changes of the engine since version 2.0. The full history is in the [commits](https://github.com/sparql-generate/sparql-generate/commits/master) and the [releases](https://github.com/sparql-generate/sparql-generate/releases).
 
+## Unreleased
+
+**Language and engine**
+
+- `RAISE(message, value, ...)`: an expression that stops the execution with an error carrying a message and values, for the errors that only the data reveal: `BIND(COALESCE(IRI(?v), RAISE("Not an IRI", ?v)) AS ?s)`. It is evaluated for each solution that reaches it, and only when its value is needed (`IF`, `COALESCE`, `||`, `&&`); `BIND`, `FILTER`, `COALESCE` and the iterators do not catch its error. See [Raising errors](language/index.md#raising-errors). `raise` becomes a keyword of the language.
+
+**Java API**
+
+- `RaiseException`, a `QueryCancelledException`, with the message (`getRaisedMessage`) and the values (`getValues`) of the `RAISE` expression.
+
+**Command line**
+
+- A `RAISE` expression that is evaluated stops the execution with status 1, its message and values on the standard error.
+
+**Dependencies**
+
+- Guava 33.8.0 (Dependabot alert, GHSA-xxph-c9ww-hj94: the deserialization of some Guava collections could allocate unbounded memory; fixed in 33.7.2).
+
 ## 2.5.0
 
 Released on 2026-11-22. For the translation of the RML modules (rml-to-sparql-generate 0.2.0).

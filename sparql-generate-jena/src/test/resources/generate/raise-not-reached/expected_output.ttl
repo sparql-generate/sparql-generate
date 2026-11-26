@@ -1,0 +1,4 @@
+@prefix ex: <http://example.com/> .
+<http://example.com/person/Alice> ex:email <mailto:alice@example.com> .
+<http://example.com/person/Bob> ex:email <mailto:bob@example.com> .
+<http://example.com/person/Carol> ex:email <mailto:carol@example.com> .

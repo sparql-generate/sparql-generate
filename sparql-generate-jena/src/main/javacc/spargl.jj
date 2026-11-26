@@ -1634,7 +1634,7 @@ Expr BrackettedExpression() : { Expr expr ; }
     <LPAREN> expr = Expression() <RPAREN> { return expr ; }
 }
 Expr BuiltInCall() : { Expr expr ; Expr expr1 = null ; Expr expr2 = null ;
-                       Node gn ; ExprList a ; }
+                       Node gn ; ExprList a ; Token t ; }
 {
     expr = Aggregate() { return expr ; }
   |
@@ -1699,6 +1699,10 @@ Expr BuiltInCall() : { Expr expr ; Expr expr1 = null ; Expr expr2 = null ;
   | <SHA512> <LPAREN> expr1 = Expression() <RPAREN> { return new E_SHA512(expr1) ; }
   | <COALESCE> a = ExpressionList()
     { return new E_Coalesce(a) ; }
+  | t = <RAISE> a = ExpressionList()
+    { if ( a.size() == 0 )
+        throwParseException("RAISE needs a message: RAISE(message, value...)", t.beginLine, t.beginColumn) ;
+      return new fr.mines_stetienne.ci.sparql_generate.expr.E_Raise(a) ; }
   | <IF> <LPAREN> expr = Expression() <COMMA>
                   expr1 = Expression() <COMMA>
                   expr2 = Expression() <RPAREN>
@@ -2174,6 +2178,7 @@ TOKEN [IGNORE_CASE] :
 | < FILTER: "filter" >
 | < BOUND: "bound" >
 | < COALESCE: "coalesce" >
+| < RAISE: "raise" >
 | < IN: "in" >
 | < IF: "if" >
 | < BNODE: "bnode" >

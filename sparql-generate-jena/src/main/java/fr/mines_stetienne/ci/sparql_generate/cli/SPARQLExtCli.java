@@ -93,6 +93,7 @@ import com.google.gson.JsonSyntaxException;
 
 import fr.mines_stetienne.ci.sparql_generate.ExecutionLimitException;
 import fr.mines_stetienne.ci.sparql_generate.FileConfigurations;
+import fr.mines_stetienne.ci.sparql_generate.RaiseException;
 import fr.mines_stetienne.ci.sparql_generate.SPARQLExt;
 import fr.mines_stetienne.ci.sparql_generate.SPARQLExtException;
 import fr.mines_stetienne.ci.sparql_generate.engine.PlanFactory;
@@ -187,7 +188,11 @@ public class SPARQLExtCli {
 			final DocumentNotFoundException notFound = DocumentNotFoundException.findIn(ex);
 			final ExecutionLimitException limit = ExecutionLimitException.findIn(ex);
 			final QuadsNotSupportedException quads = QuadsNotSupportedException.findIn(ex);
-			if (notFound != null) {
+			final RaiseException raised = RaiseException.findIn(ex);
+			if (raised != null) {
+				// RAISE(message, value...) in the query: its message and values
+				LOG.error(raised.getMessage());
+			} else if (notFound != null) {
 				LOG.error(notFound.getMessage());
 			} else if (quads != null) {
 				LOG.error(quads.getMessage());

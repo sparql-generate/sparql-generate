@@ -16,6 +16,7 @@
 package fr.mines_stetienne.ci.sparql_generate.engine;
 
 import fr.mines_stetienne.ci.sparql_generate.ExecutionLimitException;
+import fr.mines_stetienne.ci.sparql_generate.RaiseException;
 import fr.mines_stetienne.ci.sparql_generate.function.Suggestions;
 import fr.mines_stetienne.ci.sparql_generate.stream.DocumentNotFoundException;
 import fr.mines_stetienne.ci.sparql_generate.utils.ContextUtils;
@@ -157,6 +158,11 @@ public class IteratorPlan implements BindingsClausePlan {
                 final ExecutionLimitException limit = ExecutionLimitException.findIn(ex);
                 if (limit != null) {
                     throw limit;
+                }
+                // RAISE in an argument of the iterator: an error of the query
+                final RaiseException raised = RaiseException.findIn(ex);
+                if (raised != null) {
+                    throw raised;
                 }
                 if (ex instanceof ExprEvalException) {
                     LOG.debug("No evaluation for " + this + ", caused by " + ex.getMessage());

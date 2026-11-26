@@ -15,6 +15,7 @@
  */
 package fr.mines_stetienne.ci.sparql_generate.function.library;
 
+import fr.mines_stetienne.ci.sparql_generate.RaiseException;
 import fr.mines_stetienne.ci.sparql_generate.utils.LogUtils;
 import fr.mines_stetienne.ci.sparql_generate.stream.LookUpRequest;
 import fr.mines_stetienne.ci.sparql_generate.stream.SPARQLExtStreamManager;
@@ -90,6 +91,9 @@ public class ST_Format implements Function {
             try {
                 NodeValue x = e.eval(binding, env);
                 evalArgs.add(x);
+            } catch (RaiseException ex) {
+                // RAISE in the template: an error of the query
+                throw ex;
             } catch (Exception ex) {
                 StringWriter sw = new StringWriter();
                 ex.printStackTrace(new PrintWriter(sw));

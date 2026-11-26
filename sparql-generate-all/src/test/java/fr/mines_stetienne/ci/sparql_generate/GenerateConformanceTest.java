@@ -15,6 +15,8 @@
  */
 package fr.mines_stetienne.ci.sparql_generate;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeFalse;
@@ -26,12 +28,14 @@ import java.io.Reader;
 import java.io.StringWriter;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -127,6 +131,8 @@ public class GenerateConformanceTest {
 		ExecutorService executor = Executors.newSingleThreadExecutor();
 		ExecutorService engineExecutor = Executors.newCachedThreadPool();
 		File expectedTrig = new File(dir, "expected_output.trig");
+		// a case whose data make the query RAISE an error: its message
+		File expectedError = new File(dir, "expected_error.txt");
 		Model output;
 		Dataset outputDataset;
 		try {
@@ -136,6 +142,14 @@ public class GenerateConformanceTest {
 			try {
 				outputDataset = future.get(TIMEOUT_SECONDS, TimeUnit.SECONDS);
 				output = outputDataset.getDefaultModel();
+			} catch (ExecutionException ex) {
+				RaiseException raised = RaiseException.findIn(ex);
+				if (raised == null || !expectedError.exists()) {
+					throw ex;
+				}
+				String expected = new String(Files.readAllBytes(expectedError.toPath()), StandardCharsets.UTF_8).trim();
+				assertEquals(expected, raised.getMessage());
+				return;
 			} catch (TimeoutException ex) {
 				future.cancel(true);
 				fail("Execution did not finish within " + TIMEOUT_SECONDS + " seconds");
@@ -146,6 +160,7 @@ public class GenerateConformanceTest {
 			engineExecutor.shutdownNow();
 		}
 
+		assertFalse("no error raised, expected: " + expectedError, expectedError.exists());
 		if (expectedTrig.exists()) {
 			Dataset expectedDataset = RDFDataMgr.loadDataset(expectedTrig.toURI().toString(), Lang.TRIG);
 			StringWriter sw = new StringWriter();

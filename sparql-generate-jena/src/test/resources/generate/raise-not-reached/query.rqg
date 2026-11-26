@@ -1,0 +1,10 @@
+BASE <http://example.com/>
+PREFIX ex: <http://example.com/>
+PREFIX iter: <http://w3id.org/sparql-generate/iter/>
+
+# An error that only the data reveal: every person must have an email
+# address. Every row has one: RAISE is never evaluated.
+GENERATE {
+  <person/{?name}> ex:email ?mbox .
+} ITERATOR iter:CSV(<people.csv>, "name", "email") AS ?name ?email ?row
+  BIND(COALESCE(IRI(CONCAT("mailto:", ?email)), RAISE("No email address for", ?name, ?row)) AS ?mbox)

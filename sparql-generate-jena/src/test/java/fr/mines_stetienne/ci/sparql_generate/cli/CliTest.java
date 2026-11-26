@@ -493,4 +493,40 @@ public class CliTest {
 		assertEquals(result.out, 2, result.out.trim().split("\n").length);
 		assertTrue(result.out, !result.out.contains("ex/g"));
 	}
+
+	private static final String RAISE = "GENERATE { <http://ex/s> <http://ex/p> ?y } "
+			+ "WHERE { VALUES ?x { 1 2 } BIND(IF(?x < 2, ?x, RAISE(\"Too large\", ?x, <http://ex/a>)) AS ?y) }";
+
+	/**
+	 * RAISE stops the execution: its message and values on the standard
+	 * error, status 1, in every output mode.
+	 */
+	@Test
+	public void raiseFails() throws Exception {
+		for (String[] args : new String[][] { {}, { "-s" }, { "-fo", "NT" }, { "-fo", "NT", "-s" } }) {
+			Result result = run(RAISE, args);
+			assertEquals(Arrays.toString(args) + result.err, 1, result.exitCode);
+			assertTrue(result.err, result.err.contains("ERROR"));
+			assertTrue(result.err, result.err.contains("Too large: 2, <http://ex/a>"));
+			// the message, not a stack trace
+			assertTrue(result.err, !result.err.contains("\tat "));
+		}
+	}
+
+	@Test
+	public void raiseInSelectAndTemplateFails() throws Exception {
+		Result result = run("SELECT ?y WHERE { BIND(RAISE(\"select\") AS ?y) }");
+		assertEquals(result.err, 1, result.exitCode);
+		assertTrue(result.err, result.err.contains("select"));
+		result = run("TEMPLATE { RAISE(\"template\", 1) }");
+		assertEquals(result.err, 1, result.exitCode);
+		assertTrue(result.err, result.err.contains("template: 1"));
+	}
+
+	@Test
+	public void raiseNotReachedSucceeds() throws Exception {
+		Result result = run(RAISE.replace("?x < 2", "?x < 3"));
+		assertEquals(result.err, 0, result.exitCode);
+		assertTrue(result.err, result.err.trim().isEmpty());
+	}
 }
