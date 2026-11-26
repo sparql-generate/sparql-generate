@@ -27,7 +27,14 @@ import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.NodeValue;
 import org.apache.jena.sparql.expr.nodevalue.NodeValueNode;
+import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.Objects;
+import org.apache.jena.atlas.web.TypedInputStream;
+import org.apache.jena.riot.SysRIOT;
+import fr.mines_stetienne.ci.sparql_generate.stream.LookUpRequest;
+import fr.mines_stetienne.ci.sparql_generate.stream.SPARQLExtStreamManager;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 
@@ -42,7 +49,8 @@ import org.slf4j.Logger;
  * iterates over the cells in the header row.
  *
  * <ul>
- * <li>Param 1: (csv) is the CSV document with a header line.</li>
+ * <li>Param 1: (csv) is the CSV document with a header line, or its IRI: only the
+ * header line of the document is then read.</li>
  * </ul>
  *
  * @author Noorani Bakerally <noorani.bakerally at emse.fr>
@@ -61,6 +69,9 @@ public class ITER_CSVHeaders extends IteratorFunctionBase1 {
         	String msg = "No CSV provided";
             LOG.debug(msg);
         	throw new ExprEvalException(msg);
+        }
+        if (csv.isIRI()) {
+            return headersOf(csv.asNode().getURI());
         }
         if (csv.getDatatypeURI() != null
                 && !csv.getDatatypeURI().equals(datatypeUri)
@@ -96,4 +107,35 @@ public class ITER_CSVHeaders extends IteratorFunctionBase1 {
         }
     }
 
+
+    /**
+     * The header of the document of an IRI: only its first line is read.
+     */
+    private List<List<NodeValue>> headersOf(final String iri) {
+        final LookUpRequest req = new LookUpRequest(iri, "text/csv");
+        final SPARQLExtStreamManager sm = (SPARQLExtStreamManager) getContext().get(SysRIOT.sysStreamManager);
+        Objects.requireNonNull(sm);
+        final TypedInputStream tin = sm.open(req);
+        if (tin == null) {
+            String message = String.format("Could not look up csv document %s", iri);
+            LOG.warn(message);
+            throw new ExprEvalException(message);
+        }
+        try (InputStream in = tin.getInputStream();
+                CsvMapReader mapReader = new CsvMapReader(
+                        new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8)),
+                        CsvPreference.STANDARD_PREFERENCE)) {
+            final String[] headers = mapReader.getHeader(true);
+            final List<List<NodeValue>> listNodeValues = new ArrayList<>();
+            if (headers != null) {
+                for (String header : headers) {
+                    listNodeValues.add(Collections.singletonList(new NodeValueNode(NodeFactory.createLiteralString(header == null ? "" : header))));
+                }
+            }
+            return listNodeValues;
+        } catch (IOException ex) {
+            LOG.warn("Exception while reading the header of the CSV document " + iri, ex);
+            throw new ExprEvalException("No evaluation", ex);
+        }
+    }
 }
