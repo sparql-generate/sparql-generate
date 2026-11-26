@@ -1,5 +1,6 @@
 package fr.mines_stetienne.ci.sparql_generate.json;
 
+import fr.mines_stetienne.ci.sparql_generate.iterator.DownstreamException;
 /*
  * Copyright 2016 Ecole des Mines de Saint-Etienne.
  *
@@ -140,8 +141,11 @@ public class ITER_JSONSurfer extends IteratorStreamFunctionBase {
 			}
 			throw new ExprEvalException("No evaluation for " + jsonquery, ex);
 		} catch (JsonSurfingException ex) {
+			// RAISE, or an error of the rest of the query, is not an error of the document
+			DownstreamException.rethrowIfNotOwn(ex);
 			throw new JsonSurfingException(ex);
 		} catch (Exception ex) {
+			DownstreamException.rethrowIfNotOwn(ex);
 			if (LOG.isDebugEnabled()) {
 				Node compressed = LogUtils.compress(json.asNode());
 				LOG.debug("No evaluation for " + compressed + ", " + jsonquery);

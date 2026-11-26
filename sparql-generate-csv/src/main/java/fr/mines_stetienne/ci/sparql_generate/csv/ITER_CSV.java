@@ -15,6 +15,7 @@
  */
 package fr.mines_stetienne.ci.sparql_generate.csv;
 
+import fr.mines_stetienne.ci.sparql_generate.iterator.DownstreamException;
 import fr.mines_stetienne.ci.sparql_generate.SPARQLExt;
 import fr.mines_stetienne.ci.sparql_generate.iterator.IteratorStreamFunctionBase;
 import fr.mines_stetienne.ci.sparql_generate.stream.DocumentNotFoundException;
@@ -162,6 +163,8 @@ public class ITER_CSV extends IteratorStreamFunctionBase {
             LOG.warn("Exception while fetching or parsing CSV document", ex);
             throw new ExprEvalException("No evaluation", ex);
         } catch (Exception ex) {
+            // RAISE, or an error of the rest of the query, is not an error of the document
+            DownstreamException.rethrowIfNotOwn(ex);
             LOG.warn("Exception while fetching or parsing CSV document", ex);
             throw new ExprEvalException("No evaluation", ex);
         }

@@ -12,6 +12,14 @@ Not released yet.
 - An IRI or a literal with embedded expressions in a triple pattern of a `WHERE` clause constrains the pattern wherever the variables of its expressions are bound: by another triple of the same basic graph pattern (`?x ex:id ?i . <person/{?i}> ex:name ?n`), by a later element of the group, or, under `OPTIONAL`, by the left side (`?x ex:id ?i OPTIONAL { <person/{?i}> ex:name ?n }`). The node was a wildcard there, and the solutions a cross product. A node whose expression is in error (an unbound variable) matches nothing; it was a wildcard too.
 - `IRI("rel")`, `URI(...)` and the IRIs with embedded expressions resolve a relative IRI against the base of the query (`BASE`, or `--base`), as in SPARQL 1.1, wherever they are evaluated: in the binding clauses (`BIND`, arguments of `ITERATOR` and `SOURCE`), in `TEMPLATE` clauses and in the arguments of calls. They resolved against the base of the system there (the working directory, a `file:` IRI), and against the base of the query only in the `WHERE` clause and in `GENERATE` templates. A named query resolves against its own base; the body of a `FUNCTION` query, against the base of the function.
 
+**Iterators**
+
+- A `RAISE` evaluated for a row of `iter:CSV` or of `iter:SQL` stops the execution with its message only: the iterator logged it first as a warning, with a stack trace, as an error of the document ("Exception while fetching or parsing CSV document", "Can not connect to the data base"). The same for any error of the rest of the query; `iter:JSONSurfer` no longer wraps them. The other iterators compute their rows before the rest of the query is evaluated.
+
+**Java API**
+
+- `fr.mines_stetienne.ci.sparql_generate.iterator.DownstreamException`: an error of the rest of the query, raised in the callback of an iterator; an iterator that catches every exception lets it through with `DownstreamException.rethrowIfNotOwn(ex)`.
+
 ## 2.6.0
 
 Released on 2026-11-26. `RAISE`, and named graphs written to files.

@@ -15,6 +15,7 @@
  */
 package fr.mines_stetienne.ci.sparql_generate.sql;
 
+import fr.mines_stetienne.ci.sparql_generate.iterator.DownstreamException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -116,6 +117,8 @@ public class ITER_SQL extends IteratorStreamFunctionBase2 {
 			LOG.trace("Connected successfully to " + nodeSQL);
 			getListSQL(connectionSQL, querySQL, consumer);
 		} catch (Exception ex) {
+			// RAISE, or an error of the rest of the query, is not an error of the data base
+			DownstreamException.rethrowIfNotOwn(ex);
 			LOG.warn("Can not connect to the data base", ex);
 			throw new ExprEvalException("Can not connect to the data base", ex);
 		}

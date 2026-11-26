@@ -17,6 +17,7 @@ package fr.mines_stetienne.ci.sparql_generate.engine;
 
 import fr.mines_stetienne.ci.sparql_generate.ExecutionLimitException;
 import fr.mines_stetienne.ci.sparql_generate.RaiseException;
+import fr.mines_stetienne.ci.sparql_generate.iterator.DownstreamException;
 import fr.mines_stetienne.ci.sparql_generate.function.Suggestions;
 import fr.mines_stetienne.ci.sparql_generate.stream.DocumentNotFoundException;
 import fr.mines_stetienne.ci.sparql_generate.utils.ContextUtils;
@@ -192,35 +193,6 @@ public class IteratorPlan implements BindingsClausePlan {
             if (t.getCause() == t) {
                 break;
             }
-        }
-    }
-
-    /**
-     * An exception of the rest of the query, raised in the callback of the
-     * iterator: it is not an error of the iterator.
-     */
-    private static final class DownstreamException extends RuntimeException {
-
-        private static final long serialVersionUID = 1L;
-
-        DownstreamException(RuntimeException cause) {
-            super(cause);
-        }
-
-        RuntimeException unwrap() {
-            return (RuntimeException) getCause();
-        }
-
-        static DownstreamException findIn(Throwable ex) {
-            for (Throwable t = ex; t != null; t = t.getCause()) {
-                if (t instanceof DownstreamException) {
-                    return (DownstreamException) t;
-                }
-                if (t.getCause() == t) {
-                    break;
-                }
-            }
-            return null;
         }
     }
 
