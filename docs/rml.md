@@ -38,6 +38,7 @@ The SPARQL-Generate query iterates over the rows of the same document; each part
 | `rr:constant` | a constant term of the template |
 | `rr:class` | a triple `a <class>` |
 | `rr:termType rr:BlankNode` | a blank node of the template, or `fun:bnode(string)` for a blank node identified by a value |
+| `rml:termType rml:UnsafeIRI` | `fun:unsafeIRI(string)`: the IRI of the string as it is, unchecked (it may hold spaces) |
 | `rr:language`, `rml:languageMap` | `"{?label}"@en`, or `STRLANG(?label, ?lang)` |
 | `rr:datatype`, `rml:datatypeMap` | `"{?value}"^^xsd:date`, or `STRDT(?value, ?datatype)` |
 | referencing object map, same logical source | the subject of the parent written in the same template |
