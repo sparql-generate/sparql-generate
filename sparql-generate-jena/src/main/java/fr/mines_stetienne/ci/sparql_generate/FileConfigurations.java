@@ -170,6 +170,19 @@ public class FileConfigurations {
      */
     public long maxTriples;
 
+    /**
+     * when true, a named graph whose IRI is a path relative to the base, with
+     * the extension of an RDF format, is written to that file
+     * (--graphs-to-files)
+     */
+    public boolean graphsToFiles;
+
+    /**
+     * the description of the target files (format, compression, encoding of
+     * each file), a JSON file; implies graphsToFiles (--targets)
+     */
+    public String targets;
+
     
     public class NamedQuery {
         public String uri;

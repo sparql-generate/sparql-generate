@@ -157,6 +157,12 @@ public class CMDConfigurations {
 	public static final String ARG_MAX_TRIPLES_LONG = "max-triples";
 	public static final String ARG_MAX_TRIPLES_MAN = "Stop a GENERATE execution beyond this number of triples, with exit status 1 and the message that the output is truncated.";
 
+	public static final String ARG_GRAPHS_TO_FILES_LONG = "graphs-to-files";
+	public static final String ARG_GRAPHS_TO_FILES_MAN = "GENERATE: write each named graph whose IRI is the folder of the base followed by the path of an RDF file (GRAPH <out/people.ttl>, format and compression by extension) to that file, in the folder of a file: base or else in the working directory; GRAPH <dump.nq#g=IRI> names the graph IRI in dump.nq. The other graphs stay in the output.";
+
+	public static final String ARG_TARGETS_LONG = "targets";
+	public static final String ARG_TARGETS_MAN = "A JSON file that describes the target files of --graphs-to-files (implied): { \"path\": { \"format\": \"N-Quads\", \"compression\": \"gzip\", \"encoding\": \"UTF-16\" } }, paths relative to the output folder.";
+
 	public static final String ARG_SYNTAX = "x";
 	/** syntax */
 	public static final String ARG_SYNTAX_LONG = "syntax";
@@ -192,6 +198,8 @@ public class CMDConfigurations {
 				.addOption(Option.builder().longOpt(ARG_FAIL_ON_MISSING_LONG).desc(ARG_FAIL_ON_MISSING_MAN).build())
 				.addOption(Option.builder().longOpt(ARG_TIME_LIMIT_LONG).hasArg().argName("seconds").desc(ARG_TIME_LIMIT_MAN).build())
 				.addOption(Option.builder().longOpt(ARG_MAX_TRIPLES_LONG).hasArg().argName("n").desc(ARG_MAX_TRIPLES_MAN).build())
+				.addOption(Option.builder().longOpt(ARG_GRAPHS_TO_FILES_LONG).desc(ARG_GRAPHS_TO_FILES_MAN).build())
+				.addOption(Option.builder().longOpt(ARG_TARGETS_LONG).hasArg().argName("file").desc(ARG_TARGETS_MAN).build())
 				.addOption(sourcesOpt)
 				.addOption(bindingsOpt);
 	}

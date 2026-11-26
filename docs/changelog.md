@@ -15,6 +15,7 @@ This page summarises the changes of the engine since version 2.0. The full histo
 **Command line**
 
 - A `RAISE` expression that is evaluated stops the execution with status 1, its message and values on the standard error.
+- `--graphs-to-files`: a named graph whose IRI is a relative path to an RDF file, resolved against the base, is written to that file, in the folder of a `file:` base or else in the working directory: `GRAPH <out/people.ttl> { ... }`. Format and compression by the extension (`.nq`, `.nt`, `.ttl`, `.trig`, `.n3`, `.jsonld`, `.rdf`, `.rj`; `.gz`, `.zip`, `.bz2`, `.xz`, `.tar.gz`, `.tar.xz`, `.tar.bz2`); `GRAPH <dump.nq#g=IRI>` names a graph inside a file; a path that leaves the folder is an error; compatible with `--stream`. `--targets` (configuration key `targets`) describes the format, compression and character encoding of each file in a JSON file. Without the option, nothing changes. See [Named graphs written to files](cli.md#named-graphs-written-to-files).
 
 **Dependencies**
 

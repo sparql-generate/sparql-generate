@@ -46,6 +46,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.stream.Collectors;
@@ -62,6 +63,7 @@ import org.apache.jena.query.DatasetFactory;
 import org.apache.jena.query.QueryFactory;
 import org.apache.jena.query.ResultSet;
 import org.apache.jena.query.ResultSetFormatter;
+import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RDFLanguages;
@@ -189,7 +191,10 @@ public class SPARQLExtCli {
 			final ExecutionLimitException limit = ExecutionLimitException.findIn(ex);
 			final QuadsNotSupportedException quads = QuadsNotSupportedException.findIn(ex);
 			final RaiseException raised = RaiseException.findIn(ex);
-			if (raised != null) {
+			final TargetException target = TargetException.findIn(ex);
+			if (target != null) {
+				LOG.error(target.getMessage());
+			} else if (raised != null) {
 				// RAISE(message, value...) in the query: its message and values
 				LOG.error(raised.getMessage());
 			} else if (notFound != null) {
@@ -250,8 +255,10 @@ public class SPARQLExtCli {
 		if (q.isTemplateType() && rq.outputFormat != null) {
 			throw new SPARQLExtException("Option outputFormat is only for queries of type GENERATE or SELECT");
 		}
-		if (q.isGenerateType() && q.hasQuadPatterns()) {
+		final GraphTargets targets = graphTargets(workingDir, rq, q);
+		if (q.isGenerateType() && q.hasQuadPatterns() && targets == null) {
 			// before the execution, when the query itself has GRAPH blocks
+			// (with --graphs-to-files, they may all go to files)
 			final String triplesOnly = triplesOnlyFormat(rq);
 			if (triplesOnly != null) {
 				throw new QuadsNotSupportedException(triplesOnly);
@@ -284,12 +291,21 @@ public class SPARQLExtCli {
 					throw new SPARQLExtException("Error while executing the plan.", ex);
 				}
 			}
-		} else if (q.isGenerateType() && !rq.stream && !rq.hdt) {
-			execGenerate(bindings, plan, contextBuilder, rq);
-		} else if (q.isGenerateType() && rq.hdt) {
-			execGenerateHDT(bindings, plan, contextBuilder, rq);
 		} else if (q.isGenerateType()) {
-			execGenerateStream(bindings, plan, contextBuilder, rq);
+			try {
+				if (!rq.stream && !rq.hdt) {
+					execGenerate(bindings, plan, contextBuilder, rq, targets);
+				} else if (rq.hdt) {
+					execGenerateHDT(bindings, plan, contextBuilder, rq, targets);
+				} else {
+					execGenerateStream(bindings, plan, contextBuilder, rq, targets);
+				}
+			} finally {
+				// the target files written so far, also when the execution fails
+				if (targets != null) {
+					targets.close();
+				}
+			}
 		} else if (q.isSelectType() && !rq.stream) {
 			Context context = contextBuilder.build();
 			execSelect(bindings, plan, context, rq);
@@ -342,7 +358,37 @@ public class SPARQLExtCli {
 		exec(workingDir, rq, null);
 	}
 
-	private static void execGenerateHDT(List<Binding> bindings, RootPlan plan, ContextUtils.Builder builder, CliRequest request) {
+	/**
+	 * The target files of named graphs, with --graphs-to-files, for a
+	 * GENERATE query; else null.
+	 */
+	private static GraphTargets graphTargets(File workingDir, CliRequest rq, SPARQLExtQuery q) {
+		if (!rq.graphsToFiles) {
+			return null;
+		}
+		if (!q.isGenerateType()) {
+			LOG.warn("--graphs-to-files and --targets apply to GENERATE queries only.");
+			return null;
+		}
+		final Map<String, GraphTargets.Description> descriptions = rq.targets == null ? null
+				: GraphTargets.readDescriptions(new File(rq.targets));
+		String base = q.explicitlySetBaseURI() || rq.base == null ? q.getBaseURI() : rq.base;
+		if (base == null) {
+			// the base the relative IRIs of the query were resolved against: the
+			// current directory
+			base = org.apache.jena.irix.IRIs.getBaseStr();
+		}
+		return new GraphTargets(base, workingDir, descriptions, rq.stream);
+	}
+
+	/**
+	 * The output stream, with the named graphs that name files sent to them.
+	 */
+	private static StreamRDF route(StreamRDF output, GraphTargets targets) {
+		return targets == null ? output : new GraphFilesStreamRDF(output, targets);
+	}
+
+	private static void execGenerateHDT(List<Binding> bindings, RootPlan plan, ContextUtils.Builder builder, CliRequest request, GraphTargets targets) {
 		if (request.output == null) {
 			throw new SPARQLExtException("Output needs to be set with the option HDT.");
 		}
@@ -354,7 +400,7 @@ public class SPARQLExtCli {
 			throw new SPARQLExtException("Error while opening the HDT stream.", ex);
 		}
 		HDT hdt = hdtStreamRDF.getHDT();
-		Context context = builder.setGenerateOutput(hdtStreamRDF).build();
+		Context context = builder.setGenerateOutput(route(hdtStreamRDF, targets)).build();
 		plan.execGenerateStream(bindings, context);
 		try (OutputStream out = new FileOutputStream(request.output)) {
 			// Save generated HDT to a file
@@ -421,7 +467,7 @@ public class SPARQLExtCli {
 		return false;
 	}
 
-	private static void execGenerateStream(List<Binding> bindings, RootPlan plan, ContextUtils.Builder builder, CliRequest request) {
+	private static void execGenerateStream(List<Binding> bindings, RootPlan plan, ContextUtils.Builder builder, CliRequest request, GraphTargets targets) {
 		final PrefixMapping pm = plan.getQuery().getPrefixMapping();
 		try (OutputStream out = openOutput(request)) {
 			final StreamRDF stream;
@@ -438,14 +484,14 @@ public class SPARQLExtCli {
 				stream = new TriplesOnlyStreamRDF(StreamRDFWriter.getWriterStream(out, RDFFormat.NTRIPLES), "N-Triples");
 			}
 			// the plan calls start() and finish(), which flushes the stream
-			Context context = builder.setGenerateOutput(stream).build();
+			Context context = builder.setGenerateOutput(route(stream, targets)).build();
 			plan.execGenerateStream(bindings, context);
 		} catch (IOException ex) {
 			throw new SPARQLExtException("Error while writing the output file.", ex);
 		}
 	}
 
-	private static void execGenerate(List<Binding> bindings, RootPlan plan, ContextUtils.Builder builder, CliRequest request) {
+	private static void execGenerate(List<Binding> bindings, RootPlan plan, ContextUtils.Builder builder, CliRequest request, GraphTargets targets) {
 		// without format, Turtle, or TriG if the query generates quads
 		final boolean formatGiven = request.outputFormat != null;
 		if (!formatGiven) {
@@ -457,17 +503,25 @@ public class SPARQLExtCli {
 			// graph is not built in memory
 			try (OutputStream out = openOutput(request)) {
 				Context context = builder
-						.setGenerateOutput(new DistinctNTriplesStreamRDF(out, Lang.NQUADS.equals(lang))).build();
+						.setGenerateOutput(route(new DistinctNTriplesStreamRDF(out, Lang.NQUADS.equals(lang)), targets))
+						.build();
 				plan.execGenerateStream(bindings, context);
 			} catch (IOException ex) {
 				throw new SPARQLExtException("Error while writing the output file.", ex);
 			}
 			return;
 		}
-		final Context context = builder.build();
 		final Dataset dataset;
 		try {
-			dataset = plan.execGenerateDataset(bindings, context);
+			if (targets == null) {
+				dataset = plan.execGenerateDataset(bindings, builder.build());
+			} else {
+				// the graphs that name files are not kept in memory
+				dataset = DatasetFactory.create(ModelFactory.createDefaultModel());
+				Context context = builder
+						.setGenerateOutput(route(new GraphFilesStreamRDF.Collector(dataset), targets)).build();
+				plan.execGenerateStream(bindings, context);
+			}
 		} catch (Exception ex) {
 			throw new SPARQLExtException("Error while executing the plan.", ex);
 		}
@@ -644,6 +698,11 @@ public class SPARQLExtCli {
 		request.hdt = cl.hasOption(ARG_HDT) || request.hdt;
 		request.debugTemplate = cl.hasOption(ARG_DEBUG_TEMPLATE) || request.debugTemplate;
 		request.failOnMissing = cl.hasOption(CMDConfigurations.ARG_FAIL_ON_MISSING_LONG) || request.failOnMissing;
+		request.graphsToFiles = cl.hasOption(CMDConfigurations.ARG_GRAPHS_TO_FILES_LONG) || request.graphsToFiles;
+		// --targets is relative to the current directory, targets of the
+		// configuration file to the working directory
+		request.targets = resolve(dirFile, cl.getOptionValue(CMDConfigurations.ARG_TARGETS_LONG), request.targets);
+		request.graphsToFiles = request.graphsToFiles || request.targets != null;
 		try {
 			if (cl.hasOption(CMDConfigurations.ARG_TIME_LIMIT_LONG)) {
 				request.timeLimit = Integer.parseInt(cl.getOptionValue(CMDConfigurations.ARG_TIME_LIMIT_LONG).trim());
