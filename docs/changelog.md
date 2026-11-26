@@ -2,7 +2,13 @@
 
 This page summarises the changes of the engine since version 2.0. The full history is in the [commits](https://github.com/sparql-generate/sparql-generate/commits/master) and the [releases](https://github.com/sparql-generate/sparql-generate/releases).
 
-## Unreleased
+## 2.6.1
+
+Not released yet.
+
+## 2.6.0
+
+Released on 2026-11-26. `RAISE`, and named graphs written to files.
 
 **Language and engine**
 
