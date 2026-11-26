@@ -80,6 +80,7 @@ nav:
       - SELECT: language/select.md
       - TEMPLATE: language/template.md
       - FUNCTION: language/function.md
+      - Queries calling queries: language/calls.md
   - Reference:
       - reference/index.md
       - Functions: reference/functions.md

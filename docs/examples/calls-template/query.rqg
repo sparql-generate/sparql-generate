@@ -1,0 +1,12 @@
+BASE <http://example.org/>
+PREFIX iter: <http://w3id.org/sparql-generate/iter/>
+
+TEMPLATE {
+  before = "# Lines\n\n" ;
+  "## " ?name "\n"
+  TEMPLATE <query/stops>(?line) .
+  ; separator = "\n\n"
+  ; after = "\n"
+}
+SOURCE <lines.json> AS ?doc
+ITERATOR iter:JSONPath(?doc, "$.lines[*]", "$.name") AS ?line ?name

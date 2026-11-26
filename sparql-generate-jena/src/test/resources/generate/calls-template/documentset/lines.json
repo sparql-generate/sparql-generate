@@ -1,0 +1,4 @@
+{ "lines": [
+  { "id": "L1", "name": "Line 1", "stops": ["central", "market", "campus"] },
+  { "id": "L2", "name": "Line 2", "stops": ["market", "harbour"] }
+] }

@@ -1,0 +1,10 @@
+BASE <http://example.org/>
+PREFIX iter: <http://w3id.org/sparql-generate/iter/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+# A named SELECT query, called as an iterator: the name, zone and latitude
+# of a stop. A latitude that is not a number is a data error.
+SELECT <query/stop-info> (?stopId) ?name ?zone ?lat
+ITERATOR iter:CSV(<stops.csv>, "id", "name", "zone", "lat") AS ?id ?name ?zone ?latText
+BIND(COALESCE(xsd:decimal(?latText), RAISE("No valid latitude for stop", ?id)) AS ?lat)
+WHERE { FILTER(?id = ?stopId) }

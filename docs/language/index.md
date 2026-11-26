@@ -53,6 +53,10 @@ In a template, a string between `{` and `}` inside an IRI or a literal is a SPAR
 
 In an IRI or a literal of a template, `\{` and `\}` stand for the braces themselves. See [embedded expressions](generate.md#embedded-expressions).
 
+Embedded expressions are allowed in the other parts of a query too: binding clauses (`BIND(<person/{?id}> AS ?p)`), arguments of iterators and of calls (`GENERATE <person>(<person/{?id}>) .`, see [queries calling queries](calls.md)), and the triple patterns of a `WHERE` clause. A relative IRI, written or computed by `IRI()`, is resolved against the base of the query (`BASE`, or `--base` on the command line), as in SPARQL 1.1.
+
+In a triple pattern of a `WHERE` clause, an IRI or a literal with embedded expressions is the term that its expressions give for the solution: `?x ex:id ?id . <person/{?id}> ex:name ?name` matches the name of the person whose identifier `?x` gives. The variables of the expressions may be bound by the binding clauses, by the parent query, by other triples of the same group, or, under `OPTIONAL`, by the left side (`?x ex:id ?id OPTIONAL { <person/{?id}> ex:name ?name }`). A term whose expression is in error, as with an unbound variable, matches nothing. In a `UNION` or a `MINUS`, each side is evaluated on its own, as in SPARQL: the variables bound outside it are not seen there.
+
 ## Raising errors
 
 `RAISE(message, value, ...)` is an expression whose evaluation stops the execution with an error that carries the message and the values. It is meant for the errors that only the data reveal: a missing value, a value that is not an IRI, a column that the document does not have.

@@ -1,0 +1,30 @@
+BASE <http://example.org/>
+PREFIX iter: <http://w3id.org/sparql-generate/iter/>
+PREFIX ex: <http://example.org/ns#>
+
+GENERATE {
+  <line/{?id}> a ex:Line ; ex:name ?name .
+
+  # one named graph per line, filled by a call of the named GENERATE query
+  GENERATE {
+    GRAPH <graph/{?id}> {
+      GENERATE <query/stop>(?stopId, <line/{?id}>) .
+    }
+  } ITERATOR iter:JSONPath(?line, "$.stops[*]") AS ?stopId .
+
+  # the lines that share a stop, read in the graph built by FROM GENERATE
+  GENERATE {
+    <line/{?id}> ex:connectsTo ?other .
+  } WHERE {
+    <line/{?id}> ex:serves ?stop .
+    ?other ex:serves ?stop .
+    FILTER(?other != <line/{?id}>)
+  } .
+}
+FROM GENERATE {
+  <line/{?l}> ex:serves <stop/{?s}> .
+} SOURCE <lines.json> AS ?d
+  ITERATOR iter:JSONPath(?d, "$.lines[*]", "$.id") AS ?x ?l
+  ITERATOR iter:JSONPath(?x, "$.stops[*]") AS ?s .
+SOURCE <lines.json> AS ?doc
+ITERATOR iter:JSONPath(?doc, "$.lines[*]", "$.id", "$.name") AS ?line ?id ?name

@@ -1,0 +1,11 @@
+BASE <http://example.org/>
+PREFIX iter: <http://w3id.org/sparql-generate/iter/>
+
+# A named TEMPLATE query: the list of the stops of a line, labelled by a
+# FUNCTION query, from the named SELECT query called as an iterator.
+TEMPLATE <query/stops> (?line) {
+  "- " <fn/label>(?name, ?zone)
+  ; separator = "\n"
+}
+ITERATOR iter:JSONPath(?line, "$.stops[*]") AS ?stopId
+ITERATOR <query/stop-info>(?stopId) AS ?name ?zone ?lat

@@ -1,0 +1,10 @@
+# Lines
+
+## Line 1
+- Central Station (zone 1)
+- Market Square (zone 1)
+- University Campus (zone 2)
+
+## Line 2
+- Market Square (zone 1)
+- Old Harbour (zone 2)

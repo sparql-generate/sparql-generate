@@ -133,6 +133,10 @@ public class GenerateConformanceTest {
 		File expectedTrig = new File(dir, "expected_output.trig");
 		// a case whose data make the query RAISE an error: its message
 		File expectedError = new File(dir, "expected_error.txt");
+		if (query.isTemplateType()) {
+			checkTemplate(plan, query, sm, dataset, expectedError);
+			return;
+		}
 		Model output;
 		Dataset outputDataset;
 		try {
@@ -173,6 +177,42 @@ public class GenerateConformanceTest {
 		assertTrue("unexpected named graphs", !outputDataset.asDatasetGraph().listGraphNodes().hasNext());
 		Model expected = RDFDataMgr.loadModel(new File(dir, "expected_output.ttl").toURI().toString(), Lang.TTL);
 		assertTrue(describeDifference(output, expected), output.isIsomorphicWith(expected));
+	}
+
+	/**
+	 * A TEMPLATE query: its text is expected_output.txt, or its RAISE error
+	 * expected_error.txt.
+	 */
+	private void checkTemplate(RootPlan plan, SPARQLExtQuery query, SPARQLExtStreamManager sm, Dataset dataset,
+			File expectedError) throws Exception {
+		ExecutorService executor = Executors.newSingleThreadExecutor();
+		String output;
+		try {
+			Context context = ContextUtils.build().setPrefixMapping(query).setStreamManager(sm)
+					.setInputDataset(dataset).build();
+			Future<String> future = executor.submit(() -> plan.execTemplate(context));
+			try {
+				output = future.get(TIMEOUT_SECONDS, TimeUnit.SECONDS);
+			} catch (ExecutionException ex) {
+				RaiseException raised = RaiseException.findIn(ex);
+				if (raised == null || !expectedError.exists()) {
+					throw ex;
+				}
+				String expected = new String(Files.readAllBytes(expectedError.toPath()), StandardCharsets.UTF_8).trim();
+				assertEquals(expected, raised.getMessage());
+				return;
+			} catch (TimeoutException ex) {
+				future.cancel(true);
+				fail("Execution did not finish within " + TIMEOUT_SECONDS + " seconds");
+				return;
+			}
+		} finally {
+			executor.shutdownNow();
+		}
+		assertFalse("no error raised, expected: " + expectedError, expectedError.exists());
+		String expected = new String(Files.readAllBytes(new File(dir, "expected_output.txt").toPath()),
+				StandardCharsets.UTF_8);
+		assertEquals(expected, output);
 	}
 
 	private static FileConfigurations readConfiguration(File dir) throws Exception {

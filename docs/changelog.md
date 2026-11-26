@@ -16,6 +16,10 @@ Not released yet.
 
 - A `RAISE` evaluated for a row of `iter:CSV` or of `iter:SQL` stops the execution with its message only: the iterator logged it first as a warning, with a stack trace, as an error of the document ("Exception while fetching or parsing CSV document", "Can not connect to the data base"). The same for any error of the rest of the query; `iter:JSONSurfer` no longer wraps them. The other iterators compute their rows before the rest of the query is evaluated.
 
+**Documentation**
+
+- [Queries calling queries](language/calls.md): runnable examples of a `GENERATE` query with nested queries, a `GRAPH` block, a call of a named `GENERATE` query with an IRI argument and a `FROM GENERATE` clause; a named `SELECT` query reused as an iterator by a `GENERATE` and by a `TEMPLATE` query; a `TEMPLATE` query that calls a named `TEMPLATE` query, which calls a `FUNCTION` query; and an input that makes them `RAISE` an error. An example of the documentation may expect an error (`expected_error.txt`), and the conformance cases of the engine may be `TEMPLATE` queries (`expected_output.txt`).
+
 **Java API**
 
 - `fr.mines_stetienne.ci.sparql_generate.iterator.DownstreamException`: an error of the rest of the query, raised in the callback of an iterator; an iterator that catches every exception lets it through with `DownstreamException.rethrowIfNotOwn(ex)`.

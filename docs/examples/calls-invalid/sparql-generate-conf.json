@@ -1,0 +1,11 @@
+{
+  "query": "../calls-generate/query.rqg",
+  "documentset": [
+    { "uri": "http://example.org/lines.json", "mediatype": "application/json", "path": "../calls-generate/documentset/lines.json" },
+    { "uri": "http://example.org/stops.csv", "mediatype": "text/csv", "path": "documentset/stops.csv" }
+  ],
+  "namedqueries": [
+    { "uri": "http://example.org/query/stop", "mediatype": "application/vnd.sparql-generate", "path": "../calls-generate/queryset/stop.rqg" },
+    { "uri": "http://example.org/query/stop-info", "mediatype": "application/vnd.sparql-generate", "path": "../calls-generate/queryset/stop-info.rqg" }
+  ]
+}

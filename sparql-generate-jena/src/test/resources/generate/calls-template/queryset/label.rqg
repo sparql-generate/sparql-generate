@@ -1,0 +1,6 @@
+BASE <http://example.org/>
+
+# A FUNCTION query: the label of a stop.
+FUNCTION <fn/label> (?name, ?zone) {
+  CONCAT(?name, " (zone ", ?zone, ")")
+}

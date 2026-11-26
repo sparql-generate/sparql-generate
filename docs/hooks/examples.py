@@ -2,7 +2,8 @@
 
 A line ``!example NAME`` in a page is replaced by the files of the example
 ``docs/examples/NAME``: the query, its named queries, documents and default
-graph, and its expected output, in content tabs, followed by a link that opens
+graph, and its expected output (or the message of the error that the query
+raises, ``expected_error.txt``), in content tabs, followed by a link that opens
 the example in the playground.
 
 The same directories are executed by the test ``PlaygroundExamplesTest`` of
@@ -128,7 +129,10 @@ def render(name: str) -> str:
         tabs.append(_tab(title, body))
     if example["defaultgraph"].strip():
         tabs.append(_tab("Default graph", _fence(example["defaultgraph"], "turtle")))
-    if (root / "expected_output.trig").exists():
+    if (root / "expected_error.txt").exists():
+        # the data make the query RAISE an error: its message
+        tabs.append(_tab("Error", _fence(_read(root / "expected_error.txt"), "text")))
+    elif (root / "expected_output.trig").exists():
         tabs.append(_tab("Output", _fence(_read(root / "expected_output.trig"), "trig")))
     elif (root / "expected_output.ttl").exists():
         tabs.append(_tab("Output", _fence(_read(root / "expected_output.ttl"), "turtle")))

@@ -69,6 +69,7 @@ import org.junit.runners.Parameterized.Parameters;
 
 import com.google.gson.Gson;
 
+import fr.mines_stetienne.ci.sparql_generate.RaiseException;
 import fr.mines_stetienne.ci.sparql_generate.FileConfigurations;
 import fr.mines_stetienne.ci.sparql_generate.api.entities.Request;
 import fr.mines_stetienne.ci.sparql_generate.cli.CliRequest;
@@ -217,7 +218,11 @@ public class PlaygroundExamplesTest {
 					.setInputDataset(dataset).setExecutor(engineExecutor)
 					.setTimeLimit(fr.mines_stetienne.ci.sparql_generate.JerseyApp.MAX_TIME)
 					.setMaxTriples(fr.mines_stetienne.ci.sparql_generate.JerseyApp.MAX_TRIPLES);
-			if (ENDLESS.contains(name)) {
+			// an example whose data make the query RAISE an error: its message
+			File expectedError = new File(dir, "expected_error.txt");
+			if (expectedError.exists()) {
+				checkError(executor, plan, query, builder, expectedError);
+			} else if (ENDLESS.contains(name)) {
 				runEndless(plan, query, builder, executor);
 			} else if (query.isGenerateType()) {
 				checkGenerate(execute(executor, () -> plan.execGenerateDataset(builder.build())));
@@ -289,6 +294,27 @@ public class PlaygroundExamplesTest {
 	 * {@code expected_output.trig}; the graph of the other queries with
 	 * {@code expected_output.ttl}.
 	 */
+	private void checkError(ExecutorService executor, RootPlan plan, SPARQLExtQuery query,
+			ContextUtils.Builder builder, File expectedError) throws Exception {
+		String expected = new String(Files.readAllBytes(expectedError.toPath()), StandardCharsets.UTF_8).trim();
+		try {
+			execute(executor, () -> {
+				if (query.isGenerateType()) {
+					return plan.execGenerateDataset(builder.build());
+				} else if (query.isTemplateType()) {
+					return plan.execTemplate(builder.build());
+				}
+				return ResultSetFactory.makeRewindable(plan.execSelect(builder.build()));
+			});
+		} catch (RuntimeException ex) {
+			RaiseException raised = RaiseException.findIn(ex);
+			assertTrue("not a RAISE error: " + ex, raised != null);
+			assertEquals(expected, raised.getMessage());
+			return;
+		}
+		fail("no error raised, expected: " + expected);
+	}
+
 	private void checkGenerate(Dataset dataset) throws Exception {
 		File expectedTrig = new File(dir, "expected_output.trig");
 		if (expectedTrig.exists()) {

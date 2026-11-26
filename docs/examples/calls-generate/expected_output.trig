@@ -1,0 +1,46 @@
+PREFIX ex:   <http://example.org/ns#>
+PREFIX iter: <http://w3id.org/sparql-generate/iter/>
+
+<http://example.org/line/L1>
+        a              ex:Line;
+        ex:connectsTo  <http://example.org/line/L2>;
+        ex:name        "Line 1" .
+
+<http://example.org/line/L2>
+        a              ex:Line;
+        ex:connectsTo  <http://example.org/line/L1>;
+        ex:name        "Line 2" .
+
+<http://example.org/graph/L2> {
+    <http://example.org/stop/harbour>
+            ex:lat       45.4307;
+            ex:name      "Old Harbour";
+            ex:servedBy  <http://example.org/line/L2>;
+            ex:zone      <http://example.org/zone/2> .
+    
+    <http://example.org/stop/market>
+            ex:lat       45.4385;
+            ex:name      "Market Square";
+            ex:servedBy  <http://example.org/line/L2>;
+            ex:zone      <http://example.org/zone/1> .
+}
+
+<http://example.org/graph/L1> {
+    <http://example.org/stop/campus>
+            ex:lat       45.4232;
+            ex:name      "University Campus";
+            ex:servedBy  <http://example.org/line/L1>;
+            ex:zone      <http://example.org/zone/2> .
+    
+    <http://example.org/stop/market>
+            ex:lat       45.4385;
+            ex:name      "Market Square";
+            ex:servedBy  <http://example.org/line/L1>;
+            ex:zone      <http://example.org/zone/1> .
+    
+    <http://example.org/stop/central>
+            ex:lat       45.4410;
+            ex:name      "Central Station";
+            ex:servedBy  <http://example.org/line/L1>;
+            ex:zone      <http://example.org/zone/1> .
+}

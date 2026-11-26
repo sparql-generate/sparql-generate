@@ -1,0 +1,11 @@
+BASE <http://example.org/>
+PREFIX ex: <http://example.org/ns#>
+
+# A named GENERATE query with two parameters: a stop and the line that serves it.
+GENERATE <query/stop> (?stopId, ?line) {
+  <stop/{?stopId}> ex:name ?name ;
+    ex:zone <zone/{?zone}> ;
+    ex:lat ?lat ;
+    ex:servedBy ?line .
+}
+ITERATOR <query/stop-info>(?stopId) AS ?name ?zone ?lat

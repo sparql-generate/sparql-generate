@@ -1,0 +1,1 @@
+No valid latitude for stop: "campus"
