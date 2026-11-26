@@ -41,6 +41,8 @@ import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RDFFormat;
 import org.apache.jena.riot.RDFLanguages;
+import org.apache.jena.riot.RDFWriter;
+import org.apache.jena.riot.RIOT;
 import org.apache.jena.riot.system.StreamRDF;
 import org.apache.jena.riot.system.StreamRDFWriter;
 import org.apache.jena.sparql.core.DatasetGraph;
@@ -242,6 +244,10 @@ final class TargetFile {
 			out = openStream();
 			if (RDFLanguages.isQuads(lang)) {
 				RDFDataMgr.write(out, buffer, lang);
+			} else if (Lang.N3.equals(lang)) {
+				// N3 has @prefix, not the PREFIX of SPARQL that Turtle also allows
+				RDFWriter.source(buffer.getDefaultGraph()).format(RDFFormat.TURTLE_PRETTY)
+						.set(RIOT.symTurtleDirectiveStyle, "at").output(out);
 			} else {
 				RDFDataMgr.write(out, buffer.getDefaultGraph(), lang);
 			}

@@ -193,6 +193,18 @@ public class GraphsToFilesTest {
 		}
 	}
 
+	/**
+	 * N3 with @prefix directives, not PREFIX.
+	 */
+	@Test
+	public void n3UsesAtPrefix() throws Exception {
+		Result result = run(query("f.n3").replace("PREFIX ex: <http://ex/>", "PREFIX ex: <http://ex/> PREFIX q: <http://ex/q>"),
+				"-b", BASE, "--graphs-to-files");
+		assertEquals(result.err, 0, result.exitCode);
+		String n3 = new String(Files.readAllBytes(file("f.n3").toPath()), StandardCharsets.UTF_8);
+		assertFalse(n3, n3.contains("PREFIX"));
+	}
+
 	@Test
 	public void compressionsByExtension() throws Exception {
 		for (String name : new String[] { "c.nq.gz", "c.nq.zip", "c.nq.tar.gz", "c.nq.tar.xz", "c.nq.bz2",
