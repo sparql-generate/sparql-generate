@@ -16,7 +16,13 @@
 package fr.mines_stetienne.ci.sparql_generate.normalizer.xexpr;
 
 import fr.mines_stetienne.ci.sparql_generate.query.SPARQLExtQuery;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.Triple;
 import org.apache.jena.sparql.core.BasicPattern;
@@ -25,7 +31,12 @@ import org.apache.jena.sparql.core.TriplePath;
 import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.engine.binding.Binding;
 import org.apache.jena.sparql.engine.binding.BindingBuilder;
+import org.apache.jena.sparql.expr.E_Bound;
+import org.apache.jena.sparql.expr.E_SameTerm;
 import org.apache.jena.sparql.expr.Expr;
+import org.apache.jena.sparql.expr.ExprTransformSubstitute;
+import org.apache.jena.sparql.expr.ExprTransformer;
+import org.apache.jena.sparql.expr.ExprVar;
 import org.apache.jena.sparql.path.Path;
 import org.apache.jena.sparql.syntax.Element;
 import org.apache.jena.sparql.syntax.ElementAssign;
@@ -49,11 +60,12 @@ import org.apache.jena.sparql.syntax.ElementTriplesBlock;
 import org.apache.jena.sparql.syntax.ElementUnfold;
 import org.apache.jena.sparql.syntax.ElementUnion;
 import org.apache.jena.sparql.syntax.ElementVisitor;
+import org.apache.jena.sparql.syntax.PatternVars;
 
 /**
  * Class used to visit an element and normalize it (i.e., replace all expression
- * nodes with the associated expression) . It appends the bindings before the
- * element.
+ * nodes with the associated expression). The node becomes a variable, bound
+ * by a BIND clause or constrained by a FILTER in the group of the element.
  *
  * @author Maxime Lefrançois
  */
@@ -72,30 +84,47 @@ public class QueryPatternNormalizer implements ElementVisitor {
     }
 
     /**
-     * The group made by the last call to {@link #endVisit}: the BIND clauses
-     * of the embedded expressions of an element, then the element.
+     * The BIND clauses of the embedded expressions of the element last
+     * visited, which {@link #visit(ElementGroup)} places: none for an element
+     * that has no embedded expression of its own.
      */
-    private ElementGroup bindingsGroup;
+    private List<ElementBind> binds = new ArrayList<>();
 
     /**
-     * The BIND clauses of the embedded expressions of an element are put in
-     * the group of the element, not in a group of their own: a group is
-     * evaluated on its own, where the variables bound before it in the
-     * enclosing group, such as those of the VALUES block that gives the
-     * solutions of the parent query or of the binding clauses, are not bound.
+     * True when the next group visited is the group of an OPTIONAL.
+     */
+    private boolean optionalGroup = false;
+
+    /**
+     * Places the BIND clauses of the embedded expressions of the elements of
+     * a group, so that each one is evaluated where the variables of its
+     * expression are bound (see {@link GroupScheduler}).
      */
     @Override
     public void visit(ElementGroup el) {
-        final ElementGroup res = new ElementGroup();
+        final boolean optional = optionalGroup;
+        optionalGroup = false;
+        final List<Element> elements = new ArrayList<>();
+        final List<List<ElementBind>> elementBinds = new ArrayList<>();
         for (final Element element : el.getElements()) {
+            binds = new ArrayList<>();
             element.visit(this);
-            if (result != null && result == bindingsGroup) {
-                bindingsGroup.getElements().forEach(res::addElement);
-            } else {
-                res.addElement(result);
-            }
+            elements.add(result);
+            elementBinds.add(binds);
         }
-        result = res;
+        // the variables bound by the elements after each one
+        final List<Set<Var>> later = new ArrayList<>();
+        final Set<Var> after = new HashSet<>();
+        for (int i = elements.size() - 1; i >= 0; i--) {
+            later.add(0, new HashSet<>(after));
+            after.addAll(PatternVars.vars(elements.get(i)));
+        }
+        final GroupScheduler scheduler = new GroupScheduler(optional);
+        for (int i = 0; i < elements.size(); i++) {
+            scheduler.add(elements.get(i), elementBinds.get(i), later.get(i));
+        }
+        result = scheduler.finish();
+        binds = new ArrayList<>();
     }
 
     @Override
@@ -203,6 +232,7 @@ public class QueryPatternNormalizer implements ElementVisitor {
 
     @Override
     public void visit(ElementOptional el) {
+        optionalGroup = el.getOptionalElement() instanceof ElementGroup;
         el.getOptionalElement().visit(this);
         result = new ElementOptional(result);
     }
@@ -275,13 +305,215 @@ public class QueryPatternNormalizer implements ElementVisitor {
     }
 
     private void endVisit(Element nzed, NodeExprNormalizer nenzer) {
-        if (!nenzer.hasBindings()) {
-            result = nzed;
-        } else {
-            ElementGroup group = nenzer.getBindingsAsGroup();
-            group.addElement(nzed);
-            bindingsGroup = group;
-            result = group;
+        result = nzed;
+        binds = new ArrayList<>();
+        for (Element b : nenzer.getBindings()) {
+            binds.add((ElementBind) b);
+        }
+    }
+
+    /**
+     * Places, in a group, the BIND clauses that replace the embedded
+     * expressions of its elements. A BIND whose variables are bound before
+     * the element, or come from outside the group (the VALUES block that the
+     * engine places first in the WHERE clause, for the binding clauses and the
+     * parent query), is placed before the element, as the element it
+     * replaces would be evaluated: the pattern is then evaluated with the
+     * node bound. In a basic graph pattern, a BIND that reads a variable of
+     * other triples of the pattern is placed after them (the order of the
+     * triples of a basic graph pattern does not matter). Otherwise, when the
+     * variables are bound by the element itself or by a later element of the
+     * group, or come from outside the group of an OPTIONAL (the left side,
+     * which a FILTER of the group sees and a BIND does not), the node is
+     * constrained by {@code FILTER(sameTerm(?node, expression))} at the end
+     * of the group. A node whose expression is in error matches nothing.
+     */
+    private static final class GroupScheduler {
+
+        private final boolean optional;
+
+        private final ElementGroup group = new ElementGroup();
+
+        /**
+         * The variables bound by the elements placed so far.
+         */
+        private final Set<Var> bound = new HashSet<>();
+
+        /**
+         * The embedded expressions constrained at the end of the group, by
+         * their variable.
+         */
+        private final Map<Var, Expr> filtered = new LinkedHashMap<>();
+
+        GroupScheduler(final boolean optional) {
+            this.optional = optional;
+        }
+
+        void add(final Element element, final List<ElementBind> binds, final Set<Var> later) {
+            if (binds.isEmpty()) {
+                place(element);
+                return;
+            }
+            final Map<Var, ElementBind> pending = new LinkedHashMap<>();
+            for (ElementBind b : binds) {
+                pending.put(b.getVar(), b);
+            }
+            final Set<Var> elementVars = new HashSet<>(PatternVars.vars(element));
+            elementVars.removeAll(pending.keySet());
+            if (element instanceof ElementPathBlock || element instanceof ElementTriplesBlock) {
+                addBlock(element, pending, elementVars, later);
+            } else {
+                placeReadyBinds(pending, elementVars, later);
+                constrain(pending);
+                place(element);
+            }
+        }
+
+        /**
+         * Places the triples of a basic graph pattern and the BIND clauses of
+         * their nodes: each BIND as soon as its variables are bound, each
+         * triple as soon as the BIND clauses of its nodes are placed.
+         */
+        private void addBlock(final Element element, final Map<Var, ElementBind> pending,
+                final Set<Var> blockVars, final Set<Var> later) {
+            final boolean paths = element instanceof ElementPathBlock;
+            final List<TriplePath> triples = new ArrayList<>();
+            if (paths) {
+                ((ElementPathBlock) element).getPattern().forEach(triples::add);
+            } else {
+                ((ElementTriplesBlock) element).getPattern().forEach((t) -> triples.add(new TriplePath(t)));
+            }
+            List<TriplePath> segment = new ArrayList<>();
+            boolean progress = true;
+            while (progress) {
+                progress = false;
+                if (hasReadyBind(pending, blockVars, later)) {
+                    placeBlock(segment, paths);
+                    segment = new ArrayList<>();
+                    placeReadyBinds(pending, blockVars, later);
+                }
+                for (Iterator<TriplePath> it = triples.iterator(); it.hasNext();) {
+                    final TriplePath t = it.next();
+                    if (!dependsOn(t, pending.keySet())) {
+                        segment.add(t);
+                        addVars(t, bound);
+                        it.remove();
+                        progress = true;
+                    }
+                }
+            }
+            segment.addAll(triples);
+            for (TriplePath t : triples) {
+                addVars(t, bound);
+            }
+            placeBlock(segment, paths);
+            constrain(pending);
+        }
+
+        private boolean hasReadyBind(final Map<Var, ElementBind> pending, final Set<Var> elementVars,
+                final Set<Var> later) {
+            for (ElementBind b : pending.values()) {
+                if (isReady(b, pending.keySet(), elementVars, later)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /**
+         * Places the BIND clauses whose variables are bound, or come from
+         * outside the group, followed by a FILTER that their node is bound:
+         * an expression in error matches nothing.
+         */
+        private void placeReadyBinds(final Map<Var, ElementBind> pending, final Set<Var> elementVars,
+                final Set<Var> later) {
+            boolean progress = true;
+            while (progress) {
+                progress = false;
+                for (Iterator<ElementBind> it = pending.values().iterator(); it.hasNext();) {
+                    final ElementBind b = it.next();
+                    if (isReady(b, pending.keySet(), elementVars, later)) {
+                        group.addElement(b);
+                        group.addElement(new ElementFilter(new E_Bound(new ExprVar(b.getVar()))));
+                        bound.add(b.getVar());
+                        it.remove();
+                        progress = true;
+                    }
+                }
+            }
+        }
+
+        private boolean isReady(final ElementBind b, final Set<Var> pending, final Set<Var> elementVars,
+                final Set<Var> later) {
+            for (Var v : b.getExpr().getVarsMentioned()) {
+                if (bound.contains(v)) {
+                    continue;
+                }
+                if (pending.contains(v) || filtered.containsKey(v) || elementVars.contains(v) || later.contains(v)
+                        || optional) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        /**
+         * The expressions left are constrained at the end of the group.
+         */
+        private void constrain(final Map<Var, ElementBind> pending) {
+            for (ElementBind b : pending.values()) {
+                filtered.put(b.getVar(), b.getExpr());
+            }
+            pending.clear();
+        }
+
+        private void place(final Element element) {
+            group.addElement(element);
+            bound.addAll(PatternVars.vars(element));
+        }
+
+        private void placeBlock(final List<TriplePath> triples, final boolean paths) {
+            if (triples.isEmpty()) {
+                return;
+            }
+            if (paths) {
+                final ElementPathBlock block = new ElementPathBlock();
+                triples.forEach(block::addTriplePath);
+                group.addElement(block);
+            } else {
+                final ElementTriplesBlock block = new ElementTriplesBlock();
+                triples.forEach((t) -> block.addTriple(t.asTriple()));
+                group.addElement(block);
+            }
+        }
+
+        ElementGroup finish() {
+            // the expressions read the nodes of the other expressions
+            // constrained here: they are substituted
+            final Map<Var, Expr> substituted = new LinkedHashMap<>();
+            for (Map.Entry<Var, Expr> e : filtered.entrySet()) {
+                Expr expr = e.getValue();
+                for (Map.Entry<Var, Expr> s : substituted.entrySet()) {
+                    expr = ExprTransformer.transform(new ExprTransformSubstitute(s.getKey(), s.getValue()), expr);
+                }
+                substituted.put(e.getKey(), expr);
+                group.addElement(new ElementFilter(new E_SameTerm(new ExprVar(e.getKey()), expr)));
+            }
+            return group;
+        }
+
+        private static boolean dependsOn(final TriplePath t, final Set<Var> vars) {
+            return vars.contains(t.getSubject()) || vars.contains(t.getObject())
+                    || (t.isTriple() && vars.contains(t.getPredicate()));
+        }
+
+        private static void addVars(final TriplePath t, final Set<Var> vars) {
+            for (Node n : t.isTriple() ? new Node[] { t.getSubject(), t.getPredicate(), t.getObject() }
+                    : new Node[] { t.getSubject(), t.getObject() }) {
+                if (Var.isVar(n)) {
+                    vars.add(Var.alloc(n));
+                }
+            }
         }
     }
 
