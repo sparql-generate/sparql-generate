@@ -95,11 +95,10 @@ public class QueryXExprNormalizer implements SPARQLExtQueryVisitor {
     @Override
     public void visitGenerateClause(SPARQLExtQuery query) {
         final NodeExprNormalizer nenzer = new NodeExprNormalizer();
-        if(query.isSubQuery()) {
-            normalizeSignature(query);
-        } else {
-            normalizeCallParams(query);
-        }
+        normalizeSignature(query);
+        // the arguments of a call in a GENERATE template too, such as
+        // GENERATE <q>(<line/{?id}>, "x{?id}") .
+        normalizeCallParams(query);
         if (query.hasGenerateClause()) {
             List<Element> group = normalizeOutput(query.getGenerateClause(), nenzer);
             query.setGenerateClause(group);

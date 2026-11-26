@@ -6,6 +6,10 @@ This page summarises the changes of the engine since version 2.0. The full histo
 
 Not released yet.
 
+**Language and engine**
+
+- An argument with embedded expressions of a call in a `GENERATE` template reaches the called query: `GENERATE <stop>(<line/{?id}>, "zone {?z}") .` called the query with unbound parameters. The calls of `TEMPLATE`, `SELECT` (as an iterator) and `FUNCTION` queries already received them.
+
 ## 2.6.0
 
 Released on 2026-11-26. `RAISE`, and named graphs written to files.
