@@ -12,6 +12,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.jena.graph.Graph;
+import org.apache.jena.graph.GraphMemFactory;
 import org.apache.jena.graph.GraphUtil;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
@@ -45,7 +46,6 @@ import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.NodeValue;
 import org.apache.jena.sparql.function.FunctionEnv;
 import org.apache.jena.sparql.function.FunctionEnvBase;
-import org.apache.jena.sparql.graph.GraphFactory;
 import org.apache.jena.sparql.util.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -172,7 +172,7 @@ public class DatasetDeclarationPlan {
 		if (fromClauses == null || fromClauses.isEmpty()) {
 			return context;
 		}
-		final DatasetGraph dsg = DatasetGraphFactory.createGeneral();
+		final DatasetGraph dsg = DatasetGraphFactory.createGeneral(newGraph());
 		fromClauses.forEach((fromClause) -> {
 			if (fromClause.getGenerate() == null) {
 				if (!fromClause.isNamed()) {
@@ -191,6 +191,17 @@ public class DatasetDeclarationPlan {
 		});
 		Dataset newDataset = DatasetFactory.wrap(dsg);
 		return ContextUtils.fork(context).setDataset(newDataset).fork();
+	}
+
+	/**
+	 * A graph of the dataset: GraphMem2Legacy, and not Jena's default
+	 * GraphMem2Fast, whose open addressing on the bare hash codes of the nodes
+	 * degenerates on many IRIs or literals that differ only in their last
+	 * characters (the 1.26 M keys of the stops of GTFS-Madrid-Bench at scale
+	 * 1000: more than 200 s instead of 3 s).
+	 */
+	static Graph newGraph() {
+		return GraphMemFactory.createGraphMem2Basic();
 	}
 
 	private static String baseURI(String sourceURI, String absBaseURI) {
@@ -223,7 +234,7 @@ public class DatasetDeclarationPlan {
 		final String absURI = baseURI(sourceURI, baseURI);
 		Dataset dataset = ContextUtils.getDataset(context);
 		Node n = NodeFactory.createURI(absURI);
-		Graph g = GraphFactory.createJenaDefaultGraph();
+		Graph g = newGraph();
 		if (dataset.containsNamedModel(absURI)) {
 			// default: check the dataset
 			GraphUtil.addInto(g, dataset.getNamedModel(absURI).getGraph());
@@ -256,7 +267,7 @@ public class DatasetDeclarationPlan {
 		String sourceURI = evalSourceURI(binding, context, name);
 		final String absURI = baseURI(sourceURI, baseURI);
 		Node n = NodeFactory.createURI(absURI);
-		Graph g = GraphFactory.createJenaDefaultGraph();
+		Graph g = newGraph();
 		loadGraph(binding, context, generate, g);
 		putNamedGraph(dsg, n, g);
 	}
