@@ -96,6 +96,22 @@ public class BatchSplitTest {
 		assertSameOutput(NESTED);
 	}
 
+	/**
+	 * The results of the WHERE clause are generated as they are read, in
+	 * batches.
+	 */
+	@Test
+	public void splitTheResultsOfTheWhereClause() {
+		final String where = "GENERATE { <s/{?i}> <p> ?i . GENERATE { <t/{?i}> <q> ?i . } . } "
+				+ "WHERE { VALUES ?i { 1 2 3 } }";
+		assertEquals(List.of("s/1 p 1", "s/2 p 2", "s/3 p 3", "t/1 q 1", "t/2 q 2", "t/3 q 3"), stream(where, 0));
+		assertEquals(List.of("s/1 p 1", "t/1 q 1", "s/2 p 2", "t/2 q 2", "s/3 p 3", "t/3 q 3"), stream(where, 1));
+		assertSameOutput(where);
+		final String list = "GENERATE { <s/{?i}> <p> LIST(?i) . } WHERE { VALUES ?i { 1 2 3 } }";
+		assertEquals(3 + 6, stream(list, 1).size());
+		assertSameOutput(list);
+	}
+
 	@Test
 	public void splitWithBindAndWhere() {
 		assertSameOutput("GENERATE { <s/{?j}> <p> ?o . } ITERATOR iter:for(1, 1, 5) AS ?i BIND(?i * 2 AS ?j) "

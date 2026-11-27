@@ -604,9 +604,17 @@ public class RootPlan {
 						allVariables.add(Var.alloc(name));
 					}
 					final List<Var> newVariables = new ArrayList<>(allVariables);
-					final List<Binding> newValues = new ArrayList<>();
+					final int batchSize = unionOfBatches ? ContextUtils.getBatchSize(context) : 0;
+					List<Binding> newValues = new ArrayList<>();
 					while (resultSet.hasNext()) {
 						newValues.add(resultSet.nextBinding());
+						if (batchSize > 0 && newValues.size() >= batchSize && resultSet.hasNext()) {
+							// the output does not depend on the batches: the
+							// results are generated as they are read, and not
+							// all kept in memory
+							generatePlan.exec(newVariables, newValues, context);
+							newValues = new ArrayList<>();
+						}
 					}
 					if(query.isGenerateType()) {
 						generatePlan.exec(newVariables, newValues, context);
