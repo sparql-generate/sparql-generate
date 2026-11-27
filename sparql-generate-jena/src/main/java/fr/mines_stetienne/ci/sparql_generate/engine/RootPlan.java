@@ -110,6 +110,7 @@ public class RootPlan {
 		this.selectPlan = selectPlan;
 		this.generatePlan = null;
 		this.templatePlan = null;
+		this.unionOfBatches = false;
 	}
 
 	/**
@@ -130,6 +131,56 @@ public class RootPlan {
 		this.selectPlan = selectPlan;
 		this.generatePlan = generatePlan;
 		this.templatePlan = null;
+		this.unionOfBatches = isUnionOfBatches(query, generatePlan);
+		// the output of this query is then the same whatever the batches of
+		// its iterators: they may be split, and the memory stays bounded
+		for (BindingsClausePlan plan : iteratorAndSourcePlans) {
+			if (plan instanceof IteratorPlan) {
+				((IteratorPlan) plan).setSplittable(unionOfBatches);
+			}
+		}
+	}
+
+	/**
+	 * True if the output of this query on a list of solutions is the union of
+	 * its outputs on any partition of that list: a GENERATE query with a
+	 * template, whose SELECT has no DISTINCT, REDUCED, aggregate, GROUP BY,
+	 * HAVING, ORDER BY, LIMIT or OFFSET, whose template has no list, and whose
+	 * sub-queries are such queries, without dataset clauses (a dataset would
+	 * be computed again for each part).
+	 */
+	private final boolean unionOfBatches;
+
+	private static boolean isUnionOfBatches(final SPARQLExtQuery query, final GeneratePlan generatePlan) {
+		if (!query.isGenerateType() || !(generatePlan instanceof GenerateFormPlan)) {
+			return false;
+		}
+		if (query.isDistinct() || query.isReduced() || query.hasAggregators() || query.hasGroupBy()
+				|| query.hasHaving() || query.hasOrderBy() || query.hasLimit() || query.hasOffset()) {
+			return false;
+		}
+		final GenerateFormPlan form = (GenerateFormPlan) generatePlan;
+		if (form.hasList()) {
+			return false;
+		}
+		for (RootPlan sub : form.getSubQueries()) {
+			if (!sub.unionOfBatches) {
+				return false;
+			}
+			final SPARQLExtQuery subQuery = sub.getQuery();
+			if (subQuery.getFromClauses() != null && !subQuery.getFromClauses().isEmpty()) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * @return true if the output of this query on a list of solutions is the
+	 *         union of its outputs on any partition of that list.
+	 */
+	boolean isUnionOfBatches() {
+		return unionOfBatches;
 	}
 
 	/**
@@ -150,6 +201,7 @@ public class RootPlan {
 		this.selectPlan = selectPlan;
 		this.generatePlan = null;
 		this.templatePlan = templatePlan;
+		this.unionOfBatches = false;
 	}
 
 	/**

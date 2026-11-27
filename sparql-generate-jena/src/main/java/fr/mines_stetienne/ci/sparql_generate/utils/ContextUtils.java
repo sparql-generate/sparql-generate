@@ -102,6 +102,20 @@ public class ContextUtils {
 
 	private static final Symbol FAIL_ON_EXCEPTION = SystemARQ.allocSymbol(NS, "fail_on_exception");
 
+	private static final Symbol ITERATOR_BATCH_SIZE = SystemARQ.allocSymbol(NS, "iterator_batch_size");
+
+	/**
+	 * The system property that sets the default batch size of an execution
+	 * (see {@link Builder#setBatchSize(int)}).
+	 */
+	public static final String BATCH_SIZE_PROPERTY = "sparql-generate.batch-size";
+
+	/**
+	 * The default batch size of an execution, when the system property
+	 * {@value #BATCH_SIZE_PROPERTY} is not set.
+	 */
+	public static final int DEFAULT_BATCH_SIZE = 10_000;
+
 	static {
 		SPARQLExt.init();
 	}
@@ -194,6 +208,43 @@ public class ContextUtils {
 
 	public static boolean isRootContext(Context context) {
 		return context.get(PARENT_CONTEXT) == null;
+	}
+
+	/**
+	 * @return the number of solutions above which the solutions of an
+	 *         iterator are split into batches, when splitting them does not
+	 *         change the output of the query; 0 if they are never split.
+	 */
+	public static int getBatchSize(Context context) {
+		Commons commons = context == null ? null : context.get(COMMONS);
+		return commons == null ? 0 : commons.batchSize;
+	}
+
+	/**
+	 * A copy of the context for the execution of an iterator function, which
+	 * may give its rows in batches of the given size (instead of one batch per
+	 * document) when it is not given a batch size: the output of the query is
+	 * the same.
+	 *
+	 * @see #getIteratorBatchSize(Context)
+	 */
+	public static Context withIteratorBatchSize(Context context, int batchSize) {
+		final Context copy = context.copy();
+		copy.set(ITERATOR_BATCH_SIZE, batchSize);
+		return copy;
+	}
+
+	/**
+	 * @return the batch size that an iterator function may use when it is not
+	 *         given one, or 0 if it must give the rows of a document as one
+	 *         batch.
+	 */
+	public static int getIteratorBatchSize(Context context) {
+		if (context == null) {
+			return 0;
+		}
+		final Object size = context.get(ITERATOR_BATCH_SIZE);
+		return size instanceof Integer ? (Integer) size : 0;
 	}
 
 	public static boolean isFailOnException(Context context) {
@@ -588,6 +639,22 @@ public class ContextUtils {
 		}
 
 		/**
+		 * @param batchSize the number of solutions above which the solutions
+		 *                  of an iterator are split into batches, for the
+		 *                  queries whose output does not depend on the
+		 *                  batches (no DISTINCT, aggregate, ORDER BY, LIMIT,
+		 *                  OFFSET or LIST, in the query and its
+		 *                  sub-queries); 0 never splits them. The default is
+		 *                  the system property {@value #BATCH_SIZE_PROPERTY},
+		 *                  or {@value #DEFAULT_BATCH_SIZE}.
+		 * @return this builder
+		 */
+		public Builder setBatchSize(int batchSize) {
+			commons.batchSize = Math.max(0, batchSize);
+			return this;
+		}
+
+		/**
 		 * @param maxTriples the largest number of triples that a GENERATE
 		 *                   execution may generate; 0 for no limit.
 		 * @return this builder
@@ -619,6 +686,7 @@ public class ContextUtils {
 		private long deadline = 0;
 		private int timeLimitSeconds = 0;
 		private long maxTriples = 0;
+		private int batchSize = Integer.getInteger(BATCH_SIZE_PROPERTY, DEFAULT_BATCH_SIZE);
 		private final java.util.concurrent.atomic.AtomicLong triples = new java.util.concurrent.atomic.AtomicLong();
 		private ExecutorService executor = null;
 		private boolean defaultExecutor = true;

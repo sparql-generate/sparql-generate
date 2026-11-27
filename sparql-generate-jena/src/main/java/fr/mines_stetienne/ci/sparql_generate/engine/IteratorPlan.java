@@ -78,6 +78,15 @@ public class IteratorPlan implements BindingsClausePlan {
     private final List<Var> vars;
 
     /**
+     * True if the output of the query does not depend on how the solutions
+     * of this iterator are split into batches: they are then split into
+     * batches of at most {@link ContextUtils#getBatchSize(Context)}
+     * solutions, so that the memory does not grow with the size of the
+     * documents.
+     */
+    private boolean splittable = false;
+
+    /**
      * The constructor.
      *
      * @param iri - The SPARQL-Generate iterator iri.
@@ -115,6 +124,18 @@ public class IteratorPlan implements BindingsClausePlan {
     }
 
     /**
+     * @param splittable true if the output of the query does not depend on
+     * how the solutions of this iterator are split into batches.
+     */
+    void setSplittable(final boolean splittable) {
+        this.splittable = splittable;
+    }
+
+    boolean isSplittable() {
+        return splittable;
+    }
+
+    /**
      * Updates the values block. Method is blocking
      *
      * @param variables the current variables.
@@ -129,8 +150,15 @@ public class IteratorPlan implements BindingsClausePlan {
             Consumer<List<Binding>> listBindingStream) {
         context.set(ARQConstants.sysCurrentTime, NodeFactoryExtra.nowAsDateTime());
         final IteratorFunction iterator = getIterator(context);
-        final FunctionEnv env = new FunctionEnvBase(context);
-        final IteratorPlan.Batches batches = new IteratorPlan.Batches(values, listBindingStream);
+        final int batchSize = splittable ? ContextUtils.getBatchSize(context) : 0;
+        // the iterator may then give the rows of a document in batches, and
+        // the batches are split again before the rest of the query
+        final FunctionEnv env = new FunctionEnvBase(
+                batchSize > 0 ? ContextUtils.withIteratorBatchSize(context, batchSize) : context);
+        final Consumer<List<Binding>> output = batchSize > 0
+                ? (bindings) -> split(bindings, batchSize, listBindingStream)
+                : listBindingStream;
+        final IteratorPlan.Batches batches = new IteratorPlan.Batches(values, output);
         for (Binding binding : values) {
             ContextUtils.checkLimits(context);
             try {
@@ -181,6 +209,28 @@ public class IteratorPlan implements BindingsClausePlan {
         LOG.trace("some batches are incomplete ?");
         batches.allExecutionComplete();
     }
+    /**
+     * Gives the bindings in batches of at most batchSize bindings; an empty
+     * list as it is. The bindings given are released from the list.
+     */
+    static void split(final List<Binding> bindings, final int batchSize,
+            final Consumer<List<Binding>> output) {
+        final int size = bindings.size();
+        if (size <= batchSize) {
+            output.accept(bindings);
+            return;
+        }
+        for (int from = 0; from < size; from += batchSize) {
+            final int to = Math.min(size, from + batchSize);
+            final List<Binding> batch = new ArrayList<>(to - from);
+            for (int i = from; i < to; i++) {
+                batch.add(bindings.get(i));
+                bindings.set(i, null);
+            }
+            output.accept(batch);
+        }
+    }
+
     /**
      * Throws the VirtualMachineError (OutOfMemoryError, StackOverflowError...)
      * in the causes of the exception, if any.

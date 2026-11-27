@@ -16,11 +16,18 @@
 package fr.mines_stetienne.ci.sparql_generate.csv;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.jena.query.ResultSet;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.sparql.engine.binding.BindingFactory;
+import org.apache.jena.sparql.expr.ExprList;
+import org.apache.jena.sparql.expr.NodeValue;
+import org.apache.jena.sparql.function.FunctionEnvBase;
+import org.apache.jena.sparql.util.Context;
 import org.junit.Test;
 
 import fr.mines_stetienne.ci.sparql_generate.SPARQLExt;
@@ -91,5 +98,45 @@ public class CSVBatchTest {
 	@Test
 	public void noPositionWithoutColumnNames() {
 		assertEquals(List.of(), rows("a,b\\n1,x", "", "?a ?b ?c"));
+	}
+
+	private static List<Integer> batches(Context context) {
+		final ExprList args = new ExprList();
+		args.add(NodeValue.makeString("a\n1\n2\n3\n4\n5"));
+		args.add(NodeValue.makeString("a"));
+		final ITER_CSV csv = new ITER_CSV();
+		csv.build(args);
+		final List<Integer> sizes = new ArrayList<>();
+		csv.exec(BindingFactory.empty(), args, new FunctionEnvBase(context), (rows) -> sizes.add(rows.size()));
+		return sizes;
+	}
+
+	/**
+	 * Without a batch size, the document is one batch, unless the output of
+	 * the query does not depend on the batches: its rows are then read in
+	 * batches, and they are not all in memory.
+	 */
+	@Test
+	public void batchesWhenTheOutputDoesNotDependOnThem() {
+		assertEquals(List.of(5), batches(ContextUtils.build().build()));
+		assertEquals(List.of(2, 2, 1), batches(ContextUtils.withIteratorBatchSize(ContextUtils.build().build(), 2)));
+	}
+
+	private static Model generate(String csv, int batchSize) {
+		return PlanFactory.create("PREFIX iter: <http://w3id.org/sparql-generate/iter/> BASE <http://ex/> "
+				+ "GENERATE { <r/{?row}> <a> ?a . GENERATE { <r/{?row}> <b> ?b . } ITERATOR iter:CSV(\"b\\n1\\n2\", \"b\") AS ?b . } "
+				+ "ITERATOR iter:CSV(\"" + csv + "\", \"a\") AS ?a ?row WHERE { }")
+				.execGenerate(ContextUtils.build().setBatchSize(batchSize).build());
+	}
+
+	/** The output is the same, the positions of the rows included. */
+	@Test
+	public void sameOutputInBatches() {
+		final String csv = "a\\n1\\n2\\n3\\n4\\n5";
+		final Model oneBatch = generate(csv, 0);
+		assertEquals(5 + 10, oneBatch.size());
+		for (int batchSize : new int[] { 1, 2, 5, 10 }) {
+			assertTrue(generate(csv, batchSize).isIsomorphicWith(oneBatch));
+		}
 	}
 }

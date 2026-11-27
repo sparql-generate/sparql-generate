@@ -112,6 +112,27 @@ public class GenerateFormPlan implements GeneratePlan {
         this.subQueryGraphs = new ArrayList<>(subQueryGraphs);
     }
 
+    /**
+     * @return the plans of the sub-queries.
+     */
+    List<RootPlan> getSubQueries() {
+        return Collections.unmodifiableList(subQueries);
+    }
+
+    /**
+     * @return true if a pattern of the template has a list ({@code LIST(?x)}
+     * without {@code GROUP BY}), whose nodes depend on the position of the
+     * solution in its batch.
+     */
+    boolean hasList() {
+        for (Quad q : template) {
+            if (q.getSubject() instanceof Node_List || q.getObject() instanceof Node_List) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private static List<Quad> toQuads(final BasicPattern bgp) {
         final List<Quad> quads = new ArrayList<>(bgp.size());
         for (Triple t : bgp.getList()) {

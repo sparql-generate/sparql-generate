@@ -191,7 +191,10 @@ public class ITER_CSV extends IteratorStreamFunctionBase {
                 LOG.trace("  As one batch");
             }
         } else {
-            rowsInABatch = 0;
+            // when the output of the query does not depend on the batches,
+            // the document is read in batches all the same: its rows are
+            // not all in memory
+            rowsInABatch = ContextUtils.getIteratorBatchSize(getContext());
             LOG.trace("  As one batch");
         }
 
