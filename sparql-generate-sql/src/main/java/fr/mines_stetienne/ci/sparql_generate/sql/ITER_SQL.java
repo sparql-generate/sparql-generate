@@ -287,7 +287,8 @@ public class ITER_SQL extends IteratorStreamFunctionBase {
 			if (value instanceof byte[]) {
 				return literal(hex((byte[]) value), XSDDatatype.XSDhexBinary);
 			}
-			return literal(rs.getBoolean(i) ? "true" : "false", XSDDatatype.XSDboolean);
+			// a bit string of more than one bit (PostgreSQL bit(n), n > 1): its digits, "101"
+			return NodeValue.makeString(rs.getString(i));
 		case Types.TINYINT:
 		case Types.SMALLINT:
 		case Types.INTEGER:
@@ -315,7 +316,10 @@ public class ITER_SQL extends IteratorStreamFunctionBase {
 		case Types.DATE:
 			return literal(date(rs, i), XSDDatatype.XSDdate);
 		case Types.TIME:
-			return literal(time(rs.getObject(i, LocalTime.class)), XSDDatatype.XSDtime);
+			if (!withTimeZone(rsmd.getColumnTypeName(i))) {
+				return literal(time(rs.getObject(i, LocalTime.class)), XSDDatatype.XSDtime);
+			}
+			// PostgreSQL reports timetz as TIME
 		case Types.TIME_WITH_TIMEZONE: {
 			final OffsetTime t = rs.getObject(i, OffsetTime.class);
 			return literal(time(t.toLocalTime()) + offset(t.getOffset()), XSDDatatype.XSDtime);
@@ -354,7 +358,7 @@ public class ITER_SQL extends IteratorStreamFunctionBase {
 			return false;
 		}
 		final String t = typeName.toLowerCase(Locale.ROOT);
-		return t.equals("timestamptz") || t.contains("with time zone") || t.equals("datetimeoffset");
+		return t.equals("timestamptz") || t.equals("timetz") || t.contains("with time zone") || t.equals("datetimeoffset");
 	}
 
 	private static String date(ResultSet rs, int i) throws SQLException {
