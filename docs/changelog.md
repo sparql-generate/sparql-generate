@@ -2,6 +2,25 @@
 
 This page summarises the changes of the engine since version 2.0. The full history is in the [commits](https://github.com/sparql-generate/sparql-generate/commits/master) and the [releases](https://github.com/sparql-generate/sparql-generate/releases).
 
+## 2.6.2
+
+Released on 2026-11-27. Memory: large documents and joins over `FROM GENERATE` datasets.
+
+**Engine**
+
+- The solutions of an iterator are split into batches of 10,000 when the output of the query does not depend on the batches: a `GENERATE` query without `DISTINCT`, aggregate, `GROUP BY`, `ORDER BY`, `LIMIT`, `OFFSET` or `LIST(...)`, whose sub-queries are such queries without dataset clauses. `iter:CSV` and `iter:JSONSurfer` without a batch size then read the document in batches, and the memory no longer grows with its size (GTFS-Madrid-Bench at scale 100, a hand-written query: 17 GB to 1 GB of resident memory, the same output). The other queries are evaluated on all the solutions at once, as before. The system property `sparql-generate.batch-size` sets the size, `0` disables the splitting.
+- The results of the `WHERE` clause are generated as they are read, in batches of 10,000, when the output of the query does not depend on the batches: a join over a `FROM GENERATE` dataset no longer keeps all its solutions in memory.
+- A graph built by `FROM GENERATE` shares the equal literals of its triples (the keys of a join, one per row of the source): one object instead of one per triple, for the latest 65,536 distinct literals.
+- The graphs of a `FROM` dataset are Jena's `GraphMem2Legacy`: the default `GraphMem2Fast` degenerates on many IRIs or literals that differ only in their last characters (the 1.26 million join keys of GTFS-Madrid-Bench at scale 1000: more than 200 s instead of 3 s).
+
+**Iterators**
+
+- `iter:SQL`: a PostgreSQL `timetz` column is an `xsd:time` with its offset (`08:30:00+02:00`); it stopped the execution ("Cannot convert the column of type TIMETZ to requested type java.time.LocalTime"). A `bit(n)` column with `n > 1` is the string of its bits (`"101"`); it stopped the execution ("Cannot cast to boolean"). A `bit(1)` is still an `xsd:boolean`.
+
+**Java API**
+
+- `ContextUtils.Builder.setBatchSize(int)`: the size of the batches of the automatic splitting, `0` to disable it.
+
 ## 2.6.1
 
 Released on 2026-11-27.
