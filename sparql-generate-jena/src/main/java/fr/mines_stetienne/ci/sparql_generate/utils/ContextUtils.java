@@ -324,10 +324,44 @@ public class ContextUtils {
 		return pm;
 	}
 
+	/**
+	 * Registers a task to run when the execution is closed, such as stopping a
+	 * parser or closing a client. A task that stops a resource which ends
+	 * before the execution (a document read by an iterator) must be removed
+	 * with {@link #removeTaskOnClose(Context, Runnable)} when it ends: a
+	 * registered task keeps what it refers to (a parser, its buffers, the rest
+	 * of the query) in memory until the end of the execution.
+	 */
 	public static void addTaskOnClose(Context context, final Runnable task) {
 		Commons commons = context.get(COMMONS);
 		synchronized (commons.closingTasks) {
 			commons.closingTasks.add(task);
+		}
+	}
+
+	/**
+	 * Removes a task registered by {@link #addTaskOnClose(Context, Runnable)},
+	 * once the resource it stops has ended; does nothing if the task is not
+	 * registered (the execution was closed already, or the task is null).
+	 */
+	public static void removeTaskOnClose(Context context, final Runnable task) {
+		if (task == null) {
+			return;
+		}
+		Commons commons = context.get(COMMONS);
+		synchronized (commons.closingTasks) {
+			commons.closingTasks.remove(task);
+		}
+	}
+
+	/**
+	 * @return the number of tasks registered to run when the execution is
+	 *         closed (for monitoring and tests).
+	 */
+	public static int countTasksOnClose(Context context) {
+		Commons commons = context.get(COMMONS);
+		synchronized (commons.closingTasks) {
+			return commons.closingTasks.size();
 		}
 	}
 

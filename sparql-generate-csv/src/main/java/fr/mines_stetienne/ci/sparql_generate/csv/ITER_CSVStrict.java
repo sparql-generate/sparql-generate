@@ -116,6 +116,9 @@ public class ITER_CSVStrict extends IteratorStreamFunctionBase {
         }
         final String[] columns = args.stream().map(NodeValue::asString).toArray(String[]::new);
         final int rowsInABatch = batch;
+        // the task that stops the parser if the execution is closed meanwhile,
+        // removed when the parse ends
+        final Runnable[] stop = new Runnable[1];
         try (InputStream in = getInputStream(csv)) {
             final CsvParserSettings settings = new CsvParserSettings();
             settings.setHeaderExtractionEnabled(true);
@@ -134,7 +137,8 @@ public class ITER_CSVStrict extends IteratorStreamFunctionBase {
 
                 @Override
                 public void processStarted(ParsingContext context) {
-                    ContextUtils.addTaskOnClose(getContext(), context::stop);
+                    stop[0] = context::stop;
+                    ContextUtils.addTaskOnClose(getContext(), stop[0]);
                 }
 
                 private void readHeader(ParsingContext context) {
@@ -201,6 +205,8 @@ public class ITER_CSVStrict extends IteratorStreamFunctionBase {
             DownstreamException.rethrowIfNotOwn(ex);
             LOG.warn("Exception while fetching or parsing CSV document", ex);
             throw new ExprEvalException("No evaluation", ex);
+        } finally {
+            ContextUtils.removeTaskOnClose(getContext(), stop[0]);
         }
     }
 

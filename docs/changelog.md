@@ -2,6 +2,16 @@
 
 This page summarises the changes of the engine since version 2.0. The full history is in the [commits](https://github.com/sparql-generate/sparql-generate/commits/master) and the [releases](https://github.com/sparql-generate/sparql-generate/releases).
 
+## 2.6.3 (unreleased)
+
+**Iterators**
+
+- `iter:CSV`, `iter:CSVStrict` and `iter:JSONSurfer` no longer keep every document they have read until the end of the execution. Each call registered a task that stops its parser if the execution is closed, and the task stayed registered once the document was read: the parser (a buffer of 2 MB for CSV) and the rest of the query it called back were never freed, so the memory grew with the number of documents read (an iteration over K GTFS feeds of kgc-bench, about 100 MB per feed: out of a 9 GB heap at K = 90). The task is now removed when the document is read, also when its parse fails.
+
+**Java API**
+
+- `ContextUtils.removeTaskOnClose(Context, Runnable)` removes a task registered by `addTaskOnClose` once the resource it stops has ended; `ContextUtils.countTasksOnClose(Context)` counts the registered tasks.
+
 ## 2.6.2
 
 Released on 2026-11-27. Memory: large documents and joins over `FROM GENERATE` datasets.

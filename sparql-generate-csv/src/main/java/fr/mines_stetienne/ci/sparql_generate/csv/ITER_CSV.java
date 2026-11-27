@@ -142,6 +142,9 @@ public class ITER_CSV extends IteratorStreamFunctionBase {
             LOG.debug(msg);
         	throw new ExprEvalException(msg);
         }
+        // the task that stops the parser if the execution is closed meanwhile,
+        // removed when the parse ends
+        final Runnable[] stop = new Runnable[1];
         try (InputStream in = getInputStream(csv)) {
             final CsvParserSettings parserSettings = new CsvParserSettings();
             parserSettings.setHeaderExtractionEnabled(true);
@@ -149,7 +152,7 @@ public class ITER_CSV extends IteratorStreamFunctionBase {
             // the arguments left after the batch size are the column names:
             // when there are, each row is followed by its position
             final boolean[] withPosition = new boolean[1];
-            setProcessor(args, parserSettings, collectionListNodeValue, withPosition);
+            setProcessor(args, parserSettings, collectionListNodeValue, withPosition, stop);
             withPosition[0] = !args.isEmpty();
             setSelectedColumns(args, parserSettings);
             CsvParser parser = new CsvParser(parserSettings);
@@ -167,6 +170,8 @@ public class ITER_CSV extends IteratorStreamFunctionBase {
             DownstreamException.rethrowIfNotOwn(ex);
             LOG.warn("Exception while fetching or parsing CSV document", ex);
             throw new ExprEvalException("No evaluation", ex);
+        } finally {
+            ContextUtils.removeTaskOnClose(getContext(), stop[0]);
         }
     }
 
@@ -178,8 +183,9 @@ public class ITER_CSV extends IteratorStreamFunctionBase {
             final List<NodeValue> args,
             final CsvParserSettings parserSettings,
             final Consumer<List<List<NodeValue>>> collectionListNodeValue,
-            final boolean[] withPosition) {
-        
+            final boolean[] withPosition,
+            final Runnable[] stop) {
+
         final int rowsInABatch;
         if (!args.isEmpty() && args.get(0).isInteger()) {
             int batch = args.remove(0).getInteger().intValue();
@@ -205,7 +211,8 @@ public class ITER_CSV extends IteratorStreamFunctionBase {
 
             @Override
             public void processStarted(ParsingContext context) {
-                ContextUtils.addTaskOnClose(getContext(), context::stop);
+                stop[0] = context::stop;
+                ContextUtils.addTaskOnClose(getContext(), stop[0]);
             }
 
             

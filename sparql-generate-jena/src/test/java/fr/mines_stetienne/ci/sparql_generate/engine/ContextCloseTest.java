@@ -115,6 +115,27 @@ public class ContextCloseTest {
 	}
 
 	/**
+	 * A task removed once its resource has ended (a document read) is not run
+	 * at the end of the execution, and is no longer referenced.
+	 */
+	@Test
+	public void removedTaskDoesNotRun() {
+		Context context = ContextUtils.build().build();
+		AtomicInteger runs = new AtomicInteger();
+		Runnable kept = runs::incrementAndGet;
+		Runnable removed = () -> runs.addAndGet(100);
+		ContextUtils.addTaskOnClose(context, kept);
+		ContextUtils.addTaskOnClose(context, removed);
+		assertEquals(2, ContextUtils.countTasksOnClose(context));
+		ContextUtils.removeTaskOnClose(context, removed);
+		ContextUtils.removeTaskOnClose(context, null);
+		assertEquals(1, ContextUtils.countTasksOnClose(context));
+		ContextUtils.close(context);
+		assertEquals(1, runs.get());
+		assertEquals(0, ContextUtils.countTasksOnClose(context));
+	}
+
+	/**
 	 * The default executor of the stream iterators has daemon threads: an
 	 * open stream does not keep the JVM alive.
 	 */

@@ -122,13 +122,16 @@ public class ITER_JSONSurfer extends IteratorStreamFunctionBase {
 
 		final NodeValue json = args.remove(0);
 		final NodeValue jsonquery = args.remove(0);
+		// the task that stops the parser if the execution is closed meanwhile,
+		// removed when the parse ends
+		final Runnable[] stop = new Runnable[1];
 		try (InputStream jsonInput = getInputStream(json)) {
 
 			final JsonPath compiledPath = getCompiledPath(jsonquery);
 			final int rowsInABatch = getRowsInABatch(args);
 			final com.jayway.jsonpath.JsonPath[] subqueries = getSubQueries(args);
 
-			final Listener listener = new Listener(collectionListNodeValue, rowsInABatch, jsonquery, subqueries);
+			final Listener listener = new Listener(collectionListNodeValue, rowsInABatch, jsonquery, subqueries, stop);
 
 			surfer.configBuilder().bind(compiledPath, listener).buildAndSurf(jsonInput);
 
@@ -151,6 +154,8 @@ public class ITER_JSONSurfer extends IteratorStreamFunctionBase {
 				LOG.debug("No evaluation for " + compressed + ", " + jsonquery);
 			}
 			throw new ExprEvalException("No evaluation for " + jsonquery, ex);
+		} finally {
+			ContextUtils.removeTaskOnClose(getContext(), stop[0]);
 		}
 	}
 
@@ -225,9 +230,11 @@ public class ITER_JSONSurfer extends IteratorStreamFunctionBase {
 		private final Consumer<List<List<NodeValue>>> collectionListNodeValue;
 		private final int rowsInABatch;
 		private final com.jayway.jsonpath.JsonPath[] subqueries;
+		private final Runnable[] stop;
 
 		public Listener(final Consumer<List<List<NodeValue>>> collectionListNodeValue, int rowsInABatch,
-				NodeValue jsonquery, final com.jayway.jsonpath.JsonPath[] subqueries) {
+				NodeValue jsonquery, final com.jayway.jsonpath.JsonPath[] subqueries, final Runnable[] stop) {
+			this.stop = stop;
 			this.collectionListNodeValue = collectionListNodeValue;
 			this.rowsInABatch = rowsInABatch;
 			this.subqueries = subqueries;
@@ -248,7 +255,8 @@ public class ITER_JSONSurfer extends IteratorStreamFunctionBase {
 
 			if (!initialized) {
 				initialized = true;
-				ContextUtils.addTaskOnClose(getContext(), context::stop);
+				stop[0] = context::stop;
+				ContextUtils.addTaskOnClose(getContext(), stop[0]);
 			}
 
 			List<NodeValue> nodeValues = new ArrayList<>(subqueries.length);
