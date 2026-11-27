@@ -281,7 +281,7 @@ public class DatasetDeclarationPlan {
 		QueryExecutor queryExecutor = ContextUtils.getQueryExecutor(context);
 		// a FROM GENERATE gives one graph: the quads of its GRAPH blocks are
 		// ignored, with a warning
-		StreamRDF dest = new StreamRDFModel(ModelFactory.createModelForGraph(graph));
+		StreamRDF dest = new StreamRDFModel(ModelFactory.createModelForGraph(graph), true);
 		Context newContext = ContextUtils.fork(context).setGenerateOutput(dest).fork();
 		queryExecutor.execGenerateFromQuery(generate, binding, newContext);
 	}

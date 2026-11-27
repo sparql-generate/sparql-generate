@@ -15,7 +15,10 @@
  */
 package fr.mines_stetienne.ci.sparql_generate.engine;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
+import org.apache.jena.graph.Node;
 
 import org.apache.jena.graph.Triple;
 import org.apache.jena.rdf.model.Model;
@@ -37,9 +40,47 @@ class StreamRDFModel implements StreamRDF {
 
     private boolean warned = false;
 
+    /**
+     * The largest number of literals kept to be shared.
+     */
+    static final int MAX_SHARED_LITERALS = 1 << 16;
+
+    /**
+     * The literals already in the model, to be shared by the triples that
+     * have an equal literal (the keys of a join, generated once per row), or
+     * null.
+     */
+    private final Map<Node, Node> literals;
+
     public StreamRDFModel(final Model model) {
+        this(model, false);
+    }
+
+    /**
+     * @param model the model
+     * @param shareLiterals true if equal literals of the triples are to be
+     * one object in the model (a graph of FROM GENERATE, which lives for the
+     * execution): the latest {@value #MAX_SHARED_LITERALS} literals at most.
+     */
+    StreamRDFModel(final Model model, final boolean shareLiterals) {
         Objects.requireNonNull(model);
         this.model = model;
+        this.literals = shareLiterals ? new HashMap<>() : null;
+    }
+
+    private Node share(final Node node) {
+        if (!node.isLiteral()) {
+            return node;
+        }
+        final Node shared = literals.get(node);
+        if (shared != null) {
+            return shared;
+        }
+        if (literals.size() >= MAX_SHARED_LITERALS) {
+            literals.clear();
+        }
+        literals.put(node, node);
+        return node;
     }
 
     @Override
@@ -48,6 +89,9 @@ class StreamRDFModel implements StreamRDF {
 
     @Override
     public synchronized void triple(Triple triple) {
+        if (literals != null && (triple.getSubject().isLiteral() || triple.getObject().isLiteral())) {
+            triple = Triple.create(share(triple.getSubject()), triple.getPredicate(), share(triple.getObject()));
+        }
         model.add(model.asStatement(triple));
     }
 
