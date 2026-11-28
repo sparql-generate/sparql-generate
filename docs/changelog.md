@@ -4,7 +4,7 @@ This page summarises the changes of the engine since version 2.0. The full histo
 
 ## 2.6.3
 
-Released on 2026-11-27. Memory: the documents read under an iteration.
+Released on 2026-11-28. Memory: the documents read under an iteration.
 
 **Iterators**
 
