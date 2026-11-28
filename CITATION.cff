@@ -4,16 +4,16 @@ title: "SPARQL-Generate"
 abstract: "An extension of SPARQL 1.1 to generate RDF or text from RDF datasets and from documents in heterogeneous formats, and its implementation on Apache Jena."
 type: software
 license: Apache-2.0
-version: "2.6.2"
-date-released: "2026-11-27"
+version: "2.6.3"
+date-released: "2026-11-28"
 doi: "10.5281/zenodo.4041198"
 identifiers:
   - type: doi
     value: "10.5281/zenodo.4041198"
     description: "All versions (concept DOI)"
   - type: doi
-    value: "10.5281/zenodo.24584053"
-    description: "Version 2.6.2"
+    value: "10.5281/zenodo.24621862"
+    description: "Version 2.6.3"
 repository-code: "https://github.com/sparql-generate/sparql-generate"
 url: "https://sparql-generate.readthedocs.io/"
 authors:
